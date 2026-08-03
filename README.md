@@ -58,11 +58,12 @@ height whether your list holds five exercises or fifty.
 
 ## Choosing exercises
 
-A day starts empty. The strip under the table is on screen the whole time and
-holds both halves of the job: today's exercises first, each with an × to drop it,
-then everything else prefixed with a + to add it. Tapping a name selects it for
-logging, and *+ New* types one in. Nothing is behind a mode — you can add or
-remove mid-workout.
+A day starts empty. The strip under the table is on screen the whole time:
+today's exercises first, then everything else prefixed with a + to add it.
+Tapping a name selects it for logging, and *+ New* types one in.
+
+Removing is the × at the head of each row in the table itself, available at any
+point — mid-workout included. Nothing is behind a mode.
 
 Your list is every exercise you have ever used: `SEED_EXERCISES` in
 `js/model.js` on a fresh install, plus anything you add or import. Dropping an

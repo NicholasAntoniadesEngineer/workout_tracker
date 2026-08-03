@@ -29,7 +29,10 @@ function setsTable(session){
   for(let i=0;i<cols;i++)h+="<th>S"+(i+1)+"</th>";
   h+="<th>&Sigma;</th></tr></thead><tbody>";
   session.ex.forEach(e=>{
-    h+="<tr><td><button class='exbtn"+(e.id===state.exId?" active":"")+"' data-ex='"+e.id+"'>"+esc(e.name)+"</button></td>";
+    h+="<tr><td><div class='exrow'>"+
+       "<button class='rowx' data-rm='"+e.id+"' title='Remove from today'>&times;</button>"+
+       "<button class='exbtn"+(e.id===state.exId?" active":"")+"' data-ex='"+e.id+"'>"+
+       esc(e.name)+"</button></div></td>";
     for(let i=0;i<cols;i++){
       const x=e.sets[i];
       if(x===undefined){h+="<td class='cell empty mono'>&middot;</td>";continue;}
@@ -75,9 +78,8 @@ function exerciseStrip(session){
   session.ex.forEach(e=>{picked[e.name.trim().toLowerCase()]=true;});
   let h="<div class='addstrip'><div class='striprow'>";
   session.ex.forEach(e=>{
-    h+="<span class='chip on"+(e.id===state.exId?" sel":"")+"'>"+
-       "<button class='pick' data-sel='"+e.id+"'>"+esc(e.name)+"</button>"+
-       "<button class='x' data-rm='"+e.id+"'>&times;</button></span>";
+    h+="<button class='chip on"+(e.id===state.exId?" sel":"")+"' data-sel='"+e.id+"'>"+
+       esc(e.name)+"</button>";
   });
   state.catalog.filter(n=>!picked[n.trim().toLowerCase()]).forEach(n=>{
     h+="<button class='chip spick' data-add=\""+esc(n)+"\">+ "+esc(n)+"</button>";
