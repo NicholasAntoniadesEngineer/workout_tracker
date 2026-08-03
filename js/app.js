@@ -32,7 +32,13 @@ function render(){
   fit();
   if(state.adding){
     const el=document.getElementById("newname");
-    if(el){el.focus();el.addEventListener("keydown",ev=>{if(ev.key==="Enter")addExercise();});}
+    if(el){
+      el.focus();
+      el.addEventListener("keydown",ev=>{
+        if(ev.key==="Enter")addExercise();
+        else if(ev.key==="Escape"){state.adding=false;render();}
+      });
+    }
   }
   save();
 }
@@ -53,6 +59,17 @@ function importText(text){
   state.view="history";
   render();
   alert("Imported "+imported.length+" day"+(imported.length>1?"s":"")+".");
+}
+
+// Dropping an exercise that has already been logged destroys those sets, so it asks.
+function removeExercise(id){
+  const s=getSession();
+  const e=s.ex.find(x=>x.id===id);
+  if(!e)return;
+  if(e.sets.length&&!confirm("Drop "+e.name+" from today? Its "+e.sets.length+
+    " logged set"+(e.sets.length>1?"s":"")+" will be deleted."))return;
+  s.ex=s.ex.filter(x=>x.id!==id);
+  if(state.exId===id)state.exId=s.ex[0]?s.ex[0].id:null;
 }
 
 function deleteDay(id){
@@ -175,15 +192,8 @@ document.body.addEventListener("click",ev=>{
       removeFromCatalog(name);
     render();return;
   }
-  if(t.dataset&&t.dataset.rm){
-    const s=getSession();
-    const e=s.ex.find(x=>x.id===t.dataset.rm);
-    if(e&&e.sets.length&&!confirm("Drop "+e.name+" from today? Its "+e.sets.length+
-      " logged set"+(e.sets.length>1?"s":"")+" will be deleted."))return;
-    s.ex=s.ex.filter(x=>x.id!==t.dataset.rm);
-    if(state.exId===t.dataset.rm)state.exId=s.ex[0]?s.ex[0].id:null;
-    render();return;
-  }
+  if(t.id==="removesel"){const e=activeEx();if(e)removeExercise(e.id);render();return;}
+  if(t.dataset&&t.dataset.rm){removeExercise(t.dataset.rm);render();return;}
   if(t.id==="addbtn"){state.adding=true;render();return;}
   if(t.id==="addok"){addExercise();return;}
   if(t.id==="reset"){

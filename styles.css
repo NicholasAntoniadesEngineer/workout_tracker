@@ -22,7 +22,7 @@
   --cellh:calc(clamp(36px,10vw,42px) * var(--k));
   /* Widths deliberately ignore --k: three set columns always fit, the rest scroll. */
   --cellw:clamp(50px,13.5vw,58px);
-  --exw:clamp(84px,24vw,140px);
+  --exw:clamp(92px,27vw,150px);
   --exwmax:clamp(150px,42vw,190px);
 }
 @media (prefers-color-scheme:dark){
@@ -77,16 +77,10 @@ th{font-size:var(--f-tiny);color:var(--muted);text-transform:uppercase;letter-sp
 th.exh{text-align:left;}
 /* The exercise column stays put while the sets scroll under it, and never gets squeezed. */
 th.exh,tbody td:first-child{position:sticky;left:0;z-index:1;background:var(--panel);
-  box-shadow:5px 0 0 0 var(--panel);min-width:calc(var(--exw) + 23px * var(--k));}
+  box-shadow:5px 0 0 0 var(--panel);min-width:var(--exw);}
 .exhbtn{background:none;border:none;padding:0;color:var(--muted);font-size:var(--f-tiny);
   text-transform:uppercase;letter-spacing:1px;font-weight:700;cursor:pointer;}
 .exhbtn .pen{color:var(--accentText);}
-/* Removing an exercise is a first-class action, so it sits at the head of its own row. */
-.exrow{display:flex;align-items:center;gap:2px;}
-.rowx{flex:none;width:calc(21px * var(--k));align-self:stretch;min-height:var(--cellh);
-  background:none;border:none;color:var(--muted);font-size:calc(17px * var(--k));
-  line-height:1;padding:0;cursor:pointer;border-radius:6px;opacity:.65;}
-.rowx:active{background:var(--panelHi);color:var(--danger);opacity:1;}
 .exbtn{width:100%;text-align:left;background:transparent;border:1px solid transparent;color:var(--text);
   border-radius:8px;padding:calc(6px * var(--k)) calc(8px * var(--k));font-size:var(--f-md);
   font-weight:600;line-height:1.2;max-width:var(--exwmax);cursor:pointer;}
@@ -135,6 +129,10 @@ td.sum{min-width:36px;text-align:center;color:var(--accentText);
 .editrow{display:flex;gap:8px;}
 
 .addstrip{flex:none;display:flex;align-items:center;margin-top:var(--sp);}
+/* Pinned outside the scroller so the actions are reachable however long the list is. */
+.stripact{flex:none;display:flex;align-items:center;gap:5px;padding-left:8px;margin-left:2px;
+  border-left:1px solid var(--line);}
+.stripact input.name{width:min(38vw,150px);}
 .striprow{flex:1;min-width:0;display:flex;align-items:center;gap:calc(5px * var(--k));
   overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;padding-bottom:2px;}
 .striprow .addbtn{flex:none;}
@@ -154,6 +152,11 @@ td.sum{min-width:36px;text-align:center;color:var(--accentText);
 .chip .x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:var(--f-lg);padding:0 3px;}
 .addbtn{background:transparent;border:1px dashed var(--line);color:var(--accentText);border-radius:20px;
   padding:calc(5px * var(--k)) 13px;font-size:var(--f-sm);font-weight:600;cursor:pointer;}
+/* Acts on whichever exercise is selected, so it names it rather than sitting anonymous. */
+.rmbtn{flex:none;background:transparent;border:1px dashed var(--danger);color:var(--danger);
+  border-radius:20px;padding:calc(5px * var(--k)) 13px;font-size:var(--f-sm);font-weight:600;
+  cursor:pointer;white-space:nowrap;}
+.rmbtn:active{background:var(--danger);color:#fff;border-style:solid;}
 .addrow{display:inline-flex;gap:6px;align-items:center;}
 .addrow .btn{flex:none;padding:calc(6px * var(--k)) 12px;font-size:var(--f-md);}
 input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text);border-radius:20px;

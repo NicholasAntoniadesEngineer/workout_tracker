@@ -29,10 +29,8 @@ function setsTable(session){
   for(let i=0;i<cols;i++)h+="<th>S"+(i+1)+"</th>";
   h+="<th>&Sigma;</th></tr></thead><tbody>";
   session.ex.forEach(e=>{
-    h+="<tr><td><div class='exrow'>"+
-       "<button class='rowx' data-rm='"+e.id+"' title='Remove from today'>&times;</button>"+
-       "<button class='exbtn"+(e.id===state.exId?" active":"")+"' data-ex='"+e.id+"'>"+
-       esc(e.name)+"</button></div></td>";
+    h+="<tr><td><button class='exbtn"+(e.id===state.exId?" active":"")+"' data-ex='"+e.id+"'>"+
+       esc(e.name)+"</button></td>";
     for(let i=0;i<cols;i++){
       const x=e.sets[i];
       if(x===undefined){h+="<td class='cell empty mono'>&middot;</td>";continue;}
@@ -84,11 +82,14 @@ function exerciseStrip(session){
   state.catalog.filter(n=>!picked[n.trim().toLowerCase()]).forEach(n=>{
     h+="<button class='chip spick' data-add=\""+esc(n)+"\">+ "+esc(n)+"</button>";
   });
+  h+="</div><div class='stripact'>";
   if(state.adding){
-    h+="<span class='addrow'><input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
-       "<button class='btn primary' id='addok'>Add</button></span>";
+    h+="<input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
+       "<button class='btn primary' id='addok'>Add</button>";
   }else{
     h+="<button class='addbtn' id='addbtn'>+ New</button>";
+    const a=activeEx();
+    if(a)h+="<button class='rmbtn' id='removesel'>&minus; Remove</button>";
   }
   return h+"</div></div>";
 }
