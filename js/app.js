@@ -16,12 +16,15 @@ function overflows(el){
   return !!el&&el.scrollHeight>el.clientHeight+1;
 }
 
-// The log screen never scrolls: start at the chosen text size and shrink until the day
-// fits the window. The setting is a ceiling, not a promise — a crowded day still gives.
+// A chosen text size is honoured exactly — if the day no longer fits, the table scrolls
+// rather than the type being quietly overruled. Auto (0) is the fit-to-window default,
+// which shrinks the scale until the whole day is on screen.
 function fit(){
   const root=document.documentElement;
-  let k=state.settings.textScale||1;
-  root.style.setProperty("--k",String(k));
+  const chosen=state.settings.textScale||0;
+  if(chosen){root.style.setProperty("--k",String(chosen));return;}
+  let k=1;
+  root.style.setProperty("--k","1");
   if(state.view!=="log")return;
   const wrap=document.querySelector(".wrap"),tbl=document.querySelector(".tblwrap");
   while(k>FIT_MIN&&(overflows(wrap)||overflows(tbl))){

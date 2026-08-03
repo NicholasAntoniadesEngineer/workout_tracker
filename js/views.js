@@ -224,7 +224,8 @@ function historyView(){
   return h+"</div>";
 }
 
-const TEXT_SIZES=[["XS",.7],["Small",.85],["Default",1],["Large",1.25],["XL",1.55],["XXL",1.9]];
+const TEXT_SIZES=[["Auto",0],["XS",.7],["Small",.85],["Medium",1],
+  ["Large",1.25],["XL",1.55],["XXL",1.9]];
 const THEMES=[["System","system"],["Light","light"],["Dark","dark"]];
 const START_REPS=[5,8,10,12,15,20];
 const IDLE_ENDS=[["30 min",30],["1 hour",60],["2 hours",120],["Never",0]];
@@ -255,7 +256,8 @@ function settingsView(){
     "<div class='h1 plain'>Settings</div></div>"+
 
     "<div class='setgroup'>Display</div>"+
-    choiceRow("Text size","The screen still shrinks text to fit a long day.",
+    choiceRow("Text size","Auto shrinks text so the whole day fits the window. "+
+      "A fixed size is kept exactly, and the table scrolls if the day outgrows it.",
       "textScale",TEXT_SIZES)+
     choiceRow("Theme","",
       "theme",THEMES)+

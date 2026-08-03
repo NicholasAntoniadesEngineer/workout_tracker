@@ -54,7 +54,8 @@ button{font-family:inherit;}
 
 /* The window is the frame: header, table, panel and timer bar divide it, nothing overflows it. */
 #app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
-.wrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;
+/* Auto sizing keeps this from ever overflowing; a big fixed size may, so it can scroll. */
+.wrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto;
   width:100%;max-width:640px;margin:0 auto;
   padding:max(10px,env(safe-area-inset-top)) var(--sp) 0;}
 .wrap.scroll{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch;
@@ -80,7 +81,9 @@ button{font-family:inherit;}
 
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:calc(9px * var(--k));}
 /* Sets grow to the right forever, so the table is the one thing allowed to scroll. */
-.tblwrap{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;}
+/* Never squeezed to a sliver: at a big fixed text size the page scrolls instead. */
+.tblwrap{flex:1 1 auto;min-height:calc(116px * var(--k));overflow:auto;
+  -webkit-overflow-scrolling:touch;}
 table{border-collapse:separate;border-spacing:5px calc(5px * var(--k));width:100%;}
 th{font-size:var(--f-tiny);color:var(--muted);text-transform:uppercase;letter-spacing:1px;
   font-weight:700;padding-bottom:1px;}
@@ -206,35 +209,43 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .iconbtn{padding:calc(8px * var(--k)) calc(10px * var(--k));font-size:calc(15px * var(--k));}
 .h1.plain{cursor:default;}
 
-/* Settings */
-.setgroup{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accentText);
-  font-weight:700;margin:18px 0 8px;}
+/* Settings — sized against --k like everything else, so a size change shows itself. */
+.setgroup{font-size:calc(11px * var(--k));text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--accentText);font-weight:700;margin:calc(18px * var(--k)) 0 calc(8px * var(--k));}
 .setrow{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  padding:11px 12px;margin-bottom:8px;}
-.setlbl{font-size:14px;font-weight:700;}
-.sethint{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35;}
-.setopts{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
-.setopts .q{flex:1 0 auto;min-width:52px;padding:7px 10px;font-size:12px;}
+  padding:calc(11px * var(--k)) calc(12px * var(--k));margin-bottom:calc(8px * var(--k));}
+.setlbl{font-size:calc(14px * var(--k));font-weight:700;}
+.sethint{font-size:calc(11px * var(--k));color:var(--muted);margin-top:2px;line-height:1.35;}
+.setopts{display:flex;flex-wrap:wrap;gap:5px;margin-top:calc(9px * var(--k));}
+.setopts .q{flex:1 0 auto;min-width:calc(52px * var(--k));
+  padding:calc(7px * var(--k)) calc(10px * var(--k));font-size:calc(12px * var(--k));}
 
 .hhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;}
 .csvrow{margin-top:-2px;margin-bottom:16px;}
 .backbtn{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:20px;
-  padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+  padding:calc(8px * var(--k)) calc(14px * var(--k));font-size:calc(13px * var(--k));
+  font-weight:700;cursor:pointer;}
 .newday{background:var(--accent);border:1px solid var(--accent);color:var(--onAccent);border-radius:20px;
-  padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;}
+  padding:calc(8px * var(--k)) calc(16px * var(--k));font-size:calc(13px * var(--k));
+  font-weight:800;cursor:pointer;}
 .day{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
-  border-radius:12px;padding:11px 12px;margin-bottom:8px;cursor:pointer;}
+  border-radius:12px;padding:calc(11px * var(--k)) calc(12px * var(--k));
+  margin-bottom:calc(8px * var(--k));cursor:pointer;}
 .day.cur{border-color:var(--accent);}
 .day .info{flex:1;min-width:0;}
-.day .t{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.day .sub{font-size:12px;color:var(--muted);margin-top:2px;
+.day .t{font-size:calc(15px * var(--k));font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.day .sub{font-size:calc(12px * var(--k));color:var(--muted);margin-top:2px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .day .sub .live{color:var(--accentText);font-weight:700;}
-.day .cur-tag{font-size:10px;color:var(--accentText);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.day .cur-tag{font-size:calc(10px * var(--k));color:var(--accentText);font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;}
 .day .nums{text-align:right;flex:none;}
-.day .nums .r{font-size:20px;font-weight:800;color:var(--accentText);line-height:1;}
-.day .nums .rl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
-.day .del{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;flex:none;padding:0 4px;}
-.empty-note{color:var(--muted);font-size:13px;text-align:center;padding:20px;}
+.day .nums .r{font-size:calc(20px * var(--k));font-weight:800;color:var(--accentText);line-height:1;}
+.day .nums .rl{font-size:calc(10px * var(--k));color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;}
+.day .del{background:none;border:none;color:var(--muted);font-size:calc(20px * var(--k));
+  cursor:pointer;flex:none;padding:0 4px;}
+.empty-note{color:var(--muted);font-size:calc(13px * var(--k));text-align:center;padding:20px;}
 
 @media (prefers-reduced-motion:no-preference){.exbtn,.q,.round,.btn,.tbtn,.day{transition:all .12s ease;}}

@@ -5,7 +5,7 @@ const STORE_VERSION=6;
 const DEFAULT_REPS=10;
 const SEC_PER_MIN=60;
 
-export const DEFAULTS={theme:"system",textScale:1,perSideDouble:true,
+export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true};
 
 export const state={sessions:[],sessionId:null,exId:null,catalog:[],

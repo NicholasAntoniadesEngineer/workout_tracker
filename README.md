@@ -29,7 +29,10 @@ idle workout ends itself.
 
 ## Notes
 
-The logging screen never scrolls vertically — text shrinks to fit the window.
+Text size is *Auto* by default: the logging screen never scrolls vertically,
+because the type shrinks until the day fits. Pick a fixed size instead and it is
+kept exactly, with the screen scrolling if the day outgrows it.
+
 Sets grow rightward, so the table scrolls sideways past three columns.
 
 CSV columns: `Date, Day, Started, Ended, Exercise, Set, Reps, Side, Rest, Work, At`.
