@@ -1,5 +1,5 @@
-import {QUICK_REPS,exerciseTotal,fmtClock,fmtTime,lastSet,setAnchor,setSeconds,shortDate,totals,
-  workoutEnd,workoutSeconds} from "./model.js";
+import {QUICK_REPS,exerciseTotal,fmtClock,fmtTime,lastSet,restSeconds,secondsSince,setAnchor,
+  shortDate,totals,workoutEnd,workoutSeconds} from "./model.js";
 import {activeEx,getSession,newestFirst,state} from "./store.js";
 
 const MIN_SET_COLUMNS=1;
@@ -24,7 +24,7 @@ function setsTable(session){
     return "<div class='card tblwrap empty-card'><div class='empty-note'>"+
       "No exercises yet.<br>Pick some below to start logging.</div></div>";
   const cols=setColumns(session);
-  let h="<div class='card tblwrap'><table><thead><tr>"+
+  let h="<div class='card tblwrap' data-keepx='tbl'><table><thead><tr>"+
     "<th class='exh'><button class='exhbtn' id='managebtn'>Exercise <span class='pen'>&#9998;</span></button></th>";
   for(let i=0;i<cols;i++)h+="<th>S"+(i+1)+"</th>";
   h+="<th>&Sigma;</th></tr></thead><tbody>";
@@ -37,7 +37,7 @@ function setsTable(session){
       const editing=state.editing&&state.editing.ex===e.id&&state.editing.i===i;
       h+="<td class='cell has mono"+(editing?" editing":"")+"' data-ex='"+e.id+"' data-i='"+i+"'>"+
          "<span class='cr'>"+x.r+(x.side?"<span class='sd'>/s</span>":"")+"</span>"+
-         (x.at?"<span class='ct'>"+esc(fmtTime(x.at))+"</span>":"")+"</td>";
+         ((x.at&&state.settings.showSetTimes)?"<span class='ct'>"+esc(fmtTime(x.at))+"</span>":"")+"</td>";
     }
     h+="<td class='sum mono'>"+exerciseTotal(e)+"</td></tr>";
   });
@@ -63,7 +63,7 @@ function logPanel(){
        "<button class='btn ghost' id='cxl'>Cancel</button></div>";
   }else{
     h+="<button class='btn log' id='logbtn'>Log set"+(a?" &rarr; "+esc(a.name):"")+
-       (state.mark?" <span class='at'>@ "+esc(fmtTime(state.mark))+"</span>":"")+"</button>";
+       (state.setStart?" <span class='at'>@ "+esc(fmtTime(state.setStart))+"</span>":"")+"</button>";
   }
   return h+"</div>";
 }
@@ -74,7 +74,7 @@ function logPanel(){
 function exerciseStrip(session){
   const picked={};
   session.ex.forEach(e=>{picked[e.name.trim().toLowerCase()]=true;});
-  let h="<div class='addstrip'><div class='striprow'>";
+  let h="<div class='addstrip'><div class='striprow' data-keepx='strip'>";
   session.ex.forEach(e=>{
     h+="<button class='chip on"+(e.id===state.exId?" sel":"")+"' data-sel='"+e.id+"'>"+
        esc(e.name)+"</button>";
@@ -141,36 +141,48 @@ export function workoutSub(session){
   return fmtTime(session.started)+"&ndash;"+fmtTime(workoutEnd(session));
 }
 
-// Mid-workout the set clock runs; once the workout stops it reports the last set's gap.
+// One clock, three things to say: the set you are in, the rest since the last one, or —
+// once the workout has stopped — how long the last set took.
 export function setClockSeconds(session){
-  if(session.running)return setSeconds(session,state.mark);
+  if(state.setStart)return secondsSince(state.setStart);
+  if(session.running)return restSeconds(session);
   const last=lastSet(session);
   return last?last.t:0;
 }
 
+export function setLabel(session){
+  if(state.setStart)return "This set";
+  return session.running?"Rest":"Last set";
+}
+
 export function setSub(session){
+  if(state.setStart)return "started "+fmtTime(state.setStart);
   if(!session.started)return "start the workout";
-  if(!session.running)return lastSet(session)?"last set":"paused";
-  if(state.mark)return "held at "+fmtTime(state.mark);
+  if(!session.running)return lastSet(session)?"work time":"paused";
   return "since "+fmtTime(setAnchor(session));
 }
 
 function timerBar(session){
-  const on=!!session.running,marked=!!state.mark;
+  const on=!!session.running,timing=!!state.setStart;
   return "<div class='timerbar'><div class='tinner'>"+
     "<div class='tcell'>"+
-      "<div class='tl'>Workout</div>"+
-      "<div class='tv mono' id='worktime'>"+workoutLabel(session)+"</div>"+
-      "<div class='tsub' id='worksub'>"+workoutSub(session)+"</div>"+
-      "<button class='tbtn "+(on?"stop":"go")+"' id='wtoggle'>"+(on?"End workout":"Start workout")+"</button>"+
-    "</div>"+
-    "<div class='tcell'>"+
-      "<div class='tl'>Since last set</div>"+
-      "<div class='tv mono"+(marked?" held":"")+"' id='settime'>"+fmtClock(setClockSeconds(session))+"</div>"+
+      "<div class='tl' id='setlbl'>"+setLabel(session)+"</div>"+
+      "<div class='tv mono"+(timing?" held":"")+"' id='settime'>"+fmtClock(setClockSeconds(session))+"</div>"+
       "<div class='tsub' id='setsub'>"+setSub(session)+"</div>"+
-      "<button class='tbtn"+(marked?" on":"")+"' id='markbtn'>"+
-        (marked?"Clear "+esc(fmtTime(state.mark)):"Mark now")+"</button>"+
-    "</div></div></div>";
+      "<div class='tbtnrow'>"+
+        "<button class='tbtn"+(timing?" on":" go")+"' id='setstart'>"+
+          (timing?"Cancel":"Start set")+"</button>"+
+        "<button class='tbtn narrow' id='timerreset' title='Reset the rest clock'>&#8635;</button>"+
+      "</div></div>"+
+    "<div class='tcell'>"+
+      "<div class='tl'>Workout</div>"+
+      "<div class='tv mono edit' id='worktime' title='Tap to set the elapsed time'>"+
+        workoutLabel(session)+"</div>"+
+      "<div class='tsub' id='worksub'>"+workoutSub(session)+"</div>"+
+      "<div class='tbtnrow'>"+
+        "<button class='tbtn "+(on?"stop":"go")+"' id='wtoggle'>"+
+          (on?"End workout":"Start workout")+"</button>"+
+      "</div></div></div></div>";
 }
 
 function logView(){
@@ -179,7 +191,10 @@ function logView(){
     "<div class='head'><div>"+
     "<div class='eyebrow'>Session</div>"+
     "<div class='h1' id='daytitle'>"+esc(s.title)+" <span class='pen'>&#9998;</span></div>"+
-    "</div><button class='daysbtn' id='daysbtn'>&#9776; Days ("+state.sessions.length+")</button></div>"+
+    "</div><div class='headbtns'>"+
+    "<button class='daysbtn' id='daysbtn'>&#9776; Days ("+state.sessions.length+")</button>"+
+    "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>&#9881;</button>"+
+    "</div></div>"+
     statsBar(s,totals(s))+setsTable(s)+
     ((state.manage||!s.ex.length)?pickerPanel(s):exerciseStrip(s)+logPanel())+
     "</div>"+timerBar(s);
@@ -209,6 +224,59 @@ function historyView(){
   return h+"</div>";
 }
 
+const TEXT_SIZES=[["XS",.7],["Small",.85],["Default",1],["Large",1.25],["XL",1.55],["XXL",1.9]];
+const THEMES=[["System","system"],["Light","light"],["Dark","dark"]];
+const START_REPS=[5,8,10,12,15,20];
+const IDLE_ENDS=[["30 min",30],["1 hour",60],["2 hours",120],["Never",0]];
+
+function choiceRow(label,hint,key,pairs){
+  const cur=state.settings[key];
+  let h="<div class='setrow'><div class='setlbl'>"+label+"</div>"+
+    (hint?"<div class='sethint'>"+hint+"</div>":"")+"<div class='setopts'>";
+  pairs.forEach(p=>{
+    const text=p[0],val=p[1];
+    h+="<button class='q"+(cur===val?" on":"")+"' data-set='"+key+"' data-val='"+val+"'>"+text+"</button>";
+  });
+  return h+"</div></div>";
+}
+
+function toggleRow(label,hint,key){
+  const on=!!state.settings[key];
+  return "<div class='setrow'><div class='setlbl'>"+label+"</div>"+
+    (hint?"<div class='sethint'>"+hint+"</div>":"")+"<div class='setopts'>"+
+    "<button class='q"+(on?" on":"")+"' data-set='"+key+"' data-val='1'>On</button>"+
+    "<button class='q"+(on?"":" on")+"' data-set='"+key+"' data-val='0'>Off</button>"+
+    "</div></div>";
+}
+
+function settingsView(){
+  return "<div class='wrap scroll'>"+
+    "<div class='hhead'><button class='backbtn' id='backbtn'>&lsaquo; Back</button>"+
+    "<div class='h1 plain'>Settings</div></div>"+
+
+    "<div class='setgroup'>Display</div>"+
+    choiceRow("Text size","The screen still shrinks text to fit a long day.",
+      "textScale",TEXT_SIZES)+
+    choiceRow("Theme","",
+      "theme",THEMES)+
+    toggleRow("Time of each set","Shown under the reps in the grid.","showSetTimes")+
+
+    "<div class='setgroup'>Logging</div>"+
+    choiceRow("Starting reps","What the counter opens on.","startReps",
+      START_REPS.map(n=>[String(n),n]))+
+    toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
+
+    "<div class='setgroup'>Workout</div>"+
+    choiceRow("End an idle workout after",
+      "Backdated to the last set, so a session left running does not count all night.",
+      "idleEndMinutes",IDLE_ENDS)+
+
+    "<div class='reset'><button id='resetsettings'>Restore defaults</button></div>"+
+    "</div>";
+}
+
+const VIEWS={history:historyView,settings:settingsView};
+
 export function paint(){
-  document.getElementById("app").innerHTML=state.view==="history"?historyView():logView();
+  document.getElementById("app").innerHTML=(VIEWS[state.view]||logView)();
 }

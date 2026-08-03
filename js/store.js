@@ -1,11 +1,29 @@
-import {SEED_EXERCISES,makeExercise,makeSession,normSet} from "./model.js";
+import {SEED_EXERCISES,makeExercise,makeSession,normSet,options} from "./model.js";
 
 const KEY="workout_days_v2";
-const STORE_VERSION=5;
+const STORE_VERSION=6;
 const DEFAULT_REPS=10;
+const SEC_PER_MIN=60;
+
+export const DEFAULTS={theme:"system",textScale:1,perSideDouble:true,
+  startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true};
 
 export const state={sessions:[],sessionId:null,exId:null,catalog:[],
-  reps:DEFAULT_REPS,perSide:false,mark:null,editing:null,adding:false,manage:false,view:"log"};
+  settings:Object.assign({},DEFAULTS),
+  reps:DEFAULT_REPS,perSide:false,setStart:null,editing:null,adding:false,manage:false,view:"log"};
+
+// Settings that change how numbers are counted live in the model, so it can stay pure.
+export function applySettings(){
+  const s=state.settings;
+  document.documentElement.dataset.theme=s.theme==="system"?"":s.theme;
+  options.perSideDouble=!!s.perSideDouble;
+  options.idleEndSeconds=Math.max(0,(+s.idleEndMinutes||0))*SEC_PER_MIN;
+}
+
+export function setSetting(key,value){
+  state.settings[key]=value;
+  applySettings();
+}
 
 export function getSession(){
   return state.sessions.find(s=>s.id===state.sessionId)||null;
@@ -52,6 +70,7 @@ export function removeFromCatalog(name){
 function normSession(s){
   s.started=s.started||"";
   s.ended=s.ended||"";
+  s.timerFrom=s.timerFrom||"";
   s.running=!!s.running;
   s.ex.forEach(e=>{e.sets=(e.sets||[]).map(normSet);});
   return s;
@@ -62,9 +81,12 @@ export function load(){
   if(saved){state.sessions=saved.sessions;state.sessionId=saved.sessionId||saved.sessions[0].id;}
   else{state.sessions=[makeSession()];}
   state.sessions.forEach(normSession);
-  state.mark=(saved&&saved.mark)||null;
+  state.setStart=(saved&&saved.setStart)||null;
   if(!getSession())state.sessionId=state.sessions[0].id;
   state.catalog=buildCatalog(saved);
+  state.settings=Object.assign({},DEFAULTS,(saved&&saved.settings)||{});
+  applySettings();
+  state.reps=state.settings.startReps;
   const s=getSession();
   state.exId=s.ex.length?s.ex[0].id:null;
 }
@@ -73,7 +95,7 @@ export function save(){
   try{
     localStorage.setItem(KEY,JSON.stringify(
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
-        catalog:state.catalog,mark:state.mark}));
+        catalog:state.catalog,settings:state.settings,setStart:state.setStart}));
   }catch(e){}
 }
 
@@ -97,7 +119,7 @@ export function selectSession(id){
   const s=getSession();
   state.exId=s.ex[0]?s.ex[0].id:null;
   state.editing=null;
-  state.mark=null;
+  state.setStart=null;
 }
 
 // Days sharing a created stamp are replaced, not duplicated.

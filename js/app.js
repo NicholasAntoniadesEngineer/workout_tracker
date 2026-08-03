@@ -1,35 +1,55 @@
-import {addSet,autoEndIfStale,endWorkout,fmtClock,makeSession,nowISO,startWorkout} from "./model.js";
-import {activeEx,addExerciseToDay,getSession,load,mergeSessions,removeFromCatalog,save,
-  selectSession,state} from "./store.js";
+import {addSet,autoEndIfStale,endWorkout,fmtClock,makeSession,nowISO,resetRestTimer,
+  setWorkoutMinutes,startWorkout,workoutSeconds} from "./model.js";
+import {DEFAULTS,activeEx,addExerciseToDay,getSession,load,mergeSessions,removeFromCatalog,
+  save,selectSession,setSetting,state} from "./store.js";
 import {exportCSV,parseImport} from "./csv.js";
 import {paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
 
 const MIN_REPS=0;
 const TICK_MS=1000;
-const FIT_MIN=0.62;
+const FIT_MIN=0.58;
 const FIT_STEP=0.04;
+const SEC_PER_MIN=60;
 
 // Width is the table's problem — extra sets scroll sideways. Only height has to be made to fit.
 function overflows(el){
   return !!el&&el.scrollHeight>el.clientHeight+1;
 }
 
-// The log screen never scrolls: shrink the type scale until the whole day fits the window.
+// The log screen never scrolls: start at the chosen text size and shrink until the day
+// fits the window. The setting is a ceiling, not a promise — a crowded day still gives.
 function fit(){
   const root=document.documentElement;
-  root.style.setProperty("--k","1");
+  let k=state.settings.textScale||1;
+  root.style.setProperty("--k",String(k));
   if(state.view!=="log")return;
   const wrap=document.querySelector(".wrap"),tbl=document.querySelector(".tblwrap");
-  let k=1;
   while(k>FIT_MIN&&(overflows(wrap)||overflows(tbl))){
     k=Math.round((k-FIT_STEP)*100)/100;
     root.style.setProperty("--k",String(k));
   }
 }
 
+// Repainting throws the DOM away, which would jump the table back to set 1 every time
+// a set is logged. Carry the sideways scroll across, after fit() has settled the widths.
+function grabScroll(){
+  const keep={};
+  document.querySelectorAll("[data-keepx]").forEach(el=>{keep[el.dataset.keepx]=el.scrollLeft;});
+  return keep;
+}
+
+function putScroll(keep){
+  document.querySelectorAll("[data-keepx]").forEach(el=>{
+    const x=keep[el.dataset.keepx];
+    if(x)el.scrollLeft=x;
+  });
+}
+
 function render(){
+  const keep=grabScroll();
   paint();
   fit();
+  putScroll(keep);
   if(state.adding){
     const el=document.getElementById("newname");
     if(el){
@@ -107,6 +127,21 @@ document.body.addEventListener("click",ev=>{
     state.view="log";render();return;
   }
   if(t.id==="daysbtn"){state.view="history";state.manage=false;state.adding=false;render();return;}
+  if(t.id==="settingsbtn"){state.view="settings";state.manage=false;state.adding=false;render();return;}
+
+  const setBtn=t.closest&&t.closest("[data-set]");
+  if(setBtn){
+    const key=setBtn.getAttribute("data-set"),raw=setBtn.getAttribute("data-val");
+    const was=DEFAULTS[key];
+    setSetting(key,typeof was==="boolean"?raw==="1":(typeof was==="number"?Number(raw):raw));
+    if(key==="startReps")state.reps=Number(raw);
+    render();return;
+  }
+  if(t.id==="resetsettings"){
+    Object.keys(DEFAULTS).forEach(k=>setSetting(k,DEFAULTS[k]));
+    state.reps=DEFAULTS.startReps;
+    render();return;
+  }
   if(t.id==="exportcsv"){exportCSV(state.sessions);return;}
   if(t.id==="importcsv"){const cf=document.getElementById("csvfile");if(cf)cf.click();return;}
 
@@ -143,21 +178,37 @@ document.body.addEventListener("click",ev=>{
   }
   if(t.id==="wtoggle"){
     const s=getSession();
-    s.running?endWorkout(s):startWorkout(s);
-    state.mark=null;
+    if(s.running){
+      if(!confirm("End the workout? The clock stops at "+fmtClock(workoutSeconds(s))+"."))return;
+      endWorkout(s);
+    }else startWorkout(s);
+    state.setStart=null;
     render();return;
   }
-  // Marking freezes the set clock at this instant; the next logged set is stamped there.
-  if(t.id==="markbtn"){
+  // Starting a set stamps its beginning: the gap before it is rest, the gap after is work.
+  if(t.id==="setstart"){
     const s=getSession();
-    if(state.mark){state.mark=null;}
-    else{if(!s.running)startWorkout(s);state.mark=nowISO();}
+    if(state.setStart){state.setStart=null;}
+    else{if(!s.running)startWorkout(s);state.setStart=nowISO();}
+    render();return;
+  }
+  if(t.id==="timerreset"){
+    if(!confirm("Reset the rest clock to zero? Logged sets are not affected."))return;
+    resetRestTimer(getSession());
+    state.setStart=null;
+    render();return;
+  }
+  if(t.closest&&t.closest("#worktime")){
+    const s=getSession();
+    const cur=Math.round((workoutSeconds(s)||0)/SEC_PER_MIN);
+    const answer=prompt("Minutes the workout has been going:",String(cur));
+    if(answer!==null&&answer.trim()!=="")setWorkoutMinutes(s,parseFloat(answer));
     render();return;
   }
   if(t.id==="logbtn"){
     const e=activeEx();
-    if(e)addSet(getSession(),e,state.reps,state.perSide,state.mark);
-    state.mark=null;
+    if(e)addSet(getSession(),e,state.reps,state.perSide,state.setStart);
+    state.setStart=null;
     render();return;
   }
   if(t.id==="upd"){

@@ -6,12 +6,13 @@ export const QUICK_REPS=[5,8,10,12,15,20];
 
 const SIDES_PER_SET=2;
 const UID_RADIX=36;
+// Set from the settings screen; kept here so counting and staleness stay in one place.
+export const options={perSideDouble:true,idleEndSeconds:3600};
 const UID_SPREAD=1e6;
 const MS_PER_SEC=1000;
 const SEC_PER_MIN=60;
 const SEC_PER_HOUR=3600;
 const RESUME_SECONDS=1800;
-const STALE_SECONDS=3600;
 
 export function fmtClock(totalSec){
   const s=Math.max(0,Math.round(totalSec||0));
@@ -42,11 +43,12 @@ export function shortDate(iso){
   catch(e){return "";}
 }
 
+// t is time spent working the set, rest is the gap that preceded it, at is when it ended.
 export function normSet(v){
-  return {r:+v.r||0,side:!!v.side,t:+v.t||0,at:v.at||""};
+  return {r:+v.r||0,side:!!v.side,t:+v.t||0,rest:+v.rest||0,at:v.at||""};
 }
 
-export function setReps(x){return x.side?x.r*SIDES_PER_SET:x.r;}
+export function setReps(x){return (x.side&&options.perSideDouble)?x.r*SIDES_PER_SET:x.r;}
 
 export function exerciseTotal(e){return e.sets.reduce((sum,x)=>sum+setReps(x),0);}
 
@@ -72,19 +74,22 @@ export function lastSet(session){
   return newest;
 }
 
-// The set clock counts from the previous set, never from before the workout began —
-// otherwise resuming a day measures the gap back to yesterday's last set.
+// Rest is measured from the last set, the workout start, or wherever the timer was last
+// reset to — whichever is most recent. It can never predate the workout itself.
 export function setAnchor(session){
-  const last=lastSetAt(session),start=session.started||"";
-  return (last>start?last:start)||"";
+  return [lastSetAt(session),session.started||"",session.timerFrom||""]
+    .reduce((a,b)=>b>a?b:a,"");
 }
 
-export function setSeconds(session,mark){
+export function restSeconds(session){
   const anchor=setAnchor(session);
   if(!anchor)return 0;
-  const end=mark?Date.parse(mark)
-    :(session.running?Date.now():Date.parse(session.ended||lastSetAt(session)||anchor));
+  const end=session.running?Date.now():Date.parse(session.ended||lastSetAt(session)||anchor);
   return Math.max(0,(end-Date.parse(anchor))/MS_PER_SEC);
+}
+
+export function secondsSince(iso){
+  return iso?Math.max(0,(Date.now()-Date.parse(iso))/MS_PER_SEC):0;
 }
 
 function isToday(iso){
@@ -124,24 +129,45 @@ export function endWorkout(session){
 // A workout nobody ended stops itself at its last set rather than running all night.
 export function autoEndIfStale(session){
   if(!session||!session.running||!session.started)return false;
+  if(!options.idleEndSeconds)return false;
   const last=lastSetAt(session)||session.started;
-  if((Date.now()-Date.parse(last))/MS_PER_SEC<STALE_SECONDS)return false;
+  if((Date.now()-Date.parse(last))/MS_PER_SEC<options.idleEndSeconds)return false;
   session.ended=last;
   session.running=false;
   return true;
 }
 
 // A set always lands inside a running workout, so forgetting to press Start costs nothing.
-export function addSet(session,ex,reps,perSide,at){
+// startedAt is when the set began, if it was timed: the gap before it is rest, the gap
+// after it is work. Untimed sets record the whole gap as rest and no work.
+export function addSet(session,ex,reps,perSide,startedAt){
   if(!session.running)startWorkout(session);
-  const stamp=at||nowISO();
-  const gap=Math.round(setSeconds(session,stamp));
-  ex.sets.push({r:reps,side:perSide,t:gap,at:stamp});
+  const anchor=setAnchor(session);
+  const end=nowISO();
+  const begun=startedAt||end;
+  const work=(Date.parse(end)-Date.parse(begun))/MS_PER_SEC;
+  const rest=anchor?(Date.parse(begun)-Date.parse(anchor))/MS_PER_SEC:0;
+  ex.sets.push({r:reps,side:perSide,
+    t:Math.max(0,Math.round(work)),rest:Math.max(0,Math.round(rest)),at:end});
+  session.timerFrom="";
 }
 
 export function makeSession(){
   return {id:uid(),title:todayLabel(),created:new Date().toISOString(),
-    started:"",ended:"",running:false,ex:[]};
+    started:"",ended:"",running:false,timerFrom:"",ex:[]};
+}
+
+// Lets a workout be told it really began earlier — you trained for ten minutes before
+// remembering to press Start.
+export function setWorkoutMinutes(session,minutes){
+  const mins=Math.max(0,+minutes||0);
+  session.started=new Date(Date.now()-mins*SEC_PER_MIN*MS_PER_SEC).toISOString();
+  if(!session.running){session.ended="";session.running=true;}
+}
+
+// Restarts the rest clock from now, without touching anything already logged.
+export function resetRestTimer(session){
+  session.timerFrom=nowISO();
 }
 
 export function makeExercise(name){
