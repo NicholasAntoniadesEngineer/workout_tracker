@@ -151,7 +151,8 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .tinner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);}
 .tcell{min-width:0;display:flex;flex-direction:column;}
 .tcell+.tcell{padding-left:var(--gap);border-left:1px solid var(--line);}
-.tl{font-size:var(--f-tiny);letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.tl{font-size:var(--f-tiny);letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);
+  font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .tv{font-size:var(--f-clock);font-weight:800;line-height:1.1;}
 .tv.held{color:var(--accentText);}
 .tsub{font-size:var(--f-xs);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}

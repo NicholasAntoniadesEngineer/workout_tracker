@@ -12,12 +12,16 @@ Add it to the iOS home screen from Safari for a full-screen app.
 Two clocks sit in the bar at the bottom of the screen.
 
 **Workout** runs from *Start workout* to *End workout*. Logging a set starts the
-workout if it is not already running, so forgetting the button costs nothing. A
-workout left running past midnight freezes at its last set rather than counting
-forever.
+workout if it is not already running, so forgetting the button costs nothing.
+*Start* means a new workout begins now — coming back to a day you trained in the
+morning gives a fresh clock, not one spanning lunch — except within 30 minutes
+of ending, where restarting picks the same clock back up. A workout nobody ends
+stops itself an hour after its last set, backdated to that set, so a session left
+running overnight reads as the workout it actually was.
 
-**Set** counts from the previous logged set — rest plus work — and resets itself
-every time a set is logged. Nothing to remember to start.
+**Since last set** counts from the previous logged set — rest plus work — and
+resets itself every time a set is logged. Nothing to remember to start. It never
+counts from before the workout began.
 
 *Mark now* freezes the set clock at that instant and stamps the time. Log the
 set afterwards, at whatever pace you like, and it is recorded at the marked time
@@ -52,12 +56,15 @@ exercise column pinned.
 Exercise add/remove and *Clear this day's sets* live behind the ✎ on the
 Exercise column header, which keeps them off the logging screen.
 
+New days copy the previous day's exercises, so a new entry in `SEED_EXERCISES`
+would never reach a device that already has history. Bumping `SEED_STAMP` in
+`js/store.js` adds the missing defaults to the current day once.
+
 ## CSV columns
 
 `Date, Day, Started, Ended, Exercise, Set, Reps, Side, Seconds, At`
 
 `At` is when the set was logged; `Seconds` is the gap from the previous set.
-Files exported before `At` existed still import.
 
 `Date` is the merge key: importing a day whose `Date` already exists replaces it.
 Editing the file in a spreadsheet can reformat that timestamp and duplicate the

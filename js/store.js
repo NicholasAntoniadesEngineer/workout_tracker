@@ -1,9 +1,10 @@
-import {makeSession,normSet,todayLabel} from "./model.js";
+import {SEED_EXERCISES,makeSession,normSet,uid} from "./model.js";
 
 const KEY="workout_days_v2";
-const LEGACY_KEY="workout_current_v1";
-const STORE_VERSION=4;
+const STORE_VERSION=5;
 const DEFAULT_REPS=10;
+// Bump to push newly added default exercises into the current day, once.
+const SEED_STAMP=1;
 
 export const state={sessions:[],sessionId:null,exId:null,
   reps:DEFAULT_REPS,perSide:false,mark:null,editing:null,adding:false,manage:false,view:"log"};
@@ -26,22 +27,17 @@ function readSaved(){
   return null;
 }
 
-function readLegacy(){
-  try{
-    const raw=localStorage.getItem(LEGACY_KEY);
-    if(raw){
-      const d=JSON.parse(raw);
-      if(d.ex&&d.ex.length){
-        const s=makeSession(null);
-        s.ex=d.ex;s.title=d.date||todayLabel();
-        return [s];
-      }
-    }
-  }catch(e){}
-  return null;
+// New days copy the previous day's exercises, so a new default would otherwise never
+// reach a device that already has history. Add the missing ones once, to today only.
+function topUpSeeds(session,stamp){
+  if(!session||stamp>=SEED_STAMP)return;
+  const have={};
+  session.ex.forEach(e=>{have[e.name.trim().toLowerCase()]=true;});
+  SEED_EXERCISES.forEach(n=>{
+    if(!have[n.toLowerCase()])session.ex.push({id:uid(),name:n,sets:[]});
+  });
 }
 
-// Days saved before the workout button existed have no running flag; they read as finished.
 function normSession(s){
   s.started=s.started||"";
   s.ended=s.ended||"";
@@ -53,10 +49,11 @@ function normSession(s){
 export function load(){
   const saved=readSaved();
   if(saved){state.sessions=saved.sessions;state.sessionId=saved.sessionId||saved.sessions[0].id;}
-  else{state.sessions=readLegacy()||[makeSession(null)];}
+  else{state.sessions=[makeSession(null)];}
   state.sessions.forEach(normSession);
   state.mark=(saved&&saved.mark)||null;
   if(!getSession())state.sessionId=state.sessions[0].id;
+  topUpSeeds(getSession(),(saved&&saved.seed)||0);
   const s=getSession();
   state.exId=s.ex.length?s.ex[0].id:null;
 }
@@ -64,7 +61,8 @@ export function load(){
 export function save(){
   try{
     localStorage.setItem(KEY,JSON.stringify(
-      {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,mark:state.mark}));
+      {version:STORE_VERSION,seed:SEED_STAMP,sessionId:state.sessionId,
+        sessions:state.sessions,mark:state.mark}));
   }catch(e){}
 }
 

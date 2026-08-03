@@ -1,4 +1,4 @@
-import {addSet,endWorkout,fmtClock,makeSession,nowISO,startWorkout,uid} from "./model.js";
+import {addSet,autoEndIfStale,endWorkout,fmtClock,makeSession,nowISO,startWorkout,uid} from "./model.js";
 import {activeEx,getSession,load,mergeSessions,save,selectSession,state} from "./store.js";
 import {exportCSV,parseImport} from "./csv.js";
 import {paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
@@ -182,6 +182,7 @@ document.body.addEventListener("click",ev=>{
 function tick(){
   if(state.view!=="log")return;
   const s=getSession();
+  if(autoEndIfStale(s)){render();return;}
   const set=document.getElementById("settime");
   if(set)set.textContent=fmtClock(setClockSeconds(s));
   const setl=document.getElementById("setsub");
@@ -196,5 +197,6 @@ window.addEventListener("resize",fit);
 window.addEventListener("orientationchange",fit);
 
 load();
+state.sessions.forEach(autoEndIfStale);
 render();
 setInterval(tick,TICK_MS);

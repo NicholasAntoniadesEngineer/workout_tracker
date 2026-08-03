@@ -1,4 +1,5 @@
-export const SEED_EXERCISES=["Lunges","Kettlebell swings","Pull ups","Standing kettlebell rows","Shoulder press"];
+export const SEED_EXERCISES=["Lunges","Kettlebell swings","Pull ups","Push ups",
+  "Standing kettlebell rows","Shoulder press","Burpees"];
 export const QUICK_REPS=[5,8,10,12,15,20];
 
 const SIDES_PER_SET=2;
@@ -7,6 +8,8 @@ const UID_SPREAD=1e6;
 const MS_PER_SEC=1000;
 const SEC_PER_MIN=60;
 const SEC_PER_HOUR=3600;
+const RESUME_SECONDS=1800;
+const STALE_SECONDS=3600;
 
 export function fmtClock(totalSec){
   const s=Math.max(0,Math.round(totalSec||0));
@@ -37,11 +40,8 @@ export function shortDate(iso){
   catch(e){return "";}
 }
 
-// Sets were bare rep counts before per-side logging, and untimestamped before the mark button.
 export function normSet(v){
-  return (v&&typeof v==="object")
-    ?{r:+v.r||0,side:!!v.side,t:+v.t||0,at:v.at||""}
-    :{r:+v||0,side:false,t:0,at:""};
+  return {r:+v.r||0,side:!!v.side,t:+v.t||0,at:v.at||""};
 }
 
 export function setReps(x){return x.side?x.r*SIDES_PER_SET:x.r;}
@@ -70,9 +70,11 @@ export function lastSet(session){
   return newest;
 }
 
-// The set clock counts from the previous set, falling back to the workout start.
+// The set clock counts from the previous set, never from before the workout began —
+// otherwise resuming a day measures the gap back to yesterday's last set.
 export function setAnchor(session){
-  return lastSetAt(session)||session.started||"";
+  const last=lastSetAt(session),start=session.started||"";
+  return (last>start?last:start)||"";
 }
 
 export function setSeconds(session,mark){
@@ -100,8 +102,13 @@ export function workoutEnd(session){
   return session.ended||lastSetAt(session)||"";
 }
 
+// Start means "a new workout begins now" — except right after an accidental End,
+// where picking straight back up should keep the clock you were already running.
 export function startWorkout(session){
-  if(!session.started)session.started=nowISO();
+  const now=nowISO();
+  const resuming=session.started&&session.ended&&
+    (Date.parse(now)-Date.parse(session.ended))/MS_PER_SEC<=RESUME_SECONDS;
+  if(!resuming)session.started=now;
   session.ended="";
   session.running=true;
 }
@@ -110,6 +117,16 @@ export function endWorkout(session){
   if(!session.started)return;
   session.ended=nowISO();
   session.running=false;
+}
+
+// A workout nobody ended stops itself at its last set rather than running all night.
+export function autoEndIfStale(session){
+  if(!session||!session.running||!session.started)return false;
+  const last=lastSetAt(session)||session.started;
+  if((Date.now()-Date.parse(last))/MS_PER_SEC<STALE_SECONDS)return false;
+  session.ended=last;
+  session.running=false;
+  return true;
 }
 
 // A set always lands inside a running workout, so forgetting to press Start costs nothing.

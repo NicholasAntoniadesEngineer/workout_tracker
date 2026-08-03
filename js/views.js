@@ -33,8 +33,7 @@ function setsTable(session){
       const editing=state.editing&&state.editing.ex===e.id&&state.editing.i===i;
       h+="<td class='cell has mono"+(editing?" editing":"")+"' data-ex='"+e.id+"' data-i='"+i+"'>"+
          "<span class='cr'>"+x.r+(x.side?"<span class='sd'>/s</span>":"")+"</span>"+
-         (x.at?"<span class='ct'>"+esc(fmtTime(x.at))+"</span>"
-              :(x.t?"<span class='ct'>"+fmtClock(x.t)+"</span>":""))+"</td>";
+         (x.at?"<span class='ct'>"+esc(fmtTime(x.at))+"</span>":"")+"</td>";
     }
     h+="<td class='sum mono'>"+exerciseTotal(e)+"</td></tr>";
   });
@@ -117,7 +116,7 @@ function timerBar(session){
       "<button class='tbtn "+(on?"stop":"go")+"' id='wtoggle'>"+(on?"End workout":"Start workout")+"</button>"+
     "</div>"+
     "<div class='tcell'>"+
-      "<div class='tl'>Set</div>"+
+      "<div class='tl'>Since last set</div>"+
       "<div class='tv mono"+(marked?" held":"")+"' id='settime'>"+fmtClock(setClockSeconds(session))+"</div>"+
       "<div class='tsub' id='setsub'>"+setSub(session)+"</div>"+
       "<button class='tbtn"+(marked?" on":"")+"' id='markbtn'>"+
