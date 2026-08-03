@@ -86,15 +86,17 @@ function exerciseStrip(session){
   state.catalog.filter(n=>!picked[n.trim().toLowerCase()]).forEach(n=>{
     h+="<button class='chip spick' data-add=\""+esc(n)+"\">+ "+esc(n)+"</button>";
   });
+  // Remove stays put whether or not the new-exercise box is open, so it cannot vanish
+  // just because every name on the list is already in the day.
   h+="</div><div class='stripact'>";
   if(state.adding){
     h+="<input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
        "<button class='btn primary' id='addok'>Add</button>";
   }else{
     h+="<button class='addbtn' id='addbtn'>+ New</button>";
-    const a=activeEx();
-    if(a)h+="<button class='rmbtn' id='removesel'>&minus; Remove</button>";
   }
+  const a=activeEx();
+  if(a)h+="<button class='rmbtn' id='removesel'>&minus; Remove</button>";
   return h+"</div></div>";
 }
 

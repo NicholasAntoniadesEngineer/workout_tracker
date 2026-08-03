@@ -20,21 +20,26 @@ function overflows(el){
 // rather than the type being quietly overruled. Auto (0) is the fit-to-window default,
 // which shrinks the scale until the whole day is on screen.
 let autoScale=1;
+let refit=true;
+
+// Re-measure from full size on the next paint: the window changed, or the day did.
+function markRefit(){refit=true;}
 
 function fit(){
   const root=document.documentElement;
+  const set=v=>root.style.setProperty("--k",String(v));
   const chosen=state.settings.textScale||0;
-  if(chosen){root.style.setProperty("--k",String(chosen));return;}
-  // Editing the day's exercises swaps the panel and would otherwise resize the type
-  // under you. Hold the scale the logging screen settled on until Done.
-  if(state.manage){root.style.setProperty("--k",String(autoScale));return;}
-  let k=1;
-  root.style.setProperty("--k","1");
-  if(state.view!=="log")return;
+  if(chosen){set(chosen);return;}
+  // Auto settles on a scale and keeps it. Adding an exercise or opening the editor
+  // must not resize the type under you, so those paints reuse what was settled on.
+  if(state.view!=="log"||state.manage||state.adding){set(autoScale);return;}
+  let k=refit?1:autoScale;
+  refit=false;
+  set(k);
   const wrap=document.querySelector(".wrap"),tbl=document.querySelector(".tblwrap");
   while(k>FIT_MIN&&(overflows(wrap)||overflows(tbl))){
     k=Math.round((k-FIT_STEP)*100)/100;
-    root.style.setProperty("--k",String(k));
+    set(k);
   }
   autoScale=k;
 }
@@ -62,7 +67,9 @@ function render(){
   if(state.adding){
     const el=document.getElementById("newname");
     if(el){
-      el.focus();
+      // Focus only on the repaint that opened the box. Focusing on every repaint
+      // reopens the keyboard each time anything else is tapped.
+      if(state.focusAdd){el.focus();state.focusAdd=false;}
       el.addEventListener("keydown",ev=>{
         if(ev.key==="Enter")addExercise();
         else if(ev.key==="Escape"){state.adding=false;render();}
@@ -127,13 +134,13 @@ document.body.addEventListener("click",ev=>{
     render();return;
   }
   const loadDay=t.closest&&t.closest("[data-load]");
-  if(loadDay){selectSession(loadDay.getAttribute("data-load"));state.view="log";render();return;}
+  if(loadDay){selectSession(loadDay.getAttribute("data-load"));state.view="log";markRefit();render();return;}
   if(t.id==="backbtn"){state.view="log";render();return;}
   if(t.id==="newday"){
     const ns=makeSession();
     state.sessions.push(ns);
     selectSession(ns.id);
-    state.view="log";render();return;
+    state.view="log";markRefit();render();return;
   }
   if(t.id==="daysbtn"){state.view="history";state.manage=false;state.adding=false;render();return;}
   if(t.id==="settingsbtn"){state.view="settings";state.manage=false;state.adding=false;render();return;}
@@ -144,11 +151,13 @@ document.body.addEventListener("click",ev=>{
     const was=DEFAULTS[key];
     setSetting(key,typeof was==="boolean"?raw==="1":(typeof was==="number"?Number(raw):raw));
     if(key==="startReps")state.reps=Number(raw);
+    markRefit();
     render();return;
   }
   if(t.id==="resetsettings"){
     Object.keys(DEFAULTS).forEach(k=>setSetting(k,DEFAULTS[k]));
     state.reps=DEFAULTS.startReps;
+    markRefit();
     render();return;
   }
   if(t.id==="exportcsv"){exportCSV(state.sessions);return;}
@@ -234,8 +243,14 @@ document.body.addEventListener("click",ev=>{
     state.editing=null;render();return;
   }
   if(t.id==="cxl"){state.editing=null;render();return;}
+  // Picking a listed name closes the new-exercise box, rather than leaving it open to
+  // grab focus — and the keyboard with it — on every later repaint.
   const add=t.closest&&t.closest("[data-add]");
-  if(add){addExerciseToDay(add.getAttribute("data-add"));render();return;}
+  if(add){
+    addExerciseToDay(add.getAttribute("data-add"));
+    state.adding=false;
+    render();return;
+  }
 
   const sel=t.closest&&t.closest("[data-sel]");
   if(sel){
@@ -254,7 +269,7 @@ document.body.addEventListener("click",ev=>{
   }
   if(t.id==="removesel"){const e=activeEx();if(e)removeExercise(e.id);render();return;}
   if(t.dataset&&t.dataset.rm){removeExercise(t.dataset.rm);render();return;}
-  if(t.id==="addbtn"){state.adding=true;render();return;}
+  if(t.id==="addbtn"){state.adding=true;state.focusAdd=true;render();return;}
   if(t.id==="addok"){addExercise();return;}
   if(t.id==="reset"){
     if(confirm("Clear all sets for this day?")){
@@ -280,8 +295,8 @@ function tick(){
   if(sub)sub.innerHTML=workoutSub(s);
 }
 
-window.addEventListener("resize",fit);
-window.addEventListener("orientationchange",fit);
+window.addEventListener("resize",()=>{markRefit();fit();});
+window.addEventListener("orientationchange",()=>{markRefit();fit();});
 
 load();
 state.sessions.forEach(autoEndIfStale);

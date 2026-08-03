@@ -10,7 +10,8 @@ export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
 
 export const state={sessions:[],sessionId:null,exId:null,catalog:[],
   settings:Object.assign({},DEFAULTS),
-  reps:DEFAULT_REPS,perSide:false,setStart:null,editing:null,adding:false,manage:false,view:"log"};
+  reps:DEFAULT_REPS,perSide:false,setStart:null,editing:null,
+  adding:false,focusAdd:false,manage:false,view:"log"};
 
 // Settings that change how numbers are counted live in the model, so it can stay pure.
 export function applySettings(){

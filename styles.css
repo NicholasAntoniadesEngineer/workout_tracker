@@ -153,7 +153,7 @@ td.sum{min-width:36px;text-align:center;color:var(--accentText);
 .stripact{flex:none;display:flex;align-items:center;gap:5px;padding-left:4px;
   border-left:1px solid var(--line);}
 .striprow{padding-right:2px;}
-.stripact input.name{width:min(38vw,150px);}
+.stripact input.name{width:min(28vw,110px);}
 .striprow{flex:1;min-width:0;display:flex;align-items:center;gap:calc(5px * var(--k));
   overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;padding-bottom:2px;}
 .striprow .addbtn{flex:none;}
