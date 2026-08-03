@@ -20,6 +20,9 @@ function statsBar(session,t){
 }
 
 function setsTable(session){
+  if(!session.ex.length)
+    return "<div class='card tblwrap empty-card'><div class='empty-note'>"+
+      "No exercises yet.<br>Pick some below to start logging.</div></div>";
   const cols=setColumns(session);
   let h="<div class='card tblwrap'><table><thead><tr>"+
     "<th class='exh'><button class='exhbtn' id='managebtn'>Exercise <span class='pen'>&#9998;</span></button></th>";
@@ -64,21 +67,58 @@ function logPanel(){
   return h+"</div>";
 }
 
-// Exercise admin lives behind a toggle so the logging screen keeps a fixed height.
-function managePanel(session){
-  let h="<div class='card panel'><div class='prow'>"+
-    "<div class='plabel'>Exercises</div>"+
-    "<button class='btn ghost tiny' id='managedone'>Done</button></div><div class='chips'>";
-  session.ex.forEach(e=>{
-    h+="<span class='chip'>"+esc(e.name)+"<button class='x' data-rm='"+e.id+"'>&times;</button></span>";
+// Always on screen under the table: whatever is not in today, one tap away. Scrolls
+// sideways rather than growing, so it costs the same height however long the list gets.
+function addStrip(session){
+  const picked={};
+  session.ex.forEach(e=>{picked[e.name.trim().toLowerCase()]=true;});
+  let h="<div class='addstrip'><span class='striplbl'>Add</span><div class='striprow'>";
+  state.catalog.filter(n=>!picked[n.trim().toLowerCase()]).forEach(n=>{
+    h+="<button class='chip spick' data-add=\""+esc(n)+"\">"+esc(n)+"</button>";
   });
   if(state.adding){
-    h+="<span class='addrow'><input class='name' id='newname' placeholder='Exercise name' autocomplete='off'>"+
+    h+="<span class='addrow'><input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
        "<button class='btn primary' id='addok'>Add</button></span>";
   }else{
-    h+="<button class='addbtn' id='addbtn'>+ Exercise</button>";
+    h+="<button class='addbtn' id='addbtn'>+ New</button>";
   }
-  return h+"</div><div class='reset'><button id='reset'>Clear this day's sets</button></div></div>";
+  return h+"</div></div>";
+}
+
+// Days start empty: you pick what you are training from your list. Tapping a name in
+// Your list adds it to the day; the × beside it drops it from the list for good.
+function pickerPanel(session){
+  const picked={};
+  session.ex.forEach(e=>{picked[e.name.trim().toLowerCase()]=true;});
+  const rest=state.catalog.filter(n=>!picked[n.trim().toLowerCase()]);
+  let h="<div class='card panel'><div class='prow'>"+
+    "<div class='plabel'>"+(session.ex.length?"Today's exercises":"Pick today's exercises")+"</div>"+
+    (session.ex.length?"<button class='btn ghost tiny' id='managedone'>Done</button>":"")+
+    "</div>";
+
+  h+="<div class='chips'>";
+  if(!session.ex.length)h+="<span class='pickmsg'>Nothing picked yet.</span>";
+  session.ex.forEach(e=>{
+    h+="<span class='chip on'>"+esc(e.name)+
+       "<button class='x' data-rm='"+e.id+"'>&times;</button></span>";
+  });
+  h+="</div>";
+
+  h+="<div class='picklbl'>Your list</div><div class='chips'>";
+  rest.forEach(n=>{
+    h+="<span class='chip'><button class='pick' data-add=\""+esc(n)+"\">"+esc(n)+"</button>"+
+       "<button class='x' data-delcat=\""+esc(n)+"\">&times;</button></span>";
+  });
+  if(state.adding){
+    h+="<span class='addrow'><input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
+       "<button class='btn primary' id='addok'>Add</button></span>";
+  }else{
+    h+="<button class='addbtn' id='addbtn'>+ New</button>";
+  }
+  h+="</div>";
+
+  if(session.ex.length)h+="<div class='reset'><button id='reset'>Clear this day's sets</button></div>";
+  return h+"</div>";
 }
 
 export function workoutLabel(session){
@@ -132,7 +172,7 @@ function logView(){
     "<div class='h1' id='daytitle'>"+esc(s.title)+" <span class='pen'>&#9998;</span></div>"+
     "</div><button class='daysbtn' id='daysbtn'>&#9776; Days ("+state.sessions.length+")</button></div>"+
     statsBar(s,totals(s))+setsTable(s)+
-    (state.manage?managePanel(s):logPanel())+
+    ((state.manage||!s.ex.length)?pickerPanel(s):addStrip(s)+logPanel())+
     "</div>"+timerBar(s);
 }
 

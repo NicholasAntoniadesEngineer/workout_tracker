@@ -53,12 +53,20 @@ until the day fits the window, down to a floor of 0.62. Sets grow rightward
 without limit, so the table — and only the table — scrolls sideways, with the
 exercise column pinned.
 
-Exercise add/remove and *Clear this day's sets* live behind the ✎ on the
-Exercise column header, which keeps them off the logging screen.
+The **Add** strip under the table scrolls sideways too, so it costs the same
+height whether your list holds five exercises or fifty.
 
-New days copy the previous day's exercises, so a new entry in `SEED_EXERCISES`
-would never reach a device that already has history. Bumping `SEED_STAMP` in
-`js/store.js` adds the missing defaults to the current day once.
+## Choosing exercises
+
+A day starts empty. The Add strip sits under the table the whole time — tap a
+name to put it in today's workout, or *+ New* to type one.
+
+Your list is every exercise you have ever used: `SEED_EXERCISES` in
+`js/model.js` on a fresh install, plus anything you add or import. Dropping an
+exercise from a day leaves it in the list; the ✎ on the Exercise column header
+opens the fuller editor, where the × beside a name in *Your list* removes it for
+good, and where *Clear this day's sets* lives. Dropping an exercise that already
+has sets asks first.
 
 ## CSV columns
 

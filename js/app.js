@@ -1,5 +1,6 @@
-import {addSet,autoEndIfStale,endWorkout,fmtClock,makeSession,nowISO,startWorkout,uid} from "./model.js";
-import {activeEx,getSession,load,mergeSessions,save,selectSession,state} from "./store.js";
+import {addSet,autoEndIfStale,endWorkout,fmtClock,makeSession,nowISO,startWorkout} from "./model.js";
+import {activeEx,addExerciseToDay,getSession,load,mergeSessions,removeFromCatalog,save,
+  selectSession,state} from "./store.js";
 import {exportCSV,parseImport} from "./csv.js";
 import {paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
 
@@ -39,11 +40,7 @@ function render(){
 function addExercise(){
   const el=document.getElementById("newname");
   const name=el?el.value.trim():"";
-  if(name){
-    const e={id:uid(),name,sets:[]};
-    getSession().ex.push(e);
-    state.exId=e.id;
-  }
+  if(name)addExerciseToDay(name);
   state.adding=false;
   render();
 }
@@ -60,7 +57,7 @@ function importText(text){
 
 function deleteDay(id){
   state.sessions=state.sessions.filter(s=>s.id!==id);
-  if(!state.sessions.length)state.sessions=[makeSession(null)];
+  if(!state.sessions.length)state.sessions=[makeSession()];
   if(state.sessionId===id)selectSession(state.sessions[0].id);
 }
 
@@ -87,8 +84,7 @@ document.body.addEventListener("click",ev=>{
   if(loadDay){selectSession(loadDay.getAttribute("data-load"));state.view="log";render();return;}
   if(t.id==="backbtn"){state.view="log";render();return;}
   if(t.id==="newday"){
-    const cur=getSession();
-    const ns=makeSession(cur?cur.ex:null);
+    const ns=makeSession();
     state.sessions.push(ns);
     selectSession(ns.id);
     state.view="log";render();return;
@@ -161,8 +157,21 @@ document.body.addEventListener("click",ev=>{
     state.editing=null;render();return;
   }
   if(t.id==="cxl"){state.editing=null;render();return;}
+  const add=t.closest&&t.closest("[data-add]");
+  if(add){addExerciseToDay(add.getAttribute("data-add"));render();return;}
+
+  const delCat=t.closest&&t.closest("[data-delcat]");
+  if(delCat){
+    const name=delCat.getAttribute("data-delcat");
+    if(confirm("Remove \""+name+"\" from your list? Days you already logged keep it."))
+      removeFromCatalog(name);
+    render();return;
+  }
   if(t.dataset&&t.dataset.rm){
     const s=getSession();
+    const e=s.ex.find(x=>x.id===t.dataset.rm);
+    if(e&&e.sets.length&&!confirm("Drop "+e.name+" from today? Its "+e.sets.length+
+      " logged set"+(e.sets.length>1?"s":"")+" will be deleted."))return;
     s.ex=s.ex.filter(x=>x.id!==t.dataset.rm);
     if(state.exId===t.dataset.rm)state.exId=s.ex[0]?s.ex[0].id:null;
     render();return;

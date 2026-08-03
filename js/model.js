@@ -1,3 +1,5 @@
+// The exercises a fresh install starts with in the picker. A day begins empty;
+// these are what you can choose from, not what you get.
 export const SEED_EXERCISES=["Lunges","Kettlebell swings","Pull ups","Push ups",
   "Standing kettlebell rows","Shoulder press","Burpees"];
 export const QUICK_REPS=[5,8,10,12,15,20];
@@ -137,9 +139,11 @@ export function addSet(session,ex,reps,perSide,at){
   ex.sets.push({r:reps,side:perSide,t:gap,at:stamp});
 }
 
-export function makeSession(fromEx){
-  const names=(fromEx&&fromEx.length)?fromEx.map(e=>e.name):SEED_EXERCISES.slice();
+export function makeSession(){
   return {id:uid(),title:todayLabel(),created:new Date().toISOString(),
-    started:"",ended:"",running:false,
-    ex:names.map(n=>({id:uid(),name:n,sets:[]}))};
+    started:"",ended:"",running:false,ex:[]};
+}
+
+export function makeExercise(name){
+  return {id:uid(),name,sets:[]};
 }
