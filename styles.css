@@ -128,13 +128,13 @@ td.sum{min-width:36px;text-align:center;color:var(--accentText);
 .btn.tiny{flex:none;padding:calc(5px * var(--k)) calc(12px * var(--k));font-size:var(--f-sm);}
 .editrow{display:flex;gap:8px;}
 
-.addstrip{flex:none;display:flex;align-items:center;gap:8px;margin-top:var(--sp);}
-.striplbl{font-size:var(--f-tiny);text-transform:uppercase;letter-spacing:1px;color:var(--muted);
-  font-weight:700;flex:none;}
+.addstrip{flex:none;display:flex;align-items:center;margin-top:var(--sp);}
 .striprow{flex:1;min-width:0;display:flex;align-items:center;gap:calc(5px * var(--k));
   overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;padding-bottom:2px;}
 .striprow .addbtn{flex:none;}
 .chip.spick{flex:none;padding:calc(5px * var(--k)) 12px;cursor:pointer;background:var(--panelHi);}
+.striprow .chip{flex:none;}
+.striprow .chip.on.sel{background:var(--accent);border-color:var(--accent);color:var(--onAccent);}
 .picklbl{font-size:var(--f-tiny);text-transform:uppercase;letter-spacing:1px;color:var(--muted);
   font-weight:700;margin:calc(10px * var(--k)) 0 calc(5px * var(--k));}
 .pickmsg{font-size:var(--f-sm);color:var(--muted);}

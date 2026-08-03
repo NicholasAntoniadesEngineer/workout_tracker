@@ -67,14 +67,20 @@ function logPanel(){
   return h+"</div>";
 }
 
-// Always on screen under the table: whatever is not in today, one tap away. Scrolls
-// sideways rather than growing, so it costs the same height however long the list gets.
-function addStrip(session){
+// Always on screen under the table, and the only place exercises are added or dropped
+// mid-workout: today's first with an ×, then the rest with a + to add. Scrolls sideways
+// rather than growing, so it costs the same height however long the list gets.
+function exerciseStrip(session){
   const picked={};
   session.ex.forEach(e=>{picked[e.name.trim().toLowerCase()]=true;});
-  let h="<div class='addstrip'><span class='striplbl'>Add</span><div class='striprow'>";
+  let h="<div class='addstrip'><div class='striprow'>";
+  session.ex.forEach(e=>{
+    h+="<span class='chip on"+(e.id===state.exId?" sel":"")+"'>"+
+       "<button class='pick' data-sel='"+e.id+"'>"+esc(e.name)+"</button>"+
+       "<button class='x' data-rm='"+e.id+"'>&times;</button></span>";
+  });
   state.catalog.filter(n=>!picked[n.trim().toLowerCase()]).forEach(n=>{
-    h+="<button class='chip spick' data-add=\""+esc(n)+"\">"+esc(n)+"</button>";
+    h+="<button class='chip spick' data-add=\""+esc(n)+"\">+ "+esc(n)+"</button>";
   });
   if(state.adding){
     h+="<span class='addrow'><input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
@@ -172,7 +178,7 @@ function logView(){
     "<div class='h1' id='daytitle'>"+esc(s.title)+" <span class='pen'>&#9998;</span></div>"+
     "</div><button class='daysbtn' id='daysbtn'>&#9776; Days ("+state.sessions.length+")</button></div>"+
     statsBar(s,totals(s))+setsTable(s)+
-    ((state.manage||!s.ex.length)?pickerPanel(s):addStrip(s)+logPanel())+
+    ((state.manage||!s.ex.length)?pickerPanel(s):exerciseStrip(s)+logPanel())+
     "</div>"+timerBar(s);
 }
 

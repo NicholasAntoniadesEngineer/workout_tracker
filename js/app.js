@@ -160,6 +160,14 @@ document.body.addEventListener("click",ev=>{
   const add=t.closest&&t.closest("[data-add]");
   if(add){addExerciseToDay(add.getAttribute("data-add"));render();return;}
 
+  const sel=t.closest&&t.closest("[data-sel]");
+  if(sel){
+    state.exId=sel.getAttribute("data-sel");state.editing=null;
+    const e=activeEx();
+    if(e&&e.sets.length)state.perSide=e.sets[e.sets.length-1].side;
+    render();return;
+  }
+
   const delCat=t.closest&&t.closest("[data-delcat]");
   if(delCat){
     const name=delCat.getAttribute("data-delcat");
