@@ -1,13 +1,12 @@
 import {makeSession,normSet,todayLabel} from "./model.js";
-import {restore as restoreTimer,snapshot as timerSnapshot} from "./timer.js";
 
 const KEY="workout_days_v2";
 const LEGACY_KEY="workout_current_v1";
-const STORE_VERSION=3;
+const STORE_VERSION=4;
 const DEFAULT_REPS=10;
 
 export const state={sessions:[],sessionId:null,exId:null,
-  reps:DEFAULT_REPS,perSide:false,editing:null,adding:false,view:"log"};
+  reps:DEFAULT_REPS,perSide:false,mark:null,editing:null,adding:false,manage:false,view:"log"};
 
 export function getSession(){
   return state.sessions.find(s=>s.id===state.sessionId)||null;
@@ -42,12 +41,21 @@ function readLegacy(){
   return null;
 }
 
+// Days saved before the workout button existed have no running flag; they read as finished.
+function normSession(s){
+  s.started=s.started||"";
+  s.ended=s.ended||"";
+  s.running=!!s.running;
+  s.ex.forEach(e=>{e.sets=(e.sets||[]).map(normSet);});
+  return s;
+}
+
 export function load(){
   const saved=readSaved();
   if(saved){state.sessions=saved.sessions;state.sessionId=saved.sessionId||saved.sessions[0].id;}
   else{state.sessions=readLegacy()||[makeSession(null)];}
-  state.sessions.forEach(s=>s.ex.forEach(e=>{e.sets=(e.sets||[]).map(normSet);}));
-  if(saved)restoreTimer(saved.timer);
+  state.sessions.forEach(normSession);
+  state.mark=(saved&&saved.mark)||null;
   if(!getSession())state.sessionId=state.sessions[0].id;
   const s=getSession();
   state.exId=s.ex.length?s.ex[0].id:null;
@@ -56,7 +64,7 @@ export function load(){
 export function save(){
   try{
     localStorage.setItem(KEY,JSON.stringify(
-      {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,timer:timerSnapshot()}));
+      {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,mark:state.mark}));
   }catch(e){}
 }
 
@@ -69,6 +77,7 @@ export function selectSession(id){
   const s=getSession();
   state.exId=s.ex[0]?s.ex[0].id:null;
   state.editing=null;
+  state.mark=null;
 }
 
 // Days sharing a created stamp are replaced, not duplicated.

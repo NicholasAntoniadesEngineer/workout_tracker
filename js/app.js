@@ -1,14 +1,34 @@
-import {fmtClock,makeSession,markActivity,uid,workSeconds} from "./model.js";
+import {addSet,endWorkout,fmtClock,makeSession,nowISO,startWorkout,uid} from "./model.js";
 import {activeEx,getSession,load,mergeSessions,save,selectSession,state} from "./store.js";
 import {exportCSV,parseImport} from "./csv.js";
-import {paint,workoutLabel} from "./views.js";
-import {elapsedSeconds,reset as resetTimer,takeSeconds,timer,toggle as toggleTimer} from "./timer.js";
+import {paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
 
 const MIN_REPS=0;
 const TICK_MS=1000;
+const FIT_MIN=0.62;
+const FIT_STEP=0.04;
+
+// Width is the table's problem — extra sets scroll sideways. Only height has to be made to fit.
+function overflows(el){
+  return !!el&&el.scrollHeight>el.clientHeight+1;
+}
+
+// The log screen never scrolls: shrink the type scale until the whole day fits the window.
+function fit(){
+  const root=document.documentElement;
+  root.style.setProperty("--k","1");
+  if(state.view!=="log")return;
+  const wrap=document.querySelector(".wrap"),tbl=document.querySelector(".tblwrap");
+  let k=1;
+  while(k>FIT_MIN&&(overflows(wrap)||overflows(tbl))){
+    k=Math.round((k-FIT_STEP)*100)/100;
+    root.style.setProperty("--k",String(k));
+  }
+}
 
 function render(){
   paint();
+  fit();
   if(state.adding){
     const el=document.getElementById("newname");
     if(el){el.focus();el.addEventListener("keydown",ev=>{if(ev.key==="Enter")addExercise();});}
@@ -73,7 +93,7 @@ document.body.addEventListener("click",ev=>{
     selectSession(ns.id);
     state.view="log";render();return;
   }
-  if(t.id==="daysbtn"){state.view="history";render();return;}
+  if(t.id==="daysbtn"){state.view="history";state.manage=false;state.adding=false;render();return;}
   if(t.id==="exportcsv"){exportCSV(state.sessions);return;}
   if(t.id==="importcsv"){const cf=document.getElementById("csvfile");if(cf)cf.click();return;}
 
@@ -83,6 +103,10 @@ document.body.addEventListener("click",ev=>{
     if(name!==null&&name.trim())s.title=name.trim();
     render();return;
   }
+  if(t.closest&&t.closest("#managebtn")){
+    state.manage=true;state.editing=null;render();return;
+  }
+  if(t.id==="managedone"){state.manage=false;state.adding=false;render();return;}
   if(t.id==="minus"){state.reps=Math.max(MIN_REPS,state.reps-1);render();return;}
   if(t.id==="plus"){state.reps=state.reps+1;render();return;}
   if(t.dataset&&t.dataset.q){state.reps=parseInt(t.dataset.q,10);render();return;}
@@ -104,19 +128,31 @@ document.body.addEventListener("click",ev=>{
     state.editing={ex:cell.dataset.ex,i};
     render();return;
   }
-  if(t.id==="tstart"){toggleTimer();render();return;}
-  if(t.id==="treset"){resetTimer();render();return;}
+  if(t.id==="wtoggle"){
+    const s=getSession();
+    s.running?endWorkout(s):startWorkout(s);
+    state.mark=null;
+    render();return;
+  }
+  // Marking freezes the set clock at this instant; the next logged set is stamped there.
+  if(t.id==="markbtn"){
+    const s=getSession();
+    if(state.mark){state.mark=null;}
+    else{if(!s.running)startWorkout(s);state.mark=nowISO();}
+    render();return;
+  }
   if(t.id==="logbtn"){
     const e=activeEx();
-    if(e){
-      e.sets.push({r:state.reps,side:state.perSide,t:takeSeconds()});
-      markActivity(getSession());
-    }
+    if(e)addSet(getSession(),e,state.reps,state.perSide,state.mark);
+    state.mark=null;
     render();return;
   }
   if(t.id==="upd"){
     const e=getSession().ex.find(x=>x.id===state.editing.ex);
-    if(e)e.sets[state.editing.i]={r:state.reps,side:state.perSide,t:e.sets[state.editing.i].t||0};
+    if(e){
+      const old=e.sets[state.editing.i];
+      e.sets[state.editing.i]={r:state.reps,side:state.perSide,t:old.t||0,at:old.at||""};
+    }
     state.editing=null;render();return;
   }
   if(t.id==="del"){
@@ -142,17 +178,22 @@ document.body.addEventListener("click",ev=>{
   }
 });
 
-// Ticking touches only the clock nodes, so it never disturbs the live view.
+// Both clocks derive from stored stamps, so ticking only refreshes text — never the DOM.
 function tick(){
   if(state.view!=="log")return;
+  const s=getSession();
   const set=document.getElementById("settime");
-  if(set)set.textContent=fmtClock(elapsedSeconds());
+  if(set)set.textContent=fmtClock(setClockSeconds(s));
+  const setl=document.getElementById("setsub");
+  if(setl)setl.innerHTML=setSub(s);
   const work=document.getElementById("worktime");
-  if(work)work.innerHTML=workoutLabel(getSession());
+  if(work)work.innerHTML=workoutLabel(s);
   const sub=document.getElementById("worksub");
-  if(sub)sub.textContent=fmtClock(workSeconds(getSession()))+" logged";
-  if(timer.running)save();
+  if(sub)sub.innerHTML=workoutSub(s);
 }
+
+window.addEventListener("resize",fit);
+window.addEventListener("orientationchange",fit);
 
 load();
 render();

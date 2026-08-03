@@ -1,6 +1,6 @@
-import {uid} from "./model.js";
+import {uid,workoutEnd} from "./model.js";
 
-const HEADER=["Date","Day","Started","Ended","Exercise","Set","Reps","Side","Seconds"];
+const HEADER=["Date","Day","Started","Ended","Exercise","Set","Reps","Side","Seconds","At"];
 const SIDE_WORDS=["per side","side","each side","yes","y","true","1"];
 const SIDE_MARK="per side";
 const BOM="\ufeff";
@@ -16,9 +16,10 @@ export function buildCSV(sessions){
   const rows=[HEADER];
   const oldestFirst=sessions.slice().sort((a,b)=>(a.created||"").localeCompare(b.created||""));
   oldestFirst.forEach(s=>s.ex.forEach(e=>{
-    const day=[s.created,s.title,s.started||"",s.ended||""];
-    if(e.sets.length)e.sets.forEach((x,i)=>rows.push(day.concat([e.name,i+1,x.r,x.side?SIDE_MARK:"",x.t||""])));
-    else rows.push(day.concat([e.name,"","","",""]));
+    const day=[s.created,s.title,s.started||"",workoutEnd(s)];
+    if(e.sets.length)e.sets.forEach((x,i)=>
+      rows.push(day.concat([e.name,i+1,x.r,x.side?SIDE_MARK:"",x.t||"",x.at||""])));
+    else rows.push(day.concat([e.name,"","","","",""]));
   }));
   return rows.map(r=>r.map(csvField).join(",")).join(EOL);
 }
@@ -52,7 +53,8 @@ export function parseImport(text){
   const head=rows[0].map(x=>x.trim().toLowerCase());
   const col={date:head.indexOf("date"),day:head.indexOf("day"),ex:head.indexOf("exercise"),
     set:head.indexOf("set"),reps:head.indexOf("reps"),side:head.indexOf("side"),
-    started:head.indexOf("started"),ended:head.indexOf("ended"),secs:head.indexOf("seconds")};
+    started:head.indexOf("started"),ended:head.indexOf("ended"),secs:head.indexOf("seconds"),
+    at:head.indexOf("at")};
   if(col.date<0||col.ex<0||col.reps<0)
     throw new Error("Couldn't find the expected columns. Keep the header row: Date, Day, Exercise, Set, Reps, Side.");
 
@@ -80,18 +82,18 @@ export function parseImport(text){
     const setNo=parseInt((row[col.set]||"").trim(),10);
     const secs=col.secs>=0?parseInt((row[col.secs]||"").trim(),10):NaN;
     g.byName[name].tmp.push({i:isNaN(setNo)?g.byName[name].tmp.length+1:setNo,
-      r:reps,side:col.side>=0&&isSide(row[col.side]),t:isNaN(secs)?0:secs});
+      r:reps,side:col.side>=0&&isSide(row[col.side]),t:isNaN(secs)?0:secs,
+      at:col.at>=0?(row[col.at]||"").trim():""});
   }
 
   const imported=order.map(k=>{
     const g=groups[k];
-    const day={id:uid(),title:g.title,created:g.created};
-    if(g.started)day.started=g.started;
-    if(g.ended)day.ended=g.ended;
+    const day={id:uid(),title:g.title,created:g.created,
+      started:g.started||"",ended:g.ended||"",running:false};
     return Object.assign(day,{
       ex:g.ex.map(e=>{
         e.tmp.sort((a,b)=>a.i-b.i);
-        return {id:uid(),name:e.name,sets:e.tmp.map(o=>({r:o.r,side:o.side,t:o.t}))};
+        return {id:uid(),name:e.name,sets:e.tmp.map(o=>({r:o.r,side:o.side,t:o.t,at:o.at}))};
       })});
   });
   if(!imported.length)throw new Error("No workout rows found in that file.");
