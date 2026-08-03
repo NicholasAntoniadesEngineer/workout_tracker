@@ -19,10 +19,15 @@ function overflows(el){
 // A chosen text size is honoured exactly — if the day no longer fits, the table scrolls
 // rather than the type being quietly overruled. Auto (0) is the fit-to-window default,
 // which shrinks the scale until the whole day is on screen.
+let autoScale=1;
+
 function fit(){
   const root=document.documentElement;
   const chosen=state.settings.textScale||0;
   if(chosen){root.style.setProperty("--k",String(chosen));return;}
+  // Editing the day's exercises swaps the panel and would otherwise resize the type
+  // under you. Hold the scale the logging screen settled on until Done.
+  if(state.manage){root.style.setProperty("--k",String(autoScale));return;}
   let k=1;
   root.style.setProperty("--k","1");
   if(state.view!=="log")return;
@@ -31,6 +36,7 @@ function fit(){
     k=Math.round((k-FIT_STEP)*100)/100;
     root.style.setProperty("--k",String(k));
   }
+  autoScale=k;
 }
 
 // Repainting throws the DOM away, which would jump the table back to set 1 every time

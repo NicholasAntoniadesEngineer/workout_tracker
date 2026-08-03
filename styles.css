@@ -91,9 +91,12 @@ th.exh{text-align:left;}
 /* The exercise column stays put while the sets scroll under it, and never gets squeezed. */
 th.exh,tbody td:first-child{position:sticky;left:0;z-index:1;background:var(--panel);
   box-shadow:5px 0 0 0 var(--panel);min-width:var(--exw);}
-.exhbtn{background:none;border:none;padding:0;color:var(--muted);font-size:var(--f-tiny);
-  text-transform:uppercase;letter-spacing:1px;font-weight:700;cursor:pointer;}
-.exhbtn .pen{color:var(--accentText);}
+/* Reads as a button, so it is clear the day's exercises can be edited from here. */
+.exhbtn{background:var(--panelHi);border:1px solid var(--line);border-radius:8px;
+  padding:calc(4px * var(--k)) calc(7px * var(--k));color:var(--muted);
+  font-size:calc(10px * var(--k));text-transform:uppercase;letter-spacing:1px;
+  font-weight:700;cursor:pointer;white-space:nowrap;}
+.exhbtn .pen{color:var(--accentText);font-size:calc(12px * var(--k));}
 .exbtn{width:100%;text-align:left;background:transparent;border:1px solid transparent;color:var(--text);
   border-radius:8px;padding:calc(6px * var(--k)) calc(8px * var(--k));font-size:var(--f-md);
   font-weight:600;line-height:1.2;max-width:var(--exwmax);cursor:pointer;}
