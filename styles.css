@@ -16,11 +16,13 @@
   --f-md:calc(13px * var(--k));
   --f-lg:calc(15px * var(--k));
   --f-clock:calc(clamp(23px,6.4vw,28px) * var(--k));
-  --f-rep:calc(clamp(36px,10.5vw,46px) * var(--k));
+  --f-rep:calc(clamp(26px,7.4vw,34px) * var(--k));
   --f-cell:calc(clamp(15px,4vw,17px) * var(--k));
   --round:calc(clamp(44px,12.5vw,54px) * var(--k));
   --cellh:calc(clamp(36px,10vw,42px) * var(--k));
   /* Widths deliberately ignore --k: three set columns always fit, the rest scroll. */
+  /* One height for every primary action: Log set, Start set, End workout. */
+  --ctlh:calc(40px * var(--k));
   --cellw:clamp(50px,13.5vw,58px);
   --exw:clamp(92px,27vw,150px);
   --exwmax:clamp(150px,42vw,190px);
@@ -112,7 +114,8 @@ td.sum{min-width:36px;text-align:center;color:var(--accentText);
 .sd{font-size:var(--f-xs);color:var(--muted);margin-left:1px;}
 .ct{display:block;font-size:var(--f-tiny);font-weight:600;color:var(--muted);line-height:1;margin-top:2px;}
 
-.panel{flex:none;margin-top:var(--sp);margin-bottom:var(--sp);}
+/* Sits flush on the timer bar: the space below it belongs to the table. */
+.panel{flex:none;margin-top:var(--sp);margin-bottom:0;}
 .prow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:calc(8px * var(--k));}
 .plabel{font-size:var(--f-sm);color:var(--muted);text-transform:uppercase;letter-spacing:1px;flex:none;}
 .pactive{font-size:var(--f-md);font-weight:700;color:var(--accentText);text-align:right;
@@ -135,8 +138,9 @@ td.sum{min-width:36px;text-align:center;color:var(--accentText);
 
 .btn{border-radius:10px;padding:calc(10px * var(--k)) 14px;font-size:var(--f-md);
   font-weight:700;cursor:pointer;flex:1;}
+/* Matches the timer bar buttons, so the three primary actions read as one row of controls. */
 .btn.log{background:var(--accent);color:var(--onAccent);border:1px solid var(--accent);
-  width:100%;font-size:calc(16px * var(--k));padding:calc(13px * var(--k));}
+  width:100%;font-size:var(--f-md);font-weight:800;padding:0 6px;min-height:var(--ctlh);}
 .btn.log .at{font-weight:800;opacity:.75;}
 .btn.primary{background:var(--accent);color:var(--onAccent);border:1px solid var(--accent);}
 .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);}
@@ -200,8 +204,8 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   text-decoration-color:var(--line);text-underline-offset:3px;}
 .tbtn.narrow{flex:none;width:calc(34px * var(--k));padding-left:0;padding-right:0;
   font-size:calc(15px * var(--k));}
-.tbtn{width:100%;border-radius:10px;
-  padding:calc(10px * var(--k)) 6px;font-size:var(--f-md);font-weight:800;cursor:pointer;
+.tbtn{width:100%;border-radius:10px;min-height:var(--ctlh);
+  padding:0 6px;font-size:var(--f-md);font-weight:800;cursor:pointer;
   border:1px solid var(--line);background:var(--panelHi);color:var(--text);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .tbtn.go{background:var(--accent);border-color:var(--accent);color:var(--onAccent);}
