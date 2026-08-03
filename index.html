@@ -60,6 +60,9 @@
   .q{background:var(--panelHi);color:var(--muted);border:1px solid var(--line);border-radius:8px;
     padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;}
   .q.on{background:var(--accent);color:#1a1200;}
+  .sd{font-size:11px;color:var(--muted);margin-left:1px;}
+  .togrow{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;}
+  .togrow .hint{font-size:12px;color:var(--muted);}
   .btn{border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;flex:1;}
   .btn.log{background:var(--accent);color:#1a1200;border:1px solid var(--accent);width:100%;font-size:17px;padding:14px;}
   .btn.primary{background:var(--accent);color:#1a1200;border:1px solid var(--accent);}
@@ -105,7 +108,8 @@
   var KEY="workout_days_v2";
   var OLDKEY="workout_current_v1";
   var QUICK=[5,8,10,12,15,20];
-  var state={sessions:[],sessionId:null,exId:null,reps:10,editing:null,adding:false,view:"log"};
+  var SIDE_WORDS=["per side","side","each side","yes","y","true","1"];
+  var state={sessions:[],sessionId:null,exId:null,reps:10,perSide:false,editing:null,adding:false,view:"log"};
 
   function todayLabel(){return new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"});}
   function shortDate(iso){try{return new Date(iso).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});}catch(e){return "";}}
@@ -128,14 +132,17 @@
       try{var old=localStorage.getItem(OLDKEY);if(old){var od=JSON.parse(old);if(od.ex&&od.ex.length){var s=makeSession(null);s.ex=od.ex;s.title=od.date||todayLabel();state.sessions=[s];}}}catch(e2){}
     }
     if(!state.sessions.length){state.sessions=[makeSession(null)];}
+    state.sessions.forEach(function(s){s.ex.forEach(function(e){e.sets=(e.sets||[]).map(normSet);});});
     if(!getSession()){state.sessionId=state.sessions[0].id;}
     var ss=getSession();state.exId=ss.ex.length?ss.ex[0].id:null;
   }
-  function save(){try{localStorage.setItem(KEY,JSON.stringify({version:2,sessionId:state.sessionId,sessions:state.sessions}));}catch(e){}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({version:3,sessionId:state.sessionId,sessions:state.sessions}));}catch(e){}}
 
   function getSession(){for(var i=0;i<state.sessions.length;i++)if(state.sessions[i].id===state.sessionId)return state.sessions[i];return null;}
   function activeEx(){var s=getSession();if(!s)return null;for(var i=0;i<s.ex.length;i++)if(s.ex[i].id===state.exId)return s.ex[i];return s.ex[0]||null;}
-  function totals(s){var r=0,n=0;s.ex.forEach(function(e){e.sets.forEach(function(x){r+=x;n++;});});return {reps:r,sets:n};}
+  function normSet(v){return (v&&typeof v==="object")?{r:+v.r||0,side:!!v.side}:{r:+v||0,side:false};}
+  function setReps(x){return x.side?x.r*2:x.r;}
+  function totals(s){var r=0,n=0;s.ex.forEach(function(e){e.sets.forEach(function(x){r+=setReps(x);n++;});});return {reps:r,sets:n};}
 
   function render(){
     if(state.view==="history"){renderHistory();save();return;}
@@ -157,12 +164,12 @@
     for(var i=0;i<ms;i++)h+="<th>S"+(i+1)+"</th>";
     h+="<th>&Sigma;</th></tr></thead><tbody>";
     s.ex.forEach(function(e){
-      var sum=e.sets.reduce(function(x,y){return x+y;},0);
+      var sum=e.sets.reduce(function(a,x){return a+setReps(x);},0);
       h+="<tr><td><button class='exbtn"+(e.id===state.exId?" active":"")+"' data-ex='"+e.id+"'>"+esc(e.name)+"</button></td>";
       for(var i2=0;i2<ms;i2++){
         var v=e.sets[i2];
         if(v!==undefined){var ed=state.editing&&state.editing.ex===e.id&&state.editing.i===i2;
-          h+="<td class='cell has mono"+(ed?" editing":"")+"' data-ex='"+e.id+"' data-i='"+i2+"'>"+v+"</td>";
+          h+="<td class='cell has mono"+(ed?" editing":"")+"' data-ex='"+e.id+"' data-i='"+i2+"'>"+v.r+(v.side?"<span class='sd'>/s</span>":"")+"</td>";
         } else h+="<td class='cell empty mono'>&middot;</td>";
       }
       h+="<td class='sum mono'>"+(sum||0)+"</td></tr>";
@@ -176,6 +183,8 @@
        "<div class='repbox'><div class='repnum mono'>"+state.reps+"</div><div class='replbl'>reps</div></div>"+
        "<button class='round' id='plus'>+</button></div>";
     h+="<div class='quick'>";QUICK.forEach(function(n){h+="<button class='q"+(state.reps===n?" on":"")+"' data-q='"+n+"'>"+n+"</button>";});h+="</div>";
+    h+="<div class='togrow'><button class='q"+(state.perSide?" on":"")+"' id='sidebtn'>Per side</button>"+
+       "<span class='hint'>"+(state.perSide?(state.reps*2)+" reps total":"counted once")+"</span></div>";
     if(state.editing){
       h+="<div class='editrow'><button class='btn primary' id='upd'>Update set</button>"+
          "<button class='btn dang' id='del'>Delete</button>"+
@@ -228,12 +237,12 @@
 
   function csvField(v){v=String(v==null?"":v);if(/[",\n\r]/.test(v)){v='"'+v.replace(/"/g,'""')+'"';}return v;}
   function buildCSV(){
-    var rows=[["Date","Day","Exercise","Set","Reps"]];
+    var rows=[["Date","Day","Exercise","Set","Reps","Side"]];
     var list=state.sessions.slice().sort(function(a,b){return (a.created||"").localeCompare(b.created||"");});
     list.forEach(function(s){
       s.ex.forEach(function(e){
-        if(e.sets.length){e.sets.forEach(function(r,i){rows.push([s.created,s.title,e.name,i+1,r]);});}
-        else{rows.push([s.created,s.title,e.name,"",""]);}
+        if(e.sets.length){e.sets.forEach(function(x,i){rows.push([s.created,s.title,e.name,i+1,x.r,x.side?"per side":""]);});}
+        else{rows.push([s.created,s.title,e.name,"","",""]);}
       });
     });
     return rows.map(function(r){return r.map(csvField).join(",");}).join("\r\n");
@@ -266,7 +275,7 @@
     var rows=parseCSV(text).filter(function(r){return !(r.length===1&&r[0]==="");});
     if(!rows.length){alert("That file looks empty.");return;}
     var head=rows[0].map(function(x){return x.trim().toLowerCase();});
-    var iDate=head.indexOf("date"),iDay=head.indexOf("day"),iEx=head.indexOf("exercise"),iSet=head.indexOf("set"),iReps=head.indexOf("reps");
+    var iDate=head.indexOf("date"),iDay=head.indexOf("day"),iEx=head.indexOf("exercise"),iSet=head.indexOf("set"),iReps=head.indexOf("reps"),iSide=head.indexOf("side");
     if(iDate<0||iEx<0||iReps<0){alert("Couldn't find the expected columns. Keep the header row: Date, Day, Exercise, Set, Reps.");return;}
     var groups={},order=[];
     for(var r=1;r<rows.length;r++){var row=rows[r];if(!row.length)continue;
@@ -275,13 +284,14 @@
       var exn=(row[iEx]||"").trim();if(!exn)continue;
       var setn=parseInt((row[iSet]||"").trim(),10);
       var repsRaw=(row[iReps]||"").trim();
+      var sideFlag=iSide>=0&&SIDE_WORDS.indexOf((row[iSide]||"").trim().toLowerCase())>=0;
       if(!groups[key]){groups[key]={created:key,title:day||key,ex:[],map:{}};order.push(key);}
       var g=groups[key];
       if(!g.map[exn]){g.map[exn]={name:exn,tmp:[]};g.ex.push(g.map[exn]);}
-      if(repsRaw!==""){var rp=parseInt(repsRaw,10);if(!isNaN(rp))g.map[exn].tmp.push({i:isNaN(setn)?g.map[exn].tmp.length+1:setn,r:rp});}
+      if(repsRaw!==""){var rp=parseInt(repsRaw,10);if(!isNaN(rp))g.map[exn].tmp.push({i:isNaN(setn)?g.map[exn].tmp.length+1:setn,r:rp,side:sideFlag});}
     }
     var imported=order.map(function(k){var g=groups[k];
-      var exs=g.ex.map(function(e){e.tmp.sort(function(a,b){return a.i-b.i;});return {id:uid(),name:e.name,sets:e.tmp.map(function(o){return o.r;})};});
+      var exs=g.ex.map(function(e){e.tmp.sort(function(a,b){return a.i-b.i;});return {id:uid(),name:e.name,sets:e.tmp.map(function(o){return {r:o.r,side:o.side};})};});
       return {id:uid(),title:g.title,created:g.created,ex:exs};});
     if(!imported.length){alert("No workout rows found in that file.");return;}
     var keys={};imported.forEach(function(s){keys[s.created]=true;});
@@ -325,12 +335,16 @@
     if(t.id==="minus"){state.reps=Math.max(0,state.reps-1);render();return;}
     if(t.id==="plus"){state.reps=state.reps+1;render();return;}
     if(t.dataset&&t.dataset.q){state.reps=parseInt(t.dataset.q,10);render();return;}
-    if(t.dataset&&t.dataset.ex&&t.classList.contains("exbtn")){state.exId=t.dataset.ex;state.editing=null;render();return;}
-    if(t.classList&&t.classList.contains("cell")&&t.classList.contains("has")){
-      var s2=getSession();var e2=null;s2.ex.forEach(function(x){if(x.id===t.dataset.ex)e2=x;});
-      state.exId=t.dataset.ex;state.reps=e2.sets[parseInt(t.dataset.i,10)];state.editing={ex:t.dataset.ex,i:parseInt(t.dataset.i,10)};render();return;}
-    if(t.id==="logbtn"){var a=activeEx();if(a)a.sets.push(state.reps);render();return;}
-    if(t.id==="upd"){var ed=state.editing;var s3=getSession();s3.ex.forEach(function(x){if(x.id===ed.ex)x.sets[ed.i]=state.reps;});state.editing=null;render();return;}
+    if(t.id==="sidebtn"){state.perSide=!state.perSide;render();return;}
+    if(t.dataset&&t.dataset.ex&&t.classList.contains("exbtn")){state.exId=t.dataset.ex;state.editing=null;
+      var pe=activeEx();if(pe&&pe.sets.length)state.perSide=pe.sets[pe.sets.length-1].side;render();return;}
+    var cellEl=t.closest?t.closest(".cell.has"):null;
+    if(cellEl){
+      var s2=getSession();var e2=null;s2.ex.forEach(function(x){if(x.id===cellEl.dataset.ex)e2=x;});
+      var ci=parseInt(cellEl.dataset.i,10);var cs=e2.sets[ci];
+      state.exId=cellEl.dataset.ex;state.reps=cs.r;state.perSide=cs.side;state.editing={ex:cellEl.dataset.ex,i:ci};render();return;}
+    if(t.id==="logbtn"){var a=activeEx();if(a)a.sets.push({r:state.reps,side:state.perSide});render();return;}
+    if(t.id==="upd"){var ed=state.editing;var s3=getSession();s3.ex.forEach(function(x){if(x.id===ed.ex)x.sets[ed.i]={r:state.reps,side:state.perSide};});state.editing=null;render();return;}
     if(t.id==="del"){var ed2=state.editing;var s4=getSession();s4.ex.forEach(function(x){if(x.id===ed2.ex)x.sets.splice(ed2.i,1);});state.editing=null;render();return;}
     if(t.id==="cxl"){state.editing=null;render();return;}
     if(t.dataset&&t.dataset.rm){var s5=getSession();s5.ex=s5.ex.filter(function(x){return x.id!==t.dataset.rm;});if(state.exId===t.dataset.rm)state.exId=s5.ex[0]?s5.ex[0].id:null;render();return;}
