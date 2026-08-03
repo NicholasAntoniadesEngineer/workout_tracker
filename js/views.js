@@ -46,9 +46,13 @@ function setsTable(session){
 
 function logPanel(){
   const a=activeEx();
-  let h="<div class='card panel'><div class='prow'>"+
-    "<div class='plabel'>"+(state.editing?"Editing set":"Logging")+"</div>"+
-    "<div class='pactive'>"+(a?esc(a.name):"&mdash;")+"</div></div>";
+  // No header while logging: the Log set button already names the exercise, and the space
+  // is better given to the table. Editing keeps one, since its buttons name nothing.
+  let h="<div class='card panel'>";
+  if(state.editing){
+    h+="<div class='prow'><div class='plabel'>Editing set</div>"+
+       "<div class='pactive'>"+(a?esc(a.name):"&mdash;")+"</div></div>";
+  }
   h+="<div class='stepper'><button class='round' id='minus'>&minus;</button>"+
      "<div class='repbox'><div class='repnum mono'>"+state.reps+"</div><div class='replbl'>reps</div></div>"+
      "<button class='round' id='plus'>+</button></div>";
