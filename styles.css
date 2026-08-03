@@ -19,8 +19,11 @@
   --f-rep:calc(clamp(36px,10.5vw,46px) * var(--k));
   --f-cell:calc(clamp(15px,4vw,17px) * var(--k));
   --round:calc(clamp(44px,12.5vw,54px) * var(--k));
-  --cellw:calc(clamp(44px,12vw,54px) * var(--k));
   --cellh:calc(clamp(36px,10vw,42px) * var(--k));
+  /* Widths deliberately ignore --k: three set columns always fit, the rest scroll. */
+  --cellw:clamp(50px,13.5vw,58px);
+  --exw:clamp(92px,27vw,150px);
+  --exwmax:clamp(150px,42vw,190px);
 }
 @media (prefers-color-scheme:dark){
   :root{
@@ -68,26 +71,26 @@ button{font-family:inherit;}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:calc(9px * var(--k));}
 /* Sets grow to the right forever, so the table is the one thing allowed to scroll. */
 .tblwrap{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;}
-table{border-collapse:separate;border-spacing:calc(5px * var(--k));width:100%;}
+table{border-collapse:separate;border-spacing:5px calc(5px * var(--k));width:100%;}
 th{font-size:var(--f-tiny);color:var(--muted);text-transform:uppercase;letter-spacing:1px;
   font-weight:700;padding-bottom:1px;}
 th.exh{text-align:left;}
-/* The exercise column stays put while the sets scroll under it. */
+/* The exercise column stays put while the sets scroll under it, and never gets squeezed. */
 th.exh,tbody td:first-child{position:sticky;left:0;z-index:1;background:var(--panel);
-  box-shadow:calc(5px * var(--k)) 0 0 0 var(--panel);}
+  box-shadow:5px 0 0 0 var(--panel);min-width:var(--exw);}
 .exhbtn{background:none;border:none;padding:0;color:var(--muted);font-size:var(--f-tiny);
   text-transform:uppercase;letter-spacing:1px;font-weight:700;cursor:pointer;}
 .exhbtn .pen{color:var(--accentText);}
 .exbtn{width:100%;text-align:left;background:transparent;border:1px solid transparent;color:var(--text);
   border-radius:8px;padding:calc(6px * var(--k)) calc(8px * var(--k));font-size:var(--f-md);
-  font-weight:600;line-height:1.2;max-width:min(42vw,170px);cursor:pointer;}
+  font-weight:600;line-height:1.2;max-width:var(--exwmax);cursor:pointer;}
 .exbtn.active{background:var(--accentDim);border-color:var(--accent);color:var(--accentText);}
 td.cell{min-width:var(--cellw);height:var(--cellh);text-align:center;border-radius:8px;
   font-size:var(--f-cell);font-weight:600;padding:0;line-height:1.05;}
 td.cell.has{background:var(--panelHi);border:1px solid var(--line);cursor:pointer;}
 td.cell.empty{color:var(--line);}
 td.cell.editing{border:1px solid var(--accent);}
-td.sum{min-width:calc(40px * var(--k));text-align:center;color:var(--accentText);
+td.sum{min-width:36px;text-align:center;color:var(--accentText);
   font-weight:700;font-size:var(--f-lg);}
 .cr{display:block;}
 .sd{font-size:var(--f-xs);color:var(--muted);margin-left:1px;}
