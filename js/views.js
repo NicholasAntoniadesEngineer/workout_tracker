@@ -1,4 +1,4 @@
-import {QUICK_REPS,QUICK_WEIGHTS,exerciseTotal,fmtClock,fmtTime,lastSet,restSeconds,secondsSince,setAnchor,
+import {EXERCISE_GROUPS,OTHER_GROUP,QUICK_REPS,QUICK_WEIGHTS,exerciseGroup,exerciseTotal,fmtClock,fmtTime,lastSet,restSeconds,secondsSince,setAnchor,
   shortDate,totals,workoutEnd,workoutSeconds} from "./model.js";
 import {activeEx,getSession,newestFirst,state} from "./store.js";
 
@@ -128,12 +128,23 @@ function exerciseSheet(session){
   });
   h+="</div>";
 
-  h+="<div class='picklbl'>Your list</div><div class='sheetgrid'>";
+  // Grouped by movement, so a long list stays readable. Empty groups are left out.
+  const byGroup={};
   rest.forEach(n=>{
-    h+="<span class='chip sheetitem'><button class='pick' data-add=\""+esc(n)+"\">"+
-       esc(n)+"</button><button class='x' data-delcat=\""+esc(n)+"\">&times;</button></span>";
+    const g=exerciseGroup(n);
+    (byGroup[g]=byGroup[g]||[]).push(n);
   });
-  h+="</div><div class='sheetadd'>";
+  EXERCISE_GROUPS.map(g=>g[0]).concat(OTHER_GROUP).forEach(g=>{
+    const names=byGroup[g];
+    if(!names)return;
+    h+="<div class='picklbl'>"+esc(g)+"</div><div class='sheetgrid'>";
+    names.forEach(n=>{
+      h+="<span class='chip sheetitem'><button class='pick' data-add=\""+esc(n)+"\">"+
+         esc(n)+"</button><button class='x' data-delcat=\""+esc(n)+"\">&times;</button></span>";
+    });
+    h+="</div>";
+  });
+  h+="<div class='sheetadd'>";
   if(state.adding){
     h+="<input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
        "<button class='btn primary' id='addok'>Add</button>";

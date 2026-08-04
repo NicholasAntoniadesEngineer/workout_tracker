@@ -14,11 +14,16 @@ export/import moves history between devices.
 
 ## Using it
 
-A day starts empty. *+ Add* opens your whole list as a sheet over the app — pick
-several, drop several, then Done. The strip under the table holds only today's
-exercises, so switching between them stays one tap, and *− Remove* drops the
-selected one at any point. Hold an exercise in the table and drag it up or down
-to reorder the day.
+A day starts empty. *+ Add* opens your whole list as a sheet over the app,
+grouped by movement — squat, hinge, push, pull, core, carry, lower leg, with
+anything you add yourself under *Other*. Pick several, drop several, then Done.
+The strip under the table holds only today's exercises, so switching between
+them stays one tap, and *− Remove* drops the selected one at any point. Hold an
+exercise in the table and drag it up or down to reorder the day.
+
+The built-in list lives in `EXERCISE_GROUPS` in `js/model.js`. A name added
+there reaches devices that already have a saved list, once; deleting one makes
+it stay deleted.
 
 Two clocks sit at the bottom. **Workout** runs between *Start workout* and *End
 workout*; tap the clock to type in a time you have already been going. **Rest**

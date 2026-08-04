@@ -1,9 +1,31 @@
-// The exercises a fresh install starts with in the picker. A day begins empty;
-// these are what you can choose from, not what you get.
-export const SEED_EXERCISES=["Forward lunges","Backward lunges","Squats",
-  "Slant board squats","Slant board steps","Kettlebell swings",
-  "Kettlebell squat press clean","Pull ups","Push ups","Gorilla rows",
-  "Standing kettlebell rows","Shoulder press","Shoulder shrugs","Bicep curls","Burpees"];
+// The exercises a fresh install starts with in the picker, grouped by the movement they
+// train. A day begins empty; these are what you can choose from, not what you get.
+export const EXERCISE_GROUPS=[
+  ["Squat & lunge",["Squats","Slant board squats","Forward lunges","Backward lunges",
+    "Slant board steps","ATG split squat","Bulgarian split squat","Wall sit"]],
+  ["Hinge & glutes",["Kettlebell swings","Kettlebell deadlift","Single-leg RDL",
+    "Good mornings","Nordic curls","Glute bridge","Hip thrust","Band lateral walk"]],
+  ["Push",["Push ups","Pike push ups","Shoulder press","Dips","Band chest press"]],
+  ["Pull",["Pull ups","Chin ups","Gorilla rows","Standing kettlebell rows","Band row",
+    "Band lat pulldown","Band pull-aparts","Shoulder shrugs","Bicep curls"]],
+  ["Core",["Plank","Side plank","Dead bug","Hollow hold","Hanging knee raises",
+    "Pallof press","Ab wheel rollout","Mountain climbers"]],
+  ["Carry & full body",["Farmer carry","Suitcase carry","Turkish get-up",
+    "Kettlebell squat press clean","Burpees"]],
+  ["Lower leg",["Tibialis raises","Calf raises"]]
+];
+
+export const SEED_EXERCISES=EXERCISE_GROUPS.reduce((all,g)=>all.concat(g[1]),[]);
+
+const GROUP_OF={};
+EXERCISE_GROUPS.forEach(g=>g[1].forEach(n=>{GROUP_OF[n.toLowerCase()]=g[0];}));
+
+// Anything you add yourself falls under Other rather than being forced into a group.
+export const OTHER_GROUP="Other";
+
+export function exerciseGroup(name){
+  return GROUP_OF[String(name||"").trim().toLowerCase()]||OTHER_GROUP;
+}
 export const QUICK_REPS=[5,8,10,12,15,20];
 
 const SIDES_PER_SET=2;
