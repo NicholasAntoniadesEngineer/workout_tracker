@@ -3,7 +3,7 @@
 export const SEED_EXERCISES=["Forward lunges","Backward lunges","Squats",
   "Slant board squats","Slant board steps","Kettlebell swings",
   "Kettlebell squat press clean","Pull ups","Push ups","Gorilla rows",
-  "Standing kettlebell rows","Shoulder press","Bicep curls","Burpees"];
+  "Standing kettlebell rows","Shoulder press","Shoulder shrugs","Bicep curls","Burpees"];
 export const QUICK_REPS=[5,8,10,12,15,20];
 
 const SIDES_PER_SET=2;
