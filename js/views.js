@@ -22,7 +22,7 @@ function statsBar(session,t){
 function setsTable(session){
   if(!session.ex.length)
     return "<div class='card tblwrap empty-card'><div class='empty-note'>"+
-      "No exercises yet.<br>Pick some below to start logging.</div></div>";
+      "No exercises yet.<br>Tap + Add to start logging.</div></div>";
   const cols=setColumns(session);
   let h="<div class='card tblwrap"+(state.dragId?" dragging":"")+"' data-keepx='tbl'>"+
     "<table><thead><tr><th class='exh'>"+
@@ -83,7 +83,7 @@ function logPanel(){
        "<button class='btn dang' id='del'>Delete</button>"+
        "<button class='btn ghost' id='cxl'>Cancel</button></div>";
   }else{
-    h+="<button class='btn log' id='logbtn'>Log set"+(a?" &rarr; "+esc(a.name):"")+
+    h+="<button class='btn log' id='logbtn'"+(a?"":" disabled")+">Log set"+(a?" &rarr; "+esc(a.name):"")+
        (state.setStart?" <span class='at'>@ "+esc(fmtTime(state.setStart))+"</span>":"")+"</button>";
   }
   return h+"</div>";
@@ -112,10 +112,12 @@ function exerciseSheet(session){
   const picked={};
   session.ex.forEach(e=>{picked[e.name.trim().toLowerCase()]=true;});
   const rest=state.catalog.filter(n=>!picked[n.trim().toLowerCase()]);
+  // Always closable, whether or not anything has been picked — looking is allowed.
   let h="<div class='overlay' id='sheetback'><div class='sheet'>"+
     "<div class='sheethead'><div class='plabel'>"+
       (session.ex.length?"Today's exercises":"Pick today's exercises")+"</div>"+
-    (session.ex.length?"<button class='btn primary tiny' id='sheetdone'>Done</button>":"")+
+    "<button class='btn "+(session.ex.length?"primary":"ghost")+" tiny' id='sheetdone'>"+
+      (session.ex.length?"Done":"Close")+"</button>"+
     "</div><div class='sheetbody'>";
 
   h+="<div class='chips'>";
@@ -212,7 +214,7 @@ function logView(){
     statsBar(s,totals(s))+setsTable(s)+
     exerciseStrip(s)+logPanel()+
     "</div>"+timerBar(s)+
-    ((state.sheet||!s.ex.length)?exerciseSheet(s):"");
+    (state.sheet?exerciseSheet(s):"");
 }
 
 function historyView(){

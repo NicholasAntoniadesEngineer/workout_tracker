@@ -290,3 +290,4 @@ tr.held td:first-child{opacity:1;}
 /* Stops the table scrolling under the finger mid-drag. */
 .tblwrap.dragging{touch-action:none;}
 .tblwrap.dragging .exbtn{transition:none;}
+.btn.log[disabled]{opacity:.4;cursor:default;}

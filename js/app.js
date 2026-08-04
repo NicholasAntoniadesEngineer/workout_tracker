@@ -209,12 +209,17 @@ document.body.addEventListener("click",ev=>{
     render();return;
   }
   const loadDay=t.closest&&t.closest("[data-load]");
-  if(loadDay){selectSession(loadDay.getAttribute("data-load"));state.view="log";markRefit();render();return;}
+  if(loadDay){
+    selectSession(loadDay.getAttribute("data-load"));
+    state.sheet=!getSession().ex.length;
+    state.view="log";markRefit();render();return;
+  }
   if(t.id==="backbtn"){state.view="log";render();return;}
   if(t.id==="newday"){
     const ns=makeSession();
     state.sessions.push(ns);
     selectSession(ns.id);
+    state.sheet=true;
     state.view="log";markRefit();render();return;
   }
   if(t.id==="daysbtn"){state.view="history";state.sheet=false;state.adding=false;render();return;}
@@ -393,5 +398,7 @@ window.addEventListener("orientationchange",()=>{markRefit();fit();});
 
 load();
 state.sessions.forEach(autoEndIfStale);
+// A day with nothing picked opens the list for you — but it can be closed again.
+state.sheet=!getSession().ex.length;
 render();
 setInterval(tick,TICK_MS);
