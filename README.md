@@ -14,8 +14,11 @@ export/import moves history between devices.
 
 ## Using it
 
-A day starts empty — pick from the strip under the table, which also holds
-*+ New* and *− Remove* for the selected exercise.
+A day starts empty. *+ Add* opens your whole list as a sheet over the app — pick
+several, drop several, then Done. The strip under the table holds only today's
+exercises, so switching between them stays one tap, and *− Remove* drops the
+selected one at any point. Hold an exercise in the table and drag it up or down
+to reorder the day.
 
 Two clocks sit at the bottom. **Workout** runs between *Start workout* and *End
 workout*; tap the clock to type in a time you have already been going. **Rest**

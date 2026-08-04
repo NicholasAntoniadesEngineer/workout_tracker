@@ -24,13 +24,16 @@ function setsTable(session){
     return "<div class='card tblwrap empty-card'><div class='empty-note'>"+
       "No exercises yet.<br>Pick some below to start logging.</div></div>";
   const cols=setColumns(session);
-  let h="<div class='card tblwrap' data-keepx='tbl'><table><thead><tr>"+
-    "<th class='exh'><button class='exhbtn' id='managebtn'>Exercise <span class='pen'>&#9998;</span></button></th>";
+  let h="<div class='card tblwrap"+(state.dragId?" dragging":"")+"' data-keepx='tbl'>"+
+    "<table><thead><tr><th class='exh'>"+
+    "<button class='exhbtn' id='managebtn'>Exercise <span class='pen'>&#9998;</span></button></th>";
   for(let i=0;i<cols;i++)h+="<th>S"+(i+1)+"</th>";
   h+="<th>&Sigma;</th></tr></thead><tbody>";
   session.ex.forEach(e=>{
-    h+="<tr><td><button class='exbtn"+(e.id===state.exId?" active":"")+"' data-ex='"+e.id+"'>"+
-       esc(e.name)+"</button></td>";
+    const held=state.dragId===e.id;
+    h+="<tr"+(held?" class='held'":"")+"><td>"+
+       "<button class='exbtn"+(e.id===state.exId?" active":"")+(held?" held":"")+
+       "' data-ex='"+e.id+"'>"+esc(e.name)+"</button></td>";
     for(let i=0;i<cols;i++){
       const x=e.sets[i];
       if(x===undefined){h+="<td class='cell empty mono'>&middot;</td>";continue;}
@@ -89,41 +92,31 @@ function logPanel(){
 // Always on screen under the table, and the only place exercises are added or dropped
 // mid-workout: today's first with an ×, then the rest with a + to add. Scrolls sideways
 // rather than growing, so it costs the same height however long the list gets.
+// Only today's exercises live here — a handful, so switching between them stays one tap.
+// The full list is too long to scroll past, so it opens as a sheet instead.
 function exerciseStrip(session){
-  const picked={};
-  session.ex.forEach(e=>{picked[e.name.trim().toLowerCase()]=true;});
   let h="<div class='addstrip'><div class='striprow' data-keepx='strip'>";
   session.ex.forEach(e=>{
     h+="<button class='chip on"+(e.id===state.exId?" sel":"")+"' data-sel='"+e.id+"'>"+
        esc(e.name)+"</button>";
   });
-  state.catalog.filter(n=>!picked[n.trim().toLowerCase()]).forEach(n=>{
-    h+="<button class='chip spick' data-add=\""+esc(n)+"\">+ "+esc(n)+"</button>";
-  });
-  // Remove stays put whether or not the new-exercise box is open, so it cannot vanish
-  // just because every name on the list is already in the day.
-  h+="</div><div class='stripact'>";
-  if(state.adding){
-    h+="<input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
-       "<button class='btn primary' id='addok'>Add</button>";
-  }else{
-    h+="<button class='addbtn' id='addbtn'>+ New</button>";
-  }
+  h+="</div><div class='stripact'>"+
+     "<button class='addbtn' id='opensheet'>+ Add</button>";
   const a=activeEx();
   if(a)h+="<button class='rmbtn' id='removesel'>&minus; Remove</button>";
   return h+"</div></div>";
 }
 
-// Days start empty: you pick what you are training from your list. Tapping a name in
-// Your list adds it to the day; the × beside it drops it from the list for good.
-function pickerPanel(session){
+// The whole list, as a sheet over the app: pick several, drop several, then close.
+function exerciseSheet(session){
   const picked={};
   session.ex.forEach(e=>{picked[e.name.trim().toLowerCase()]=true;});
   const rest=state.catalog.filter(n=>!picked[n.trim().toLowerCase()]);
-  let h="<div class='card panel'><div class='prow'>"+
-    "<div class='plabel'>"+(session.ex.length?"Today's exercises":"Pick today's exercises")+"</div>"+
-    (session.ex.length?"<button class='btn ghost tiny' id='managedone'>Done</button>":"")+
-    "</div>";
+  let h="<div class='overlay' id='sheetback'><div class='sheet'>"+
+    "<div class='sheethead'><div class='plabel'>"+
+      (session.ex.length?"Today's exercises":"Pick today's exercises")+"</div>"+
+    (session.ex.length?"<button class='btn primary tiny' id='sheetdone'>Done</button>":"")+
+    "</div><div class='sheetbody'>";
 
   h+="<div class='chips'>";
   if(!session.ex.length)h+="<span class='pickmsg'>Nothing picked yet.</span>";
@@ -133,21 +126,22 @@ function pickerPanel(session){
   });
   h+="</div>";
 
-  h+="<div class='picklbl'>Your list</div><div class='chips'>";
+  h+="<div class='picklbl'>Your list</div><div class='sheetgrid'>";
   rest.forEach(n=>{
-    h+="<span class='chip'><button class='pick' data-add=\""+esc(n)+"\">"+esc(n)+"</button>"+
-       "<button class='x' data-delcat=\""+esc(n)+"\">&times;</button></span>";
+    h+="<span class='chip sheetitem'><button class='pick' data-add=\""+esc(n)+"\">"+
+       esc(n)+"</button><button class='x' data-delcat=\""+esc(n)+"\">&times;</button></span>";
   });
+  h+="</div><div class='sheetadd'>";
   if(state.adding){
-    h+="<span class='addrow'><input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
-       "<button class='btn primary' id='addok'>Add</button></span>";
+    h+="<input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
+       "<button class='btn primary' id='addok'>Add</button>";
   }else{
-    h+="<button class='addbtn' id='addbtn'>+ New</button>";
+    h+="<button class='addbtn' id='addbtn'>+ New exercise</button>";
   }
   h+="</div>";
-
-  if(session.ex.length)h+="<div class='reset'><button id='reset'>Clear this day's sets</button></div>";
-  return h+"</div>";
+  if(session.ex.length)
+    h+="<div class='reset'><button id='reset'>Clear this day's sets</button></div>";
+  return h+"</div></div></div>";
 }
 
 export function workoutLabel(session){
@@ -216,8 +210,9 @@ function logView(){
     "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>&#9881;</button>"+
     "</div></div>"+
     statsBar(s,totals(s))+setsTable(s)+
-    ((state.manage||!s.ex.length)?pickerPanel(s):exerciseStrip(s)+logPanel())+
-    "</div>"+timerBar(s);
+    exerciseStrip(s)+logPanel()+
+    "</div>"+timerBar(s)+
+    ((state.sheet||!s.ex.length)?exerciseSheet(s):"");
 }
 
 function historyView(){

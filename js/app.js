@@ -10,6 +10,8 @@ const TICK_MS=1000;
 const FIT_MIN=0.58;
 const FIT_STEP=0.04;
 const SEC_PER_MIN=60;
+const LONG_PRESS_MS=450;
+const MOVE_SLOP=8;
 
 // Width is the table's problem — extra sets scroll sideways. Only height has to be made to fit.
 function overflows(el){
@@ -32,7 +34,7 @@ function fit(){
   if(chosen){set(chosen);return;}
   // Auto settles on a scale and keeps it. Adding an exercise or opening the editor
   // must not resize the type under you, so those paints reuse what was settled on.
-  if(state.view!=="log"||state.manage||state.adding){set(autoScale);return;}
+  if(state.view!=="log"||state.sheet||state.adding||state.dragId){set(autoScale);return;}
   let k=refit?1:autoScale;
   refit=false;
   set(k);
@@ -82,7 +84,7 @@ function render(){
 function addExercise(){
   const el=document.getElementById("newname");
   const name=el?el.value.trim():"";
-  if(name)addExerciseToDay(name);
+  if(name){addExerciseToDay(name);state.sheet=true;}
   state.adding=false;
   render();
 }
@@ -108,6 +110,62 @@ function removeExercise(id){
   if(state.exId===id)state.exId=s.ex[0]?s.ex[0].id:null;
 }
 
+// Hold an exercise, then drag it up or down the table to reorder the day. The hold is
+// what separates it from a tap, which selects the exercise for logging.
+let drag=null;
+let swallowClick=false;
+
+function exerciseUnder(x,y){
+  const el=document.elementFromPoint(x,y);
+  const btn=el&&el.closest&&el.closest("[data-ex]");
+  return btn?btn.getAttribute("data-ex"):null;
+}
+
+function watchDrag(){
+  let timer=null,downY=0;
+  const stopTimer=()=>{if(timer){clearTimeout(timer);timer=null;}};
+
+  document.body.addEventListener("pointerdown",ev=>{
+    const btn=ev.target.closest&&ev.target.closest(".exbtn");
+    if(!btn||state.sheet)return;
+    downY=ev.clientY;
+    const id=btn.getAttribute("data-ex");
+    timer=setTimeout(()=>{
+      timer=null;
+      drag={id,moved:false};
+      state.dragId=id;
+      state.editing=null;
+      if(navigator.vibrate)navigator.vibrate(15);
+      render();
+    },LONG_PRESS_MS);
+  });
+
+  document.body.addEventListener("pointermove",ev=>{
+    if(timer&&Math.abs(ev.clientY-downY)>MOVE_SLOP)stopTimer();
+    if(!drag)return;
+    ev.preventDefault();
+    const overId=exerciseUnder(ev.clientX,ev.clientY);
+    if(!overId||overId===drag.id)return;
+    const list=getSession().ex;
+    const from=list.findIndex(e=>e.id===drag.id),to=list.findIndex(e=>e.id===overId);
+    if(from<0||to<0)return;
+    list.splice(to,0,list.splice(from,1)[0]);
+    drag.moved=true;
+    render();
+  },{passive:false});
+
+  const end=()=>{
+    stopTimer();
+    if(!drag)return;
+    swallowClick=true;          // the release would otherwise select what was dragged
+    drag=null;
+    state.dragId=null;
+    render();
+  };
+  document.body.addEventListener("pointerup",end);
+  document.body.addEventListener("pointercancel",end);
+}
+
 function deleteDay(id){
   state.sessions=state.sessions.filter(s=>s.id!==id);
   if(!state.sessions.length)state.sessions=[makeSession()];
@@ -126,6 +184,7 @@ document.body.addEventListener("change",ev=>{
 });
 
 document.body.addEventListener("click",ev=>{
+  if(swallowClick){swallowClick=false;return;}
   const t=ev.target;
 
   const delDay=t.closest&&t.closest("[data-delday]");
@@ -142,8 +201,8 @@ document.body.addEventListener("click",ev=>{
     selectSession(ns.id);
     state.view="log";markRefit();render();return;
   }
-  if(t.id==="daysbtn"){state.view="history";state.manage=false;state.adding=false;render();return;}
-  if(t.id==="settingsbtn"){state.view="settings";state.manage=false;state.adding=false;render();return;}
+  if(t.id==="daysbtn"){state.view="history";state.sheet=false;state.adding=false;render();return;}
+  if(t.id==="settingsbtn"){state.view="settings";state.sheet=false;state.adding=false;render();return;}
 
   const setBtn=t.closest&&t.closest("[data-set]");
   if(setBtn){
@@ -170,9 +229,12 @@ document.body.addEventListener("click",ev=>{
     render();return;
   }
   if(t.closest&&t.closest("#managebtn")){
-    state.manage=true;state.editing=null;render();return;
+    state.sheet=true;state.editing=null;render();return;
   }
-  if(t.id==="managedone"){state.manage=false;state.adding=false;render();return;}
+  if(t.id==="opensheet"){state.sheet=true;state.editing=null;render();return;}
+  if(t.id==="sheetdone"||t.id==="sheetback"){
+    state.sheet=false;state.adding=false;render();return;
+  }
   if(t.id==="minus"){state.reps=Math.max(MIN_REPS,state.reps-1);render();return;}
   if(t.id==="plus"){state.reps=state.reps+1;render();return;}
   if(t.dataset&&t.dataset.q){state.reps=parseInt(t.dataset.q,10);render();return;}
@@ -258,10 +320,13 @@ document.body.addEventListener("click",ev=>{
   if(t.id==="cxl"){state.editing=null;render();return;}
   // Picking a listed name closes the new-exercise box, rather than leaving it open to
   // grab focus — and the keyboard with it — on every later repaint.
+  // Adding only happens from the sheet, and picking one name should not close it —
+  // the day stops being empty on the first pick, which is what used to shut it.
   const add=t.closest&&t.closest("[data-add]");
   if(add){
     addExerciseToDay(add.getAttribute("data-add"));
     state.adding=false;
+    state.sheet=true;
     render();return;
   }
 
@@ -308,6 +373,7 @@ function tick(){
   if(sub)sub.innerHTML=workoutSub(s);
 }
 
+watchDrag();
 window.addEventListener("resize",()=>{markRefit();fit();});
 window.addEventListener("orientationchange",()=>{markRefit();fit();});
 

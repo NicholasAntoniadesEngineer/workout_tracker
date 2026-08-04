@@ -11,7 +11,7 @@ export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
 export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],
   settings:Object.assign({},DEFAULTS),
   reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,setStart:null,editing:null,
-  adding:false,focusAdd:false,manage:false,view:"log"};
+  adding:false,focusAdd:false,sheet:false,dragId:null,view:"log"};
 
 // Settings that change how numbers are counted live in the model, so it can stay pure.
 export function applySettings(){

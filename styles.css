@@ -262,3 +262,31 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 
 /* Weight shown against the reps, e.g. 10 with a small 12 beside it. */
 .quick.weights{margin-top:calc(-4px * var(--k));}
+
+/* The exercise list opens over the app rather than scrolling sideways forever. */
+.overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;
+  background:rgba(0,0,0,.45);}
+.sheet{width:100%;max-width:640px;margin:0 auto;background:var(--bg);
+  border-top-left-radius:18px;border-top-right-radius:18px;
+  border-top:1px solid var(--line);box-shadow:0 -10px 30px var(--shadow);
+  padding:var(--sp) var(--sp) calc(var(--sp) + env(safe-area-inset-bottom));
+  max-height:86dvh;display:flex;flex-direction:column;}
+.sheethead{flex:none;display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:calc(8px * var(--k));}
+.sheetbody{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.sheetgrid{display:grid;grid-template-columns:1fr 1fr;gap:calc(6px * var(--k));}
+.chip.sheetitem{justify-content:space-between;padding:calc(7px * var(--k)) 6px calc(7px * var(--k)) 12px;
+  font-size:var(--f-md);color:var(--text);}
+.chip.sheetitem .pick{text-align:left;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;}
+.sheetadd{display:flex;gap:6px;align-items:center;margin-top:calc(10px * var(--k));}
+.sheetadd input.name{flex:1;min-width:0;}
+
+/* Held to be dragged: lifted out of the row so it is obvious what is moving. */
+.exbtn.held{background:var(--accent);border-color:var(--accent);color:var(--onAccent);
+  box-shadow:0 4px 14px var(--shadow);transform:scale(1.02);}
+tr.held td{opacity:.55;}
+tr.held td:first-child{opacity:1;}
+/* Stops the table scrolling under the finger mid-drag. */
+.tblwrap.dragging{touch-action:none;}
+.tblwrap.dragging .exbtn{transition:none;}
