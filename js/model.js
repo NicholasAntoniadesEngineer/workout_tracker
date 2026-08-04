@@ -1,7 +1,9 @@
 // The exercises a fresh install starts with in the picker. A day begins empty;
 // these are what you can choose from, not what you get.
-export const SEED_EXERCISES=["Lunges","Squats","Kettlebell swings","Pull ups","Push ups",
-  "Standing kettlebell rows","Shoulder press","Burpees"];
+export const SEED_EXERCISES=["Forward lunges","Backward lunges","Squats",
+  "Slant board squats","Slant board steps","Kettlebell swings",
+  "Kettlebell squat press clean","Pull ups","Push ups","Gorilla rows",
+  "Standing kettlebell rows","Shoulder press","Bicep curls","Burpees"];
 export const QUICK_REPS=[5,8,10,12,15,20];
 
 const SIDES_PER_SET=2;
@@ -44,8 +46,9 @@ export function shortDate(iso){
 }
 
 // t is time spent working the set, rest is the gap that preceded it, at is when it ended.
+// w is the weight carried — 0 is bodyweight, so no separate weighted flag is needed.
 export function normSet(v){
-  return {r:+v.r||0,side:!!v.side,t:+v.t||0,rest:+v.rest||0,at:v.at||""};
+  return {r:+v.r||0,side:!!v.side,w:+v.w||0,t:+v.t||0,rest:+v.rest||0,at:v.at||""};
 }
 
 export function setReps(x){return (x.side&&options.perSideDouble)?x.r*SIDES_PER_SET:x.r;}
@@ -140,14 +143,16 @@ export function autoEndIfStale(session){
 // A set always lands inside a running workout, so forgetting to press Start costs nothing.
 // startedAt is when the set began, if it was timed: the gap before it is rest, the gap
 // after it is work. Untimed sets record the whole gap as rest and no work.
-export function addSet(session,ex,reps,perSide,startedAt){
+export const QUICK_WEIGHTS=[4,6,8,10,12,16,20,24];
+
+export function addSet(session,ex,reps,perSide,startedAt,weight){
   if(!session.running)startWorkout(session);
   const anchor=setAnchor(session);
   const end=nowISO();
   const begun=startedAt||end;
   const work=(Date.parse(end)-Date.parse(begun))/MS_PER_SEC;
   const rest=anchor?(Date.parse(begun)-Date.parse(anchor))/MS_PER_SEC:0;
-  ex.sets.push({r:reps,side:perSide,
+  ex.sets.push({r:reps,side:perSide,w:Math.max(0,+weight||0),
     t:Math.max(0,Math.round(work)),rest:Math.max(0,Math.round(rest)),at:end});
   session.timerFrom="";
 }

@@ -22,10 +22,14 @@ workout*; tap the clock to type in a time you have already been going. **Rest**
 counts from the last set. *Start set* stamps the beginning of a set, so logging
 it records the work time separately from the rest before it.
 
+Sets can carry weight. The chip beside *Per side* reads *Bodyweight* until you
+tap it, then offers quick weights and a box to type any other. The grid shows the
+load against the reps — `10¹²` is ten at twelve — and Σ stays a plain rep count.
+
 ## Settings
 
-Text size, theme, whether per-side sets count double, starting reps, and when an
-idle workout ends itself.
+Text size, theme, weight unit, whether per-side sets count double, starting reps,
+and when an idle workout ends itself.
 
 ## Notes
 
@@ -35,7 +39,7 @@ kept exactly, with the screen scrolling if the day outgrows it.
 
 Sets grow rightward, so the table scrolls sideways past three columns.
 
-CSV columns: `Date, Day, Started, Ended, Exercise, Set, Reps, Side, Rest, Work, At`.
+CSV columns: `Date, Day, Started, Ended, Exercise, Set, Reps, Side, Weight, Rest, Work, At`.
 `Date` is the merge key, so re-importing a day replaces it; a spreadsheet that
 reformats that column will duplicate the day instead.
 

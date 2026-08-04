@@ -112,6 +112,9 @@ td.sum{min-width:36px;text-align:center;color:var(--accentText);
   font-weight:700;font-size:var(--f-lg);}
 .cr{display:block;}
 .sd{font-size:var(--f-xs);color:var(--muted);margin-left:1px;}
+/* Marks a set as carrying weight, next to the /s marker for per-side work. */
+.wt{font-size:var(--f-xs);color:var(--accentText);font-weight:800;margin-left:2px;
+  vertical-align:super;line-height:1;}
 .ct{display:block;font-size:var(--f-tiny);font-weight:600;color:var(--muted);line-height:1;margin-top:2px;}
 
 /* Sits flush on the timer bar: the space below it belongs to the table. */
@@ -256,3 +259,6 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .empty-note{color:var(--muted);font-size:calc(13px * var(--k));text-align:center;padding:20px;}
 
 @media (prefers-reduced-motion:no-preference){.exbtn,.q,.round,.btn,.tbtn,.day{transition:all .12s ease;}}
+
+/* Weight shown against the reps, e.g. 10 with a small 12 beside it. */
+.quick.weights{margin-top:calc(-4px * var(--k));}

@@ -1,4 +1,4 @@
-import {QUICK_REPS,exerciseTotal,fmtClock,fmtTime,lastSet,restSeconds,secondsSince,setAnchor,
+import {QUICK_REPS,QUICK_WEIGHTS,exerciseTotal,fmtClock,fmtTime,lastSet,restSeconds,secondsSince,setAnchor,
   shortDate,totals,workoutEnd,workoutSeconds} from "./model.js";
 import {activeEx,getSession,newestFirst,state} from "./store.js";
 
@@ -36,7 +36,8 @@ function setsTable(session){
       if(x===undefined){h+="<td class='cell empty mono'>&middot;</td>";continue;}
       const editing=state.editing&&state.editing.ex===e.id&&state.editing.i===i;
       h+="<td class='cell has mono"+(editing?" editing":"")+"' data-ex='"+e.id+"' data-i='"+i+"'>"+
-         "<span class='cr'>"+x.r+(x.side?"<span class='sd'>/s</span>":"")+"</span>"+
+         "<span class='cr'>"+x.r+(x.side?"<span class='sd'>/s</span>":"")+
+         (x.w?"<span class='wt'>"+x.w+"</span>":"")+"</span>"+
          ((x.at&&state.settings.showSetTimes)?"<span class='ct'>"+esc(fmtTime(x.at))+"</span>":"")+"</td>";
     }
     h+="<td class='sum mono'>"+exerciseTotal(e)+"</td></tr>";
@@ -59,8 +60,21 @@ function logPanel(){
   h+="<div class='quick'>";
   QUICK_REPS.forEach(n=>{h+="<button class='q"+(state.reps===n?" on":"")+"' data-q='"+n+"'>"+n+"</button>";});
   h+="</div>";
-  h+="<div class='togrow'><button class='q"+(state.perSide?" on":"")+"' id='sidebtn'>Per side</button>"+
-     "<span class='hint'>"+(state.perSide?(state.reps*SIDES_PER_SET)+" reps total":"counted once")+"</span></div>";
+  // Weight sits behind its own chip: off means bodyweight, on opens the quick weights.
+  const unit=state.settings.unit||"kg";
+  h+="<div class='togrow'>"+
+     "<button class='q"+(state.perSide?" on":"")+"' id='sidebtn'>Per side</button>"+
+     "<button class='q"+(state.weight?" on":"")+"' id='weightbtn'>"+
+       (state.weight?state.weight+" "+esc(unit):"Bodyweight")+"</button>"+
+     "<span class='hint'>"+(state.perSide?(state.reps*SIDES_PER_SET)+" reps":"counted once")+
+     "</span></div>";
+  if(state.weight){
+    h+="<div class='quick weights'>";
+    QUICK_WEIGHTS.forEach(n=>{
+      h+="<button class='q"+(state.weight===n?" on":"")+"' data-w='"+n+"'>"+n+"</button>";
+    });
+    h+="<button class='q' id='weightother'>&hellip;</button></div>";
+  }
   if(state.editing){
     h+="<div class='editrow'><button class='btn primary' id='upd'>Update set</button>"+
        "<button class='btn dang' id='del'>Delete</button>"+
@@ -273,6 +287,7 @@ function settingsView(){
     choiceRow("Starting reps","What the counter opens on.","startReps",
       START_REPS.map(n=>[String(n),n]))+
     toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
+    choiceRow("Weight unit","","unit",[["kg","kg"],["lb","lb"]])+
 
     "<div class='setgroup'>Workout</div>"+
     choiceRow("End an idle workout after",

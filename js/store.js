@@ -6,11 +6,11 @@ const DEFAULT_REPS=10;
 const SEC_PER_MIN=60;
 
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
-  startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true};
+  startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg"};
 
-export const state={sessions:[],sessionId:null,exId:null,catalog:[],
+export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],
   settings:Object.assign({},DEFAULTS),
-  reps:DEFAULT_REPS,perSide:false,setStart:null,editing:null,
+  reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,setStart:null,editing:null,
   adding:false,focusAdd:false,manage:false,view:"log"};
 
 // Settings that change how numbers are counted live in the model, so it can stay pure.
@@ -51,7 +51,11 @@ const key=n=>String(n||"").trim().toLowerCase();
 // is offered once — `seeded` records which have been, so deleting one makes it stay gone.
 function buildCatalog(saved){
   const seen={},out=[];
-  const add=n=>{const k=key(n);if(k&&!seen[k]){seen[k]=true;out.push(String(n).trim());}};
+  const gone=state.removed.map(key);
+  const add=n=>{
+    const k=key(n);
+    if(k&&!seen[k]&&gone.indexOf(k)<0){seen[k]=true;out.push(String(n).trim());}
+  };
   const offered=(saved&&saved.seeded)||[];
   ((saved&&saved.catalog)||SEED_EXERCISES).forEach(add);
   SEED_EXERCISES.filter(n=>!offered.some(o=>key(o)===key(n))).forEach(add);
@@ -64,11 +68,16 @@ export function inCatalog(name){
 }
 
 export function addToCatalog(name){
+  state.removed=state.removed.filter(n=>key(n)!==key(name));
   if(key(name)&&!inCatalog(name))state.catalog.push(String(name).trim());
 }
 
+// Remembered, because the picker gathers names from history too — without this, deleting
+// one you have already trained would put it straight back on the next load.
 export function removeFromCatalog(name){
   state.catalog=state.catalog.filter(n=>key(n)!==key(name));
+  if(key(name)&&!state.removed.some(n=>key(n)===key(name)))
+    state.removed.push(String(name).trim());
 }
 
 function normSession(s){
@@ -87,6 +96,7 @@ export function load(){
   state.sessions.forEach(normSession);
   state.setStart=(saved&&saved.setStart)||null;
   if(!getSession())state.sessionId=state.sessions[0].id;
+  state.removed=(saved&&saved.removed)||[];
   state.catalog=buildCatalog(saved);
   state.settings=Object.assign({},DEFAULTS,(saved&&saved.settings)||{});
   applySettings();
@@ -99,7 +109,7 @@ export function save(){
   try{
     localStorage.setItem(KEY,JSON.stringify(
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
-        catalog:state.catalog,seeded:SEED_EXERCISES,settings:state.settings,
+        catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart}));
   }catch(e){}
 }

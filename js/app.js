@@ -177,11 +177,22 @@ document.body.addEventListener("click",ev=>{
   if(t.id==="plus"){state.reps=state.reps+1;render();return;}
   if(t.dataset&&t.dataset.q){state.reps=parseInt(t.dataset.q,10);render();return;}
   if(t.id==="sidebtn"){state.perSide=!state.perSide;render();return;}
+  if(t.id==="weightbtn"){
+    if(state.weight){state.lastWeight=state.weight;state.weight=0;}
+    else state.weight=state.lastWeight||10;
+    render();return;
+  }
+  if(t.dataset&&t.dataset.w){state.weight=parseFloat(t.dataset.w);render();return;}
+  if(t.id==="weightother"){
+    const a=prompt("Weight in "+(state.settings.unit||"kg"),String(state.weight));
+    if(a!==null&&a.trim()!=="")state.weight=Math.max(0,parseFloat(a)||0);
+    render();return;
+  }
 
   if(t.dataset&&t.dataset.ex&&t.classList.contains("exbtn")){
     state.exId=t.dataset.ex;state.editing=null;
     const e=activeEx();
-    if(e&&e.sets.length)state.perSide=e.sets[e.sets.length-1].side;
+    if(e&&e.sets.length){const l=e.sets[e.sets.length-1];state.perSide=l.side;state.weight=+l.w||0;}
     render();return;
   }
   const cell=t.closest&&t.closest(".cell.has");
@@ -191,6 +202,7 @@ document.body.addEventListener("click",ev=>{
     state.exId=cell.dataset.ex;
     state.reps=e.sets[i].r;
     state.perSide=e.sets[i].side;
+    state.weight=+e.sets[i].w||0;
     state.editing={ex:cell.dataset.ex,i};
     render();return;
   }
@@ -225,7 +237,7 @@ document.body.addEventListener("click",ev=>{
   }
   if(t.id==="logbtn"){
     const e=activeEx();
-    if(e)addSet(getSession(),e,state.reps,state.perSide,state.setStart);
+    if(e)addSet(getSession(),e,state.reps,state.perSide,state.setStart,state.weight);
     state.setStart=null;
     render();return;
   }
@@ -233,7 +245,8 @@ document.body.addEventListener("click",ev=>{
     const e=getSession().ex.find(x=>x.id===state.editing.ex);
     if(e){
       const old=e.sets[state.editing.i];
-      e.sets[state.editing.i]={r:state.reps,side:state.perSide,t:old.t||0,at:old.at||""};
+      e.sets[state.editing.i]={r:state.reps,side:state.perSide,w:state.weight,
+        t:old.t||0,rest:old.rest||0,at:old.at||""};
     }
     state.editing=null;render();return;
   }
@@ -256,7 +269,7 @@ document.body.addEventListener("click",ev=>{
   if(sel){
     state.exId=sel.getAttribute("data-sel");state.editing=null;
     const e=activeEx();
-    if(e&&e.sets.length)state.perSide=e.sets[e.sets.length-1].side;
+    if(e&&e.sets.length){const l=e.sets[e.sets.length-1];state.perSide=l.side;state.weight=+l.w||0;}
     render();return;
   }
 
