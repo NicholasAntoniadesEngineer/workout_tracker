@@ -1,6 +1,6 @@
 // The exercises a fresh install starts with in the picker. A day begins empty;
 // these are what you can choose from, not what you get.
-export const SEED_EXERCISES=["Lunges","Kettlebell swings","Pull ups","Push ups",
+export const SEED_EXERCISES=["Lunges","Squats","Kettlebell swings","Pull ups","Push ups",
   "Standing kettlebell rows","Shoulder press","Burpees"];
 export const QUICK_REPS=[5,8,10,12,15,20];
 

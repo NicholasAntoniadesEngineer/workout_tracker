@@ -47,11 +47,14 @@ function readSaved(){
 const key=n=>String(n||"").trim().toLowerCase();
 
 // The picker offers the seeds plus every exercise name that has ever been used, so a
-// name survives being dropped from a day.
+// name survives being dropped from a day. A built-in added after this device first ran
+// is offered once — `seeded` records which have been, so deleting one makes it stay gone.
 function buildCatalog(saved){
   const seen={},out=[];
   const add=n=>{const k=key(n);if(k&&!seen[k]){seen[k]=true;out.push(String(n).trim());}};
+  const offered=(saved&&saved.seeded)||[];
   ((saved&&saved.catalog)||SEED_EXERCISES).forEach(add);
+  SEED_EXERCISES.filter(n=>!offered.some(o=>key(o)===key(n))).forEach(add);
   state.sessions.forEach(s=>s.ex.forEach(e=>add(e.name)));
   return out;
 }
@@ -96,7 +99,8 @@ export function save(){
   try{
     localStorage.setItem(KEY,JSON.stringify(
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
-        catalog:state.catalog,settings:state.settings,setStart:state.setStart}));
+        catalog:state.catalog,seeded:SEED_EXERCISES,settings:state.settings,
+        setStart:state.setStart}));
   }catch(e){}
 }
 
