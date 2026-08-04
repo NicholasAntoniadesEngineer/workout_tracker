@@ -99,6 +99,22 @@ function importText(text){
   alert("Imported "+imported.length+" day"+(imported.length>1?"s":"")+".");
 }
 
+// Each exercise remembers how it was last done, so coming back to it picks up where you
+// left off. An exercise with no sets yet keeps the reps on screen for convenience but
+// never inherits a weight — logging 12kg onto push ups because curls were selected
+// before would be silently wrong.
+function recallLast(e){
+  const last=e&&e.sets.length?e.sets[e.sets.length-1]:null;
+  if(last){
+    state.reps=last.r;
+    state.perSide=last.side;
+    state.weight=+last.w||0;
+  }else{
+    state.perSide=false;
+    state.weight=0;
+  }
+}
+
 // Dropping an exercise that has already been logged destroys those sets, so it asks.
 function removeExercise(id){
   const s=getSession();
@@ -253,8 +269,7 @@ document.body.addEventListener("click",ev=>{
 
   if(t.dataset&&t.dataset.ex&&t.classList.contains("exbtn")){
     state.exId=t.dataset.ex;state.editing=null;
-    const e=activeEx();
-    if(e&&e.sets.length){const l=e.sets[e.sets.length-1];state.perSide=l.side;state.weight=+l.w||0;}
+    recallLast(activeEx());
     render();return;
   }
   const cell=t.closest&&t.closest(".cell.has");
@@ -333,8 +348,7 @@ document.body.addEventListener("click",ev=>{
   const sel=t.closest&&t.closest("[data-sel]");
   if(sel){
     state.exId=sel.getAttribute("data-sel");state.editing=null;
-    const e=activeEx();
-    if(e&&e.sets.length){const l=e.sets[e.sets.length-1];state.perSide=l.side;state.weight=+l.w||0;}
+    recallLast(activeEx());
     render();return;
   }
 

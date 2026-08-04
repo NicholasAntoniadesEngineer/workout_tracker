@@ -29,6 +29,10 @@ Sets can carry weight. The chip beside *Per side* reads *Bodyweight* until you
 tap it, then offers quick weights and a box to type any other. The grid shows the
 load against the reps — `10¹²` is ten at twelve — and Σ stays a plain rep count.
 
+Each exercise remembers its reps, weight and per-side setting from the last set
+you logged of it, so coming back to it mid-workout needs no re-entering. One that
+has never been logged starts at bodyweight rather than inheriting a load.
+
 ## Settings
 
 Text size, theme, weight unit, whether per-side sets count double, starting reps,
