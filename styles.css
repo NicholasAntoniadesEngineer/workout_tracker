@@ -252,12 +252,17 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .calcell.worked .caldate{font-weight:800;}
 .calcell.today{box-shadow:inset 0 0 0 2px var(--accent);}
 .calcell.cur{background:var(--accent);border-color:var(--accent);color:var(--onAccent);}
-/* Empty past days can be tapped to backfill; a faint + shows on press. */
+/* Any empty day can be tapped — past to backfill, future to plan; a faint + shows on press. */
 .calcell.addable{cursor:pointer;}
 .caladd{font-size:12px;font-weight:700;line-height:1;color:var(--muted);opacity:0;height:6px;}
 .calcell.addable:active{border-color:var(--accent);color:var(--accentText);}
 .calcell.addable:active .caladd{opacity:.9;}
-.calcell.future{opacity:.4;}
+.calcell.future{opacity:.5;}
+/* Scheduled but not yet done: dashed outline, hollow dots — stays distinct even when current. */
+.calcell.planned{cursor:pointer;background:var(--panel);border-style:dashed;
+  border-color:var(--accent);color:var(--accentText);}
+.calcell.planned .caldot{background:transparent;border:1.5px solid currentColor;width:6px;height:6px;}
+.calcell.planned.cur{box-shadow:inset 0 0 0 2px var(--accent);}
 .caldots{display:flex;align-items:center;gap:2px;height:6px;}
 .caldot{width:5px;height:5px;border-radius:50%;background:currentColor;}
 .calmore{font-size:8px;font-weight:800;line-height:1;}

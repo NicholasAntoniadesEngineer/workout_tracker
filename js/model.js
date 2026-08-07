@@ -223,6 +223,16 @@ export function setWorkoutMinutes(session,minutes){
   if(!session.running){session.ended="";session.running=true;}
 }
 
+// A workout recorded after the fact — backfilled or planned — gets a fixed span on its own
+// day rather than counting live from now. Start defaults to the session's created time.
+export function setWorkoutSpanOn(session,minutes,startISO){
+  const mins=Math.max(0,+minutes||0);
+  const start=new Date(startISO||session.created);
+  session.started=start.toISOString();
+  session.ended=new Date(start.getTime()+mins*SEC_PER_MIN*MS_PER_SEC).toISOString();
+  session.running=false;
+}
+
 // Restarts the rest clock from now, without touching anything already logged.
 export function resetRestTimer(session){
   session.timerFrom=nowISO();

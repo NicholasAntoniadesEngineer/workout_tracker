@@ -1,5 +1,5 @@
 import {addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeSession,makeSessionOn,nowISO,
-  resetRestTimer,setWorkoutMinutes,startWorkout,workoutSeconds} from "./model.js";
+  resetRestTimer,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,workoutSeconds} from "./model.js";
 import {DEFAULTS,activeEx,addExerciseToDay,getSession,load,mergeSessions,removeFromCatalog,
   save,selectSession,setSetting,state} from "./store.js";
 import {exportCSV,parseImport} from "./csv.js";
@@ -351,8 +351,15 @@ document.body.addEventListener("click",ev=>{
   if(t.closest&&t.closest("#worktime")){
     const s=getSession();
     const cur=Math.round((workoutSeconds(s)||0)/SEC_PER_MIN);
-    const answer=prompt("Minutes the workout has been going:",String(cur));
-    if(answer!==null&&answer.trim()!=="")setWorkoutMinutes(s,parseFloat(answer));
+    // Today's workout counts live from now; another day's is a fixed span on that date.
+    const onToday=dateKey(s.created)===dateKey(nowISO());
+    const answer=prompt(onToday?"Minutes the workout has been going:":"Minutes the workout lasted:",
+      String(cur));
+    if(answer!==null&&answer.trim()!==""){
+      const mins=parseFloat(answer);
+      if(onToday)setWorkoutMinutes(s,mins);
+      else setWorkoutSpanOn(s,mins);
+    }
     render();return;
   }
   if(t.id==="logbtn"){

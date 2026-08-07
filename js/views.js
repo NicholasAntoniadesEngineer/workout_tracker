@@ -287,39 +287,44 @@ function calendarView(){
       WEEKDAYS.map(d=>"<div class='calwd'>"+d+"</div>").join("")+"</div>"+
     "<div class='calgrid'>";
 
+  const monPrefix=keyOf(y,m,1).slice(0,7);
+  let doneDays=0,plannedDays=0;
   for(let i=0;i<first;i++)h+="<div class='calcell blank'></div>";
   for(let day=1;day<=days;day++){
     const k=keyOf(y,m,day);
     const list=byDay[k]||[];
     const worked=list.length>0;
+    // "Done" once any session that day has a logged set; otherwise it's a plan.
+    const done=list.some(s=>s.ex.some(e=>e.sets.length));
+    const planned=worked&&!done;
     const isToday=k===todayKey;
-    const future=k>todayKey;              // can't have trained on a day yet to come
+    const future=k>todayKey;
     const hasCurrent=list.some(s=>s.id===state.sessionId);
+    if(done)doneDays++;else if(planned)plannedDays++;
     let cls="calcell";
-    if(worked)cls+=" worked";
+    if(done)cls+=" worked";
+    else if(planned)cls+=" planned";
+    else{cls+=" addable"+(future?" future":"");}   // any empty day: tap to add or plan
     if(isToday)cls+=" today";
     if(hasCurrent)cls+=" cur";
-    if(!worked&&future)cls+=" future";
-    if(!worked&&!future)cls+=" addable"; // empty past/today: tap to backfill a workout
-    let attr="";
-    if(worked)attr=" data-calday='"+k+"'";
-    else if(!future)attr=" data-newday='"+k+"'";
+    // Worked/planned days open (pick a session); empty days create one on that date.
+    const attr=worked?" data-calday='"+k+"'":" data-newday='"+k+"'";
     h+="<button class='"+cls+"'"+attr+">"+
        "<span class='caldate'>"+day+"</span>"+
        (worked?"<span class='caldots'>"+
          list.slice(0,3).map(()=>"<span class='caldot'></span>").join("")+
          (list.length>3?"<span class='calmore'>+"+(list.length-3)+"</span>":"")+
-         "</span>":"")+
-       (!worked&&!future?"<span class='caladd'>+</span>":"")+
+         "</span>":"<span class='caladd'>+</span>")+
        "</button>";
   }
   h+="</div>";
 
-  // A month with nothing gets a hint; a day tapped with several workouts drops a list below.
-  const monthCount=Object.keys(byDay).filter(k=>k.slice(0,7)===keyOf(y,m,1).slice(0,7)).length;
-  h+="<div class='calfoot'>"+(monthCount
-    ? monthCount+" day"+(monthCount>1?"s":"")+" trained this month"
-    : "No workouts logged this month.")+"</div>";
+  // Footer separates what was trained from what's only scheduled.
+  const parts=[];
+  if(doneDays)parts.push(doneDays+" day"+(doneDays>1?"s":"")+" trained");
+  if(plannedDays)parts.push(plannedDays+" planned");
+  h+="<div class='calfoot'>"+(parts.length?parts.join(" &middot; ")+" this month"
+    :"Nothing logged this month yet.")+"</div>";
 
   if(state.calDay){
     const list=(byDay[state.calDay]||[]).slice()
