@@ -206,6 +206,15 @@ export function makeSession(){
     started:"",ended:"",running:false,timerFrom:"",ex:[]};
 }
 
+// Backfill a workout onto a past calendar day you trained but didn't log. Dated to local
+// noon so it lands squarely on that day regardless of timezone; the title names the date.
+export function makeSessionOn(y,m,day){
+  const at=new Date(y,m,day,12,0,0);
+  const title=at.toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"});
+  return {id:uid(),title:title,created:at.toISOString(),
+    started:"",ended:"",running:false,timerFrom:"",ex:[]};
+}
+
 // Lets a workout be told it really began earlier — you trained for ten minutes before
 // remembering to press Start.
 export function setWorkoutMinutes(session,minutes){

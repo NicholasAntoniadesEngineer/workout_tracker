@@ -1,5 +1,5 @@
-import {addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeSession,nowISO,resetRestTimer,
-  setWorkoutMinutes,startWorkout,workoutSeconds} from "./model.js";
+import {addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeSession,makeSessionOn,nowISO,
+  resetRestTimer,setWorkoutMinutes,startWorkout,workoutSeconds} from "./model.js";
 import {DEFAULTS,activeEx,addExerciseToDay,getSession,load,mergeSessions,removeFromCatalog,
   save,selectSession,setSetting,state} from "./store.js";
 import {exportCSV,parseImport} from "./csv.js";
@@ -240,6 +240,16 @@ document.body.addEventListener("click",ev=>{
       state.view="log";markRefit();render();return;
     }
     state.calDay=key;render();return;
+  }
+  // Tapping an empty past day starts a workout dated to that day, to backfill a missed log.
+  const newDay=t.closest&&t.closest("[data-newday]");
+  if(newDay){
+    const parts=newDay.getAttribute("data-newday").split("-").map(Number);
+    const ns=makeSessionOn(parts[0],parts[1]-1,parts[2]);
+    state.sessions.push(ns);
+    selectSession(ns.id);
+    state.calDay=null;state.sheet=true;
+    state.view="log";markRefit();render();return;
   }
   // Calendar was opened from the days list, so its Back returns there, not to the log.
   if(t.id==="backbtn"){state.view=state.view==="calendar"?"history":"log";render();return;}

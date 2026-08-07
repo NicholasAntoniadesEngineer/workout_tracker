@@ -293,17 +293,24 @@ function calendarView(){
     const list=byDay[k]||[];
     const worked=list.length>0;
     const isToday=k===todayKey;
+    const future=k>todayKey;              // can't have trained on a day yet to come
     const hasCurrent=list.some(s=>s.id===state.sessionId);
     let cls="calcell";
     if(worked)cls+=" worked";
     if(isToday)cls+=" today";
     if(hasCurrent)cls+=" cur";
-    h+="<button class='"+cls+"'"+(worked?" data-calday='"+k+"'":"")+">"+
+    if(!worked&&future)cls+=" future";
+    if(!worked&&!future)cls+=" addable"; // empty past/today: tap to backfill a workout
+    let attr="";
+    if(worked)attr=" data-calday='"+k+"'";
+    else if(!future)attr=" data-newday='"+k+"'";
+    h+="<button class='"+cls+"'"+attr+">"+
        "<span class='caldate'>"+day+"</span>"+
        (worked?"<span class='caldots'>"+
          list.slice(0,3).map(()=>"<span class='caldot'></span>").join("")+
          (list.length>3?"<span class='calmore'>+"+(list.length-3)+"</span>":"")+
          "</span>":"")+
+       (!worked&&!future?"<span class='caladd'>+</span>":"")+
        "</button>";
   }
   h+="</div>";
