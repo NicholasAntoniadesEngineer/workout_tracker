@@ -80,12 +80,30 @@ function logPanel(){
     h+="<button class='q' id='weightother'>&hellip;</button></div>";
   }
   if(state.editing){
+    // Every set is fully editable — reps and weight above, its recorded times here — so a
+    // workout done off-app can be typed in completely.
+    const secs=v=>{const s=Math.max(0,Math.round(v||0)),m=Math.floor(s/60);
+      return m+":"+String(s%60).padStart(2,"0");};
+    h+="<div class='timerow'>"+
+       "<label class='timefield'><span>Rest</span>"+
+         "<input class='timein mono' id='editrest' inputmode='numeric' value='"+
+         secs(state.editRest)+"'></label>"+
+       "<label class='timefield'><span>Work</span>"+
+         "<input class='timein mono' id='editwork' inputmode='numeric' value='"+
+         secs(state.editWork)+"'></label></div>";
     h+="<div class='editrow'><button class='btn primary' id='upd'>Update set</button>"+
        "<button class='btn dang' id='del'>Delete</button>"+
        "<button class='btn ghost' id='cxl'>Cancel</button></div>";
   }else{
-    h+="<button class='btn log' id='logbtn'"+(a?"":" disabled")+">Log set"+(a?" &rarr; "+esc(a.name):"")+
-       (state.setStart?" <span class='at'>@ "+esc(fmtTime(state.setStart))+"</span>":"")+"</button>";
+    // ×N logs several identical sets at once — the fast path for transcribing "3 × 10".
+    const n=state.logCount||1;
+    const label=n>1?"Log "+n+" sets":"Log set";
+    h+="<div class='logrow'>"+
+       "<button class='setmult' id='setmult' title='Sets to log at once'>&times;"+n+"</button>"+
+       "<button class='btn log' id='logbtn'"+(a?"":" disabled")+">"+label+
+       (a?" &rarr; "+esc(a.name):"")+
+       (n===1&&state.setStart?" <span class='at'>@ "+esc(fmtTime(state.setStart))+"</span>":"")+
+       "</button></div>";
   }
   return h+"</div>";
 }

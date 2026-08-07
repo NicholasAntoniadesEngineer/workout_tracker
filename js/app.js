@@ -1,5 +1,6 @@
-import {addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeSession,makeSessionOn,nowISO,
-  resetRestTimer,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,workoutSeconds} from "./model.js";
+import {addManualSets,addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeSession,makeSessionOn,
+  nowISO,parseClock,resetRestTimer,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,
+  workoutSeconds} from "./model.js";
 import {DEFAULTS,activeEx,addExerciseToDay,getSession,load,mergeSessions,removeFromCatalog,
   save,selectSession,setSetting,state} from "./store.js";
 import {exportCSV,parseImport} from "./csv.js";
@@ -199,6 +200,13 @@ document.body.addEventListener("change",ev=>{
   }
 });
 
+// Set-editor time fields persist into state as typed, so a mid-edit repaint won't lose them.
+document.body.addEventListener("input",ev=>{
+  const id=ev.target&&ev.target.id;
+  if(id==="editwork")state.editWork=parseClock(ev.target.value);
+  else if(id==="editrest")state.editRest=parseClock(ev.target.value);
+});
+
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;
@@ -323,6 +331,8 @@ document.body.addEventListener("click",ev=>{
     state.reps=e.sets[i].r;
     state.perSide=e.sets[i].side;
     state.weight=+e.sets[i].w||0;
+    state.editWork=+e.sets[i].t||0;
+    state.editRest=+e.sets[i].rest||0;
     state.editing={ex:cell.dataset.ex,i};
     render();return;
   }
@@ -362,10 +372,20 @@ document.body.addEventListener("click",ev=>{
     }
     render();return;
   }
+  if(t.id==="setmult"){
+    const seq=[1,2,3,4,5];
+    state.logCount=seq[(seq.indexOf(state.logCount||1)+1)%seq.length];
+    render();return;
+  }
   if(t.id==="logbtn"){
-    const e=activeEx();
-    if(e)addSet(getSession(),e,state.reps,state.perSide,state.setStart,state.weight);
-    state.setStart=null;
+    const s=getSession(),e=activeEx();
+    if(e){
+      // Live single set on today counts with the timer; anything else is manual transcription.
+      const live=state.logCount<=1&&dateKey(s.created)===dateKey(nowISO());
+      if(live)addSet(s,e,state.reps,state.perSide,state.setStart,state.weight);
+      else addManualSets(s,e,state.reps,state.perSide,state.weight,state.logCount);
+    }
+    state.setStart=null;state.logCount=1;
     render();return;
   }
   if(t.id==="upd"){
@@ -373,7 +393,7 @@ document.body.addEventListener("click",ev=>{
     if(e){
       const old=e.sets[state.editing.i];
       e.sets[state.editing.i]={r:state.reps,side:state.perSide,w:state.weight,
-        t:old.t||0,rest:old.rest||0,at:old.at||""};
+        t:state.editWork||0,rest:state.editRest||0,at:old.at||""};
     }
     state.editing=null;render();return;
   }

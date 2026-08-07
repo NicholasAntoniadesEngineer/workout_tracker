@@ -150,6 +150,22 @@ td.sum{min-width:36px;text-align:center;color:var(--accentText);
 .btn.dang{background:transparent;color:var(--danger);border:1px solid var(--danger);}
 .btn.tiny{flex:none;padding:calc(5px * var(--k)) calc(12px * var(--k));font-size:var(--f-sm);}
 .editrow{display:flex;gap:8px;}
+/* Log-set row with a ×N multiplier for adding several identical sets at once. */
+.logrow{display:flex;gap:8px;align-items:stretch;}
+.logrow .btn.log{flex:1;}
+.setmult{flex:none;min-width:calc(48px * var(--k));border-radius:10px;border:1px solid var(--line);
+  background:var(--panelHi);color:var(--text);font-weight:800;font-size:var(--f-md);cursor:pointer;
+  min-height:var(--ctlh);}
+.setmult:active{background:var(--accentDim);border-color:var(--accent);color:var(--accentText);}
+/* Editable recorded times: two labelled mm:ss fields in the set editor. */
+.timerow{display:flex;gap:8px;margin-bottom:calc(8px * var(--k));}
+.timefield{flex:1;display:flex;flex-direction:column;gap:2px;}
+.timefield span{font-size:var(--f-tiny);color:var(--muted);text-transform:uppercase;
+  letter-spacing:1px;font-weight:700;padding-left:2px;}
+.timein{background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:10px;
+  padding:calc(8px * var(--k)) 10px;font-size:16px;text-align:center;outline:none;
+  -webkit-user-select:text;user-select:text;width:100%;}
+.timein:focus{border-color:var(--accent);}
 
 .addstrip{flex:none;display:flex;align-items:center;margin-top:var(--sp);}
 /* Pinned outside the scroller so the actions are reachable however long the list is. */

@@ -223,6 +223,26 @@ export function setWorkoutMinutes(session,minutes){
   if(!session.running){session.ended="";session.running=true;}
 }
 
+// Parse a duration a person typed: "1:30" or "90" both mean ninety seconds.
+export function parseClock(str){
+  const s=String(str==null?"":str).trim();
+  if(!s)return 0;
+  if(s.indexOf(":")>=0){
+    const p=s.split(":");
+    return Math.max(0,(parseInt(p[0],10)||0)*SEC_PER_MIN+(parseInt(p[1],10)||0));
+  }
+  return Math.max(0,Math.round(parseFloat(s)||0));
+}
+
+// Transcribing a workout done off-app: add one or more identical sets without starting a
+// live timer, stamped to the session's own day and with unknown (0) work/rest until edited.
+export function addManualSets(session,ex,reps,perSide,weight,count){
+  const n=Math.max(1,Math.round(+count||1));
+  for(let i=0;i<n;i++){
+    ex.sets.push({r:reps,side:perSide,w:Math.max(0,+weight||0),t:0,rest:0,at:session.created});
+  }
+}
+
 // A workout recorded after the fact — backfilled or planned — gets a fixed span on its own
 // day rather than counting live from now. Start defaults to the session's created time.
 export function setWorkoutSpanOn(session,minutes,startISO){
