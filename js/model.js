@@ -67,6 +67,28 @@ export function shortDate(iso){
   catch(e){return "";}
 }
 
+// A workout belongs to a calendar day in local time, so the key is derived from the
+// local date rather than the UTC slice of the ISO stamp.
+export function dateKey(iso){
+  const d=new Date(iso);
+  if(isNaN(d))return "";
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+
+    "-"+String(d.getDate()).padStart(2,"0");
+}
+
+export function keyOf(y,m,day){
+  return y+"-"+String(m+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
+}
+
+export function timeLabel(iso){
+  try{return new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});}
+  catch(e){return "";}
+}
+
+export function monthLabel(y,m){
+  return new Date(y,m,1).toLocaleDateString(undefined,{month:"long",year:"numeric"});
+}
+
 // t is time spent working the set, rest is the gap that preceded it, at is when it ended.
 // w is the weight carried — 0 is bodyweight, so no separate weighted flag is needed.
 export function normSet(v){

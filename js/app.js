@@ -1,4 +1,4 @@
-import {addSet,autoEndIfStale,endWorkout,fmtClock,makeSession,nowISO,resetRestTimer,
+import {addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeSession,nowISO,resetRestTimer,
   setWorkoutMinutes,startWorkout,workoutSeconds} from "./model.js";
 import {DEFAULTS,activeEx,addExerciseToDay,getSession,load,mergeSessions,removeFromCatalog,
   save,selectSession,setSetting,state} from "./store.js";
@@ -211,10 +211,38 @@ document.body.addEventListener("click",ev=>{
   const loadDay=t.closest&&t.closest("[data-load]");
   if(loadDay){
     selectSession(loadDay.getAttribute("data-load"));
+    state.calDay=null;
     state.sheet=!getSession().ex.length;
     state.view="log";markRefit();render();return;
   }
-  if(t.id==="backbtn"){state.view="log";render();return;}
+
+  if(t.id==="calbtn"){
+    const c=getSession();
+    const d=c?new Date(c.created):new Date();
+    state.calYear=d.getFullYear();state.calMonth=d.getMonth();state.calDay=null;
+    state.view="calendar";render();return;
+  }
+  if(t.id==="calprev"||t.id==="calnext"){
+    state.calMonth+=(t.id==="calnext"?1:-1);
+    if(state.calMonth<0){state.calMonth=11;state.calYear--;}
+    else if(state.calMonth>11){state.calMonth=0;state.calYear++;}
+    state.calDay=null;render();return;
+  }
+  if(t.id==="caldone"||t.id==="calback"){state.calDay=null;render();return;}
+  const calDay=t.closest&&t.closest("[data-calday]");
+  if(calDay){
+    const key=calDay.getAttribute("data-calday");
+    const onDay=state.sessions.filter(s=>dateKey(s.created)===key);
+    // One workout opens straight away; several open a picker for that day.
+    if(onDay.length===1){
+      selectSession(onDay[0].id);
+      state.calDay=null;state.sheet=!getSession().ex.length;
+      state.view="log";markRefit();render();return;
+    }
+    state.calDay=key;render();return;
+  }
+  // Calendar was opened from the days list, so its Back returns there, not to the log.
+  if(t.id==="backbtn"){state.view=state.view==="calendar"?"history":"log";render();return;}
   if(t.id==="newday"){
     const ns=makeSession();
     state.sessions.push(ns);

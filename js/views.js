@@ -1,5 +1,6 @@
-import {EXERCISE_GROUPS,OTHER_GROUP,QUICK_REPS,QUICK_WEIGHTS,exerciseGroup,exerciseTotal,fmtClock,fmtTime,lastSet,restSeconds,secondsSince,setAnchor,
-  shortDate,totals,workoutEnd,workoutSeconds} from "./model.js";
+import {EXERCISE_GROUPS,OTHER_GROUP,QUICK_REPS,QUICK_WEIGHTS,dateKey,exerciseGroup,exerciseTotal,
+  fmtClock,fmtTime,keyOf,lastSet,monthLabel,restSeconds,secondsSince,setAnchor,
+  shortDate,timeLabel,totals,workoutEnd,workoutSeconds} from "./model.js";
 import {activeEx,getSession,newestFirst,state} from "./store.js";
 
 const MIN_SET_COLUMNS=1;
@@ -233,6 +234,7 @@ function historyView(){
     "<div class='hhead'><button class='backbtn' id='backbtn'>&lsaquo; Back</button>"+
     "<button class='newday' id='newday'>+ New day</button></div>"+
     "<div class='hhead csvrow'>"+
+    "<button class='backbtn' id='calbtn'>&#128197; Calendar</button>"+
     "<button class='backbtn' id='exportcsv'>&#8681; Export CSV</button>"+
     "<button class='backbtn' id='importcsv'>&#8679; Import CSV</button></div>"+
     "<input type='file' id='csvfile' accept='.csv,text/csv' style='display:none'>";
@@ -250,6 +252,93 @@ function historyView(){
       "<button class='del' data-delday='"+s.id+"'>&times;</button></div>";
   });
   return h+"</div>";
+}
+
+// Sessions grouped by the local calendar day they were created on. A day can hold more
+// than one, which is what makes two-a-days first-class rather than a merge conflict.
+function sessionsByDay(){
+  const byDay={};
+  state.sessions.forEach(s=>{
+    const k=dateKey(s.created);
+    if(!k)return;
+    (byDay[k]=byDay[k]||[]).push(s);
+  });
+  return byDay;
+}
+
+const WEEKDAYS=["S","M","T","W","T","F","S"];
+
+function calendarView(){
+  const now=new Date();
+  const y=state.calYear,m=state.calMonth;
+  const byDay=sessionsByDay();
+  const todayKey=keyOf(now.getFullYear(),now.getMonth(),now.getDate());
+  const first=new Date(y,m,1).getDay();          // 0=Sun leading blanks
+  const days=new Date(y,m+1,0).getDate();        // days in this month
+
+  let h="<div class='wrap scroll'>"+
+    "<div class='hhead'><button class='backbtn' id='backbtn'>&lsaquo; Back</button>"+
+    "<button class='newday' id='newday'>+ New workout</button></div>"+
+    "<div class='calnav'>"+
+      "<button class='calarrow' id='calprev'>&lsaquo;</button>"+
+      "<div class='calmonth'>"+esc(monthLabel(y,m))+"</div>"+
+      "<button class='calarrow' id='calnext'>&rsaquo;</button></div>"+
+    "<div class='calgrid calhead'>"+
+      WEEKDAYS.map(d=>"<div class='calwd'>"+d+"</div>").join("")+"</div>"+
+    "<div class='calgrid'>";
+
+  for(let i=0;i<first;i++)h+="<div class='calcell blank'></div>";
+  for(let day=1;day<=days;day++){
+    const k=keyOf(y,m,day);
+    const list=byDay[k]||[];
+    const worked=list.length>0;
+    const isToday=k===todayKey;
+    const hasCurrent=list.some(s=>s.id===state.sessionId);
+    let cls="calcell";
+    if(worked)cls+=" worked";
+    if(isToday)cls+=" today";
+    if(hasCurrent)cls+=" cur";
+    h+="<button class='"+cls+"'"+(worked?" data-calday='"+k+"'":"")+">"+
+       "<span class='caldate'>"+day+"</span>"+
+       (worked?"<span class='caldots'>"+
+         list.slice(0,3).map(()=>"<span class='caldot'></span>").join("")+
+         (list.length>3?"<span class='calmore'>+"+(list.length-3)+"</span>":"")+
+         "</span>":"")+
+       "</button>";
+  }
+  h+="</div>";
+
+  // A month with nothing gets a hint; a day tapped with several workouts drops a list below.
+  const monthCount=Object.keys(byDay).filter(k=>k.slice(0,7)===keyOf(y,m,1).slice(0,7)).length;
+  h+="<div class='calfoot'>"+(monthCount
+    ? monthCount+" day"+(monthCount>1?"s":"")+" trained this month"
+    : "No workouts logged this month.")+"</div>";
+
+  if(state.calDay){
+    const list=(byDay[state.calDay]||[]).slice()
+      .sort((a,b)=>(a.created||"").localeCompare(b.created||""));
+    if(list.length)h+=dayDetail(state.calDay,list);
+  }
+  return h+"</div>";
+}
+
+// Opened when a calendar day holds more than one workout: pick which to open.
+function dayDetail(key,list){
+  let h="<div class='overlay' id='calback'><div class='sheet'>"+
+    "<div class='sheethead'><div class='plabel'>"+esc(shortDate(list[0].created))+"</div>"+
+    "<button class='btn ghost tiny' id='caldone'>Close</button></div>"+
+    "<div class='sheetbody'>";
+  list.forEach(s=>{
+    const t=totals(s),secs=workoutSeconds(s),cur=s.id===state.sessionId;
+    h+="<div class='day"+(cur?" cur":"")+"' data-load='"+s.id+"'>"+
+      "<div class='info'>"+(cur?"<div class='cur-tag'>Current</div>":"")+
+      "<div class='t'>"+esc(s.title)+"</div>"+
+      "<div class='sub'>"+timeLabel(s.started||s.created)+" &middot; "+s.ex.length+" exercises"+
+      (secs===null?"":" &middot; "+fmtClock(secs))+
+      (s.running?" <span class='live'>live</span>":"")+"</div></div>"+
+      "<div class='nums'><div class='r mono'>"+t.reps+"</div><div class='rl'>reps</div></div></div>";
+  });
+  return h+"</div></div></div>";
 }
 
 const TEXT_SIZES=[["Auto",0],["XS",.7],["Small",.85],["Medium",1],
@@ -306,7 +395,7 @@ function settingsView(){
     "</div>";
 }
 
-const VIEWS={history:historyView,settings:settingsView};
+const VIEWS={history:historyView,calendar:calendarView,settings:settingsView};
 
 export function paint(){
   document.getElementById("app").innerHTML=(VIEWS[state.view]||logView)();

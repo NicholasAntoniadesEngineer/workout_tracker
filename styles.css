@@ -232,6 +232,31 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 
 .hhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;}
 .csvrow{margin-top:-2px;margin-bottom:16px;}
+
+/* Calendar — a month of workout days, tap a filled cell to open that day. */
+.calnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.calmonth{font-size:16px;font-weight:800;letter-spacing:-0.3px;}
+.calarrow{background:var(--panel);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;width:38px;height:34px;font-size:18px;font-weight:700;cursor:pointer;}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.calhead{margin-bottom:5px;}
+.calwd{text-align:center;font-size:10px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;padding:2px 0;}
+.calcell{position:relative;aspect-ratio:1;background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:0;color:var(--muted);font-family:inherit;cursor:default;}
+.calcell.blank{background:transparent;border:none;}
+.caldate{font-size:13px;font-weight:600;}
+.calcell.worked{background:var(--accentDim);border-color:var(--accent);color:var(--accentText);
+  cursor:pointer;}
+.calcell.worked .caldate{font-weight:800;}
+.calcell.today{box-shadow:inset 0 0 0 2px var(--accent);}
+.calcell.cur{background:var(--accent);border-color:var(--accent);color:var(--onAccent);}
+.caldots{display:flex;align-items:center;gap:2px;height:6px;}
+.caldot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.calmore{font-size:8px;font-weight:800;line-height:1;}
+.calfoot{margin:14px 0 4px;text-align:center;font-size:12px;color:var(--muted);}
+@media (prefers-reduced-motion:no-preference){.calcell,.calarrow{transition:all .12s ease;}}
 .backbtn{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:20px;
   padding:calc(8px * var(--k)) calc(14px * var(--k));font-size:calc(13px * var(--k));
   font-weight:700;cursor:pointer;}
