@@ -256,7 +256,10 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
    outgrows a short screen — unlike justify-content:center, which would clip the top. */
 .homeinner{margin:auto 0;width:100%;max-width:420px;}
 .homegear{position:absolute;top:max(16px,env(safe-area-inset-top));right:18px;z-index:2;}
-.brand{font-size:20px;font-weight:800;letter-spacing:-0.5px;margin-bottom:28px;}
+.brand{font-size:20px;font-weight:800;letter-spacing:-0.5px;margin-bottom:28px;
+  display:flex;align-items:center;justify-content:center;gap:7px;}
+.brand .bk{color:var(--accent);}
+.brandshield{width:20px;height:20px;flex:none;}
 .homehero{margin-bottom:26px;}
 .homeday{font-size:clamp(26px,8vw,34px);font-weight:800;letter-spacing:-1px;line-height:1.1;
   margin-bottom:16px;}
