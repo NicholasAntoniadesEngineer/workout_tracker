@@ -377,3 +377,12 @@ tr.held td:first-child{opacity:1;}
 .tblwrap.dragging{touch-action:none;}
 .tblwrap.dragging .exbtn{transition:none;}
 .btn.log[disabled]{opacity:.4;cursor:default;}
+
+/* Laptop and up: the picker and day-detail popups stop being bottom-anchored phone
+   sheets — which glue to the window edge and clip — and become a centred, floating
+   modal with a capped height. Mobile keeps the bottom sheet untouched. */
+@media (min-width:700px){
+  .overlay{align-items:center;padding:24px;}
+  .sheet{max-height:min(80dvh,760px);border-radius:18px;border:1px solid var(--line);
+    box-shadow:0 20px 60px var(--shadow);}
+}
