@@ -109,11 +109,11 @@ function download(csv,fname){
 
 export function exportCSV(sessions){
   const csv=BOM+buildCSV(sessions);
-  const fname="workout-history-"+new Date().toISOString().slice(0,10)+".csv";
+  const fname="kingskiln_"+new Date().toISOString().slice(0,10)+".csv";
   try{
     const file=new File([csv],fname,{type:"text/csv"});
     if(navigator.canShare&&navigator.canShare({files:[file]})){
-      navigator.share({files:[file],title:"Workout history"}).catch(()=>download(csv,fname));
+      navigator.share({files:[file],title:"KingsKiln history"}).catch(()=>download(csv,fname));
       return;
     }
   }catch(e){}

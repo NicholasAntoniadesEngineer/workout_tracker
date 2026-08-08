@@ -103,7 +103,7 @@ function importText(text){
   mergeSessions(imported);
   state.view="history";
   render();
-  alert("Imported "+imported.length+" day"+(imported.length>1?"s":"")+".");
+  alert("Loaded "+imported.length+" day"+(imported.length>1?"s":"")+".");
 }
 
 // Each exercise remembers how it was last done, so coming back to it picks up where you

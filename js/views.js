@@ -265,8 +265,8 @@ function historyView(){
     "<button class='newday' id='newday'>+ New day</button></div>"+
     "<div class='hhead csvrow'>"+
     "<button class='backbtn' id='calbtn'>&#128197; Calendar</button>"+
-    "<button class='backbtn' id='exportcsv'>&#8681; Export CSV</button>"+
-    "<button class='backbtn' id='importcsv'>&#8679; Import CSV</button></div>"+
+    "<button class='backbtn' id='exportcsv'>&#8681; Save history</button>"+
+    "<button class='backbtn' id='importcsv'>&#8679; Load history</button></div>"+
     "<input type='file' id='csvfile' accept='.csv,text/csv' style='display:none'>";
   const list=newestFirst(state.sessions);
   if(!list.length)h+="<div class='empty-note'>No days yet.</div>";
