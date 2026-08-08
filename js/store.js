@@ -11,7 +11,8 @@ export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
 export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],
   settings:Object.assign({},DEFAULTS),
   reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,setStart:null,editing:null,
-  adding:false,focusAdd:false,sheet:false,dragId:null,logCount:1,editWork:0,editRest:0,view:"log",
+  adding:false,focusAdd:false,sheet:false,dragId:null,logCount:1,editWork:0,editRest:0,
+  exSearch:"",focusSearch:false,origin:"home",view:"home",
   calYear:new Date().getFullYear(),calMonth:new Date().getMonth(),calDay:null};
 
 // Settings that change how numbers are counted live in the model, so it can stay pure.

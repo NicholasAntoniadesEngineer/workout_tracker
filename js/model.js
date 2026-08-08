@@ -4,15 +4,20 @@ export const EXERCISE_GROUPS=[
   ["Squat & lunge",["Squats","Slant board squats","Forward lunges","Backward lunges",
     "Slant board steps","ATG split squat","Bulgarian split squat","Wall sit"]],
   ["Hinge & glutes",["Kettlebell swings","Kettlebell deadlift","Single-leg RDL",
-    "Good mornings","Nordic curls","Glute bridge","Hip thrust","Band lateral walk"]],
-  ["Push",["Push ups","Pike push ups","Shoulder press","Dips","Band chest press"]],
-  ["Pull",["Pull ups","Chin ups","Gorilla rows","Standing kettlebell rows","Band row",
-    "Band lat pulldown","Band pull-aparts","Shoulder shrugs","Bicep curls"]],
+    "Good mornings","Nordic curls","Glute bridge","Hip thrust"]],
+  ["Push",["Push ups","Pike push ups","Shoulder press","Dips"]],
+  ["Pull",["Pull ups","Chin ups","Gorilla rows","Standing kettlebell rows",
+    "Shoulder shrugs","Bicep curls"]],
   ["Core",["Plank","Side plank","Dead bug","Hollow hold","Hanging knee raises",
     "Pallof press","Ab wheel rollout","Mountain climbers"]],
   ["Carry & full body",["Farmer carry","Suitcase carry","Turkish get-up",
     "Kettlebell squat press clean","Burpees"]],
-  ["Lower leg",["Tibialis raises","Calf raises"]]
+  ["Lower leg",["Tibialis raises","Calf raises"]],
+  // A band and a door anchor cover every pattern — the travel kit, in one section.
+  ["Bands",["Band squat","Band deadlift","Band Romanian deadlift","Band good morning",
+    "Band lateral walk","Band glute kickback","Band chest press","Band overhead press",
+    "Band row","Band lat pulldown","Band pull-aparts","Band face pull","Band bicep curl",
+    "Band tricep pushdown","Band Pallof press","Band woodchop"]]
 ];
 
 export const SEED_EXERCISES=EXERCISE_GROUPS.reduce((all,g)=>all.concat(g[1]),[]);
@@ -256,6 +261,11 @@ export function setWorkoutSpanOn(session,minutes,startISO){
 // Restarts the rest clock from now, without touching anything already logged.
 export function resetRestTimer(session){
   session.timerFrom=nowISO();
+}
+
+// Clears the workout clock back to "not started" — the logged sets are left untouched.
+export function resetWorkout(session){
+  session.started="";session.ended="";session.running=false;session.timerFrom="";
 }
 
 export function makeExercise(name){

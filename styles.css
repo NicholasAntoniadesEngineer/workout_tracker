@@ -249,6 +249,33 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .hhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;}
 .csvrow{margin-top:-2px;margin-bottom:16px;}
 
+/* Landing page — the app opens here. Calm, few words, clear next step. */
+.home{padding-top:max(20px,env(safe-area-inset-top));}
+.homehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:34px;}
+.brand{font-size:20px;font-weight:800;letter-spacing:-0.5px;}
+.homehero{margin-bottom:26px;}
+.homeday{font-size:clamp(26px,8vw,34px);font-weight:800;letter-spacing:-1px;line-height:1.1;
+  margin-bottom:16px;}
+.homecta{width:100%;background:var(--accent);color:var(--onAccent);border:1px solid var(--accent);
+  border-radius:14px;padding:16px;font-size:17px;font-weight:800;cursor:pointer;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.homerow{display:flex;gap:10px;margin-bottom:22px;}
+.hometile{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--text);
+  border-radius:14px;padding:20px 12px;font-size:14px;font-weight:700;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:8px;}
+.hticon{font-size:22px;}
+.homestat{text-align:center;font-size:12px;color:var(--muted);}
+
+/* Search box in the exercise sheet. */
+.searchrow{position:relative;margin:calc(4px * var(--k)) 0 calc(10px * var(--k));}
+.searchin{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:calc(9px * var(--k)) 34px calc(9px * var(--k)) 12px;
+  font-size:16px;outline:none;-webkit-user-select:text;user-select:text;}
+.searchin:focus{border-color:var(--accent);}
+.searchin::-webkit-search-cancel-button{display:none;}
+.searchx{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;
+  border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 6px;line-height:1;}
+
 /* Calendar — a month of workout days, tap a filled cell to open that day. */
 .calnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .calmonth{font-size:16px;font-weight:800;letter-spacing:-0.3px;}

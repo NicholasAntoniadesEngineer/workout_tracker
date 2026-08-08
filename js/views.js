@@ -1,5 +1,5 @@
 import {EXERCISE_GROUPS,OTHER_GROUP,QUICK_REPS,QUICK_WEIGHTS,dateKey,exerciseGroup,exerciseTotal,
-  fmtClock,fmtTime,keyOf,lastSet,monthLabel,restSeconds,secondsSince,setAnchor,
+  fmtClock,fmtTime,keyOf,lastSet,monthLabel,nowISO,restSeconds,secondsSince,setAnchor,
   shortDate,timeLabel,totals,workoutEnd,workoutSeconds} from "./model.js";
 import {activeEx,getSession,newestFirst,state} from "./store.js";
 
@@ -147,9 +147,16 @@ function exerciseSheet(session){
   });
   h+="</div>";
 
+  // Search filters the list as you type — the list is long enough now to warrant it.
+  const q=(state.exSearch||"").trim().toLowerCase();
+  h+="<div class='searchrow'><input class='searchin' id='exsearch' type='search' "+
+     "placeholder='Search exercises' autocomplete='off' value='"+esc(state.exSearch||"")+"'>"+
+     (q?"<button class='searchx' id='exsearchx'>&times;</button>":"")+"</div>";
+  const shown=q?rest.filter(n=>n.toLowerCase().indexOf(q)>=0):rest;
+
   // Grouped by movement, so a long list stays readable. Empty groups are left out.
   const byGroup={};
-  rest.forEach(n=>{
+  shown.forEach(n=>{
     const g=exerciseGroup(n);
     (byGroup[g]=byGroup[g]||[]).push(n);
   });
@@ -163,6 +170,9 @@ function exerciseSheet(session){
     });
     h+="</div>";
   });
+  if(q&&!shown.length)
+    h+="<div class='empty-note'>No match for &ldquo;"+esc(state.exSearch)+"&rdquo;.<br>"+
+       "Use + New exercise below to add it.</div>";
   h+="<div class='sheetadd'>";
   if(state.adding){
     h+="<input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
@@ -228,6 +238,7 @@ function timerBar(session){
       "<div class='tbtnrow'>"+
         "<button class='tbtn "+(on?"stop":"go")+"' id='wtoggle'>"+
           (on?"End workout":"Start workout")+"</button>"+
+        "<button class='tbtn narrow' id='workreset' title='Reset the workout time'>&#8635;</button>"+
       "</div></div></div></div>";
 }
 
@@ -238,6 +249,7 @@ function logView(){
     "<div class='eyebrow'>Session</div>"+
     "<div class='h1' id='daytitle'>"+esc(s.title)+" <span class='pen'>&#9998;</span></div>"+
     "</div><div class='headbtns'>"+
+    "<button class='daysbtn iconbtn' id='homebtn' title='Home'>&#8962;</button>"+
     "<button class='daysbtn' id='daysbtn'>&#9776; Days ("+state.sessions.length+")</button>"+
     "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>&#9881;</button>"+
     "</div></div>"+
@@ -269,6 +281,41 @@ function historyView(){
       "<div class='nums'><div class='r mono'>"+t.reps+"</div><div class='rl'>reps</div></div>"+
       "<button class='del' data-delday='"+s.id+"'>&times;</button></div>";
   });
+  return h+"</div>";
+}
+
+// The landing page: the app opens here, not mid-workout. Says the date, offers to start or
+// continue today, and points at the calendar and history — no filler.
+function homeView(){
+  const todayK=dateKey(nowISO());
+  const todaysList=state.sessions.filter(s=>dateKey(s.created)===todayK);
+  const active=todaysList.find(s=>s.ex.some(e=>e.sets.length))||todaysList[0]||null;
+  const started=active&&active.ex.some(e=>e.sets.length);
+  const dateStr=new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+
+  // A quiet, honest stat line — trained days over the last week — shown only once there's data.
+  const weekKeys={};
+  for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);weekKeys[dateKey(d.toISOString())]=false;}
+  state.sessions.forEach(s=>{const k=dateKey(s.created);
+    if(k in weekKeys&&s.ex.some(e=>e.sets.length))weekKeys[k]=true;});
+  const weekDone=Object.values(weekKeys).filter(Boolean).length;
+  const totalDone=state.sessions.filter(s=>s.ex.some(e=>e.sets.length)).length;
+
+  let h="<div class='wrap scroll home'>"+
+    "<div class='homehead'><div class='brand'>Workout</div>"+
+      "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>&#9881;</button></div>"+
+    "<div class='homehero'>"+
+      "<div class='homeday'>"+esc(dateStr)+"</div>"+
+      "<button class='homecta' id='hometoday'>"+
+        (started?"Continue &rarr; "+esc(active.title):"Start today&rsquo;s workout")+"</button>"+
+    "</div>"+
+    "<div class='homerow'>"+
+      "<button class='hometile' id='homecal'><span class='hticon'>&#128197;</span>Calendar</button>"+
+      "<button class='hometile' id='homedays'><span class='hticon'>&#9776;</span>History</button>"+
+    "</div>";
+  if(totalDone)
+    h+="<div class='homestat'>"+weekDone+" of the last 7 days trained &middot; "+
+       totalDone+" workout"+(totalDone>1?"s":"")+" logged</div>";
   return h+"</div>";
 }
 
@@ -425,7 +472,7 @@ function settingsView(){
     "</div>";
 }
 
-const VIEWS={history:historyView,calendar:calendarView,settings:settingsView};
+const VIEWS={home:homeView,history:historyView,calendar:calendarView,settings:settingsView};
 
 export function paint(){
   document.getElementById("app").innerHTML=(VIEWS[state.view]||logView)();

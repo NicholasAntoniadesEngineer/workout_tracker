@@ -1,5 +1,5 @@
 import {addManualSets,addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeSession,makeSessionOn,
-  nowISO,parseClock,resetRestTimer,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,
+  nowISO,parseClock,resetRestTimer,resetWorkout,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,
   workoutSeconds} from "./model.js";
 import {DEFAULTS,activeEx,addExerciseToDay,getSession,load,mergeSessions,removeFromCatalog,
   save,selectSession,setSetting,state} from "./store.js";
@@ -78,6 +78,12 @@ function render(){
         else if(ev.key==="Escape"){state.adding=false;render();}
       });
     }
+  }
+  // Filtering the list rebuilds the sheet each keystroke — keep the caret in the search box.
+  if(state.focusSearch){
+    const el=document.getElementById("exsearch");
+    if(el){el.focus();const v=el.value;try{el.setSelectionRange(v.length,v.length);}catch(e){}}
+    state.focusSearch=false;
   }
   save();
 }
@@ -205,6 +211,7 @@ document.body.addEventListener("input",ev=>{
   const id=ev.target&&ev.target.id;
   if(id==="editwork")state.editWork=parseClock(ev.target.value);
   else if(id==="editrest")state.editRest=parseClock(ev.target.value);
+  else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
 });
 
 document.body.addEventListener("click",ev=>{
@@ -218,13 +225,26 @@ document.body.addEventListener("click",ev=>{
   }
   const loadDay=t.closest&&t.closest("[data-load]");
   if(loadDay){
+    state.origin=state.view;                 // return here if the picker is dismissed empty
     selectSession(loadDay.getAttribute("data-load"));
     state.calDay=null;
     state.sheet=!getSession().ex.length;
     state.view="log";markRefit();render();return;
   }
 
-  if(t.id==="calbtn"){
+  // Home is the hub the app opens to.
+  if(t.id==="homebtn"){state.view="home";state.sheet=false;state.adding=false;render();return;}
+  if(t.id==="hometoday"){
+    const todayK=dateKey(nowISO());
+    const today=state.sessions.filter(s=>dateKey(s.created)===todayK);
+    const pick=today.find(s=>s.ex.some(e=>e.sets.length))||today[0];
+    if(pick)selectSession(pick.id);
+    else{const ns=makeSession();state.sessions.push(ns);selectSession(ns.id);}
+    state.origin="home";state.sheet=!getSession().ex.length;
+    state.view="log";markRefit();render();return;
+  }
+  if(t.id==="homedays"){state.view="history";render();return;}
+  if(t.id==="homecal"||t.id==="calbtn"){
     const c=getSession();
     const d=c?new Date(c.created):new Date();
     state.calYear=d.getFullYear();state.calMonth=d.getMonth();state.calDay=null;
@@ -243,29 +263,33 @@ document.body.addEventListener("click",ev=>{
     const onDay=state.sessions.filter(s=>dateKey(s.created)===key);
     // One workout opens straight away; several open a picker for that day.
     if(onDay.length===1){
+      state.origin="calendar";
       selectSession(onDay[0].id);
       state.calDay=null;state.sheet=!getSession().ex.length;
       state.view="log";markRefit();render();return;
     }
     state.calDay=key;render();return;
   }
-  // Tapping an empty past day starts a workout dated to that day, to backfill a missed log.
+  // Tapping an empty day starts a workout dated to it — backfill a past day or plan a future one.
   const newDay=t.closest&&t.closest("[data-newday]");
   if(newDay){
     const parts=newDay.getAttribute("data-newday").split("-").map(Number);
     const ns=makeSessionOn(parts[0],parts[1]-1,parts[2]);
     state.sessions.push(ns);
     selectSession(ns.id);
-    state.calDay=null;state.sheet=true;
+    state.origin="calendar";state.calDay=null;state.sheet=true;
     state.view="log";markRefit();render();return;
   }
-  // Calendar was opened from the days list, so its Back returns there, not to the log.
-  if(t.id==="backbtn"){state.view=state.view==="calendar"?"history":"log";render();return;}
+  // Back walks toward the home hub: calendar to the days list, everything else home.
+  if(t.id==="backbtn"){
+    state.view=state.view==="calendar"?"history":"home";
+    state.sheet=false;state.adding=false;render();return;
+  }
   if(t.id==="newday"){
     const ns=makeSession();
     state.sessions.push(ns);
     selectSession(ns.id);
-    state.sheet=true;
+    state.origin=state.view;state.sheet=true;
     state.view="log";markRefit();render();return;
   }
   if(t.id==="daysbtn"){state.view="history";state.sheet=false;state.adding=false;render();return;}
@@ -300,7 +324,16 @@ document.body.addEventListener("click",ev=>{
   }
   if(t.id==="opensheet"){state.sheet=true;state.editing=null;render();return;}
   if(t.id==="sheetdone"||t.id==="sheetback"){
-    state.sheet=false;state.adding=false;render();return;
+    state.sheet=false;state.adding=false;state.exSearch="";
+    // Backed out of a day opened from elsewhere without picking anything: drop the empty
+    // throwaway session and return to where you came from, rather than a blank log.
+    const s=getSession();
+    if(!s.ex.length&&state.origin&&state.origin!=="log"){
+      const back=state.origin;state.origin="home";
+      deleteDay(s.id);
+      state.view=back;
+    }
+    render();return;
   }
   if(t.id==="minus"){state.reps=Math.max(MIN_REPS,state.reps-1);render();return;}
   if(t.id==="plus"){state.reps=state.reps+1;render();return;}
@@ -358,6 +391,12 @@ document.body.addEventListener("click",ev=>{
     state.setStart=null;
     render();return;
   }
+  if(t.id==="workreset"){
+    if(!confirm("Reset the workout time? Logged sets are not affected."))return;
+    resetWorkout(getSession());
+    state.setStart=null;
+    render();return;
+  }
   if(t.closest&&t.closest("#worktime")){
     const s=getSession();
     const cur=Math.round((workoutSeconds(s)||0)/SEC_PER_MIN);
@@ -407,6 +446,7 @@ document.body.addEventListener("click",ev=>{
   // grab focus — and the keyboard with it — on every later repaint.
   // Adding only happens from the sheet, and picking one name should not close it —
   // the day stops being empty on the first pick, which is what used to shut it.
+  if(t.id==="exsearchx"){state.exSearch="";state.focusSearch=true;render();return;}
   const add=t.closest&&t.closest("[data-add]");
   if(add){
     addExerciseToDay(add.getAttribute("data-add"));
