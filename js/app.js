@@ -214,6 +214,18 @@ document.body.addEventListener("input",ev=>{
   else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
 });
 
+// Closing the picker follows the same rules whether by Done, a tap on the scrim, or Esc:
+// a day opened from elsewhere but left empty is dropped, returning you to where you came from.
+function dismissSheet(){
+  state.sheet=false;state.adding=false;state.exSearch="";
+  const s=getSession();
+  if(s&&!s.ex.length&&state.origin&&state.origin!=="log"){
+    const back=state.origin;state.origin="home";
+    deleteDay(s.id);
+    state.view=back;
+  }
+}
+
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;
@@ -329,18 +341,7 @@ document.body.addEventListener("click",ev=>{
     state.sheet=true;state.editing=null;render();return;
   }
   if(t.id==="opensheet"){state.sheet=true;state.editing=null;render();return;}
-  if(t.id==="sheetdone"||t.id==="sheetback"){
-    state.sheet=false;state.adding=false;state.exSearch="";
-    // Backed out of a day opened from elsewhere without picking anything: drop the empty
-    // throwaway session and return to where you came from, rather than a blank log.
-    const s=getSession();
-    if(!s.ex.length&&state.origin&&state.origin!=="log"){
-      const back=state.origin;state.origin="home";
-      deleteDay(s.id);
-      state.view=back;
-    }
-    render();return;
-  }
+  if(t.id==="sheetdone"||t.id==="sheetback"){dismissSheet();render();return;}
   if(t.id==="minus"){state.reps=Math.max(MIN_REPS,state.reps-1);render();return;}
   if(t.id==="plus"){state.reps=state.reps+1;render();return;}
   if(t.dataset&&t.dataset.q){state.reps=parseInt(t.dataset.q,10);render();return;}
@@ -506,6 +507,15 @@ function tick(){
 watchDrag();
 window.addEventListener("resize",()=>{markRefit();fit();});
 window.addEventListener("orientationchange",()=>{markRefit();fit();});
+
+// Esc closes whatever is open, top-most first — the picker, then a calendar day, then an
+// inline add field — so a keyboard is a first-class way to back out on a laptop.
+window.addEventListener("keydown",ev=>{
+  if(ev.key!=="Escape")return;
+  if(state.sheet){dismissSheet();render();}
+  else if(state.calDay){state.calDay=null;render();}
+  else if(state.adding){state.adding=false;render();}
+});
 
 load();
 state.sessions.forEach(autoEndIfStale);

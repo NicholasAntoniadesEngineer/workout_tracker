@@ -386,3 +386,58 @@ tr.held td:first-child{opacity:1;}
   .sheet{max-height:min(80dvh,760px);border-radius:18px;border:1px solid var(--line);
     box-shadow:0 20px 60px var(--shadow);}
 }
+
+/* Keyboard focus is first-class on a laptop: a clear ring on whatever is tabbed to, shown
+   only for keyboard focus (not taps) via :focus-visible. The 2px offset keeps the ring on
+   the page background so it stays visible even on an accent-filled button. */
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.searchin:focus-visible,.timein:focus-visible,input.name:focus-visible{outline:2px solid var(--accent);
+  outline-offset:1px;}
+
+/* Pointer devices get hover feedback the touch UI never needed. Gated on hover:hover so a
+   phone — which reports no hover — is completely unaffected. Toggle-on and accent states
+   are excluded so a live selection never dims to a neutral hover. */
+@media (hover:hover) and (pointer:fine){
+  .daysbtn,.backbtn,.iconbtn,.calarrow,.exhbtn,.addbtn,.rmbtn,.q,.round,.tbtn,.setmult,
+  .chip.spick,.striprow .chip,.chip.sheetitem,.day,.exbtn,.calcell,.hometile,.homecta,
+  .homelink,.btn,.newday,.reset button,.h1,.searchx,.chip .x,.day .del{
+    transition:background-color .12s ease,border-color .12s ease,color .12s ease,
+      box-shadow .12s ease,transform .12s ease,filter .12s ease;}
+
+  /* Neutral controls: warm the border and surface. */
+  .daysbtn:hover,.backbtn:hover,.iconbtn:hover,.calarrow:hover,
+  .tbtn:not(.go):not(.stop):not(.on):hover,.round:hover,
+  .chip.spick:hover,.striprow .chip:not(.on):hover{
+    border-color:var(--accent);background:var(--panelHi);}
+  .exbtn:not(.active):hover{background:var(--panelHi);}
+  .exhbtn:hover{border-color:var(--accent);color:var(--accentText);}
+  .chip.sheetitem:hover{border-color:var(--accent);}
+
+  /* Selectable pills warm toward the accent. */
+  .q:not(.on):hover,.setmult:hover{border-color:var(--accent);background:var(--accentDim);
+    color:var(--accentText);}
+  .addbtn:hover{border-color:var(--accent);background:var(--accentDim);border-style:solid;}
+
+  /* Clickable cards lift or ring. */
+  .day:hover{border-color:var(--accent);background:var(--panelHi);}
+  .hometile:hover{border-color:var(--accent);transform:translateY(-2px);
+    box-shadow:0 8px 22px var(--shadow);}
+
+  /* Accent actions brighten and lift a touch. */
+  .homecta:hover,.newday:hover,.btn.primary:hover,.tbtn.go:hover,
+  .btn.log:not([disabled]):hover{filter:brightness(1.06);box-shadow:0 6px 18px var(--shadow);}
+
+  /* Calendar days. */
+  .calcell.worked:hover,.calcell.planned:hover{border-color:var(--accent);
+    box-shadow:0 4px 12px var(--shadow);}
+  .calcell.addable:hover{border-color:var(--accent);color:var(--accentText);}
+  .calcell.addable:hover .caladd{opacity:.9;}
+
+  /* Destructive controls fill in on hover, matching their pressed state. */
+  .rmbtn:hover,.btn.dang:hover{background:var(--danger);color:#fff;border-style:solid;}
+  .day .del:hover,.chip .x:hover{color:var(--danger);}
+
+  /* Quiet text buttons gain contrast. */
+  .homelink:hover,.reset button:hover,.searchx:hover{color:var(--text);}
+  .h1:not(.plain):hover{color:var(--accentText);}
+}
