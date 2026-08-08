@@ -322,19 +322,21 @@ function homeView(){
   const totalDone=state.sessions.filter(s=>s.ex.some(e=>e.sets.length)).length;
 
   let h="<div class='wrap scroll home'>"+
-    "<div class='homehead'><div class='brand'>Workout</div>"+
-      "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>&#9881;</button></div>"+
-    "<div class='homehero'>"+
-      "<div class='homeday'>"+esc(dateStr)+"</div>"+
-      homeCta(running,finished,emptyOpen,doneToday)+
-    "</div>"+
-    "<div class='homerow'>"+
-      "<button class='hometile' id='homecal'><span class='hticon'>&#128197;</span>Calendar</button>"+
-      "<button class='hometile' id='homedays'><span class='hticon'>&#9776;</span>History</button>"+
-    "</div>";
+    "<button class='daysbtn iconbtn homegear' id='settingsbtn' title='Settings'>&#9881;</button>"+
+    "<div class='homeinner'>"+
+      "<div class='brand'>Workout</div>"+
+      "<div class='homehero'>"+
+        "<div class='homeday'>"+esc(dateStr)+"</div>"+
+        homeCta(running,finished,emptyOpen,doneToday)+
+      "</div>"+
+      "<div class='homerow'>"+
+        "<button class='hometile' id='homecal'><span class='hticon'>&#128197;</span>Calendar</button>"+
+        "<button class='hometile' id='homedays'><span class='hticon'>&#9776;</span>History</button>"+
+      "</div>";
   if(totalDone)
     h+="<div class='homestat'>"+weekDone+" of the last 7 days trained &middot; "+
        totalDone+" workout"+(totalDone>1?"s":"")+" logged</div>";
+  h+="</div>";
   return h+"</div>";
 }
 
