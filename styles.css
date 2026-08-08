@@ -63,12 +63,14 @@ button{font-family:inherit;}
 .wrap.scroll{display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;
   padding-bottom:calc(16px + env(safe-area-inset-bottom));}
 .wrap.scroll>*{flex:none;}
-/* On a desktop window, short pages sit in the middle like the landing page; auto margins
-   collapse to zero once content overflows, so long days still scroll from the top.
-   Phones keep the top-anchored flow. */
+/* On a desktop window, short pages hang high — a quarter of the free space above, three
+   below — so the content centres on the top-quarter line rather than mid-screen. The
+   spacers grow only into free space, so long days still scroll from the top. Phones
+   keep the top-anchored flow. */
 @media (min-width:700px){
-  .wrap.scroll:not(.home)>:first-child{margin-top:auto;}
-  .wrap.scroll:not(.home)>:last-child{margin-bottom:auto;}
+  .wrap.scroll::before{content:"";flex:1 1 0;}
+  .wrap.scroll::after{content:"";flex:3 1 0;}
+  .home .homeinner{margin:0;}
 }
 
 .head{flex:none;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
