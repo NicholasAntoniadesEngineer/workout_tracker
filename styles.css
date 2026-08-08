@@ -60,8 +60,13 @@ button{font-family:inherit;}
 .wrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto;
   width:100%;max-width:640px;margin:0 auto;
   padding:max(10px,env(safe-area-inset-top)) var(--sp) 0;}
-.wrap.scroll{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch;
+.wrap.scroll{display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;
   padding-bottom:calc(16px + env(safe-area-inset-bottom));}
+/* Short pages sit in the middle of the window like the landing page does; auto margins
+   collapse to zero once content overflows, so long days still scroll from the top. */
+.wrap.scroll>*{flex:none;}
+.wrap.scroll:not(.home)>:first-child{margin-top:auto;}
+.wrap.scroll:not(.home)>:last-child{margin-bottom:auto;}
 
 .head{flex:none;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
 .eyebrow{font-size:var(--f-tiny);letter-spacing:2px;text-transform:uppercase;
