@@ -259,6 +259,9 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .homecta{width:100%;background:var(--accent);color:var(--onAccent);border:1px solid var(--accent);
   border-radius:14px;padding:16px;font-size:17px;font-weight:800;cursor:pointer;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.homelink{display:block;width:100%;margin-top:10px;background:none;border:0;color:var(--muted);
+  font-size:14px;font-weight:600;cursor:pointer;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .homerow{display:flex;gap:10px;margin-bottom:22px;}
 .hometile{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--text);
   border-radius:14px;padding:20px 12px;font-size:14px;font-weight:700;cursor:pointer;

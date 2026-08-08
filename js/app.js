@@ -234,13 +234,19 @@ document.body.addEventListener("click",ev=>{
 
   // Home is the hub the app opens to.
   if(t.id==="homebtn"){state.view="home";state.sheet=false;state.adding=false;render();return;}
-  if(t.id==="hometoday"){
-    const todayK=dateKey(nowISO());
-    const today=state.sessions.filter(s=>dateKey(s.created)===todayK);
-    const pick=today.find(s=>s.ex.some(e=>e.sets.length))||today[0];
-    if(pick)selectSession(pick.id);
-    else{const ns=makeSession();state.sessions.push(ns);selectSession(ns.id);}
+  const homeResume=t.closest&&t.closest("[data-resume]");
+  if(homeResume){
+    selectSession(homeResume.getAttribute("data-resume"));
     state.origin="home";state.sheet=!getSession().ex.length;
+    state.view="log";markRefit();render();return;
+  }
+  if(t.id==="homestart"){
+    const todayK=dateKey(nowISO());
+    const done=state.sessions.filter(s=>dateKey(s.created)===todayK&&s.ex.some(e=>e.sets.length)).length;
+    const ns=makeSession();
+    if(done)ns.title=ns.title+" · "+(done+1);
+    state.sessions.push(ns);selectSession(ns.id);
+    state.origin="home";state.sheet=true;
     state.view="log";markRefit();render();return;
   }
   if(t.id==="homedays"){state.view="history";render();return;}

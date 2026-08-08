@@ -284,13 +284,33 @@ function historyView(){
   return h+"</div>";
 }
 
+// The hero's one big button, chosen from today's state: resume a live workout, or — once
+// today's has ended — start the next one, with a quiet link back to the finished one.
+function homeCta(running,finished,emptyOpen,doneToday){
+  if(running)
+    return "<button class='homecta' data-resume='"+running.id+"'>Continue &rarr; "+esc(running.title)+"</button>";
+  if(finished)
+    return "<button class='homecta' id='homestart'>Start another workout</button>"+
+      "<button class='homelink' data-resume='"+finished.id+"'>Resume "+esc(finished.title)+
+      (doneToday>1?" &middot; "+doneToday+" today":"")+"</button>";
+  if(emptyOpen)
+    return "<button class='homecta' data-resume='"+emptyOpen.id+"'>Continue &rarr; "+esc(emptyOpen.title)+"</button>";
+  return "<button class='homecta' id='homestart'>Start today&rsquo;s workout</button>";
+}
+
 // The landing page: the app opens here, not mid-workout. Says the date, offers to start or
 // continue today, and points at the calendar and history — no filler.
 function homeView(){
   const todayK=dateKey(nowISO());
-  const todaysList=state.sessions.filter(s=>dateKey(s.created)===todayK);
-  const active=todaysList.find(s=>s.ex.some(e=>e.sets.length))||todaysList[0]||null;
-  const started=active&&active.ex.some(e=>e.sets.length);
+  const todaysList=state.sessions.filter(s=>dateKey(s.created)===todayK)
+    .sort((a,b)=>(a.created||"").localeCompare(b.created||""));
+  const hasSets=s=>s.ex.some(e=>e.sets.length);
+  // A workout you're mid-way through gets Continue; once it has ended, the offer flips to
+  // starting the next one — a second (or third) workout on the same day is first-class.
+  const running=todaysList.find(s=>s.running);
+  const finished=todaysList.filter(s=>hasSets(s)&&!s.running).slice(-1)[0]||null;
+  const emptyOpen=todaysList.find(s=>!hasSets(s)&&!s.running)||null;
+  const doneToday=todaysList.filter(s=>hasSets(s)).length;
   const dateStr=new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
 
   // A quiet, honest stat line — trained days over the last week — shown only once there's data.
@@ -306,8 +326,7 @@ function homeView(){
       "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>&#9881;</button></div>"+
     "<div class='homehero'>"+
       "<div class='homeday'>"+esc(dateStr)+"</div>"+
-      "<button class='homecta' id='hometoday'>"+
-        (started?"Continue &rarr; "+esc(active.title):"Start today&rsquo;s workout")+"</button>"+
+      homeCta(running,finished,emptyOpen,doneToday)+
     "</div>"+
     "<div class='homerow'>"+
       "<button class='hometile' id='homecal'><span class='hticon'>&#128197;</span>Calendar</button>"+
