@@ -62,11 +62,14 @@ button{font-family:inherit;}
   padding:max(10px,env(safe-area-inset-top)) var(--sp) 0;}
 .wrap.scroll{display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;
   padding-bottom:calc(16px + env(safe-area-inset-bottom));}
-/* Short pages sit in the middle of the window like the landing page does; auto margins
-   collapse to zero once content overflows, so long days still scroll from the top. */
 .wrap.scroll>*{flex:none;}
-.wrap.scroll:not(.home)>:first-child{margin-top:auto;}
-.wrap.scroll:not(.home)>:last-child{margin-bottom:auto;}
+/* On a desktop window, short pages sit in the middle like the landing page; auto margins
+   collapse to zero once content overflows, so long days still scroll from the top.
+   Phones keep the top-anchored flow. */
+@media (min-width:700px){
+  .wrap.scroll:not(.home)>:first-child{margin-top:auto;}
+  .wrap.scroll:not(.home)>:last-child{margin-bottom:auto;}
+}
 
 .head{flex:none;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
 .eyebrow{font-size:var(--f-tiny);letter-spacing:2px;text-transform:uppercase;
