@@ -5,22 +5,34 @@ import {newestFirst,state} from "../store.js";
 import {VERSES} from "../verses.js";
 import {esc} from "./common.js";
 
-// A fresh verse each time the app opens — chosen once here at load, so incidental repaints
-// (the timer ticking) never reshuffle it out from under you.
-const PICK=VERSES.length?VERSES[Math.floor(Math.random()*VERSES.length)]:null;
+// A fresh verse each time the app opens — random once at load, so incidental repaints
+// (the timer ticking) never reshuffle it. The corner arrows then step through the pool.
+if(VERSES.length&&state.verseIdx==null)state.verseIdx=Math.floor(Math.random()*VERSES.length);
+
+// Move to the previous/next verse, wrapping around the ends.
+export function stepVerse(dir){
+  if(!VERSES.length)return;
+  const n=VERSES.length;
+  state.verseIdx=(((state.verseIdx||0)+dir)%n+n)%n;
+}
 
 // Bible Gateway codes for the versions we offer. The card shows the chosen translation's
 // text; the reference links to that translation's full chapter — the source, not my wording.
 const GATEWAY={web:"WEB",kjv:"KJV"};
 
 function verseCard(){
-  if(!PICK)return "";
+  if(!VERSES.length)return "";
+  const v=VERSES[state.verseIdx||0];
   const ver=state.settings.bibleVersion==="kjv"?"kjv":"web";
-  const chapter=PICK.ref.split(":")[0];
+  const chapter=v.ref.split(":")[0];
   const link="https://www.biblegateway.com/passage/?search="+
     encodeURIComponent(chapter)+"&version="+GATEWAY[ver];
-  return "<div class='homeverse'>"+esc(PICK[ver])+
-    "<a class='homeref' href='"+link+"' target='_blank' rel='noopener'>"+esc(PICK.ref)+"</a></div>";
+  return "<div class='homeverse'>"+esc(v[ver])+
+    "<div class='verfoot'>"+
+      "<button class='verstep' id='verprev' aria-label='Previous verse'>&lsaquo;</button>"+
+      "<a class='homeref' href='"+link+"' target='_blank' rel='noopener'>"+esc(v.ref)+"</a>"+
+      "<button class='verstep' id='vernext' aria-label='Next verse'>&rsaquo;</button>"+
+    "</div></div>";
 }
 
 // The hero's one big button, chosen from today's state: resume a live workout, or — once

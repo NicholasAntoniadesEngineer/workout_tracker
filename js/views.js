@@ -11,6 +11,7 @@ import {bodyView} from "./views/body.js";
 import {settingsView} from "./views/settings.js";
 
 export {esc} from "./views/common.js";
+export {stepVerse} from "./views/home.js";
 export {setClockSeconds,setLabel,setSub,setsSummary,workoutLabel,
   workoutSub} from "./views/log.js";
 

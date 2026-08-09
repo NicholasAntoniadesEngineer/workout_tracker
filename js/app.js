@@ -5,7 +5,7 @@ import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,getSession,importBa
   mergeSessions,removeFromCatalog,save,selectSession,setSetting,state,
   upsertBodyEntry} from "./store.js";
 import {exportCSV,exportJSON,parseImport} from "./csv.js";
-import {paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
+import {paint,setClockSeconds,setSub,stepVerse,workoutLabel,workoutSub} from "./views.js";
 
 const MIN_REPS=0;
 const TICK_MS=1000;
@@ -309,6 +309,8 @@ document.body.addEventListener("click",ev=>{
     state.origin="home";state.sheet=true;
     state.view="log";markRefit();render();return;
   }
+  if(t.id==="verprev"){stepVerse(-1);render();return;}
+  if(t.id==="vernext"){stepVerse(1);render();return;}
   // Home tiles hold an icon span, so a tap can land inside the button — match by ancestor.
   if(t.closest&&t.closest("#homedays")){state.view="history";render();return;}
   if(t.closest&&t.closest("#homeprog")){state.view="progress";render();return;}

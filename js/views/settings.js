@@ -33,30 +33,20 @@ export function settingsView(){
     "<div class='h1 plain'>Settings</div></div>"+
 
     "<div class='setgroup'>Display</div>"+
-    choiceRow("Text size","Auto shrinks text so the whole day fits the window. "+
-      "A fixed size is kept exactly, and the table scrolls if the day outgrows it.",
-      "textScale",TEXT_SIZES)+
-    choiceRow("Theme","",
-      "theme",THEMES)+
-    toggleRow("Time of each set","Shown under the reps in the grid.","showSetTimes")+
-    choiceRow("Bible version","The daily verse on the home screen. Both are public domain and "+
-      "work offline; the reference links to that version&rsquo;s chapter.","bibleVersion",
-      [["WEB",  "web"],["KJV","kjv"]])+
+    choiceRow("Text size","","textScale",TEXT_SIZES)+
+    choiceRow("Theme","","theme",THEMES)+
+    toggleRow("Time of each set","","showSetTimes")+
+    choiceRow("Bible version","","bibleVersion",[["WEB","web"],["KJV","kjv"]])+
 
     "<div class='setgroup'>Logging</div>"+
-    choiceRow("Starting reps","What the counter opens on.","startReps",
-      START_REPS.map(n=>[String(n),n]))+
+    choiceRow("Starting reps","","startReps",START_REPS.map(n=>[String(n),n]))+
     toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
-    choiceRow("Weight unit","Switching converts every saved weight and measurement.",
-      "unit",[["kg","kg"],["lb","lb"]])+
+    choiceRow("Weight unit","","unit",[["kg","kg"],["lb","lb"]])+
 
     "<div class='setgroup'>Workout</div>"+
-    choiceRow("Rest target","The rest clock turns amber and the phone buzzes once "+
-      "the rest since the last set passes this.","restTarget",
+    choiceRow("Rest target","","restTarget",
       [["Off",0],["1:00",60],["1:30",90],["2:00",120],["3:00",180]])+
-    choiceRow("End an idle workout after",
-      "Backdated to the last set, so a session left running does not count all night.",
-      "idleEndMinutes",IDLE_ENDS)+
+    choiceRow("End an idle workout after","","idleEndMinutes",IDLE_ENDS)+
 
     "<div class='reset'><button id='resetsettings'>Restore defaults</button></div>"+
     "</div>";
