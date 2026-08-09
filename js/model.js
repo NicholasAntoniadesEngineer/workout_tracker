@@ -32,6 +32,8 @@ export function exerciseGroup(name){
   return GROUP_OF[String(name||"").trim().toLowerCase()]||OTHER_GROUP;
 }
 export const QUICK_REPS=[5,8,10,12,15,20];
+// Quick picks for timed movements — planks, carries, wall sits — counted in seconds.
+export const QUICK_SECS=[15,20,30,45,60,90];
 
 const SIDES_PER_SET=2;
 const UID_RADIX=36;
@@ -96,17 +98,19 @@ export function monthLabel(y,m){
 
 // t is time spent working the set, rest is the gap that preceded it, at is when it ended.
 // w is the weight carried — 0 is bodyweight, so no separate weighted flag is needed.
+// wu marks a warm-up: logged and shown, but kept out of totals, records and trends.
 export function normSet(v){
-  return {r:+v.r||0,side:!!v.side,w:+v.w||0,t:+v.t||0,rest:+v.rest||0,at:v.at||""};
+  return {r:+v.r||0,side:!!v.side,w:+v.w||0,t:+v.t||0,rest:+v.rest||0,at:v.at||"",wu:!!v.wu};
 }
 
 export function setReps(x){return (x.side&&options.perSideDouble)?x.r*SIDES_PER_SET:x.r;}
 
-export function exerciseTotal(e){return e.sets.reduce((sum,x)=>sum+setReps(x),0);}
+export function exerciseTotal(e){return e.sets.reduce((sum,x)=>sum+(x.wu?0:setReps(x)),0);}
 
+// Timed exercises hold seconds in r, so they count toward sets but never the rep total.
 export function totals(session){
   let reps=0,sets=0;
-  session.ex.forEach(e=>e.sets.forEach(x=>{reps+=setReps(x);sets++;}));
+  session.ex.forEach(e=>e.sets.forEach(x=>{if(!x.wu&&!e.timed)reps+=setReps(x);sets++;}));
   return {reps,sets};
 }
 
@@ -192,9 +196,25 @@ export function autoEndIfStale(session){
 // A set always lands inside a running workout, so forgetting to press Start costs nothing.
 // startedAt is when the set began, if it was timed: the gap before it is rest, the gap
 // after it is work. Untimed sets record the whole gap as rest and no work.
-export const QUICK_WEIGHTS=[4,6,8,10,12,16,20,24];
+const QUICK_WEIGHTS_KG=[4,6,8,10,12,16,20,24];
+const QUICK_WEIGHTS_LB=[10,15,20,25,35,45,55,65];
+export function quickWeights(unit){return unit==="lb"?QUICK_WEIGHTS_LB:QUICK_WEIGHTS_KG;}
 
-export function addSet(session,ex,reps,perSide,startedAt,weight){
+// Weights are stored in whichever unit is chosen; switching converts every stored number,
+// so 24 kg becomes 52.9 lb rather than silently relabelling itself.
+const KG_PER_LB=0.45359237;
+const CM_PER_IN=2.54;
+
+function convert(v,from,to,perImperial){
+  if(!v||from===to)return v;
+  const metric=from==="lb"?v*perImperial:v;
+  return Math.round((to==="lb"?metric/perImperial:metric)*10)/10;
+}
+export function convertWeight(v,from,to){return convert(v,from,to,KG_PER_LB);}
+// Girths ride along with the weight unit: centimetres beside kg, inches beside lb.
+export function convertLength(v,from,to){return convert(v,from,to,CM_PER_IN);}
+
+export function addSet(session,ex,reps,perSide,startedAt,weight,warm){
   if(!session.running)startWorkout(session);
   const anchor=setAnchor(session);
   const end=nowISO();
@@ -202,7 +222,7 @@ export function addSet(session,ex,reps,perSide,startedAt,weight){
   const work=(Date.parse(end)-Date.parse(begun))/MS_PER_SEC;
   const rest=anchor?(Date.parse(begun)-Date.parse(anchor))/MS_PER_SEC:0;
   ex.sets.push({r:reps,side:perSide,w:Math.max(0,+weight||0),
-    t:Math.max(0,Math.round(work)),rest:Math.max(0,Math.round(rest)),at:end});
+    t:Math.max(0,Math.round(work)),rest:Math.max(0,Math.round(rest)),at:end,wu:!!warm});
   session.timerFrom="";
 }
 
@@ -241,10 +261,11 @@ export function parseClock(str){
 
 // Transcribing a workout done off-app: add one or more identical sets without starting a
 // live timer, stamped to the session's own day and with unknown (0) work/rest until edited.
-export function addManualSets(session,ex,reps,perSide,weight,count){
+export function addManualSets(session,ex,reps,perSide,weight,count,warm){
   const n=Math.max(1,Math.round(+count||1));
   for(let i=0;i<n;i++){
-    ex.sets.push({r:reps,side:perSide,w:Math.max(0,+weight||0),t:0,rest:0,at:session.created});
+    ex.sets.push({r:reps,side:perSide,w:Math.max(0,+weight||0),t:0,rest:0,at:session.created,
+      wu:!!warm});
   }
 }
 

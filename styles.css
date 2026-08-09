@@ -125,10 +125,32 @@ td.sum{min-width:36px;text-align:center;color:var(--accentText);
 /* Marks a set as carrying weight, next to the /s marker for per-side work. */
 .wt{font-size:var(--f-xs);color:var(--accentText);font-weight:800;margin-left:2px;
   vertical-align:super;line-height:1;}
+/* Warm-up sets sit quieter in the grid and carry a small w — logged, never counted. */
+td.cell.has.wu{opacity:.55;}
+.wumk{color:var(--muted);font-style:italic;}
 .ct{display:block;font-size:var(--f-tiny);font-weight:600;color:var(--muted);line-height:1;margin-top:2px;}
 
 /* Sits flush on the timer bar: the space below it belongs to the table. */
 .panel{flex:none;margin-top:var(--sp);margin-bottom:0;}
+/* Last time this exercise was trained — the line to beat, above the stepper.
+   A button: tapping it opens the exercise's full history and records. */
+.prevline{display:block;width:100%;background:none;border:none;cursor:pointer;
+  font-size:var(--f-sm);color:var(--muted);text-align:center;font-family:inherit;
+  margin-bottom:calc(7px * var(--k));padding:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prevline .prevlbl{color:var(--accentText);font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;font-size:var(--f-tiny);}
+.prevline .prevmore{color:var(--accentText);font-weight:800;}
+/* Records grid and day-by-day rows in the exercise history sheet. */
+.prgrid{display:grid;grid-template-columns:1fr 1fr;gap:calc(6px * var(--k));
+  margin-bottom:calc(10px * var(--k));}
+.pru{font-size:var(--f-xs);color:var(--muted);font-weight:700;margin-left:2px;}
+.histrow{display:flex;align-items:baseline;gap:10px;padding:calc(8px * var(--k)) 2px;
+  border-bottom:1px solid var(--line);}
+.histrow:last-child{border-bottom:none;}
+.histdate{flex:none;font-size:var(--f-sm);color:var(--muted);font-weight:600;min-width:92px;}
+.histsets{flex:1;min-width:0;font-size:var(--f-sm);text-align:right;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .prow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:calc(8px * var(--k));}
 .plabel{font-size:var(--f-sm);color:var(--muted);text-transform:uppercase;letter-spacing:1px;flex:none;}
 .pactive{font-size:var(--f-md);font-weight:700;color:var(--accentText);text-align:right;
@@ -227,6 +249,8 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .tv{font-size:var(--f-clock);font-weight:800;line-height:1.1;}
 .tv.held{color:var(--accentText);}
+/* Rest has passed its target: the clock itself says it's time to lift. */
+.tv.over{color:var(--accentText);}
 .tsub{font-size:var(--f-xs);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .tbtnrow{display:flex;gap:4px;margin-top:calc(6px * var(--k));}
 .tv.edit{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;
@@ -279,8 +303,8 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .homelink{display:block;width:100%;margin-top:10px;background:none;border:0;color:var(--muted);
   font-size:14px;font-weight:600;cursor:pointer;text-align:center;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.homerow{display:flex;gap:10px;margin-bottom:22px;}
-.hometile{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--text);
+.homerow{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px;}
+.hometile{flex:1 1 40%;background:var(--panel);border:1px solid var(--line);color:var(--text);
   border-radius:14px;padding:20px 12px;font-size:14px;font-weight:700;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;gap:8px;}
 .hticon{font-size:22px;}
@@ -355,12 +379,44 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   text-transform:uppercase;letter-spacing:1px;}
 .day .del{background:none;border:none;color:var(--muted);font-size:calc(20px * var(--k));
   cursor:pointer;flex:none;padding:0 4px;}
+/* Repeat this day's exercises as a fresh workout today. */
+.day .copy{background:none;border:none;color:var(--muted);font-size:calc(16px * var(--k));
+  cursor:pointer;flex:none;padding:0 4px;}
+.day .copy:active{color:var(--accentText);}
 .empty-note{color:var(--muted);font-size:calc(13px * var(--k));text-align:center;padding:20px;}
 
 @media (prefers-reduced-motion:no-preference){.exbtn,.q,.round,.btn,.tbtn,.day{transition:all .12s ease;}}
 
 /* Weight shown against the reps, e.g. 10 with a small 12 beside it. */
 .quick.weights{margin-top:calc(-4px * var(--k));}
+
+/* Progress charts: inline SVG themed by the same variables as everything else. */
+.chartcard{padding:calc(12px * var(--k));}
+.chart{display:block;width:100%;height:calc(90px * var(--k));margin-top:calc(6px * var(--k));}
+.chart rect{fill:var(--accentDim);stroke:var(--accent);stroke-width:.5;}
+.chart rect.now{fill:var(--accent);}
+.chart.line polyline{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;}
+.chart.line circle{fill:var(--panel);stroke:var(--accent);stroke-width:2;}
+.chart.line circle.now{fill:var(--accent);}
+.chartlbls{display:flex;justify-content:space-between;gap:8px;margin-top:calc(6px * var(--k));
+  font-size:var(--f-tiny);color:var(--muted);font-weight:600;}
+.trendchips{display:flex;flex-wrap:wrap;gap:5px;}
+.trendchips .q{flex:0 1 auto;font-size:var(--f-sm);padding:calc(6px * var(--k)) 10px;}
+
+/* Body log: weight and girth fields in one row, one entry per day. */
+.bodyform{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:calc(10px * var(--k));}
+.bodysave{width:100%;}
+@media (max-width:420px){.bodyform{grid-template-columns:1fr 1fr;}}
+
+/* Undo toast: floats above the timer bar for a few seconds after a destructive action. */
+.toast{position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(120px + env(safe-area-inset-bottom));z-index:40;
+  display:flex;align-items:center;gap:14px;background:var(--text);color:var(--bg);
+  border-radius:12px;padding:10px 14px;font-size:var(--f-md);font-weight:600;
+  box-shadow:0 8px 24px var(--shadow);max-width:min(92vw,420px);white-space:nowrap;}
+.toast span{overflow:hidden;text-overflow:ellipsis;}
+.toast button{background:none;border:none;color:var(--accent);font:inherit;font-weight:800;
+  cursor:pointer;padding:0;letter-spacing:.3px;}
 
 /* The exercise list opens over the app rather than scrolling sideways forever. */
 .overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;

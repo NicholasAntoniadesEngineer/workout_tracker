@@ -1,4 +1,5 @@
-import {SEED_EXERCISES,makeExercise,makeSession,normSet,options} from "./model.js";
+import {SEED_EXERCISES,convertLength,convertWeight,dateKey,makeExercise,makeSession,normSet,
+  options} from "./model.js";
 
 const KEY="workout_days_v2";
 const STORE_VERSION=6;
@@ -6,13 +7,13 @@ const DEFAULT_REPS=10;
 const SEC_PER_MIN=60;
 
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
-  startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg"};
+  startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0};
 
-export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],
+export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],body:[],
   settings:Object.assign({},DEFAULTS),
-  reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,setStart:null,editing:null,
-  adding:false,focusAdd:false,sheet:false,dragId:null,logCount:1,editWork:0,editRest:0,
-  exSearch:"",focusSearch:false,origin:"home",view:"home",
+  reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,warmup:false,setStart:null,editing:null,
+  adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
+  exSearch:"",focusSearch:false,origin:"home",view:"home",undo:null,progressEx:"",
   calYear:new Date().getFullYear(),calMonth:new Date().getMonth(),calDay:null};
 
 // Settings that change how numbers are counted live in the model, so it can stay pure.
@@ -87,7 +88,7 @@ function normSession(s){
   s.ended=s.ended||"";
   s.timerFrom=s.timerFrom||"";
   s.running=!!s.running;
-  s.ex.forEach(e=>{e.sets=(e.sets||[]).map(normSet);});
+  s.ex.forEach(e=>{e.timed=!!e.timed;e.sets=(e.sets||[]).map(normSet);});
   return s;
 }
 
@@ -99,6 +100,7 @@ export function load(){
   state.setStart=(saved&&saved.setStart)||null;
   if(!getSession())state.sessionId=state.sessions[0].id;
   state.removed=(saved&&saved.removed)||[];
+  state.body=(saved&&saved.body)||[];
   state.catalog=buildCatalog(saved);
   state.settings=Object.assign({},DEFAULTS,(saved&&saved.settings)||{});
   applySettings();
@@ -112,7 +114,7 @@ export function save(){
     localStorage.setItem(KEY,JSON.stringify(
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
-        setStart:state.setStart}));
+        setStart:state.setStart,body:state.body}));
   }catch(e){}
 }
 
@@ -127,6 +129,45 @@ export function addExerciseToDay(name){
   return e;
 }
 
+// Changing the weight unit converts every stored number — sets, the live selection, and
+// the body log — so history keeps meaning the same load it always did.
+export function convertAllWeights(from,to){
+  if(from===to)return;
+  state.sessions.forEach(s=>s.ex.forEach(e=>e.sets.forEach(x=>{
+    x.w=convertWeight(x.w,from,to);
+  })));
+  state.weight=convertWeight(state.weight,from,to);
+  state.lastWeight=convertWeight(state.lastWeight,from,to);
+  state.body.forEach(b=>{
+    b.w=convertWeight(b.w,from,to);
+    ["waist","chest","arm"].forEach(k=>{if(b[k])b[k]=convertLength(b[k],from,to);});
+  });
+}
+
+// One body entry per calendar day: logging again the same day corrects it, not doubles it.
+export function upsertBodyEntry(entry){
+  const day=dateKey(entry.at);
+  state.body=state.body.filter(b=>dateKey(b.at)!==day);
+  state.body.push(entry);
+  state.body.sort((a,b)=>(a.at||"").localeCompare(b.at||""));
+}
+
+// The last day this exercise was done before the open session — what "beat last time"
+// is measured against while logging.
+export function lastPerformance(name){
+  const k=key(name);
+  if(!k)return null;
+  const cur=getSession();
+  const list=newestFirst(state.sessions);
+  for(let i=0;i<list.length;i++){
+    const s=list[i];
+    if(cur&&(s.id===cur.id||(s.created||"")>(cur.created||"")))continue;
+    const e=s.ex.find(x=>key(x.name)===k&&x.sets.length);
+    if(e)return {session:s,ex:e};
+  }
+  return null;
+}
+
 export function newestFirst(sessions){
   return sessions.slice().sort((a,b)=>(b.created||"").localeCompare(a.created||""));
 }
@@ -137,6 +178,22 @@ export function selectSession(id){
   state.exId=s.ex[0]?s.ex[0].id:null;
   state.editing=null;
   state.setStart=null;
+}
+
+// Restore a JSON backup: days merge by created stamp like the CSV path, and the exercise
+// list, removals, body log and settings come back with them.
+export function importBackup(d){
+  const sessions=(Array.isArray(d.sessions)?d.sessions:[])
+    .filter(s=>s&&s.id&&s.created&&Array.isArray(s.ex));
+  sessions.forEach(s=>{s.ex=s.ex.filter(e=>e&&e.name);normSession(s);});
+  if(sessions.length)mergeSessions(sessions);
+  (Array.isArray(d.catalog)?d.catalog:[]).forEach(addToCatalog);
+  (Array.isArray(d.removed)?d.removed:[]).forEach(removeFromCatalog);
+  (Array.isArray(d.body)?d.body:[]).forEach(b=>{if(b&&b.at)upsertBodyEntry(b);});
+  if(d.settings&&typeof d.settings==="object")
+    state.settings=Object.assign({},DEFAULTS,state.settings,d.settings);
+  applySettings();
+  return sessions.length;
 }
 
 // Days sharing a created stamp are replaced, not duplicated.

@@ -1,9 +1,10 @@
-import {addManualSets,addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeSession,makeSessionOn,
-  nowISO,parseClock,resetRestTimer,resetWorkout,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,
-  workoutSeconds} from "./model.js";
-import {DEFAULTS,activeEx,addExerciseToDay,getSession,load,mergeSessions,removeFromCatalog,
-  save,selectSession,setSetting,state} from "./store.js";
-import {exportCSV,parseImport} from "./csv.js";
+import {addManualSets,addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeExercise,makeSession,
+  makeSessionOn,nowISO,parseClock,resetRestTimer,resetWorkout,restSeconds,setAnchor,
+  setWorkoutMinutes,setWorkoutSpanOn,startWorkout,workoutSeconds} from "./model.js";
+import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,getSession,importBackup,load,
+  mergeSessions,removeFromCatalog,save,selectSession,setSetting,state,
+  upsertBodyEntry} from "./store.js";
+import {exportCSV,exportJSON,parseImport} from "./csv.js";
 import {paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
 
 const MIN_REPS=0;
@@ -96,7 +97,18 @@ function addExercise(){
   render();
 }
 
+// One Load button takes either format: a JSON backup restores everything, a CSV merges days.
 function importText(text){
+  const trimmed=text.replace(/^\ufeff/,"").trim();
+  if(trimmed[0]==="{"){
+    let n;
+    try{n=importBackup(JSON.parse(trimmed));}
+    catch(err){alert("That backup couldn't be read.");return;}
+    state.view="history";
+    render();
+    alert("Backup loaded"+(n?" — "+n+" day"+(n>1?"s":"")+" merged":"")+".");
+    return;
+  }
   let imported;
   try{imported=parseImport(text);}
   catch(err){alert(err.message);return;}
@@ -122,13 +134,33 @@ function recallLast(e){
   }
 }
 
-// Dropping an exercise that has already been logged destroys those sets, so it asks.
+// Destructive actions snapshot everything they might touch first, act at once, and leave
+// a short-lived Undo toast — kinder than a confirm before and no way back after.
+const UNDO_MS=6000;
+let undoTimer=null;
+function snapshot(label){
+  state.undo={label,data:JSON.parse(JSON.stringify({sessions:state.sessions,
+    sessionId:state.sessionId,exId:state.exId,catalog:state.catalog,removed:state.removed,
+    body:state.body}))};
+  if(undoTimer)clearTimeout(undoTimer);
+  undoTimer=setTimeout(()=>{state.undo=null;render();},UNDO_MS);
+}
+
+function restoreUndo(){
+  const d=state.undo&&state.undo.data;
+  if(!d)return;
+  Object.assign(state,d);
+  state.undo=null;
+  if(undoTimer){clearTimeout(undoTimer);undoTimer=null;}
+  if(!getSession())state.sessionId=state.sessions[0].id;
+}
+
+// Dropping an exercise that has already been logged destroys those sets — undoable.
 function removeExercise(id){
   const s=getSession();
   const e=s.ex.find(x=>x.id===id);
   if(!e)return;
-  if(e.sets.length&&!confirm("Drop "+e.name+" from today? Its "+e.sets.length+
-    " logged set"+(e.sets.length>1?"s":"")+" will be deleted."))return;
+  if(e.sets.length)snapshot("Dropped "+e.name);
   s.ex=s.ex.filter(x=>x.id!==id);
   if(state.exId===id)state.exId=s.ex[0]?s.ex[0].id:null;
 }
@@ -230,9 +262,25 @@ document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;
 
+  if(t.id==="undobtn"){restoreUndo();render();return;}
   const delDay=t.closest&&t.closest("[data-delday]");
   if(delDay){
-    if(confirm("Delete this day permanently?"))deleteDay(delDay.getAttribute("data-delday"));
+    snapshot("Day deleted");
+    deleteDay(delDay.getAttribute("data-delday"));
+    render();return;
+  }
+  // Repeat a day: a fresh session today with the same exercises, ready to log against.
+  const copyDay=t.closest&&t.closest("[data-copyday]");
+  if(copyDay){
+    const src=state.sessions.find(s=>s.id===copyDay.getAttribute("data-copyday"));
+    if(src){
+      const ns=makeSession();
+      ns.ex=src.ex.map(e=>Object.assign(makeExercise(e.name),{timed:!!e.timed}));
+      state.sessions.push(ns);
+      selectSession(ns.id);
+      state.origin=state.view;state.sheet=false;
+      state.view="log";markRefit();
+    }
     render();return;
   }
   const loadDay=t.closest&&t.closest("[data-load]");
@@ -261,8 +309,28 @@ document.body.addEventListener("click",ev=>{
     state.origin="home";state.sheet=true;
     state.view="log";markRefit();render();return;
   }
-  if(t.id==="homedays"){state.view="history";render();return;}
-  if(t.id==="homecal"||t.id==="calbtn"){
+  // Home tiles hold an icon span, so a tap can land inside the button — match by ancestor.
+  if(t.closest&&t.closest("#homedays")){state.view="history";render();return;}
+  if(t.closest&&t.closest("#homeprog")){state.view="progress";render();return;}
+  if(t.closest&&t.closest("#homebody")){state.view="body";render();return;}
+  if(t.id==="bodysave"){
+    const num=id=>{const el=document.getElementById(id);
+      const v=el?parseFloat(el.value):NaN;return isNaN(v)||v<=0?0:Math.round(v*10)/10;};
+    const entry={at:nowISO(),w:num("bodyw"),waist:num("body_waist"),
+      chest:num("body_chest"),arm:num("body_arm")};
+    if(entry.w||entry.waist||entry.chest||entry.arm)upsertBodyEntry(entry);
+    render();return;
+  }
+  const delBody=t.closest&&t.closest("[data-delbody]");
+  if(delBody){
+    snapshot("Entry deleted");
+    const day=delBody.getAttribute("data-delbody");
+    state.body=state.body.filter(b=>dateKey(b.at)!==day);
+    render();return;
+  }
+  const trend=t.closest&&t.closest("[data-trend]");
+  if(trend){state.progressEx=trend.getAttribute("data-trend");render();return;}
+  if((t.closest&&t.closest("#homecal"))||t.id==="calbtn"){
     const c=getSession();
     const d=c?new Date(c.created):new Date();
     state.calYear=d.getFullYear();state.calMonth=d.getMonth();state.calDay=null;
@@ -317,18 +385,27 @@ document.body.addEventListener("click",ev=>{
   if(setBtn){
     const key=setBtn.getAttribute("data-set"),raw=setBtn.getAttribute("data-val");
     const was=DEFAULTS[key];
+    const oldUnit=state.settings.unit;
     setSetting(key,typeof was==="boolean"?raw==="1":(typeof was==="number"?Number(raw):raw));
     if(key==="startReps")state.reps=Number(raw);
+    if(key==="unit")convertAllWeights(oldUnit,state.settings.unit);
     markRefit();
     render();return;
   }
   if(t.id==="resetsettings"){
+    const oldUnit=state.settings.unit;
     Object.keys(DEFAULTS).forEach(k=>setSetting(k,DEFAULTS[k]));
     state.reps=DEFAULTS.startReps;
+    convertAllWeights(oldUnit,state.settings.unit);
     markRefit();
     render();return;
   }
   if(t.id==="exportcsv"){exportCSV(state.sessions);return;}
+  if(t.id==="exportjson"){
+    exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
+      settings:state.settings,body:state.body});
+    return;
+  }
   if(t.id==="importcsv"){const cf=document.getElementById("csvfile");if(cf)cf.click();return;}
 
   if(t.closest&&t.closest("#daytitle")){
@@ -341,11 +418,20 @@ document.body.addEventListener("click",ev=>{
     state.sheet=true;state.editing=null;render();return;
   }
   if(t.id==="opensheet"){state.sheet=true;state.editing=null;render();return;}
+  if(t.closest&&t.closest("#exhistbtn")){state.exHist=true;render();return;}
+  if(t.id==="histdone"||t.id==="histback"){state.exHist=false;render();return;}
   if(t.id==="sheetdone"||t.id==="sheetback"){dismissSheet();render();return;}
   if(t.id==="minus"){state.reps=Math.max(MIN_REPS,state.reps-1);render();return;}
   if(t.id==="plus"){state.reps=state.reps+1;render();return;}
   if(t.dataset&&t.dataset.q){state.reps=parseInt(t.dataset.q,10);render();return;}
   if(t.id==="sidebtn"){state.perSide=!state.perSide;render();return;}
+  if(t.id==="warmbtn"){state.warmup=!state.warmup;render();return;}
+  // Seconds mode belongs to the exercise, not the set — a plank is timed every day.
+  if(t.id==="timedbtn"){
+    const e=activeEx();
+    if(e)e.timed=!e.timed;
+    render();return;
+  }
   if(t.id==="weightbtn"){
     if(state.weight){state.lastWeight=state.weight;state.weight=0;}
     else state.weight=state.lastWeight||10;
@@ -371,6 +457,7 @@ document.body.addEventListener("click",ev=>{
     state.reps=e.sets[i].r;
     state.perSide=e.sets[i].side;
     state.weight=+e.sets[i].w||0;
+    state.warmup=!!e.sets[i].wu;
     state.editWork=+e.sets[i].t||0;
     state.editRest=+e.sets[i].rest||0;
     state.editing={ex:cell.dataset.ex,i};
@@ -428,10 +515,11 @@ document.body.addEventListener("click",ev=>{
     if(e){
       // Live single set on today counts with the timer; anything else is manual transcription.
       const live=state.logCount<=1&&dateKey(s.created)===dateKey(nowISO());
-      if(live)addSet(s,e,state.reps,state.perSide,state.setStart,state.weight);
-      else addManualSets(s,e,state.reps,state.perSide,state.weight,state.logCount);
+      if(live)addSet(s,e,state.reps,state.perSide,state.setStart,state.weight,state.warmup);
+      else addManualSets(s,e,state.reps,state.perSide,state.weight,state.logCount,state.warmup);
     }
-    state.setStart=null;state.logCount=1;
+    // Warm-up is per set, not sticky: the set after a warm-up is working weight again.
+    state.setStart=null;state.logCount=1;state.warmup=false;
     render();return;
   }
   if(t.id==="upd"){
@@ -439,16 +527,16 @@ document.body.addEventListener("click",ev=>{
     if(e){
       const old=e.sets[state.editing.i];
       e.sets[state.editing.i]={r:state.reps,side:state.perSide,w:state.weight,
-        t:state.editWork||0,rest:state.editRest||0,at:old.at||""};
+        t:state.editWork||0,rest:state.editRest||0,at:old.at||"",wu:state.warmup};
     }
-    state.editing=null;render();return;
+    state.editing=null;state.warmup=false;render();return;
   }
   if(t.id==="del"){
     const e=getSession().ex.find(x=>x.id===state.editing.ex);
-    if(e)e.sets.splice(state.editing.i,1);
+    if(e){snapshot("Set deleted");e.sets.splice(state.editing.i,1);}
     state.editing=null;render();return;
   }
-  if(t.id==="cxl"){state.editing=null;render();return;}
+  if(t.id==="cxl"){state.editing=null;state.warmup=false;render();return;}
   // Picking a listed name closes the new-exercise box, rather than leaving it open to
   // grab focus — and the keyboard with it — on every later repaint.
   // Adding only happens from the sheet, and picking one name should not close it —
@@ -472,8 +560,8 @@ document.body.addEventListener("click",ev=>{
   const delCat=t.closest&&t.closest("[data-delcat]");
   if(delCat){
     const name=delCat.getAttribute("data-delcat");
-    if(confirm("Remove \""+name+"\" from your list? Days you already logged keep it."))
-      removeFromCatalog(name);
+    snapshot("Removed "+name+" from the list");
+    removeFromCatalog(name);
     render();return;
   }
   if(t.id==="removesel"){const e=activeEx();if(e)removeExercise(e.id);render();return;}
@@ -481,19 +569,34 @@ document.body.addEventListener("click",ev=>{
   if(t.id==="addbtn"){state.adding=true;state.focusAdd=true;render();return;}
   if(t.id==="addok"){addExercise();return;}
   if(t.id==="reset"){
-    if(confirm("Clear all sets for this day?")){
-      getSession().ex.forEach(x=>{x.sets=[];});
-      state.editing=null;render();
-    }
-    return;
+    snapshot("Day's sets cleared");
+    getSession().ex.forEach(x=>{x.sets=[];});
+    state.editing=null;render();return;
   }
 });
+
+// Rest target: once the gap since the last set passes it, the clock turns amber and the
+// phone buzzes — once per rest, keyed on the anchor so a new set re-arms it.
+let restAlerted="";
+function restAlert(s){
+  const el=document.getElementById("settime");
+  const target=+state.settings.restTarget||0;
+  const armed=target&&s.running&&!state.setStart;
+  const over=armed&&restSeconds(s)>=target;
+  if(el)el.classList.toggle("over",!!over);
+  if(!over)return;
+  const anchor=setAnchor(s);
+  if(restAlerted===anchor)return;
+  restAlerted=anchor;
+  if(navigator.vibrate)navigator.vibrate([200,90,200]);
+}
 
 // Both clocks derive from stored stamps, so ticking only refreshes text — never the DOM.
 function tick(){
   if(state.view!=="log")return;
   const s=getSession();
   if(autoEndIfStale(s)){render();return;}
+  restAlert(s);
   const set=document.getElementById("settime");
   if(set)set.textContent=fmtClock(setClockSeconds(s));
   const setl=document.getElementById("setsub");
@@ -512,10 +615,16 @@ window.addEventListener("orientationchange",()=>{markRefit();fit();});
 // inline add field — so a keyboard is a first-class way to back out on a laptop.
 window.addEventListener("keydown",ev=>{
   if(ev.key!=="Escape")return;
-  if(state.sheet){dismissSheet();render();}
+  if(state.exHist){state.exHist=false;render();}
+  else if(state.sheet){dismissSheet();render();}
   else if(state.calDay){state.calDay=null;render();}
   else if(state.adding){state.adding=false;render();}
 });
+
+// The whole app is precached, so it opens with no network at all; persistent storage
+// asks the browser never to evict months of history under storage pressure.
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 
 load();
 state.sessions.forEach(autoEndIfStale);
