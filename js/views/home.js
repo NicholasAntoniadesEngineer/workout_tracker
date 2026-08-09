@@ -2,7 +2,19 @@
 // continue today, and points at the calendar, history, progress and body — no filler.
 import {dateKey,nowISO} from "../model.js";
 import {newestFirst,state} from "../store.js";
+import {VERSES} from "../verses.js";
 import {esc} from "./common.js";
+
+const MS_PER_DAY=86400000;
+
+// One verse a day, the same for everyone on that date, rotating through the whole set.
+// Its reference links to the passage on Bible Gateway (WEB) — the source, not my wording.
+function verseOfDay(){
+  if(!VERSES.length)return "";
+  const v=VERSES[Math.floor(Date.now()/MS_PER_DAY)%VERSES.length];
+  return "<div class='homeverse'>&ldquo;"+esc(v.text)+"&rdquo;"+
+    "<a class='homeref' href='"+v.source+"' target='_blank' rel='noopener'>"+esc(v.ref)+"</a></div>";
+}
 
 // The hero's one big button, chosen from today's state: resume a live workout, or — once
 // today's has ended — start the next one, with a quiet link back to the finished one.
@@ -56,6 +68,7 @@ export function homeView(){
         "</svg><span>Kings<span class='bk'>Kiln</span></span></div>"+
       "<div class='homehero'>"+
         "<div class='homeday'>"+esc(dateStr)+"</div>"+
+        verseOfDay()+
         homeCta(running,finished,emptyOpen,doneToday)+
       "</div>"+
       "<div class='homerow'>"+
