@@ -12,7 +12,7 @@ const MS_PER_DAY=86400000;
 function verseOfDay(){
   if(!VERSES.length)return "";
   const v=VERSES[Math.floor(Date.now()/MS_PER_DAY)%VERSES.length];
-  return "<div class='homeverse'>&ldquo;"+esc(v.text)+"&rdquo;"+
+  return "<div class='homeverse'>"+esc(v.text)+
     "<a class='homeref' href='"+v.source+"' target='_blank' rel='noopener'>"+esc(v.ref)+"</a></div>";
 }
 

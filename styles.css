@@ -297,11 +297,13 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .homehero{margin-bottom:26px;}
 .homeday{font-size:clamp(26px,8vw,34px);font-weight:800;letter-spacing:-1px;line-height:1.1;
   margin-bottom:16px;}
-/* The day's verse — quiet, readable, never louder than the date or the button it sits between. */
-.homeverse{font-size:14px;line-height:1.5;color:var(--muted);font-style:italic;
-  max-width:38ch;margin:0 auto 18px;}
-.homeref{display:inline-block;margin-top:4px;margin-left:6px;font-style:normal;font-weight:700;
-  color:var(--accentText);text-decoration:none;white-space:nowrap;}
+/* The day's verse in its own bordered card, so it reads as a deliberate quotation rather
+   than loose text — upright and full-contrast, but quieter than the date or the button. */
+.homeverse{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:14px 16px;font-size:14px;line-height:1.5;color:var(--text);
+  max-width:40ch;margin:0 auto 18px;}
+.homeref{display:block;margin-top:8px;font-weight:700;font-size:12.5px;
+  color:var(--accentText);text-decoration:none;}
 .homeref:hover{text-decoration:underline;}
 .homecta{width:100%;background:var(--accent);color:var(--onAccent);border:1px solid var(--accent);
   border-radius:14px;padding:16px;font-size:17px;font-weight:800;cursor:pointer;
