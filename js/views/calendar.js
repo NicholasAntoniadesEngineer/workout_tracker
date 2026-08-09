@@ -3,6 +3,7 @@
 import {dateKey,fmtClock,keyOf,monthLabel,shortDate,timeLabel,totals,
   workoutSeconds} from "../model.js";
 import {state} from "../store.js";
+import {feastsForMonth} from "../feasts.js";
 import {esc} from "./common.js";
 
 // Sessions grouped by the local calendar day they were created on. A day can hold more
@@ -38,6 +39,7 @@ export function calendarView(){
       WEEKDAYS.map(d=>"<div class='calwd'>"+d+"</div>").join("")+"</div>"+
     "<div class='calgrid'>";
 
+  const feasts=feastsForMonth(y,m,state.settings.feastSet);
   let doneDays=0,plannedDays=0;
   for(let i=0;i<first;i++)h+="<div class='calcell blank'></div>";
   for(let day=1;day<=days;day++){
@@ -59,7 +61,8 @@ export function calendarView(){
     if(hasCurrent)cls+=" cur";
     // Worked/planned days open (pick a session); empty days create one on that date.
     const attr=worked?" data-calday='"+k+"'":" data-newday='"+k+"'";
-    h+="<button class='"+cls+"'"+attr+">"+
+    h+="<button class='"+cls+"'"+attr+" "+(feasts[day]?"title=\""+esc(feasts[day])+"\"":"")+">"+
+       (feasts[day]?"<span class='calfeast'>&#10013;</span>":"")+
        "<span class='caldate'>"+day+"</span>"+
        (worked?"<span class='caldots'>"+
          list.slice(0,3).map(()=>"<span class='caldot'></span>").join("")+
@@ -75,6 +78,14 @@ export function calendarView(){
   if(plannedDays)parts.push(plannedDays+" planned");
   h+="<div class='calfoot'>"+(parts.length?parts.join(" &middot; ")+" this month"
     :"Nothing logged this month yet.")+"</div>";
+
+  // The month's feasts, named under the grid — the marks above just point here.
+  const fdays=Object.keys(feasts).map(Number).sort((a,b)=>a-b);
+  if(fdays.length){
+    h+="<div class='feastlist'>"+fdays.map(d=>
+      "<span class='feastitem'><span class='fd'>"+d+"</span> "+esc(feasts[d])+"</span>")
+      .join(" &middot; ")+"</div>";
+  }
 
   if(state.calDay){
     const list=(byDay[state.calDay]||[]).slice()

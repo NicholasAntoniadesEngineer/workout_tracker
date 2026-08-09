@@ -8,9 +8,9 @@ const SEC_PER_MIN=60;
 
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
-  bibleVersion:"web"};
+  bibleVersion:"web",feastSet:"western",restDay:0};
 
-export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],body:[],
+export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],body:[],routines:[],
   settings:Object.assign({},DEFAULTS),
   reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,warmup:false,setStart:null,editing:null,
   adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
@@ -102,6 +102,7 @@ export function load(){
   if(!getSession())state.sessionId=state.sessions[0].id;
   state.removed=(saved&&saved.removed)||[];
   state.body=(saved&&saved.body)||[];
+  state.routines=(saved&&saved.routines)||[];
   state.catalog=buildCatalog(saved);
   state.settings=Object.assign({},DEFAULTS,(saved&&saved.settings)||{});
   applySettings();
@@ -115,7 +116,7 @@ export function save(){
     localStorage.setItem(KEY,JSON.stringify(
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
-        setStart:state.setStart,body:state.body}));
+        setStart:state.setStart,body:state.body,routines:state.routines}));
   }catch(e){}
 }
 
@@ -143,6 +144,16 @@ export function convertAllWeights(from,to){
     b.w=convertWeight(b.w,from,to);
     ["waist","chest","arm"].forEach(k=>{if(b[k])b[k]=convertLength(b[k],from,to);});
   });
+}
+
+// One routine per name: saving again under the same name replaces its exercise list.
+export function saveRoutine(name,exNames){
+  const n=String(name||"").trim();
+  if(!n||!exNames.length)return null;
+  state.routines=state.routines.filter(r=>key(r.name)!==key(n));
+  const r={id:"r"+Date.now().toString(36)+state.routines.length,name:n,ex:exNames.slice()};
+  state.routines.push(r);
+  return r;
 }
 
 // One body entry per calendar day: logging again the same day corrects it, not doubles it.
@@ -191,6 +202,9 @@ export function importBackup(d){
   (Array.isArray(d.catalog)?d.catalog:[]).forEach(addToCatalog);
   (Array.isArray(d.removed)?d.removed:[]).forEach(removeFromCatalog);
   (Array.isArray(d.body)?d.body:[]).forEach(b=>{if(b&&b.at)upsertBodyEntry(b);});
+  (Array.isArray(d.routines)?d.routines:[]).forEach(r=>{
+    if(r&&r.name&&Array.isArray(r.ex))saveRoutine(r.name,r.ex);
+  });
   if(d.settings&&typeof d.settings==="object")
     state.settings=Object.assign({},DEFAULTS,state.settings,d.settings);
   applySettings();

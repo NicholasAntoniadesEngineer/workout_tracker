@@ -37,6 +37,10 @@ export function settingsView(){
     choiceRow("Theme","","theme",THEMES)+
     toggleRow("Time of each set","","showSetTimes")+
     choiceRow("Bible version","","bibleVersion",[["WEB","web"],["KJV","kjv"]])+
+    choiceRow("Church calendar","Feast days marked in the calendar.","feastSet",
+      [["Off","off"],["Western","western"],["Orthodox","orthodox"]])+
+    choiceRow("Rest day","The day the week keeps for rest.","restDay",
+      [["Sunday",0],["Saturday",6]])+
 
     "<div class='setgroup'>Logging</div>"+
     choiceRow("Starting reps","","startReps",START_REPS.map(n=>[String(n),n]))+

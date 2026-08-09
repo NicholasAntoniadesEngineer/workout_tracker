@@ -212,6 +212,19 @@ function exerciseSheet(session){
     h+="<button class='addbtn' id='addbtn'>+ New exercise</button>";
   }
   h+="</div>";
+
+  // Routines: today's list saved under a name, and saved ones applied or dropped here.
+  if(state.routines.length||session.ex.length){
+    h+="<div class='picklbl'>Routines</div><div class='chips'>";
+    state.routines.forEach(r=>{
+      h+="<span class='chip rchip'><button class='pick' data-applyroutine='"+r.id+"'>"+
+         esc(r.name)+" <span class='rn'>"+r.ex.length+"</span></button>"+
+         "<button class='x' data-delroutine='"+r.id+"'>&times;</button></span>";
+    });
+    if(session.ex.length)
+      h+="<button class='addbtn' id='saveroutine'>+ Save day as routine</button>";
+    h+="</div>";
+  }
   if(session.ex.length)
     h+="<div class='reset'><button id='reset'>Clear this day's sets</button></div>";
   return h+"</div></div></div>";

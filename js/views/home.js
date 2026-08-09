@@ -20,6 +20,49 @@ export function stepVerse(dir){
 // text; the reference links to that translation's full chapter — the source, not my wording.
 const GATEWAY={web:"WEB",kjv:"KJV"};
 
+// The week as a rhythm of work and rest, not a streak: the rest day is the crown of the
+// week, never a hole in it, and nothing "breaks" — a quiet count, then a fresh week.
+function sabbathWeek(){
+  const restDay=state.settings.restDay===6?6:0;        // 0 Sunday, 6 Saturday
+  const today=new Date();today.setHours(12,0,0,0);
+  // Orient the week so the rest day lands last.
+  const sinceStart=restDay===0?(today.getDay()+6)%7:today.getDay();
+  const trained={};
+  state.sessions.forEach(s=>{if(s.ex.some(e=>e.sets.length))trained[dateKey(s.created)]=true;});
+  let dots="",n=0,restPassed=false,restTrained=false;
+  for(let i=0;i<7;i++){
+    const d=new Date(today);d.setDate(d.getDate()-sinceStart+i);
+    const did=!!trained[dateKey(d.toISOString())];
+    const isRest=d.getDay()===restDay;
+    const future=i>sinceStart;
+    if(did&&!isRest)n++;
+    if(isRest&&!future){restPassed=true;restTrained=did;}
+    const init=d.toLocaleDateString(undefined,{weekday:"narrow"});
+    let cls="wkday",mark="&#9675;";                    // hollow: open
+    if(isRest){cls+=" rest";mark="&#10013;";}          // the cross marks the rest day
+    else if(did){cls+=" did";mark="&#9679;";}
+    if(future)cls+=" future";
+    if(i===sinceStart)cls+=" now";
+    dots+="<div class='"+cls+"'><span class='wkinit'>"+esc(init)+"</span>"+
+      "<span class='wkdot'>"+mark+"</span></div>";
+  }
+  let label=n+" trained";
+  if(restPassed)label+=" &middot; "+(restTrained?"rest day trained":"rest kept");
+  return "<div class='homeweek'><div class='wkrow'>"+dots+"</div>"+
+    "<div class='homestat'>"+label+"</div></div>";
+}
+
+// Saved routines as one quiet row of chips — tap to start today from one.
+function routineRow(){
+  if(!state.routines.length)return "";
+  let h="<div class='routinerow'>";
+  state.routines.forEach(r=>{
+    h+="<button class='chip rchip' data-routine='"+r.id+"'>"+esc(r.name)+
+       " <span class='rn'>"+r.ex.length+"</span></button>";
+  });
+  return h+"</div>";
+}
+
 function verseCard(){
   if(!VERSES.length)return "";
   const v=VERSES[state.verseIdx||0];
@@ -67,12 +110,6 @@ export function homeView(){
   const doneToday=todaysList.filter(s=>hasSets(s)).length;
   const dateStr=new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
 
-  // A quiet, honest stat line — trained days over the last week — shown only once there's data.
-  const weekKeys={};
-  for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);weekKeys[dateKey(d.toISOString())]=false;}
-  state.sessions.forEach(s=>{const k=dateKey(s.created);
-    if(k in weekKeys&&s.ex.some(e=>e.sets.length))weekKeys[k]=true;});
-  const weekDone=Object.values(weekKeys).filter(Boolean).length;
   const totalDone=state.sessions.filter(s=>s.ex.some(e=>e.sets.length)).length;
 
   let h="<div class='wrap scroll home'>"+
@@ -89,6 +126,7 @@ export function homeView(){
         "<div class='homeday'>"+esc(dateStr)+"</div>"+
         verseCard()+
         homeCta(running,finished,emptyOpen,doneToday)+
+        ((!running&&!emptyOpen)?routineRow():"")+
       "</div>"+
       "<div class='homerow'>"+
         "<button class='hometile' id='homecal'><span class='hticon'>&#128197;</span>Calendar</button>"+
@@ -96,9 +134,7 @@ export function homeView(){
         "<button class='hometile' id='homeprog'><span class='hticon'>&#128200;</span>Progress</button>"+
         "<button class='hometile' id='homebody'><span class='hticon'>&#9878;</span>Body</button>"+
       "</div>";
-  if(totalDone)
-    h+="<div class='homestat'>"+weekDone+" of the last 7 days trained &middot; "+
-       totalDone+" workout"+(totalDone>1?"s":"")+" logged</div>";
+  if(totalDone)h+=sabbathWeek();
   h+="</div>";
   return h+"</div>";
 }

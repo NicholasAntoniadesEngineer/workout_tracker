@@ -2,7 +2,7 @@ import {addManualSets,addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeExer
   makeSessionOn,nowISO,parseClock,resetRestTimer,resetWorkout,restSeconds,setAnchor,
   setWorkoutMinutes,setWorkoutSpanOn,startWorkout,workoutSeconds} from "./model.js";
 import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,getSession,importBackup,load,
-  mergeSessions,removeFromCatalog,save,selectSession,setSetting,state,
+  mergeSessions,removeFromCatalog,save,saveRoutine,selectSession,setSetting,state,
   upsertBodyEntry} from "./store.js";
 import {exportCSV,exportJSON,parseImport} from "./csv.js";
 import {paint,setClockSeconds,setSub,stepVerse,workoutLabel,workoutSub} from "./views.js";
@@ -141,7 +141,7 @@ let undoTimer=null;
 function snapshot(label){
   state.undo={label,data:JSON.parse(JSON.stringify({sessions:state.sessions,
     sessionId:state.sessionId,exId:state.exId,catalog:state.catalog,removed:state.removed,
-    body:state.body}))};
+    body:state.body,routines:state.routines}))};
   if(undoTimer)clearTimeout(undoTimer);
   undoTimer=setTimeout(()=>{state.undo=null;render();},UNDO_MS);
 }
@@ -311,6 +311,41 @@ document.body.addEventListener("click",ev=>{
   }
   if(t.id==="verprev"){stepVerse(-1);render();return;}
   if(t.id==="vernext"){stepVerse(1);render();return;}
+  // Routines: start today from one (home), apply into the open day, save today's list, drop one.
+  const startRoutine=t.closest&&t.closest("[data-routine]");
+  if(startRoutine){
+    const r=state.routines.find(x=>x.id===startRoutine.getAttribute("data-routine"));
+    if(r){
+      const ns=makeSession();ns.title=r.name;
+      state.sessions.push(ns);selectSession(ns.id);
+      r.ex.forEach(addExerciseToDay);
+      state.exId=getSession().ex[0]?getSession().ex[0].id:null;
+      state.origin="home";state.sheet=false;
+      state.view="log";markRefit();
+    }
+    render();return;
+  }
+  const applyRoutine=t.closest&&t.closest("[data-applyroutine]");
+  if(applyRoutine){
+    const r=state.routines.find(x=>x.id===applyRoutine.getAttribute("data-applyroutine"));
+    if(r)r.ex.forEach(addExerciseToDay);
+    render();return;
+  }
+  const delRoutine=t.closest&&t.closest("[data-delroutine]");
+  if(delRoutine){
+    const r=state.routines.find(x=>x.id===delRoutine.getAttribute("data-delroutine"));
+    if(r){
+      snapshot("Dropped routine "+r.name);
+      state.routines=state.routines.filter(x=>x.id!==r.id);
+    }
+    render();return;
+  }
+  if(t.id==="saveroutine"){
+    const s=getSession();
+    const name=prompt("Name this routine",s.title);
+    if(name!==null&&name.trim())saveRoutine(name,s.ex.map(e=>e.name));
+    render();return;
+  }
   // Home tiles hold an icon span, so a tap can land inside the button — match by ancestor.
   if(t.closest&&t.closest("#homedays")){state.view="history";render();return;}
   if(t.closest&&t.closest("#homeprog")){state.view="progress";render();return;}
@@ -405,7 +440,7 @@ document.body.addEventListener("click",ev=>{
   if(t.id==="exportcsv"){exportCSV(state.sessions);return;}
   if(t.id==="exportjson"){
     exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
-      settings:state.settings,body:state.body});
+      settings:state.settings,body:state.body,routines:state.routines});
     return;
   }
   if(t.id==="importcsv"){const cf=document.getElementById("csvfile");if(cf)cf.click();return;}
