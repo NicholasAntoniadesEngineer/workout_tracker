@@ -1,35 +1,43 @@
 import json,urllib.request,urllib.parse,time,sys
 
-# References chosen thematically (training, discipline, perseverance, the body, daily
-# renewal, strength, the refiner). The TEXT is fetched, never typed — WEB is public domain.
+# New Testament, words of Jesus only (red-letter). References chosen thematically — daily
+# discipline, perseverance, strength, rest, following — but the TEXT is fetched, never
+# typed. WEB (World English Bible) is public domain, so it can ship inside the app; the
+# link opens the whole chapter on Bible Gateway so the quote is read in context.
 REFS=[
- "1 Timothy 4:7-8","1 Corinthians 9:24-25","1 Corinthians 9:26-27",
- "1 Corinthians 6:19-20","Philippians 3:14","Philippians 4:13","Hebrews 12:1",
- "Galatians 6:9","Isaiah 40:31","Lamentations 3:22-23","Colossians 3:23",
- "Proverbs 27:17","Joshua 1:9","2 Timothy 4:7","Ecclesiastes 9:10",
- "1 Corinthians 10:31","Isaiah 41:10","Malachi 3:3","Proverbs 31:17","Psalm 18:32",
+ "Matthew 11:28-30","Luke 9:23","Matthew 6:33","John 15:5","John 16:33",
+ "Matthew 19:26","Mark 12:30","John 10:10","Matthew 5:6","Matthew 7:7",
+ "John 8:12","Matthew 4:4","Matthew 6:34","John 14:6","Matthew 28:20",
+ "John 11:25","Revelation 3:20","Matthew 5:16","John 13:34","Luke 6:38",
 ]
 
 def clean(t):
     return " ".join(t.replace("¶"," ").split())
 
+def chapter(ref):
+    return ref.split(":")[0]   # "Matthew 11:28-30" -> "Matthew 11", the page to read
+
 out=[]
 for r in REFS:
-    q=urllib.parse.quote(r)
-    url="https://bible-api.com/%s?translation=web"%q
-    try:
-        with urllib.request.urlopen(url,timeout=20) as resp:
-            d=json.load(resp)
-    except Exception as e:
-        print("FAIL",r,e,file=sys.stderr);continue
+    url="https://bible-api.com/%s?translation=web"%urllib.parse.quote(r)
+    d=None
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(url,timeout=20) as resp:
+                d=json.load(resp)
+            break
+        except Exception as e:
+            print("retry",r,e,file=sys.stderr); time.sleep(5)
+    if not d:
+        print("FAIL",r,file=sys.stderr); continue
     ref=d.get("reference",r)
-    text=clean(d.get("text",""))
-    src="https://www.biblegateway.com/passage/?search="+urllib.parse.quote(ref)+"&version=WEB"
-    out.append({"ref":ref,"text":text,"source":src})
-    print("ok",ref,"-",len(text),"chars")
+    src="https://www.biblegateway.com/passage/?search="+urllib.parse.quote(chapter(ref))+"&version=WEB"
+    out.append({"ref":ref,"text":clean(d.get("text","")),"source":src})
+    print("ok",ref)
+    time.sleep(2)   # be gentle: bible-api rate-limits bursts
 
 payload={"translation":"World English Bible (WEB)",
- "note":"Public Domain. Text fetched from bible-api.com; references link to Bible Gateway.",
+ "note":"New Testament, words of Jesus. Public Domain; text from bible-api.com, links open the chapter on Bible Gateway.",
  "verses":out}
 open("verses.json","w",encoding="utf-8").write(json.dumps(payload,ensure_ascii=False,indent=1))
 print("\nWROTE",len(out),"verses")
