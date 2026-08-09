@@ -7,7 +7,8 @@ const DEFAULT_REPS=10;
 const SEC_PER_MIN=60;
 
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
-  startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0};
+  startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
+  bibleVersion:"web"};
 
 export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],body:[],
   settings:Object.assign({},DEFAULTS),

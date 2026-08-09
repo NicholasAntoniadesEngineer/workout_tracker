@@ -39,6 +39,9 @@ export function settingsView(){
     choiceRow("Theme","",
       "theme",THEMES)+
     toggleRow("Time of each set","Shown under the reps in the grid.","showSetTimes")+
+    choiceRow("Bible version","The daily verse on the home screen. Both are public domain and "+
+      "work offline; the reference links to that version&rsquo;s chapter.","bibleVersion",
+      [["WEB",  "web"],["KJV","kjv"]])+
 
     "<div class='setgroup'>Logging</div>"+
     choiceRow("Starting reps","What the counter opens on.","startReps",
