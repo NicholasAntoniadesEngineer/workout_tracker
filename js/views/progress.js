@@ -34,7 +34,7 @@ export function progressView(){
     "<span>"+esc(thisWeek.label)+"</span></div></div>";
 
   // One exercise's line: top-set weight per day, or top reps for unweighted movements.
-  const names=topExercises(state.sessions,6);
+  const names=topExercises(state.sessions);
   if(names.length){
     const cur=names.indexOf(state.progressEx)>=0?state.progressEx:names[0];
     const trend=exerciseTrend(state.sessions,cur);

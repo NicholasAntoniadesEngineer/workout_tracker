@@ -5,7 +5,6 @@ import {dateKey,setReps} from "./model.js";
 const MS_PER_DAY=86400000;
 const WEEKS_SHOWN=8;
 const TREND_POINTS=12;
-const RECORDS_SHOWN=8;
 
 export function est1RM(w,r){return Math.round(w*(1+r/30)*10)/10;}
 
@@ -58,6 +57,7 @@ export function weeklyVolume(sessions){
 }
 
 // Every exercise's records, heaviest first, weight-free movements ranked by reps after.
+// All of them — the whole history is what "records" means, not a top few.
 export function exerciseRecords(sessions){
   const by={};
   sessions.forEach(s=>s.ex.forEach(e=>{
@@ -76,27 +76,32 @@ export function exerciseRecords(sessions){
     });
   }));
   return Object.values(by)
-    .sort((a,b)=>(b.best1RM-a.best1RM)||(b.bestR-a.bestR)||(b.days-a.days))
-    .slice(0,RECORDS_SHOWN);
+    .sort((a,b)=>(b.best1RM-a.best1RM)||(b.bestR-a.bestR)||(b.days-a.days));
 }
 
 // One point per day the exercise was trained: its top-set weight, or top reps when the
-// movement is unweighted — whichever line actually shows progress.
+// movement is mostly unweighted. Every training day counts — the line is decided by which
+// unit most days used, not by discarding the days that used the other, so an exercise you
+// once added weight to still shows all the days you did it plain.
 export function exerciseTrend(sessions,name){
   const k=String(name).trim().toLowerCase();
-  const pts=[];
+  const days=[];
   sessions.slice().sort((a,b)=>(a.created||"").localeCompare(b.created||"")).forEach(s=>{
     const e=s.ex.find(x=>x.name.trim().toLowerCase()===k&&x.sets.length);
     if(!e)return;
     let w=0,r=0;
-    e.sets.forEach(x=>{if(x.wu)return;if(+x.w>w){w=+x.w;r=x.r;}if(!w)r=Math.max(r,x.r);});
-    pts.push({at:s.created,v:w||r,weighted:!!w});
+    e.sets.forEach(x=>{if(x.wu)return;if(+x.w>w)w=+x.w;if(x.r>r)r=x.r;});
+    days.push({at:s.created,w:w,r:r});
   });
-  const weighted=pts.some(p=>p.weighted);
-  return {weighted,points:pts.filter(p=>p.weighted===weighted).slice(-TREND_POINTS)};
+  const weightedDays=days.filter(d=>d.w>0).length;
+  // Weighted only when most days carried a weight — a lone weighted day never hides the rest.
+  const weighted=weightedDays>0&&weightedDays*2>=days.length;
+  const points=(weighted?days.filter(d=>d.w>0).map(d=>({at:d.at,v:d.w}))
+                        :days.map(d=>({at:d.at,v:d.r}))).slice(-TREND_POINTS);
+  return {weighted,points};
 }
 
-// The exercises trained on the most days — the ones worth a trend line.
+// The exercises worth a trend line, most-trained first. Every one by default; pass n to cap.
 export function topExercises(sessions,n){
   const days={};
   sessions.forEach(s=>s.ex.forEach(e=>{
@@ -104,7 +109,8 @@ export function topExercises(sessions,n){
     const k=e.name.trim().toLowerCase();
     (days[k]=days[k]||{name:e.name,n:0}).n++;
   }));
-  return Object.values(days).sort((a,b)=>b.n-a.n).slice(0,n).map(x=>x.name);
+  const ranked=Object.values(days).sort((a,b)=>b.n-a.n).map(x=>x.name);
+  return n?ranked.slice(0,n):ranked;
 }
 
 const CHART_W=300,CHART_H=84,PAD=2;
