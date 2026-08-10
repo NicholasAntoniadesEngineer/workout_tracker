@@ -5,6 +5,7 @@ import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,getSession,importBa
   mergeSessions,removeFromCatalog,save,saveRoutine,selectSession,setSetting,state,
   upsertBodyEntry} from "./store.js";
 import {exportCSV,exportJSON,parseImport} from "./csv.js";
+import {shareDay} from "./share.js";
 import {paint,setClockSeconds,setSub,stepVerse,workoutLabel,workoutSub} from "./views.js";
 
 const MIN_REPS=0;
@@ -311,6 +312,7 @@ document.body.addEventListener("click",ev=>{
   }
   if(t.id==="verprev"){stepVerse(-1);render();return;}
   if(t.id==="vernext"){stepVerse(1);render();return;}
+  if(t.id==="sharebtn"){shareDay(getSession());return;}
   // Routines: start today from one (home), apply into the open day, save today's list, drop one.
   const startRoutine=t.closest&&t.closest("[data-routine]");
   if(startRoutine){

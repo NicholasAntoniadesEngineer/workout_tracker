@@ -331,6 +331,8 @@ export function logView(){
     "<div class='eyebrow'>Session</div>"+
     "<div class='h1' id='daytitle'>"+esc(s.title)+" <span class='pen'>&#9998;</span></div>"+
     "</div><div class='headbtns'>"+
+    (s.ex.some(e=>e.sets.length)?
+      "<button class='daysbtn iconbtn' id='sharebtn' title='Share this day'>&#8679;</button>":"")+
     "<button class='daysbtn iconbtn' id='homebtn' title='Home'>&#8962;</button>"+
     "<button class='daysbtn' id='daysbtn'>&#9776; Days ("+state.sessions.length+")</button>"+
     "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>&#9881;</button>"+
