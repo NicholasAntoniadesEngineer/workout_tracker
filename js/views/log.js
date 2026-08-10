@@ -5,6 +5,7 @@ import {EXERCISE_GROUPS,OTHER_GROUP,QUICK_REPS,QUICK_SECS,quickWeights,exerciseG
   totals,workoutEnd,workoutSeconds} from "../model.js";
 import {activeEx,getSession,lastPerformance,newestFirst,state} from "../store.js";
 import {est1RM} from "../charts.js";
+import {icon} from "../icons.js";
 import {esc} from "./common.js";
 
 const MIN_SET_COLUMNS=1;
@@ -219,7 +220,7 @@ function exerciseSheet(session){
     state.routines.forEach(r=>{
       h+="<span class='chip rchip'><button class='pick' data-applyroutine='"+r.id+"'>"+
          esc(r.name)+" <span class='rn'>"+r.ex.length+"</span></button>"+
-         "<button class='x share' data-shareroutine='"+r.id+"' title='Share this routine'>&#8679;</button>"+
+         "<button class='x share' data-shareroutine='"+r.id+"' title='Share this routine'>"+icon("share","sm")+"</button>"+
          "<button class='x' data-delroutine='"+r.id+"'>&times;</button></span>";
     });
     if(session.ex.length)
@@ -311,7 +312,7 @@ function timerBar(session){
       "<div class='tbtnrow'>"+
         "<button class='tbtn"+(timing?" on":" go")+"' id='setstart'>"+
           (timing?"Cancel":"Start set")+"</button>"+
-        "<button class='tbtn narrow' id='timerreset' title='Reset the rest clock'>&#8635;</button>"+
+        "<button class='tbtn narrow' id='timerreset' title='Reset the rest clock'>"+icon("reset")+"</button>"+
       "</div></div>"+
     "<div class='tcell'>"+
       "<div class='tl'>Workout</div>"+
@@ -321,7 +322,7 @@ function timerBar(session){
       "<div class='tbtnrow'>"+
         "<button class='tbtn "+(on?"stop":"go")+"' id='wtoggle'>"+
           (on?"End workout":"Start workout")+"</button>"+
-        "<button class='tbtn narrow' id='workreset' title='Reset the workout time'>&#8635;</button>"+
+        "<button class='tbtn narrow' id='workreset' title='Reset the workout time'>"+icon("reset")+"</button>"+
       "</div></div></div></div>";
 }
 
@@ -335,10 +336,11 @@ export function logView(){
     (s.ex.length?
       "<button class='daysbtn iconbtn' id='sharebtn' title='"+
       (s.ex.some(e=>e.sets.length)?"Share this day":"Share this workout plan")+
-      "'>&#8679;</button>":"")+
-    "<button class='daysbtn iconbtn' id='homebtn' title='Home'>&#8962;</button>"+
-    "<button class='daysbtn' id='daysbtn'>&#9776; Days ("+state.sessions.length+")</button>"+
-    "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>&#9881;</button>"+
+      "'>"+icon("share")+"</button>":"")+
+    "<button class='daysbtn iconbtn' id='homebtn' title='Home'>"+icon("home")+"</button>"+
+    "<button class='daysbtn' id='daysbtn' title='Days'>"+icon("days")+
+      "<span class='cnt'>"+state.sessions.length+"</span></button>"+
+    "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>"+icon("settings")+"</button>"+
     "</div></div>"+
     statsBar(s,totals(s))+setsTable(s)+
     exerciseStrip(s)+logPanel()+

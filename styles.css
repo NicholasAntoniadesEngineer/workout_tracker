@@ -334,6 +334,17 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 /* Saved routines under the start button — one tap begins that day. */
 .routinerow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px;}
 .rchip .rn{opacity:.55;font-weight:600;margin-left:2px;}
+/* Inline SVG icons: 24-grid strokes through currentColor, amber details via .acc/.accf. */
+.icn{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;vertical-align:-3.5px;flex:none;}
+.icn .acc{stroke:var(--accent);}
+.icn .accf{fill:var(--accent);stroke:none;}
+.icn.sm{width:15px;height:15px;vertical-align:-3px;margin-right:5px;}
+.icn.ht{width:26px;height:26px;}
+.daysbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+.daysbtn .cnt{font-size:12px;color:var(--muted);font-weight:700;}
+.backbtn{display:inline-flex;align-items:center;}
+.shareopt .so-l{display:inline-flex;align-items:center;}
 /* The share menu: one button opens it, the options fit where it was pressed. */
 .actionsheet{max-width:340px;}
 .shareopt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;

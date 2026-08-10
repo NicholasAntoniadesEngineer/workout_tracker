@@ -4,6 +4,7 @@ import {dateKey,fmtClock,keyOf,monthLabel,shortDate,timeLabel,totals,
   workoutSeconds} from "../model.js";
 import {state} from "../store.js";
 import {feastsForMonth} from "../feasts.js";
+import {icon} from "../icons.js";
 import {esc} from "./common.js";
 
 // Sessions grouped by the local calendar day they were created on. A day can hold more
@@ -29,7 +30,7 @@ export function calendarView(){
   const days=new Date(y,m+1,0).getDate();        // days in this month
 
   let h="<div class='wrap scroll'>"+
-    "<div class='hhead'><button class='backbtn' id='backbtn'>&lsaquo; Back</button>"+
+    "<div class='hhead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button>"+
     "<button class='newday' id='newday'>+ New workout</button></div>"+
     "<div class='calnav'>"+
       "<button class='calarrow' id='calprev'>&lsaquo;</button>"+

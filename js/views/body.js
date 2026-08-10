@@ -3,6 +3,7 @@
 import {dateKey,nowISO,shortDate} from "../model.js";
 import {state} from "../store.js";
 import {lineChart} from "../charts.js";
+import {icon} from "../icons.js";
 import {esc} from "./common.js";
 
 const GIRTHS=[["waist","Waist"],["chest","Chest"],["arm","Arm"]];
@@ -14,7 +15,7 @@ export function bodyView(){
   const today=state.body.find(b=>dateKey(b.at)===dateKey(nowISO()));
 
   let h="<div class='wrap scroll'>"+
-    "<div class='hhead'><button class='backbtn' id='backbtn'>&lsaquo; Back</button>"+
+    "<div class='hhead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button>"+
     "<div class='h1 plain'>Body</div></div>";
 
   h+="<div class='card chartcard'><div class='bodyform'>"+

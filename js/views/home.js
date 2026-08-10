@@ -3,6 +3,7 @@
 import {dateKey,nowISO} from "../model.js";
 import {newestFirst,state} from "../store.js";
 import {VERSES} from "../verses.js";
+import {icon} from "../icons.js";
 import {esc} from "./common.js";
 
 // A fresh verse each time the app opens — random once at load, so incidental repaints
@@ -113,7 +114,7 @@ export function homeView(){
   const totalDone=state.sessions.filter(s=>s.ex.some(e=>e.sets.length)).length;
 
   let h="<div class='wrap scroll home'>"+
-    "<button class='daysbtn iconbtn homegear' id='settingsbtn' title='Settings'>&#9881;</button>"+
+    "<button class='daysbtn iconbtn homegear' id='settingsbtn' title='Settings'>"+icon("settings")+"</button>"+
     "<div class='homeinner'>"+
       "<div class='brand'>"+
         "<svg class='brandshield' viewBox='0 0 100 100' aria-hidden='true'>"+
@@ -129,10 +130,10 @@ export function homeView(){
         ((!running&&!emptyOpen)?routineRow():"")+
       "</div>"+
       "<div class='homerow'>"+
-        "<button class='hometile' id='homecal'><span class='hticon'>&#128197;</span>Calendar</button>"+
-        "<button class='hometile' id='homedays'><span class='hticon'>&#9776;</span>History</button>"+
-        "<button class='hometile' id='homeprog'><span class='hticon'>&#128200;</span>Progress</button>"+
-        "<button class='hometile' id='homebody'><span class='hticon'>&#9878;</span>Body</button>"+
+        "<button class='hometile' id='homecal'>"+icon("calendar","ht")+"Calendar</button>"+
+        "<button class='hometile' id='homedays'>"+icon("days","ht")+"History</button>"+
+        "<button class='hometile' id='homeprog'>"+icon("progress","ht")+"Progress</button>"+
+        "<button class='hometile' id='homebody'>"+icon("body","ht")+"Body</button>"+
       "</div>";
   if(totalDone)h+=sabbathWeek();
   h+="</div>";

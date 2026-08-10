@@ -4,6 +4,7 @@ import {shortDate,totals} from "../model.js";
 import {state} from "../store.js";
 import {barChart,exerciseRecords,exerciseTrend,lineChart,topExercises,
   weeklyVolume} from "../charts.js";
+import {icon} from "../icons.js";
 import {esc} from "./common.js";
 
 export function progressView(){
@@ -15,7 +16,7 @@ export function progressView(){
   const unit=esc(state.settings.unit||"kg");
 
   let h="<div class='wrap scroll'>"+
-    "<div class='hhead'><button class='backbtn' id='backbtn'>&lsaquo; Back</button>"+
+    "<div class='hhead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button>"+
     "<div class='h1 plain'>Progress</div></div>";
 
   h+="<div class='prgrid'>"+

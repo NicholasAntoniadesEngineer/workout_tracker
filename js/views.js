@@ -2,6 +2,7 @@
 // app.js keeps importing everything it needs from here.
 import {state} from "./store.js";
 import {esc} from "./views/common.js";
+import {icon} from "./icons.js";
 import {logView} from "./views/log.js";
 import {homeView} from "./views/home.js";
 import {historyView} from "./views/history.js";
@@ -36,13 +37,13 @@ function shareMenu(){
   if(m.type==="day"){
     const s=state.sessions.find(x=>x.id===state.sessionId);
     if(s&&s.ex.some(e=>e.sets.length))
-      opts.push(["image","&#128247; Share as image","the day&rsquo;s numbers as a picture"]);
+      opts.push(["image",icon("photo","sm")+"Share as image","the day&rsquo;s numbers as a picture"]);
     if(s&&s.ex.length)
-      opts.push(["link","&#128279; Share workout","a link that saves this plan"]);
+      opts.push(["link",icon("link","sm")+"Share workout","a link that saves this plan"]);
   }else if(m.type==="routine"){
-    opts.push(["link","&#128279; Share routine","a link that saves this routine"]);
+    opts.push(["link",icon("link","sm")+"Share routine","a link that saves this routine"]);
   }
-  opts.push(["app","&#128737; Share KingsKiln","the app itself"]);
+  opts.push(["app",icon("shield","sm")+"Share KingsKiln","the app itself"]);
   let h="<div class='overlay' id='sharemenuback'><div class='sheet actionsheet'>"+
     "<div class='sheethead'><div class='plabel'>Share</div>"+
     "<button class='btn ghost tiny' id='sharemenuclose'>Close</button></div>"+

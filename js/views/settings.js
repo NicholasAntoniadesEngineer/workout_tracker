@@ -1,5 +1,6 @@
 // Settings: display, logging and workout behaviour, as rows of labelled choices.
 import {state} from "../store.js";
+import {icon} from "../icons.js";
 
 const TEXT_SIZES=[["Auto",0],["XS",.7],["Small",.85],["Medium",1],
   ["Large",1.25],["XL",1.55],["XXL",1.9]];
@@ -29,7 +30,7 @@ function toggleRow(label,hint,key){
 
 export function settingsView(){
   return "<div class='wrap scroll'>"+
-    "<div class='hhead'><button class='backbtn' id='backbtn'>&lsaquo; Back</button>"+
+    "<div class='hhead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button>"+
     "<div class='h1 plain'>Settings</div></div>"+
 
     "<div class='setgroup'>Display</div>"+
