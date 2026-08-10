@@ -219,6 +219,7 @@ function exerciseSheet(session){
     state.routines.forEach(r=>{
       h+="<span class='chip rchip'><button class='pick' data-applyroutine='"+r.id+"'>"+
          esc(r.name)+" <span class='rn'>"+r.ex.length+"</span></button>"+
+         "<button class='x share' data-shareroutine='"+r.id+"' title='Share this routine'>&#8679;</button>"+
          "<button class='x' data-delroutine='"+r.id+"'>&times;</button></span>";
     });
     if(session.ex.length)
@@ -331,8 +332,10 @@ export function logView(){
     "<div class='eyebrow'>Session</div>"+
     "<div class='h1' id='daytitle'>"+esc(s.title)+" <span class='pen'>&#9998;</span></div>"+
     "</div><div class='headbtns'>"+
-    (s.ex.some(e=>e.sets.length)?
-      "<button class='daysbtn iconbtn' id='sharebtn' title='Share this day'>&#8679;</button>":"")+
+    (s.ex.length?
+      "<button class='daysbtn iconbtn' id='sharebtn' title='"+
+      (s.ex.some(e=>e.sets.length)?"Share this day":"Share this workout plan")+
+      "'>&#8679;</button>":"")+
     "<button class='daysbtn iconbtn' id='homebtn' title='Home'>&#8962;</button>"+
     "<button class='daysbtn' id='daysbtn'>&#9776; Days ("+state.sessions.length+")</button>"+
     "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>&#9881;</button>"+

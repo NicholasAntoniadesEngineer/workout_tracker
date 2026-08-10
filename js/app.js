@@ -5,7 +5,7 @@ import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,getSession,importBa
   mergeSessions,removeFromCatalog,save,saveRoutine,selectSession,setSetting,state,
   upsertBodyEntry} from "./store.js";
 import {exportCSV,exportJSON,parseImport} from "./csv.js";
-import {shareDay} from "./share.js";
+import {decodeRoutineHash,shareDay,shareRoutine} from "./share.js";
 import {paint,setClockSeconds,setSub,stepVerse,workoutLabel,workoutSub} from "./views.js";
 
 const MIN_REPS=0;
@@ -312,7 +312,19 @@ document.body.addEventListener("click",ev=>{
   }
   if(t.id==="verprev"){stepVerse(-1);render();return;}
   if(t.id==="vernext"){stepVerse(1);render();return;}
-  if(t.id==="sharebtn"){shareDay(getSession());return;}
+  if(t.id==="sharebtn"){
+    const s=getSession();
+    // A day with results shares the picture; a bare plan shares itself as a link.
+    if(s.ex.some(e=>e.sets.length))shareDay(s);
+    else shareRoutine(s.title,s.ex.map(e=>e.name));
+    return;
+  }
+  const shRoutine=t.closest&&t.closest("[data-shareroutine]");
+  if(shRoutine){
+    const r=state.routines.find(x=>x.id===shRoutine.getAttribute("data-shareroutine"));
+    if(r)shareRoutine(r.name,r.ex);
+    return;
+  }
   // Routines: start today from one (home), apply into the open day, save today's list, drop one.
   const startRoutine=t.closest&&t.closest("[data-routine]");
   if(startRoutine){
@@ -669,5 +681,14 @@ load();
 state.sessions.forEach(autoEndIfStale);
 // A day with nothing picked opens the list for you — but it can be closed again.
 state.sheet=!getSession().ex.length;
+// Opened from a shared workout link: keep the routine at once — the toast offers Undo —
+// then clean the URL so a reload doesn't re-import it.
+const sharedRoutine=decodeRoutineHash(location.hash);
+if(sharedRoutine){
+  history.replaceState(null,"",location.pathname+location.search);
+  snapshot("Saved routine "+sharedRoutine.name);
+  saveRoutine(sharedRoutine.name,sharedRoutine.ex);
+  state.view="home";state.sheet=false;
+}
 render();
 setInterval(tick,TICK_MS);

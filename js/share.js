@@ -114,6 +114,44 @@ export function buildShareCanvas(session){
   return c;
 }
 
+// A workout plan travels as a link: the routine is encoded into the URL itself, so the
+// recipient taps it, KingsKiln opens, and offers to save the routine — no accounts, no
+// server, and every shared workout carries the app with it.
+function b64url(s){
+  return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+
+export function routineLink(name,exNames){
+  const payload=b64url(JSON.stringify({n:name,e:exNames}));
+  return location.origin+location.pathname+"#r="+payload;
+}
+
+export function decodeRoutineHash(hash){
+  const m=String(hash||"").match(/^#r=([A-Za-z0-9_-]+)$/);
+  if(!m)return null;
+  try{
+    const json=decodeURIComponent(escape(atob(m[1].replace(/-/g,"+").replace(/_/g,"/"))));
+    const d=JSON.parse(json);
+    if(!d||typeof d.n!=="string"||!Array.isArray(d.e))return null;
+    const ex=d.e.map(x=>String(x).trim()).filter(Boolean).slice(0,40);
+    const name=d.n.trim().slice(0,60);
+    return name&&ex.length?{name,ex}:null;
+  }catch(e){return null;}
+}
+
+export function shareRoutine(name,exNames){
+  const url=routineLink(name,exNames);
+  const text=name+" — "+exNames.length+" exercises on KingsKiln";
+  try{
+    if(navigator.share){navigator.share({title:name,text:text,url:url}).catch(()=>{});return;}
+  }catch(e){}
+  try{
+    navigator.clipboard.writeText(url).then(
+      ()=>alert("Link copied — send it to whoever's training with you."),
+      ()=>prompt("Copy this link:",url));
+  }catch(e){prompt("Copy this link:",url);}
+}
+
 // Share sheet where it exists — AirDrop, Messages, Instagram — a PNG download otherwise.
 export function shareDay(session){
   const canvas=buildShareCanvas(session);
