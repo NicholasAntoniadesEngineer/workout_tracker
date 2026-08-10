@@ -52,6 +52,11 @@ export function settingsView(){
       [["Off",0],["1:00",60],["1:30",90],["2:00",120],["3:00",180]])+
     choiceRow("End an idle workout after","","idleEndMinutes",IDLE_ENDS)+
 
+    "<div class='setgroup'>About</div>"+
+    "<div class='setrow'><div class='setlbl'>Share KingsKiln</div>"+
+    "<div class='setopts'><button class='q' id='shareapp'>&#8679; Send the app to a friend</button>"+
+    "</div></div>"+
+
     "<div class='reset'><button id='resetsettings'>Restore defaults</button></div>"+
     "</div>";
 }

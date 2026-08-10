@@ -5,7 +5,7 @@ import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,getSession,importBa
   mergeSessions,removeFromCatalog,save,saveRoutine,selectSession,setSetting,state,
   upsertBodyEntry} from "./store.js";
 import {exportCSV,exportJSON,parseImport} from "./csv.js";
-import {decodeRoutineHash,shareDay,shareRoutine} from "./share.js";
+import {decodeRoutineHash,shareApp,shareDay,shareRoutine} from "./share.js";
 import {paint,setClockSeconds,setSub,stepVerse,workoutLabel,workoutSub} from "./views.js";
 
 const MIN_REPS=0;
@@ -325,6 +325,7 @@ document.body.addEventListener("click",ev=>{
     if(r)shareRoutine(r.name,r.ex);
     return;
   }
+  if(t.id==="shareapp"){shareApp();return;}
   // Routines: start today from one (home), apply into the open day, save today's list, drop one.
   const startRoutine=t.closest&&t.closest("[data-routine]");
   if(startRoutine){

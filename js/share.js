@@ -152,6 +152,25 @@ export function shareRoutine(name,exNames){
   }catch(e){prompt("Copy this link:",url);}
 }
 
+// The app itself, passed along — the door a friend walks in through.
+const APP_URL="https://www.kingskiln.com";
+
+export function shareApp(){
+  try{
+    if(navigator.share){
+      navigator.share({title:"KingsKiln",
+        text:"KingsKiln — a quiet workout tracker. Free, offline, your data stays yours.",
+        url:APP_URL}).catch(()=>{});
+      return;
+    }
+  }catch(e){}
+  try{
+    navigator.clipboard.writeText(APP_URL).then(
+      ()=>alert("Link copied — kingskiln.com"),
+      ()=>prompt("Copy this link:",APP_URL));
+  }catch(e){prompt("Copy this link:",APP_URL);}
+}
+
 // Share sheet where it exists — AirDrop, Messages, Instagram — a PNG download otherwise.
 export function shareDay(session){
   const canvas=buildShareCanvas(session);
@@ -161,7 +180,9 @@ export function shareDay(session){
     try{
       const file=new File([blob],fname,{type:"image/png"});
       if(navigator.canShare&&navigator.canShare({files:[file]})){
-        navigator.share({files:[file]}).catch(()=>{});
+        // The picture travels with the door in: targets that keep text show the link too.
+        navigator.share({files:[file],title:"KingsKiln",
+          text:session.title+" — logged with KingsKiln · "+APP_URL}).catch(()=>{});
         return;
       }
     }catch(e){}
