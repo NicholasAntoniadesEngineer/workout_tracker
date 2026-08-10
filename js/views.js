@@ -26,6 +26,34 @@ function undoToast(){
     "<button id='undobtn'>Undo</button></div>";
 }
 
+// One share button everywhere; what it offers depends on where it was pressed. The menu
+// lists only what makes sense: a day with results can travel as a picture or a plan, a
+// bare plan or routine as a link — and the app itself rides along in every menu.
+function shareMenu(){
+  const m=state.shareMenu;
+  if(!m)return "";
+  const opts=[];
+  if(m.type==="day"){
+    const s=state.sessions.find(x=>x.id===state.sessionId);
+    if(s&&s.ex.some(e=>e.sets.length))
+      opts.push(["image","&#128247; Share as image","the day&rsquo;s numbers as a picture"]);
+    if(s&&s.ex.length)
+      opts.push(["link","&#128279; Share workout","a link that saves this plan"]);
+  }else if(m.type==="routine"){
+    opts.push(["link","&#128279; Share routine","a link that saves this routine"]);
+  }
+  opts.push(["app","&#128737; Share KingsKiln","the app itself"]);
+  let h="<div class='overlay' id='sharemenuback'><div class='sheet actionsheet'>"+
+    "<div class='sheethead'><div class='plabel'>Share</div>"+
+    "<button class='btn ghost tiny' id='sharemenuclose'>Close</button></div>"+
+    "<div class='sheetbody'>";
+  opts.forEach(o=>{
+    h+="<button class='shareopt' data-shareopt='"+o[0]+"'><span class='so-l'>"+o[1]+
+       "</span><span class='so-s'>"+o[2]+"</span></button>";
+  });
+  return h+"</div></div></div>";
+}
+
 export function paint(){
-  document.getElementById("app").innerHTML=(VIEWS[state.view]||logView)()+undoToast();
+  document.getElementById("app").innerHTML=(VIEWS[state.view]||logView)()+undoToast()+shareMenu();
 }

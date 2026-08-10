@@ -334,6 +334,14 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 /* Saved routines under the start button — one tap begins that day. */
 .routinerow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px;}
 .rchip .rn{opacity:.55;font-weight:600;margin-left:2px;}
+/* The share menu: one button opens it, the options fit where it was pressed. */
+.actionsheet{max-width:340px;}
+.shareopt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;
+  background:var(--panelHi);border:1px solid var(--line);border-radius:12px;
+  padding:12px 14px;margin-bottom:8px;cursor:pointer;color:var(--text);text-align:left;}
+.shareopt:active{border-color:var(--accent);}
+.so-l{font-size:15px;font-weight:750;}
+.so-s{font-size:12px;color:var(--muted);}
 /* Feast marks: a small cross in the day cell, names listed under the month. */
 .calfeast{position:absolute;top:3px;right:5px;font-size:9px;color:var(--accentText);line-height:1;}
 .feastlist{text-align:center;font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.7;}

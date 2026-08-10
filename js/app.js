@@ -312,20 +312,31 @@ document.body.addEventListener("click",ev=>{
   }
   if(t.id==="verprev"){stepVerse(-1);render();return;}
   if(t.id==="vernext"){stepVerse(1);render();return;}
-  if(t.id==="sharebtn"){
-    const s=getSession();
-    // A day with results shares the picture; a bare plan shares itself as a link.
-    if(s.ex.some(e=>e.sets.length))shareDay(s);
-    else shareRoutine(s.title,s.ex.map(e=>e.name));
-    return;
-  }
+  // One share button everywhere: it opens a menu of what this context can share.
+  if(t.id==="sharebtn"){state.shareMenu={type:"day"};render();return;}
   const shRoutine=t.closest&&t.closest("[data-shareroutine]");
   if(shRoutine){
-    const r=state.routines.find(x=>x.id===shRoutine.getAttribute("data-shareroutine"));
-    if(r)shareRoutine(r.name,r.ex);
-    return;
+    state.shareMenu={type:"routine",id:shRoutine.getAttribute("data-shareroutine")};
+    render();return;
   }
   if(t.id==="shareapp"){shareApp();return;}
+  const shareOpt=t.closest&&t.closest("[data-shareopt]");
+  if(shareOpt){
+    const kind=shareOpt.getAttribute("data-shareopt");
+    const m=state.shareMenu||{};
+    state.shareMenu=null;
+    if(kind==="app")shareApp();
+    else if(m.type==="routine"){
+      const r=state.routines.find(x=>x.id===m.id);
+      if(r)shareRoutine(r.name,r.ex);
+    }else{
+      const s=getSession();
+      if(kind==="image")shareDay(s);
+      else shareRoutine(s.title,s.ex.map(e=>e.name));
+    }
+    render();return;
+  }
+  if(t.id==="sharemenuclose"||t.id==="sharemenuback"){state.shareMenu=null;render();return;}
   // Routines: start today from one (home), apply into the open day, save today's list, drop one.
   const startRoutine=t.closest&&t.closest("[data-routine]");
   if(startRoutine){
