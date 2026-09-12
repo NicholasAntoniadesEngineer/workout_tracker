@@ -7,7 +7,7 @@ export const EXERCISE_GROUPS=[
     "Good mornings","Nordic curls","Glute bridge","Hip thrust"]],
   ["Push",["Push ups","Pike push ups","Shoulder press","Dips"]],
   ["Pull",["Pull ups","Chin ups","Gorilla rows","Standing kettlebell rows",
-    "Shoulder shrugs","Bicep curls"]],
+    "Shoulder shrugs","Bicep curls","Kettlebell bicep curl"]],
   ["Core",["Plank","Side plank","Dead bug","Hollow hold","Hanging knee raises",
     "Pallof press","Ab wheel rollout","Mountain climbers"]],
   ["Carry & full body",["Farmer carry","Suitcase carry","Turkish get-up",
