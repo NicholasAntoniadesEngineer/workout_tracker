@@ -586,23 +586,18 @@ document.body.addEventListener("click",ev=>{
     }
     render();return;
   }
-  if(t.id==="setmult"){
-    const seq=[1,2,3,4,5];
-    state.logCount=seq[(seq.indexOf(state.logCount||1)+1)%seq.length];
-    render();return;
-  }
   if(t.id==="logbtn"){
     const s=getSession(),e=activeEx();
     if(e){
       // Bands record a resistance range and no weight; everything else records the weight.
       const isB=isBandExercise(e.name),w=isB?0:state.weight,bd=isB?state.band:"";
-      // Live single set on today counts with the timer; anything else is manual transcription.
-      const live=state.logCount<=1&&dateKey(s.created)===dateKey(nowISO());
+      // A live set on today counts with the timer; a past day is manual transcription.
+      const live=dateKey(s.created)===dateKey(nowISO());
       if(live)addSet(s,e,state.reps,state.perSide,state.setStart,w,state.warmup,bd);
-      else addManualSets(s,e,state.reps,state.perSide,w,state.logCount,state.warmup,bd);
+      else addManualSets(s,e,state.reps,state.perSide,w,1,state.warmup,bd);
     }
     // Warm-up is per set, not sticky: the set after a warm-up is working weight again.
-    state.setStart=null;state.logCount=1;state.warmup=false;
+    state.setStart=null;state.warmup=false;
     render();return;
   }
   if(t.id==="upd"){

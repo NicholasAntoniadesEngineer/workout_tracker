@@ -9,7 +9,6 @@ import {icon} from "../icons.js";
 import {esc} from "./common.js";
 
 const MIN_SET_COLUMNS=1;
-const SIDES_PER_SET=2;
 
 function setColumns(session){
   return session.ex.reduce((most,e)=>Math.max(most,e.sets.length),MIN_SET_COLUMNS);
@@ -125,7 +124,6 @@ function logPanel(){
   // Reps and load share one control: a labelled tile with a ± stepper and a tappable number
   // that opens the keypad. A timed exercise counts seconds; a band one carries a range, not lbs.
   const timed=!!(a&&a.timed);
-  const unitWord=timed?"secs":"reps";
   const unit=state.settings.unit||"kg";
   const isBand=!!(a&&isBandExercise(a.name));
   h+="<div class='dualrow'>"+
@@ -141,7 +139,6 @@ function logPanel(){
        "title='Warm-up sets stay out of totals and records'>Warm-up</button>"+
      (a?"<button class='q"+(timed?" on":"")+"' id='timedbtn' "+
        "title='Count this exercise in seconds instead of reps'>Secs</button>":"")+
-     (state.perSide?"<span class='hint'>= "+(state.reps*SIDES_PER_SET)+" "+unitWord+" total</span>":"")+
      "</div>";
   if(state.editing){
     // Every set is fully editable — reps and weight above, its recorded times here — so a
@@ -159,14 +156,10 @@ function logPanel(){
        "<button class='btn dang' id='del'>Delete</button>"+
        "<button class='btn ghost' id='cxl'>Cancel</button></div>";
   }else{
-    // ×N logs several identical sets at once — the fast path for transcribing "3 × 10".
-    const n=state.logCount||1;
-    const label=n>1?"Log "+n+" sets":"Log set";
     h+="<div class='logrow'>"+
-       "<button class='setmult' id='setmult' title='Sets to log at once'>&times;"+n+"</button>"+
-       "<button class='btn log' id='logbtn'"+(a?"":" disabled")+">"+label+
+       "<button class='btn log' id='logbtn'"+(a?"":" disabled")+">Log set"+
        (a?" &rarr; "+esc(a.name):"")+
-       (n===1&&state.setStart?" <span class='at'>@ "+esc(fmtTime(state.setStart))+"</span>":"")+
+       (state.setStart?" <span class='at'>@ "+esc(fmtTime(state.setStart))+"</span>":"")+
        "</button></div>";
   }
   return h+"</div>";
