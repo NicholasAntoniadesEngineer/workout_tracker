@@ -486,9 +486,6 @@ document.body.addEventListener("click",ev=>{
   if(t.closest&&t.closest("#exhistbtn")){state.exHist=true;render();return;}
   if(t.id==="histdone"||t.id==="histback"){state.exHist=false;render();return;}
   if(t.id==="sheetdone"||t.id==="sheetback"){dismissSheet();render();return;}
-  if(t.id==="minus"){state.reps=Math.max(MIN_REPS,state.reps-1);render();return;}
-  if(t.id==="plus"){state.reps=state.reps+1;render();return;}
-  if(t.dataset&&t.dataset.q){state.reps=parseInt(t.dataset.q,10);render();return;}
   if(t.id==="sidebtn"){state.perSide=!state.perSide;render();return;}
   if(t.id==="warmbtn"){state.warmup=!state.warmup;render();return;}
   // Seconds mode belongs to the exercise, not the set — a plank is timed every day.
@@ -497,20 +494,35 @@ document.body.addEventListener("click",ev=>{
     if(e)e.timed=!e.timed;
     render();return;
   }
-  if(t.id==="weightbtn"){
-    if(state.weight){state.lastWeight=state.weight;state.weight=0;}
-    else state.weight=state.lastWeight||10;
+  // The ± nudges beside each value: reps and weight by one, band cycles the range list.
+  const step=t.closest&&t.closest("[data-step]");
+  if(step){
+    const parts=step.getAttribute("data-step").split(":"),field=parts[0],d=parseInt(parts[1],10);
+    if(field==="reps")state.reps=Math.max(MIN_REPS,state.reps+d);
+    else if(field==="weight")state.weight=Math.max(0,Math.round((state.weight+d)*10)/10);
+    else if(field==="band"){
+      const opts=[""].concat(BANDS);let i=opts.indexOf(state.band);if(i<0)i=0;
+      state.band=opts[(i+d+opts.length)%opts.length];
+    }
     render();return;
   }
-  if(t.dataset&&t.dataset.w){state.weight=parseFloat(t.dataset.w);render();return;}
-  if(t.id==="weightother"){
-    const a=prompt("Weight in "+(state.settings.unit||"kg"),String(state.weight));
-    if(a!==null&&a.trim()!=="")state.weight=Math.max(0,parseFloat(a)||0);
+  // Tapping a value opens the editor: a keypad for numbers, the band list for a band tile.
+  const editField=t.closest&&t.closest("[data-edit]");
+  if(editField){state.numEdit={field:editField.getAttribute("data-edit"),buf:""};render();return;}
+  if(state.numEdit&&t.dataset&&t.dataset.key!==undefined){
+    const k=t.dataset.key,f=state.numEdit;
+    if(k==="back")f.buf=f.buf.slice(0,-1);
+    else if(k==="done"){
+      if(f.buf!==""){const v=parseFloat(f.buf)||0;
+        if(f.field==="weight")state.weight=Math.max(0,v);
+        else state.reps=Math.max(MIN_REPS,Math.round(v));}
+      state.numEdit=null;
+    }else if(f.buf.length<5)f.buf+=k;
     render();return;
   }
-  if(t.id==="bandbtn"){state.band=state.band?"":BANDS[1];render();return;}
   const bandPick=t.closest&&t.closest("[data-band]");
-  if(bandPick){state.band=bandPick.getAttribute("data-band");render();return;}
+  if(bandPick){state.band=bandPick.getAttribute("data-band");state.numEdit=null;render();return;}
+  if(t.id==="numedcancel"||t.id==="numedclose"||t.id==="numedback"){state.numEdit=null;render();return;}
 
   if(t.dataset&&t.dataset.ex&&t.classList.contains("exbtn")){
     state.exId=t.dataset.ex;state.editing=null;

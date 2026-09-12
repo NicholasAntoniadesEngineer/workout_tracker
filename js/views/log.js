@@ -1,6 +1,6 @@
 // The logging screen: the day's table of sets, the panel that logs them, the exercise
 // strip and picker sheet, and the two-clock timer bar.
-import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,QUICK_REPS,QUICK_SECS,quickWeights,exerciseGroup,
+import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,exerciseGroup,
   exerciseTotal,fmtClock,fmtTime,isBandExercise,lastSet,restSeconds,secondsSince,setAnchor,
   shortDate,totals,workoutEnd,workoutSeconds} from "../model.js";
 import {activeEx,getSession,lastPerformance,newestFirst,state} from "../store.js";
@@ -63,6 +63,48 @@ export function setsSummary(sets,timed){
   return parts.join(", ")+(sets.length>8?" &hellip;":"");
 }
 
+// One control for reps, weight and band: a label, a ± stepper, and a tappable value that
+// opens the editor. Band values (a range string) don't get a unit suffix in the number.
+function numTile(label,field,value,cap,isBand){
+  const shown=isBand?esc(String(value)):value;
+  return "<div class='numctl'><div class='nl'>"+label+"</div>"+
+    "<div class='numstep'>"+
+      "<button class='rnd' data-step='"+field+":-1'>&minus;</button>"+
+      "<button class='numval"+(isBand?" bandval":"")+"' data-edit='"+field+"'>"+shown+"</button>"+
+      "<button class='rnd' data-step='"+field+":1'>+</button></div>"+
+    "<div class='numcap'>"+cap+"</div></div>";
+}
+
+// The tap-to-edit window: a keypad for reps/weight/seconds, the three bands for a band tile.
+function numEditor(a){
+  const f=state.numEdit,unit=state.settings.unit||"kg";
+  let h="<div class='overlay' id='numedback'><div class='sheet actionsheet numed'>";
+  if(f.field==="band"){
+    h+="<div class='sheethead'><div class='plabel'>Band &middot; lb</div>"+
+       "<button class='btn ghost tiny' id='numedclose'>Close</button></div><div class='sheetbody'>"+
+       "<div class='bandopts'>"+
+       "<button class='bandopt"+(!state.band?" sel":"")+"' data-band=''>None &mdash; bodyweight</button>";
+    BANDS.forEach(bd=>{
+      h+="<button class='bandopt"+(state.band===bd?" sel":"")+"' data-band=\""+esc(bd)+"\">"+esc(bd)+"</button>";
+    });
+    return h+"</div></div></div></div>";
+  }
+  const timed=!!(a&&a.timed);
+  const title=f.field==="weight"?"Weight &middot; "+esc(unit):(timed?"Seconds":"Reps");
+  const cur=f.field==="weight"?(state.weight||0):state.reps;
+  h+="<div class='sheethead'><div class='plabel'>"+title+"</div>"+
+     "<button class='btn ghost tiny' id='numedcancel'>Cancel</button></div><div class='sheetbody'>";
+  h+="<div class='numfield mono'>"+(f.buf===""?"<span class='ph'>"+cur+"</span>":esc(f.buf))+
+     "<span class='caret'></span></div>";
+  h+="<div class='keypad'>";
+  ["1","2","3","4","5","6","7","8","9"].forEach(k=>h+="<button class='key' data-key='"+k+"'>"+k+"</button>");
+  h+="<button class='key' data-key='back'>&larr;</button>"+
+     "<button class='key' data-key='0'>0</button>"+
+     "<button class='key done' data-key='done'>&#10003;</button>";
+  h+="</div></div></div></div>";
+  return h;
+}
+
 function logPanel(){
   const a=activeEx();
   // No header while logging: the Log set button already names the exercise, and the space
@@ -80,49 +122,27 @@ function logPanel(){
     h+="<div class='prow'><div class='plabel'>Editing set</div>"+
        "<div class='pactive'>"+(a?esc(a.name):"&mdash;")+"</div></div>";
   }
-  // A timed exercise counts seconds where a normal one counts reps — same stepper,
-  // different unit and quick picks.
+  // Reps and load share one control: a labelled tile with a ± stepper and a tappable number
+  // that opens the keypad. A timed exercise counts seconds; a band one carries a range, not lbs.
   const timed=!!(a&&a.timed);
   const unitWord=timed?"secs":"reps";
-  h+="<div class='stepper'><button class='round' id='minus'>&minus;</button>"+
-     "<div class='repbox'><div class='repnum mono'>"+state.reps+"</div><div class='replbl'>"+
-     unitWord+"</div></div>"+
-     "<button class='round' id='plus'>+</button></div>";
-  h+="<div class='quick'>";
-  (timed?QUICK_SECS:QUICK_REPS).forEach(n=>{
-    h+="<button class='q"+(state.reps===n?" on":"")+"' data-q='"+n+"'>"+n+"</button>";});
-  h+="</div>";
-  // Weight sits behind its own chip: off means bodyweight, on opens the quick weights.
-  // A band exercise swaps that for the resistance band picker — bands carry a range, not lbs.
   const unit=state.settings.unit||"kg";
   const isBand=!!(a&&isBandExercise(a.name));
+  h+="<div class='dualrow'>"+
+     numTile(timed?"Secs":"Reps","reps",state.reps,"tap to type")+
+     (isBand?
+       numTile("Band","band",state.band||"None","lb &middot; &plusmn; cycles",true):
+       numTile("Weight","weight",state.weight,esc(unit)+" &middot; 0 = bodyweight"))+
+     "</div>";
+  // Per-side doubling and warm-up are per set; Secs mode belongs to the exercise itself.
   h+="<div class='togrow'>"+
      "<button class='q"+(state.perSide?" on":"")+"' id='sidebtn'>Per side</button>"+
-     (isBand?
-       "<button class='q"+(state.band?" on":"")+"' id='bandbtn'>"+
-         (state.band?esc(state.band)+" lb":"Band")+"</button>":
-       "<button class='q"+(state.weight?" on":"")+"' id='weightbtn'>"+
-         (state.weight?state.weight+" "+esc(unit):"Bodyweight")+"</button>")+
      "<button class='q"+(state.warmup?" on":"")+"' id='warmbtn' "+
        "title='Warm-up sets stay out of totals and records'>Warm-up</button>"+
      (a?"<button class='q"+(timed?" on":"")+"' id='timedbtn' "+
        "title='Count this exercise in seconds instead of reps'>Secs</button>":"")+
-     "<span class='hint'>"+(state.perSide?(state.reps*SIDES_PER_SET)+" "+unitWord:"counted once")+
-     "</span></div>";
-  if(isBand){
-    h+="<div class='quick bands'>"+
-       "<button class='q"+(!state.band?" on":"")+"' data-band=''>None</button>";
-    BANDS.forEach(bd=>{
-      h+="<button class='q"+(state.band===bd?" on":"")+"' data-band=\""+esc(bd)+"\">"+esc(bd)+"</button>";
-    });
-    h+="<span class='bandunit'>lb</span></div>";
-  }else if(state.weight){
-    h+="<div class='quick weights'>";
-    quickWeights(unit).forEach(n=>{
-      h+="<button class='q"+(state.weight===n?" on":"")+"' data-w='"+n+"'>"+n+"</button>";
-    });
-    h+="<button class='q' id='weightother'>&hellip;</button></div>";
-  }
+     (state.perSide?"<span class='hint'>= "+(state.reps*SIDES_PER_SET)+" "+unitWord+" total</span>":"")+
+     "</div>";
   if(state.editing){
     // Every set is fully editable — reps and weight above, its recorded times here — so a
     // workout done off-app can be typed in completely.
@@ -358,5 +378,6 @@ export function logView(){
     exerciseStrip(s)+logPanel()+
     "</div>"+timerBar(s)+
     (state.sheet?exerciseSheet(s):"")+
+    (state.numEdit?numEditor(activeEx()):"")+
     (state.exHist&&activeEx()?exerciseHistorySheet(activeEx().name):"");
 }

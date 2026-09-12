@@ -159,15 +159,22 @@ td.cell.has.wu{opacity:.55;}
 .plabel{font-size:var(--f-sm);color:var(--muted);text-transform:uppercase;letter-spacing:1px;flex:none;}
 .pactive{font-size:var(--f-md);font-weight:700;color:var(--accentText);text-align:right;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.stepper{display:flex;align-items:center;justify-content:center;
-  gap:calc(clamp(10px,4vw,18px) * var(--k));margin-bottom:calc(9px * var(--k));}
-.round{width:var(--round);height:var(--round);border-radius:50%;background:var(--panelHi);
-  border:1px solid var(--line);color:var(--text);font-size:calc(25px * var(--k));
-  font-weight:700;cursor:pointer;line-height:1;}
-.repbox{min-width:calc(90px * var(--k));text-align:center;}
-.repnum{font-size:var(--f-rep);font-weight:800;line-height:1;}
-.replbl{font-size:var(--f-xs);color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.quick{display:flex;gap:calc(5px * var(--k));justify-content:center;margin-bottom:calc(9px * var(--k));}
+/* One control for reps, weight and band: label, ± stepper, tappable value, caption. */
+.dualrow{display:flex;gap:calc(9px * var(--k));margin-bottom:calc(9px * var(--k));}
+.numctl{flex:1;background:var(--panelHi);border:1px solid var(--line);border-radius:12px;
+  padding:calc(8px * var(--k)) 6px;text-align:center;min-width:0;}
+.numctl .nl{font-size:var(--f-tiny);font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);}
+.numstep{display:flex;align-items:center;justify-content:center;gap:calc(8px * var(--k));
+  margin:calc(4px * var(--k)) 0 calc(2px * var(--k));}
+.rnd{width:calc(38px * var(--k));height:calc(38px * var(--k));border-radius:50%;flex:none;
+  background:var(--panel);border:1px solid var(--line);color:var(--text);
+  font-size:calc(21px * var(--k));font-weight:700;cursor:pointer;line-height:1;}
+.numval{background:none;border:0;border-bottom:2px dashed var(--accent);color:var(--text);
+  font-size:var(--f-rep);font-weight:800;line-height:1.05;padding:0 2px 2px;cursor:pointer;
+  min-width:calc(40px * var(--k));font-variant-numeric:tabular-nums;}
+.numval.bandval{font-size:calc(clamp(16px,4.6vw,20px) * var(--k));white-space:nowrap;}
+.numcap{font-size:var(--f-tiny);color:var(--muted);margin-top:2px;}
 .q{flex:1;background:var(--panelHi);color:var(--muted);border:1px solid var(--line);border-radius:8px;
   padding:calc(7px * var(--k)) 4px;font-size:var(--f-md);font-weight:700;cursor:pointer;}
 .q.on{background:var(--accent);color:var(--onAccent);border-color:var(--accent);}
@@ -349,6 +356,23 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .daysbtn .cnt{font-size:12px;color:var(--muted);font-weight:700;}
 .backbtn{display:inline-flex;align-items:center;}
 .shareopt .so-l{display:inline-flex;align-items:center;}
+/* The tap-to-edit window: a keypad for reps/weight/seconds, band buttons for a band tile. */
+.numed{max-width:320px;}
+.numfield{border:1px solid var(--accent);border-radius:12px;padding:calc(12px * var(--k));
+  text-align:center;font-size:calc(38px * var(--k));font-weight:800;line-height:1;
+  margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:3px;}
+.numfield .ph{color:var(--muted);}
+.numfield .caret{width:2px;height:calc(32px * var(--k));background:var(--accent);
+  display:inline-block;animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.key{background:var(--panelHi);border:1px solid var(--line);color:var(--text);border-radius:11px;
+  padding:calc(14px * var(--k)) 0;font-size:calc(20px * var(--k));font-weight:700;cursor:pointer;}
+.key.done{background:var(--accent);border-color:var(--accent);color:var(--onAccent);}
+.bandopts{display:flex;flex-direction:column;gap:8px;}
+.bandopt{background:var(--panelHi);border:1px solid var(--line);color:var(--text);border-radius:11px;
+  padding:calc(14px * var(--k));font-size:var(--f-lg);font-weight:700;cursor:pointer;text-align:center;}
+.bandopt.sel{background:var(--accentDim);border-color:var(--accent);color:var(--accentText);}
 /* The share menu: one button opens it, the options fit where it was pressed. */
 .actionsheet{max-width:340px;}
 .shareopt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;
