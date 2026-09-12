@@ -12,7 +12,7 @@ export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
 
 export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],body:[],routines:[],
   settings:Object.assign({},DEFAULTS),
-  reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,warmup:false,setStart:null,editing:null,
+  reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,band:"",warmup:false,setStart:null,editing:null,
   adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
   exSearch:"",focusSearch:false,origin:"home",view:"home",undo:null,progressEx:"",verseIdx:null,
   shareMenu:null,

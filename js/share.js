@@ -81,8 +81,9 @@ export function buildShareCanvas(session){
       ctx.font="700 36px "+FONT;ctx.fillStyle=INK;
       ctx.fillText(e.name,MARGIN,y);
       const best=e.sets.reduce((m,x)=>Math.max(m,+x.w||0),0);
+      const band=(e.sets.find(x=>x.band)||{}).band||"";
       const sum=e.sets.length+"×"+(e.timed?" · "+fmtClock(exerciseTotal(e)):" · "+exerciseTotal(e)+" reps")+
-        (best?" @"+best:"");
+        (best?" @"+best:(band?" · "+band+" lb":""));
       ctx.font="600 34px "+FONT;ctx.fillStyle=MUTED;ctx.textAlign="right";
       ctx.fillText(sum,W-MARGIN,y);
       ctx.textAlign="left";

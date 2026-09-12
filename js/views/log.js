@@ -1,8 +1,8 @@
 // The logging screen: the day's table of sets, the panel that logs them, the exercise
 // strip and picker sheet, and the two-clock timer bar.
-import {EXERCISE_GROUPS,OTHER_GROUP,QUICK_REPS,QUICK_SECS,quickWeights,exerciseGroup,
-  exerciseTotal,fmtClock,fmtTime,lastSet,restSeconds,secondsSince,setAnchor,shortDate,
-  totals,workoutEnd,workoutSeconds} from "../model.js";
+import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,QUICK_REPS,QUICK_SECS,quickWeights,exerciseGroup,
+  exerciseTotal,fmtClock,fmtTime,isBandExercise,lastSet,restSeconds,secondsSince,setAnchor,
+  shortDate,totals,workoutEnd,workoutSeconds} from "../model.js";
 import {activeEx,getSession,lastPerformance,newestFirst,state} from "../store.js";
 import {est1RM} from "../charts.js";
 import {icon} from "../icons.js";
@@ -45,7 +45,7 @@ function setsTable(session){
          "' data-ex='"+e.id+"' data-i='"+i+"'>"+
          "<span class='cr'>"+x.r+(e.timed?"<span class='sd'>s</span>":"")+
          (x.side?"<span class='sd'>/s</span>":"")+
-         (x.w?"<span class='wt'>"+x.w+"</span>":"")+
+         (x.band?"<span class='wt band'>"+esc(x.band)+"</span>":(x.w?"<span class='wt'>"+x.w+"</span>":""))+
          (x.wu?"<span class='wt wumk'>w</span>":"")+"</span>"+
          ((x.at&&state.settings.showSetTimes)?"<span class='ct'>"+esc(fmtTime(x.at))+"</span>":"")+"</td>";
     }
@@ -59,7 +59,7 @@ function setsTable(session){
 // and the history sheet. Timed exercises read in seconds: "30s, 45s".
 export function setsSummary(sets,timed){
   const parts=sets.slice(0,8).map(x=>x.r+(timed?"s":"")+(x.side?"/s":"")+
-    (x.w?" @"+x.w:"")+(x.wu?"w":""));
+    (x.band?" "+x.band:(x.w?" @"+x.w:""))+(x.wu?"w":""));
   return parts.join(", ")+(sets.length>8?" &hellip;":"");
 }
 
@@ -93,18 +93,30 @@ function logPanel(){
     h+="<button class='q"+(state.reps===n?" on":"")+"' data-q='"+n+"'>"+n+"</button>";});
   h+="</div>";
   // Weight sits behind its own chip: off means bodyweight, on opens the quick weights.
+  // A band exercise swaps that for the resistance band picker — bands carry a range, not lbs.
   const unit=state.settings.unit||"kg";
+  const isBand=!!(a&&isBandExercise(a.name));
   h+="<div class='togrow'>"+
      "<button class='q"+(state.perSide?" on":"")+"' id='sidebtn'>Per side</button>"+
-     "<button class='q"+(state.weight?" on":"")+"' id='weightbtn'>"+
-       (state.weight?state.weight+" "+esc(unit):"Bodyweight")+"</button>"+
+     (isBand?
+       "<button class='q"+(state.band?" on":"")+"' id='bandbtn'>"+
+         (state.band?esc(state.band)+" lb":"Band")+"</button>":
+       "<button class='q"+(state.weight?" on":"")+"' id='weightbtn'>"+
+         (state.weight?state.weight+" "+esc(unit):"Bodyweight")+"</button>")+
      "<button class='q"+(state.warmup?" on":"")+"' id='warmbtn' "+
        "title='Warm-up sets stay out of totals and records'>Warm-up</button>"+
      (a?"<button class='q"+(timed?" on":"")+"' id='timedbtn' "+
        "title='Count this exercise in seconds instead of reps'>Secs</button>":"")+
      "<span class='hint'>"+(state.perSide?(state.reps*SIDES_PER_SET)+" "+unitWord:"counted once")+
      "</span></div>";
-  if(state.weight){
+  if(isBand){
+    h+="<div class='quick bands'>"+
+       "<button class='q"+(!state.band?" on":"")+"' data-band=''>None</button>";
+    BANDS.forEach(bd=>{
+      h+="<button class='q"+(state.band===bd?" on":"")+"' data-band=\""+esc(bd)+"\">"+esc(bd)+"</button>";
+    });
+    h+="<span class='bandunit'>lb</span></div>";
+  }else if(state.weight){
     h+="<div class='quick weights'>";
     quickWeights(unit).forEach(n=>{
       h+="<button class='q"+(state.weight===n?" on":"")+"' data-w='"+n+"'>"+n+"</button>";

@@ -31,6 +31,10 @@ export const OTHER_GROUP="Other";
 export function exerciseGroup(name){
   return GROUP_OF[String(name||"").trim().toLowerCase()]||OTHER_GROUP;
 }
+
+// Bands carry a resistance range, not a fixed weight — three bands, labelled in pounds.
+export const BANDS=["15–35","30–60","40–80"];
+export function isBandExercise(name){return exerciseGroup(name)==="Bands";}
 export const QUICK_REPS=[5,8,10,12,15,20];
 // Quick picks for timed movements — planks, carries, wall sits — counted in seconds.
 export const QUICK_SECS=[15,20,30,45,60,90];
@@ -100,7 +104,8 @@ export function monthLabel(y,m){
 // w is the weight carried — 0 is bodyweight, so no separate weighted flag is needed.
 // wu marks a warm-up: logged and shown, but kept out of totals, records and trends.
 export function normSet(v){
-  return {r:+v.r||0,side:!!v.side,w:+v.w||0,t:+v.t||0,rest:+v.rest||0,at:v.at||"",wu:!!v.wu};
+  return {r:+v.r||0,side:!!v.side,w:+v.w||0,t:+v.t||0,rest:+v.rest||0,at:v.at||"",wu:!!v.wu,
+    band:v.band||""};
 }
 
 export function setReps(x){return (x.side&&options.perSideDouble)?x.r*SIDES_PER_SET:x.r;}
@@ -214,7 +219,7 @@ export function convertWeight(v,from,to){return convert(v,from,to,KG_PER_LB);}
 // Girths ride along with the weight unit: centimetres beside kg, inches beside lb.
 export function convertLength(v,from,to){return convert(v,from,to,CM_PER_IN);}
 
-export function addSet(session,ex,reps,perSide,startedAt,weight,warm){
+export function addSet(session,ex,reps,perSide,startedAt,weight,warm,band){
   if(!session.running)startWorkout(session);
   const anchor=setAnchor(session);
   const end=nowISO();
@@ -222,7 +227,8 @@ export function addSet(session,ex,reps,perSide,startedAt,weight,warm){
   const work=(Date.parse(end)-Date.parse(begun))/MS_PER_SEC;
   const rest=anchor?(Date.parse(begun)-Date.parse(anchor))/MS_PER_SEC:0;
   ex.sets.push({r:reps,side:perSide,w:Math.max(0,+weight||0),
-    t:Math.max(0,Math.round(work)),rest:Math.max(0,Math.round(rest)),at:end,wu:!!warm});
+    t:Math.max(0,Math.round(work)),rest:Math.max(0,Math.round(rest)),at:end,wu:!!warm,
+    band:band||""});
   session.timerFrom="";
 }
 
@@ -261,11 +267,11 @@ export function parseClock(str){
 
 // Transcribing a workout done off-app: add one or more identical sets without starting a
 // live timer, stamped to the session's own day and with unknown (0) work/rest until edited.
-export function addManualSets(session,ex,reps,perSide,weight,count,warm){
+export function addManualSets(session,ex,reps,perSide,weight,count,warm,band){
   const n=Math.max(1,Math.round(+count||1));
   for(let i=0;i<n;i++){
     ex.sets.push({r:reps,side:perSide,w:Math.max(0,+weight||0),t:0,rest:0,at:session.created,
-      wu:!!warm});
+      wu:!!warm,band:band||""});
   }
 }
 

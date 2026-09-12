@@ -1,6 +1,6 @@
-import {addManualSets,addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,makeExercise,makeSession,
-  makeSessionOn,nowISO,parseClock,resetRestTimer,resetWorkout,restSeconds,setAnchor,
-  setWorkoutMinutes,setWorkoutSpanOn,startWorkout,workoutSeconds} from "./model.js";
+import {BANDS,addManualSets,addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,isBandExercise,
+  makeExercise,makeSession,makeSessionOn,nowISO,parseClock,resetRestTimer,resetWorkout,
+  restSeconds,setAnchor,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,workoutSeconds} from "./model.js";
 import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,getSession,importBackup,load,
   mergeSessions,removeFromCatalog,save,saveRoutine,selectSession,setSetting,state,
   upsertBodyEntry} from "./store.js";
@@ -125,6 +125,8 @@ function importText(text){
 // before would be silently wrong.
 function recallLast(e){
   const last=e&&e.sets.length?e.sets[e.sets.length-1]:null;
+  // Bands carry a resistance range instead of a weight; the picker only appears for them.
+  state.band=e&&isBandExercise(e.name)?(last?last.band||"":"") : "";
   if(last){
     state.reps=last.r;
     state.perSide=last.side;
@@ -506,6 +508,9 @@ document.body.addEventListener("click",ev=>{
     if(a!==null&&a.trim()!=="")state.weight=Math.max(0,parseFloat(a)||0);
     render();return;
   }
+  if(t.id==="bandbtn"){state.band=state.band?"":BANDS[1];render();return;}
+  const bandPick=t.closest&&t.closest("[data-band]");
+  if(bandPick){state.band=bandPick.getAttribute("data-band");render();return;}
 
   if(t.dataset&&t.dataset.ex&&t.classList.contains("exbtn")){
     state.exId=t.dataset.ex;state.editing=null;
@@ -520,6 +525,7 @@ document.body.addEventListener("click",ev=>{
     state.reps=e.sets[i].r;
     state.perSide=e.sets[i].side;
     state.weight=+e.sets[i].w||0;
+    state.band=e.sets[i].band||"";
     state.warmup=!!e.sets[i].wu;
     state.editWork=+e.sets[i].t||0;
     state.editRest=+e.sets[i].rest||0;
@@ -576,10 +582,12 @@ document.body.addEventListener("click",ev=>{
   if(t.id==="logbtn"){
     const s=getSession(),e=activeEx();
     if(e){
+      // Bands record a resistance range and no weight; everything else records the weight.
+      const isB=isBandExercise(e.name),w=isB?0:state.weight,bd=isB?state.band:"";
       // Live single set on today counts with the timer; anything else is manual transcription.
       const live=state.logCount<=1&&dateKey(s.created)===dateKey(nowISO());
-      if(live)addSet(s,e,state.reps,state.perSide,state.setStart,state.weight,state.warmup);
-      else addManualSets(s,e,state.reps,state.perSide,state.weight,state.logCount,state.warmup);
+      if(live)addSet(s,e,state.reps,state.perSide,state.setStart,w,state.warmup,bd);
+      else addManualSets(s,e,state.reps,state.perSide,w,state.logCount,state.warmup,bd);
     }
     // Warm-up is per set, not sticky: the set after a warm-up is working weight again.
     state.setStart=null;state.logCount=1;state.warmup=false;
@@ -589,8 +597,10 @@ document.body.addEventListener("click",ev=>{
     const e=getSession().ex.find(x=>x.id===state.editing.ex);
     if(e){
       const old=e.sets[state.editing.i];
-      e.sets[state.editing.i]={r:state.reps,side:state.perSide,w:state.weight,
-        t:state.editWork||0,rest:state.editRest||0,at:old.at||"",wu:state.warmup};
+      const isB=isBandExercise(e.name);
+      e.sets[state.editing.i]={r:state.reps,side:state.perSide,w:isB?0:state.weight,
+        t:state.editWork||0,rest:state.editRest||0,at:old.at||"",wu:state.warmup,
+        band:isB?state.band:""};
     }
     state.editing=null;state.warmup=false;render();return;
   }
