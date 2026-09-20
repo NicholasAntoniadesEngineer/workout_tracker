@@ -55,6 +55,45 @@ function shareMenu(){
   return h+"</div></div></div>";
 }
 
+const FB_KINDS=[["idea","Idea"],["problem","Problem"],["praise","Praise"]];
+
+// Feedback window: a bottom sheet to type a note; typing never re-renders (values are read
+// from the DOM on send), only open/sending/sent/error do — so the caret is never lost.
+function feedbackModal(){
+  const f=state.feedback;if(!f)return "";
+  let body;
+  if(f.sending){
+    body="<div class='fbstate'><div class='fbspin'></div><div>Sending&hellip;</div></div>";
+  }else if(f.sent){
+    body="<div class='fbstate'><div class='fbtick'>"+
+      "<svg viewBox='0 0 24 24' class='icn'><path class='acc' d='M5 12.5 10 17.5 19 7'/></svg></div>"+
+      "<div class='fbh'>Thank you</div>"+
+      "<div class='fbp'>Your note reached the developer &mdash; it shapes what gets built next.</div>"+
+      "<button class='btn primary' id='feedbackclose'>Close</button></div>";
+  }else if(f.error){
+    body="<div class='fbstate'><div class='fbh'>Couldn&rsquo;t send</div>"+
+      "<div class='fbp'>No connection, maybe. Try again, or send it as an email instead.</div>"+
+      "<button class='btn primary' id='fbretry'>Try again</button>"+
+      "<a class='fbmail' id='fbmailto' href='#'>Email it instead</a></div>";
+  }else{
+    let chips="";
+    FB_KINDS.forEach(k=>{chips+="<button class='q"+(f.kind===k[0]?" on":"")+
+      "' data-fbkind='"+k[0]+"'>"+k[1]+"</button>";});
+    body="<p class='popnote'>Goes straight to the developer. Nothing else is sent.</p>"+
+      "<div class='seg'>"+chips+"</div>"+
+      "<textarea id='fbmsg' placeholder='What&rsquo;s on your mind?'>"+esc(f.msg||"")+"</textarea>"+
+      "<input class='fbin' id='fbemail' type='email' autocomplete='email' "+
+        "placeholder='Your email (optional — only if you&rsquo;d like a reply)' value='"+esc(f.email||"")+"'>"+
+      "<button class='btn primary fbsend' id='fbsend'>Send feedback</button>"+
+      "<div class='fbctx'>Attaches app version &amp; screen &mdash; not your workout data.</div>";
+  }
+  return "<div class='overlay' id='feedbackback'><div class='sheet actionsheet fbsheet'>"+
+    "<div class='sheethead'><div class='plabel'>Send feedback</div>"+
+    (f.sending?"":"<button class='btn ghost tiny' id='feedbackclose'>Close</button>")+
+    "</div><div class='sheetbody'>"+body+"</div></div></div>";
+}
+
 export function paint(){
-  document.getElementById("app").innerHTML=(VIEWS[state.view]||logView)()+undoToast()+shareMenu();
+  document.getElementById("app").innerHTML=
+    (VIEWS[state.view]||logView)()+undoToast()+shareMenu()+feedbackModal();
 }

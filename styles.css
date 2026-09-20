@@ -373,6 +373,30 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .bandopt{background:var(--panelHi);border:1px solid var(--line);color:var(--text);border-radius:11px;
   padding:calc(14px * var(--k));font-size:var(--f-lg);font-weight:700;cursor:pointer;text-align:center;}
 .bandopt.sel{background:var(--accentDim);border-color:var(--accent);color:var(--accentText);}
+/* Feedback window: type chips, a message, an optional email, then send/sent/error states. */
+.fbsheet{max-width:360px;}
+.fbsheet .popnote{font-size:var(--f-sm);color:var(--muted);margin:0 0 10px;}
+.fbsheet .seg{display:flex;gap:6px;margin-bottom:10px;}
+.fbsheet .seg .q{flex:1;}
+.fbsheet textarea,.fbin{width:100%;box-sizing:border-box;background:var(--panelHi);
+  border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit;
+  font-size:var(--f-lg);padding:11px;}
+.fbsheet textarea{min-height:96px;resize:none;margin-bottom:8px;}
+.fbin{margin-bottom:10px;}
+.fbsend{width:100%;}
+.fbctx{font-size:var(--f-xs);color:var(--muted);text-align:center;margin-top:9px;}
+.fbstate{text-align:center;padding:14px 6px;}
+.fbstate .btn{margin-top:14px;}
+.fbtick{width:54px;height:54px;border-radius:50%;background:var(--accentDim);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 12px;}
+.fbtick .icn{width:28px;height:28px;fill:none;stroke-width:2.4;}
+.fbh{font-size:19px;font-weight:800;}
+.fbp{font-size:var(--f-md);color:var(--muted);margin-top:5px;}
+.fbmail{display:block;margin-top:12px;color:var(--accentText);font-weight:700;font-size:var(--f-md);
+  text-decoration:none;}
+.fbspin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);
+  border-top-color:var(--accent);margin:0 auto 12px;animation:fbspin 0.8s linear infinite;}
+@keyframes fbspin{to{transform:rotate(360deg);}}
 /* The share menu: one button opens it, the options fit where it was pressed. */
 .actionsheet{max-width:340px;}
 .shareopt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;

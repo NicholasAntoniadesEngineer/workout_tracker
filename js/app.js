@@ -6,6 +6,7 @@ import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,getSession,importBa
   upsertBodyEntry} from "./store.js";
 import {exportCSV,exportJSON,parseImport} from "./csv.js";
 import {decodeRoutineHash,shareApp,shareDay,shareRoutine} from "./share.js";
+import {feedbackContext,feedbackMailto,sendFeedback} from "./feedback.js";
 import {paint,setClockSeconds,setSub,stepVerse,workoutLabel,workoutSub} from "./views.js";
 
 const MIN_REPS=0;
@@ -322,6 +323,33 @@ document.body.addEventListener("click",ev=>{
     render();return;
   }
   if(t.id==="shareapp"){shareApp();return;}
+  // Feedback window. Typing isn't re-rendered, so read the fields from the DOM when needed.
+  if(t.id==="feedbackbtn"){state.feedback={kind:"idea",msg:"",email:""};render();return;}
+  if(t.id==="feedbackclose"||t.id==="feedbackback"){state.feedback=null;render();return;}
+  const captureFb=()=>{
+    const m=document.getElementById("fbmsg"),e=document.getElementById("fbemail");
+    if(m)state.feedback.msg=m.value;
+    if(e)state.feedback.email=e.value;
+  };
+  const fbKind=t.closest&&t.closest("[data-fbkind]");
+  if(fbKind&&state.feedback){
+    captureFb();state.feedback.kind=fbKind.getAttribute("data-fbkind");render();return;
+  }
+  if((t.id==="fbsend"||t.id==="fbretry")&&state.feedback){
+    if(t.id==="fbsend")captureFb();
+    const f=state.feedback;
+    if(!(f.msg||"").trim()){const m=document.getElementById("fbmsg");if(m)m.focus();return;}
+    f.sending=true;f.error=false;render();
+    sendFeedback(f.kind,f.msg.trim(),(f.email||"").trim(),feedbackContext(state.view))
+      .then(()=>{if(state.feedback){state.feedback.sending=false;state.feedback.sent=true;render();}})
+      .catch(()=>{if(state.feedback){state.feedback.sending=false;state.feedback.error=true;render();}});
+    return;
+  }
+  if(t.id==="fbmailto"&&state.feedback){
+    const f=state.feedback;
+    window.location.href=feedbackMailto(f.kind,(f.msg||"").trim(),(f.email||"").trim());
+    return;
+  }
   const shareOpt=t.closest&&t.closest("[data-shareopt]");
   if(shareOpt){
     const kind=shareOpt.getAttribute("data-shareopt");

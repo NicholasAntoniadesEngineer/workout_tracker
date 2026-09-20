@@ -57,6 +57,9 @@ export function settingsView(){
     "<div class='setrow'><div class='setlbl'>Share KingsKiln</div>"+
     "<div class='setopts'><button class='q' id='shareapp'>&#8679; Send the app to a friend</button>"+
     "</div></div>"+
+    "<div class='setrow'><div class='setlbl'>Send feedback</div>"+
+    "<div class='setopts'><button class='q' id='feedbackbtn'>&#9998; Tell the developer</button>"+
+    "</div></div>"+
 
     "<div class='reset'><button id='resetsettings'>Restore defaults</button></div>"+
     "</div>";
