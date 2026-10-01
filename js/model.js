@@ -35,14 +35,14 @@ export const EXERCISE_GROUPS=[
 export const SEED_EXERCISES=EXERCISE_GROUPS.reduce((all,g)=>all.concat(g[1]),[]);
 
 // Built-ins since dropped. An older install still lists them, so the picker leaves them out
-// unless you have trained them — and then they keep their group instead of falling to Other.
+// unless you have trained them — and then they keep their group instead of falling to User added.
 export const RETIRED={"lunges":"Squat & lunge","cable woodchop":"Core"};
 
 const GROUP_OF=Object.assign({},RETIRED);
 EXERCISE_GROUPS.forEach(g=>g[1].forEach(n=>{GROUP_OF[n.toLowerCase()]=g[0];}));
 
-// Anything you add yourself falls under Other rather than being forced into a group.
-export const OTHER_GROUP="Other";
+// Anything you add yourself goes under User added rather than being forced into a group.
+export const OTHER_GROUP="User added";
 
 export function exerciseGroup(name){
   return GROUP_OF[String(name||"").trim().toLowerCase()]||OTHER_GROUP;
