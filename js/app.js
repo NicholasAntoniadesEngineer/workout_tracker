@@ -71,6 +71,10 @@ function putScroll(keep){
 function render(){
   const keep=grabScroll();
   paint();
+  // Icon-only buttons carry a title; screen readers get it as their name too.
+  document.querySelectorAll("button[title]:not([aria-label])").forEach(b=>{
+    if(!b.textContent.trim())b.setAttribute("aria-label",b.title);
+  });
   fit();
   putScroll(keep);
   if(state.adding){

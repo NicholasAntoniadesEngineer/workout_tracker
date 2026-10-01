@@ -66,6 +66,12 @@ export const BUILTIN_ROUTINES=[
     "Hammer curl","Barbell curl"]},
   // Lower legs up to the hips, slow and light: shins, feet and calves first, then knee travel
   // over the toes, then hamstrings, hip flexors and a quad stretch. Named for what it does.
+  // A kettlebell session needing one or two bells: hinge, squat, pull, carry, then a hold.
+  {name:"Kettlebell full body",ex:["Kettlebell swings","Goblet squat","Standing kettlebell rows",
+    "Kettlebell deadlift","Kettlebell bicep curl","Farmer carry","Plank"]},
+  // The travel kit: one band and a door anchor cover legs, push, pull and core.
+  {name:"Travel bands",ex:["Band squat","Band Romanian deadlift","Band chest press","Band row",
+    "Band overhead press","Band pull-aparts","Band Pallof press"]},
   {name:"Knee & ankle foundations",ex:["Tibialis raises","FHL calf raise","KOT calf raise",
     "Patrick step","ATG split squat","Elephant walk","L-sit","Couch stretch"]}
 ];

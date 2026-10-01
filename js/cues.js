@@ -152,6 +152,23 @@ export const CUES={
   "band bicep curl":["Stand on the band, elbows at the sides","Curl up without swinging","Lower slowly against the band"],
   "band tricep pushdown":["Band anchored high, elbows pinned","Push down to straight arms","Return slowly"],
   "band pallof press":["Stand side-on to the anchor","Press the band straight out","Resist the twist, then return"],
-  "band woodchop":["Stand side-on to the anchor","Pull across the body diagonally","Turn through the trunk with control"]
+  "band woodchop":["Stand side-on to the anchor","Pull across the body diagonally","Turn through the trunk with control"],
+  // Movements described by what they are, in general terms; those we can't describe with
+  // confidence are left to their demo link instead.
+  "kettlebell squat press clean":["Clean the bell to the rack position","Squat with the bell held close","Press overhead as you stand"],
+  "fhl calf raise":["Press up through the big toe","Rise slowly, pause at the top","Lower all the way under control"],
+  "patrick step":["Stand on one leg on a low step","Let the knee travel forward over the toes","Touch the free heel down lightly, then rise"],
+  "poliquin step-up":["Working heel raised on a slant","Drive the knee forward over the toes","Step up with the front leg only"],
+  "petersen step-up":["Lift the working heel off the step","Knee travels forward over the toes","Straighten the knee fully at the top"],
+  "slant board steps":["Heel higher than toes on the slant","Knee tracks over the middle toes","Move slowly through the full range"],
+  "kot squat":["Heels raised on a slant board","Let the knees travel past the toes","Sit deep while staying upright"],
+  "hamstring roller":["Lie on your back, heels on the roller","Lift the hips off the floor","Curl the heels toward you, then extend slowly"],
+  "atg rdl":["Hinge with soft knees and a flat back","Lower to a deep hamstring stretch you control","Stand tall by driving the hips forward"],
+  "seated db deadlift":["Sit tall on a bench, feet wide","Lower the weight between your feet","Roll back up one vertebra at a time"],
+  "standing pancake pulse":["Wide stance, toes turned slightly out","Fold forward with a long spine","Small, gentle pulses a little deeper"],
+  "full knee raise":["Hang with shoulders engaged, not slack","Bring the knees up as high as you can","Lower slowly without swinging"],
+  "atg shoulder press":["Lower the weight to full depth","Press to a full lockout overhead","Ribs down, glutes tight"],
+  "atg dip":["Lower slowly to a deep stretch you control","Shoulders down, away from the ears","Press back to straight arms"],
+  "atg chin-up":["Start each rep from a full hang","Pull the chest toward the bar","Lower all the way under control"]
 };
 export function cuesFor(name){return CUES[String(name||"").trim().toLowerCase()]||null;}
