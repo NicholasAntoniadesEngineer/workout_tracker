@@ -21,7 +21,7 @@ export const EXERCISE_GROUPS=[
     "Incline dumbbell curl","Preacher curl","Concentration curl","Reverse curl"]],
   ["Core",["Plank","Side plank","Dead bug","Hollow hold","Hanging knee raises",
     "Pallof press","Ab wheel rollout","Mountain climbers","Cable crunch",
-    "Single Arm High to Low woodchop","Single Arm Low to High woodchop","Cable woodchop"]],
+    "Single Arm High to Low woodchop","Single Arm Low to High woodchop"]],
   ["Carry & full body",["Farmer carry","Suitcase carry","Turkish get-up",
     "Kettlebell squat press clean","Burpees"]],
   ["Lower leg",["Tibialis raises","Calf raises","Seated calf raise"]],
@@ -34,7 +34,11 @@ export const EXERCISE_GROUPS=[
 
 export const SEED_EXERCISES=EXERCISE_GROUPS.reduce((all,g)=>all.concat(g[1]),[]);
 
-const GROUP_OF={};
+// Built-ins since dropped. An older install still lists them, so the picker leaves them out
+// unless you have trained them — and then they keep their group instead of falling to Other.
+export const RETIRED={"lunges":"Squat & lunge","cable woodchop":"Core"};
+
+const GROUP_OF=Object.assign({},RETIRED);
 EXERCISE_GROUPS.forEach(g=>g[1].forEach(n=>{GROUP_OF[n.toLowerCase()]=g[0];}));
 
 // Anything you add yourself falls under Other rather than being forced into a group.

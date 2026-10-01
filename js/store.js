@@ -1,4 +1,4 @@
-import {SEED_EXERCISES,convertLength,convertWeight,dateKey,makeExercise,makeSession,normSet,
+import {RETIRED,SEED_EXERCISES,convertLength,convertWeight,dateKey,makeExercise,makeSession,normSet,
   options} from "./model.js";
 
 const KEY="workout_days_v2";
@@ -62,7 +62,7 @@ function buildCatalog(saved){
     if(k&&!seen[k]&&gone.indexOf(k)<0){seen[k]=true;out.push(String(n).trim());}
   };
   const offered=(saved&&saved.seeded)||[];
-  ((saved&&saved.catalog)||SEED_EXERCISES).forEach(add);
+  ((saved&&saved.catalog)||SEED_EXERCISES).filter(n=>!RETIRED[key(n)]).forEach(add);
   SEED_EXERCISES.filter(n=>!offered.some(o=>key(o)===key(n))).forEach(add);
   state.sessions.forEach(s=>s.ex.forEach(e=>add(e.name)));
   return out;
