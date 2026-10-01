@@ -3,8 +3,16 @@
 import {LEARN} from "./learn.js";
 import {HEALTH} from "./health.js";
 
+// Everything reads A–Z: categories by name, topics by the title on their card.
+const az=(a,b)=>a.localeCompare(b,undefined,{sensitivity:"base",numeric:true});
+function sorted(cats){
+  return cats.slice().sort((a,b)=>az(a.cat,b.cat))
+    .map(c=>Object.assign({},c,{topics:c.topics.slice().sort((a,b)=>az(a.title,b.title))}));
+}
+
 // An area only shows once it has content.
-export const AREAS=[["training","Training",LEARN],["health","Health",HEALTH]].filter(a=>a[2].length);
+export const AREAS=[["training","Training",sorted(LEARN)],["health","Health",sorted(HEALTH)]]
+  .filter(a=>a[2].length);
 
 export function areaCats(area){
   const a=AREAS.find(x=>x[0]===area)||AREAS[0];

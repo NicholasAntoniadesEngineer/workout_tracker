@@ -62,3 +62,13 @@ test("Health topics are well formed, start with h- and never clash with Training
   });
   assert.equal(healthTopic(ids[0]),ht[0]);
 });
+
+import {AREAS} from "../js/library.js";
+test("Learn lists categories and topics A–Z in both areas",()=>{
+  const az=list=>list.slice().sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base",numeric:true}));
+  AREAS.forEach(a=>{
+    const cats=a[2].map(c=>c.cat);
+    assert.deepEqual(cats,az(cats),a[0]);
+    a[2].forEach(c=>{const t=c.topics.map(x=>x.title);assert.deepEqual(t,az(t),c.cat);});
+  });
+});
