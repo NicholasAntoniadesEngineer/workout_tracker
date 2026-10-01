@@ -266,13 +266,14 @@ function watchDrag(){
   document.body.addEventListener("pointercancel",end);
 }
 
-// In Learn's list, a sideways swipe moves to the next or previous filter — All, then each
-// category — as well as tapping the tabs. Mostly-vertical drags are left to scrolling.
+// In Learn a sideways swipe does what the tabs at that level do: on home it flips Training and
+// Health, in a category it moves to the next category, and on a topic it steps through that
+// topic's sections (Overview, Workouts, Links). Mostly-vertical drags are left to scrolling.
 const SWIPE_MIN=60;
 function watchLearnSwipe(){
   let sx=0,sy=0,on=false;
   document.body.addEventListener("touchstart",ev=>{
-    on=state.view==="learn"&&!state.learnOpen&&ev.touches.length===1&&
+    on=state.view==="learn"&&ev.touches.length===1&&
       !(ev.target.closest&&ev.target.closest(".ltabs,.lshelf,.lpills,input"));
     if(on){sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;}
   },{passive:true});
@@ -281,7 +282,14 @@ function watchLearnSwipe(){
     on=false;
     const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<Math.abs(dy)*1.5)return;
-    // On Learn's home a swipe flips Training and Health; in a category it moves to the next one.
+    if(state.learnOpen){
+      const tabs=[...document.querySelectorAll("[data-learntab]")].map(b=>b.getAttribute("data-learntab"));
+      if(tabs.length<2)return;
+      const cur=Math.max(0,tabs.indexOf(state.learnTab||"overview"));
+      const next=cur+(dx<0?1:-1);
+      if(next<0||next>=tabs.length)return;
+      state.learnTab=tabs[next];state.scrollTo=0;render();return;
+    }
     if(!state.learnCat){
       const area=state.learnArea||"training",want=dx<0?"health":"training";
       if(area===want)return;
