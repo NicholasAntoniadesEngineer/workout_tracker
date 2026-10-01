@@ -55,7 +55,9 @@ function sabbathWeek(){
 
 // Saved routines as one quiet row of chips — tap to start today from one.
 function routineRow(){
-  const routines=allRoutines();
+  // Your own routines first — they're the ones you made for yourself — then the built-ins.
+  const all=allRoutines();
+  const routines=all.filter(r=>!r.builtin).concat(all.filter(r=>r.builtin));
   if(!routines.length)return "";
   // A few on the home screen; the rest are one tap away in the picker's Routines tab.
   const SHOWN=4;
