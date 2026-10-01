@@ -184,3 +184,16 @@ describe("platesPerSide",()=>{
     assert.ok(!isBarbellLift("Goblet squat"));
   });
 });
+
+import {warmupRamp} from "../js/coach.js";
+describe("warmupRamp",()=>{
+  test("bar, then about half, seventy and eighty-five percent",()=>{
+    assert.deepEqual(warmupRamp(100,"kg"),[{w:20,r:10},{w:50,r:5},{w:70,r:3},{w:85,r:1}]);
+  });
+  test("nothing to ramp for a load at or below the bar",()=>{
+    assert.deepEqual(warmupRamp(20,"kg"),[]);
+  });
+  test("skips steps that would repeat or reach the working weight",()=>{
+    assert.deepEqual(warmupRamp(30,"kg"),[{w:20,r:10},{w:25,r:1}]);
+  });
+});

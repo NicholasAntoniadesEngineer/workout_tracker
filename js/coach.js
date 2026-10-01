@@ -39,6 +39,20 @@ export function progressionHint(prevSets,opts){
     :{text:"Aim for "+aim+"+ reps on every set",apply:{r:aim}};
 }
 
+// Warm-up ramp toward a working weight on a barbell: the empty bar for 10, then roughly
+// 50%, 70% and 85% for fewer reps each — enough to groove the lift without tiring it.
+const RAMP=[[0.5,5],[0.7,3],[0.85,1]];
+export function warmupRamp(target,unit){
+  const u=unit==="lb"?"lb":"kg",bar=u==="lb"?45:20,step=u==="lb"?5:2.5;
+  if(!(+target>bar))return [];
+  const out=[{w:bar,r:10}];
+  RAMP.forEach(([f,r])=>{
+    const w=Math.round(target*f/step)*step;
+    if(w>out[out.length-1].w&&w<target)out.push({w,r});
+  });
+  return out;
+}
+
 // Everything an exercise had achieved before set i of this session: earlier days, plus the
 // sets already logged today. Warm-ups never count.
 export function bestsBefore(sessions,session,name,i){

@@ -400,6 +400,8 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 /* Saved routines under the start button — one tap begins that day. */
 .routinerow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px;}
 .rchip .rn{opacity:.55;font-weight:600;margin-left:2px;}
+.rchip.more{background:transparent;border-style:dashed;color:var(--accentText);}
+.ramp{font-size:var(--f-md);margin-bottom:6px;}
 /* Inline SVG icons: 24-grid strokes through currentColor, amber details via .acc/.accf. */
 /* Taps go to the button, never the drawing inside it, so every handler sees its button. */
 .icn{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;

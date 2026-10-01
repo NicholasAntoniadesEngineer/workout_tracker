@@ -5,7 +5,7 @@ import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,canResume,exerciseGroup,isBarbellLift,
   shortDate,totals,unitOf,workoutOffset,workoutSeconds} from "../model.js";
 import {activeEx,allRoutines,getSession,lastPerformance,newestFirst,repRange,restTargetFor,
   state} from "../store.js";
-import {progressionHint} from "../coach.js";
+import {progressionHint,warmupRamp} from "../coach.js";
 import {cuesFor} from "../cues.js";
 import {est1RM} from "../charts.js";
 import {icon} from "../icons.js";
@@ -401,6 +401,10 @@ function exerciseHistorySheet(name){
     "<a class='demolink' href='"+esc(demoUrl(name))+"' target='_blank' rel='noopener'>"+
       "Watch a demo &#8599;</a>"+
     "<div class='cuenote'>General form cues, not medical advice. Stop if anything hurts.</div>";
+  // On a barbell lift, a ramp up to the weight on screen — log the sets as warm-ups.
+  const ramp=isBarbellLift(name)?warmupRamp(state.weight,state.settings.unit||"kg"):[];
+  if(ramp.length)h+="<div class='picklbl'>Warm-up to "+state.weight+esc(state.settings.unit||"kg")+"</div>"+
+    "<div class='ramp mono'>"+ramp.map(x=>x.w+" &times; "+x.r).join(" &middot; ")+"</div>";
   const topic=learnFor(name);
   if(topic)h+="<button class='demolink learnjump' data-learnjump='"+topic[0]+"'>Learn: "+esc(topic[1])+" &rsaquo;</button>";
   // Rest after this exercise: its own target, or the default from Settings.

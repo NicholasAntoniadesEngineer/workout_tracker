@@ -57,11 +57,15 @@ function sabbathWeek(){
 function routineRow(){
   const routines=allRoutines();
   if(!routines.length)return "";
+  // A few on the home screen; the rest are one tap away in the picker's Routines tab.
+  const SHOWN=4;
   let h="<div class='routinerow'>";
-  routines.forEach(r=>{
+  routines.slice(0,SHOWN).forEach(r=>{
     h+="<button class='chip rchip' data-routine='"+r.id+"'>"+esc(r.name)+
        " <span class='rn'>"+r.ex.length+"</span></button>";
   });
+  if(routines.length>SHOWN)
+    h+="<button class='chip rchip more' id='homeroutines'>All routines <span class='rn'>"+routines.length+"</span></button>";
   return h+"</div>";
 }
 

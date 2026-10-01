@@ -45,6 +45,13 @@ export function handle(t,ctx){
     state.origin="home";state.sheet=!getSession().ex.length;
     state.view="log";ctx.markRefit();ctx.render();return true;
   }
+  // All routines: a new day opened straight onto the picker's Routines tab.
+  if(t.closest&&t.closest("#homeroutines")){
+    const ns=makeSession();
+    state.sessions.push(ns);selectSession(ns.id);
+    state.origin="home";state.sheet=true;state.pickTab="routines";
+    state.view="log";ctx.markRefit();ctx.render();return true;
+  }
   if(t.id==="homestart"){
     const todayK=dateKey(nowISO());
     const done=state.sessions.filter(s=>dateKey(s.created)===todayK&&s.ex.some(e=>e.sets.length)).length;
