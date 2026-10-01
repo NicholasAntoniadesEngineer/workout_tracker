@@ -362,7 +362,8 @@ function learnFor(name){
   return null;
 }
 
-const REST_CHOICES=[["1:00",60],["1:30",90],["2:00",120],["3:00",180]];
+// Up to five minutes: heavy compound lifts earn long rests, and longer rests let you do more.
+const REST_CHOICES=[["1:30",90],["2:00",120],["3:00",180],["4:00",240],["5:00",300]];
 
 // How to do it, then everything it has ever done — records on top, newest day first —
 // and how long to rest after it.

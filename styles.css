@@ -621,6 +621,16 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   font-size:var(--f-tiny);color:var(--muted);margin-top:calc(6px * var(--k));padding:1px 0;}
 .trendsel{width:100%;background:var(--panelHi);border:1px solid var(--line);color:var(--text);
   border-radius:10px;padding:10px 12px;font:inherit;font-size:16px;font-weight:700;min-height:var(--tap);}
+/* Hard sets per movement this week: shaded target band, fill in accent once in range. */
+.setbars{display:flex;flex-direction:column;gap:8px;}
+.sbrow{display:grid;grid-template-columns:110px 1fr 28px;align-items:center;gap:8px;font-size:var(--f-sm);}
+.sbname{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sbtrack{position:relative;height:10px;border-radius:5px;background:var(--panelHi);overflow:hidden;}
+.sbzone{position:absolute;top:0;bottom:0;background:var(--accentDim);}
+.sbfill{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:var(--muted);opacity:.55;}
+.sbrow.under .sbfill{background:var(--accentText);opacity:.5;}
+.sbrow.in .sbfill,.sbrow.over .sbfill{background:var(--accent);opacity:1;}
+.sbn{text-align:right;font-weight:800;}
 .bodymet{display:flex;gap:6px;margin-bottom:6px;}
 .bodymet .q{min-height:36px;}
 .bodyrow{align-items:center;}

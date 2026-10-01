@@ -165,3 +165,21 @@ describe("weeklyVolume",()=>{
     assert.equal(weeks[7].trained,0);
   });
 });
+
+import {weeklySetsByGroup} from "../js/charts.js";
+test("weeklySetsByGroup counts this week's working sets by movement, always listing the main four",()=>{
+  // Thursday 1 Oct 2026; the week starts Monday 28 Sept.
+  const now=new Date(2026,9,1,12);
+  const mk=(created,name,sets)=>({id:created,title:"x",created:new Date(...created).toISOString(),ex:[{name,sets}]});
+  const set=(wu=false)=>({r:10,w:50,side:false,wu});
+  const sessions=[mk([2026,8,29,9],"Bench press",[set(),set(),set(true)]),
+    mk([2026,8,30,9],"Deadlift",[set(),set()]),
+    mk([2026,8,25,9],"Bench press",[set(),set()])];
+  const g=weeklySetsByGroup(sessions,now);
+  const by=Object.fromEntries(g.map(x=>[x.group,x.sets]));
+  assert.equal(by["Push"],2,"warm-up and last week's sets excluded");
+  assert.equal(by["Hinge & glutes"],2);
+  assert.equal(by["Squat & lunge"],0);
+  assert.equal(by["Pull"],0);
+  assert.ok(g.find(x=>x.group==="Push").target);
+});

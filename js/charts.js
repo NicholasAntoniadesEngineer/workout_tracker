@@ -1,6 +1,6 @@
 // Progress analytics: pure computations over sessions plus tiny inline-SVG charts.
 // No libraries — the charts inherit the theme through currentColor and CSS variables.
-import {dateKey,setReps} from "./model.js";
+import {EXERCISE_GROUPS,OTHER_GROUP,dateKey,exerciseGroup,setReps} from "./model.js";
 
 const WEEKS_SHOWN=8;
 const TREND_POINTS=12;
@@ -27,6 +27,25 @@ function weekStart(d){
   const day=(d.getDay()+6)%7;
   const w=new Date(d.getFullYear(),d.getMonth(),d.getDate()-day);
   return w;
+}
+
+// Hard sets this week (Monday on) by movement group — warm-ups never count. The main
+// lifts' groups carry the 10–20 sets a week that drives real growth; the rest just show their count.
+export const SET_TARGET={low:10,high:20};
+export const TARGET_GROUPS=["Squat & lunge","Hinge & glutes","Push","Pull"];
+export function weeklySetsByGroup(sessions,now){
+  const start=weekStart(now?new Date(now):new Date()).getTime();
+  const by={};
+  sessions.forEach(s=>{
+    const t=Date.parse(s.created);
+    if(isNaN(t)||t<start)return;
+    s.ex.forEach(e=>{
+      const n=e.sets.filter(x=>!x.wu).length;
+      if(n){const g=exerciseGroup(e.name);by[g]=(by[g]||0)+n;}
+    });
+  });
+  return EXERCISE_GROUPS.map(g=>g[0]).concat(OTHER_GROUP).filter(g=>by[g]||TARGET_GROUPS.indexOf(g)>=0)
+    .map(g=>({group:g,sets:by[g]||0,target:TARGET_GROUPS.indexOf(g)>=0}));
 }
 
 // The last N calendar weeks, oldest first, each with the reps and tonnage trained in it.
