@@ -16,7 +16,7 @@ test("every topic has a unique id, a summary, and links out",()=>{
 test("links are https and of a known kind",()=>{
   topics.forEach(t=>t.links.forEach(l=>{
     assert.match(l.u,/^https:\/\//,t.id);
-    assert.ok(["article","study","video","guideline"].includes(l.k),t.id+": "+l.k);
+    assert.ok(["article","study","video","guideline","podcast"].includes(l.k),t.id+": "+l.k);
     assert.ok(l.t,t.id);
   }));
 });

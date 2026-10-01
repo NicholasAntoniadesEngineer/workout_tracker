@@ -10,7 +10,7 @@ import {esc,pageHead} from "./common.js";
 const SHORT={"Lifters & methods":"Lifters","Training principles":"Principles","Workout types":"Workouts",
   "Joints & resilience":"Joints","Recovery & lifestyle":"Recovery","Recovery & nutrition":"Recovery"};
 const tabName=c=>SHORT[c]||c.split(" & ")[0];
-const GROUPS=[["Read",["article"]],["Watch",["video"]],["Research",["study","guideline"]]];
+const GROUPS=[["Read",["article"]],["Watch",["video"]],["Listen",["podcast"]],["Research",["study","guideline"]]];
 
 
 // "Arnold Schwarzenegger: high-volume splits" → the person, then the method.
