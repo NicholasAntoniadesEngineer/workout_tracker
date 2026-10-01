@@ -34,12 +34,6 @@ export function handle(t,ctx){
   if(t.closest&&t.closest("[data-featurenext]")){state.featureShift=(state.featureShift||0)+1;ctx.render();return true;}
   const ltab=t.closest&&t.closest("[data-learntab]");
   if(ltab){state.learnTab=ltab.getAttribute("data-learntab");state.scrollTo=0;ctx.render();return true;}
-  // The search icon opens the search box (focused); tapping it again closes and clears it.
-  if(t.closest&&t.closest("#learnsearchtoggle")){
-    state.learnSearching=!(state.learnSearching||state.learnQuery);
-    if(!state.learnSearching)state.learnQuery="";else state.focusSearch="learnsearch";
-    ctx.render();return true;
-  }
   if(t.id==="learnsearchx"){state.learnQuery="";state.focusSearch="learnsearch";ctx.render();return true;}
   const learnArea=t.closest&&t.closest("[data-learnarea]");
   if(learnArea){state.learnArea=learnArea.getAttribute("data-learnarea");state.learnCat=null;state.learnQuery="";state.scrollTo=0;ctx.render();return true;}

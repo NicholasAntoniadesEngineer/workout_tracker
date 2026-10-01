@@ -43,10 +43,16 @@ function avatar(name){
 
 // People as compact tiles — badge, name, one line on what they're known for. No summaries
 // here; the detail lives on their page.
+// Everything a category search can match on: title, summary, key points, exercises, people.
+function searchText(tp){
+  return (tp.title+" "+tp.summary+" "+(tp.points||[]).join(" ")+" "+(tp.exercises||[]).join(" ")+" "+
+    (tp.people||[]).map(p=>p.name).join(" ")).toLowerCase();
+}
+
 function peopleGrid(topics){
   return "<div class='lpeople'>"+topics.map(tp=>{
     const t=splitTitle(tp.title);
-    return "<button class='lperson' data-learn='"+esc(tp.id)+"'>"+avatar(t[0])+
+    return "<button class='lperson' data-learn='"+esc(tp.id)+"' data-find=\""+esc(searchText(tp))+"\">"+avatar(t[0])+
       "<span class='lpn'>"+esc(t[0])+"</span>"+
       "<span class='lpf'>"+esc(t[1]||tp.focus||"")+"</span></button>";
   }).join("")+"</div>";
@@ -55,7 +61,7 @@ function peopleGrid(topics){
 function topicRows(topics,showCat){
   return "<div class='llist'>"+topics.map(tp=>{
     const c=showCat?catOfTopic(tp.id):null;
-    return "<button class='lrow' data-learn='"+esc(tp.id)+"'><span class='lt'>"+esc(tp.title)+"</span>"+
+    return "<button class='lrow' data-learn='"+esc(tp.id)+"' data-find=\""+esc(searchText(tp))+"\"><span class='lt'>"+esc(tp.title)+"</span>"+
       (c?"<span class='lpre'>"+esc(c.cat)+"</span>":"")+"<span class='lchev'>&rsaquo;</span></button>";
   }).join("")+"</div>";
 }
@@ -95,30 +101,22 @@ function shelf(c){
 
 // Learn home, magazine-style: a big title and search, Training or Health, today's featured
 // story, then a swipeable shelf per category.
-function homeView(area,cats){
+// What sits under the search on Learn's home: search hits while something is typed, else the
+// featured story and the shelves. Typing repaints only this part, so the box keeps its
+// keyboard and caret.
+export function learnHomeBody(){
+  const area=state.learnArea||"training",cats=areaCats(area);
   const q=(state.learnQuery||"").trim().toLowerCase();
-  const searching=state.learnSearching||q;
-  let h="<div class='wrap scroll lhome'>"+
-    "<div class='lmasthead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button>"+
-    "<button class='lsearchbtn"+(searching?" on":"")+"' id='learnsearchtoggle' aria-label='Search'>"+icon("search")+"</button></div>"+
-    "<div class='lbigtitle'>Learn</div>"+
-    (AREAS.length<2?"":"<div class='lpills'>"+AREAS.map(a=>"<button class='lpill"+(a[0]===area?" on":"")+
-      "' data-learnarea='"+a[0]+"'>"+a[1]+"</button>").join("")+"</div>");
-  if(searching){
-    h+="<div class='searchrow lsearch'><span class='lsicon'>"+icon("search","sm")+"</span>"+
-      "<input class='searchin' id='learnsearch' type='search' placeholder='Search "+
-        (area==="health"?"health":"training")+" topics' autocomplete='off' value='"+esc(state.learnQuery||"")+"'>"+
-      (q?"<button class='searchx' id='learnsearchx'>&times;</button>":"")+"</div>";
-  }
   if(q){
     const hits=[];
     cats.forEach(c=>c.topics.forEach(tp=>{
-      const text=(tp.title+" "+tp.summary+" "+(tp.points||[]).join(" ")+" "+(tp.exercises||[]).join(" ")).toLowerCase();
+      const who=(tp.people||[]).map(p=>p.name+" "+(p.known||"")).join(" ");
+      const text=(tp.title+" "+tp.summary+" "+(tp.points||[]).join(" ")+" "+(tp.exercises||[]).join(" ")+" "+who).toLowerCase();
       if(text.indexOf(q)>=0)hits.push(tp);
     }));
-    h+=hits.length?topicRows(hits,true):"<div class='empty-note'>Nothing matches &ldquo;"+esc(state.learnQuery)+"&rdquo;.</div>";
-    return h+"</div>";
+    return hits.length?topicRows(hits,true):"<div class='empty-note'>Nothing matches &ldquo;"+esc(state.learnQuery)+"&rdquo;.</div>";
   }
+  let h="";
   const f=featured(cats);
   if(f){
     const t=splitTitle(f.title),c=catOfTopic(f.id),n=f.days?f.days.length:0;
@@ -131,24 +129,44 @@ function homeView(area,cats){
         "<span class='lfcta'>Read"+(n?" &middot; "+n+" workout"+(n>1?"s":""):"")+"</span></button></div>";
   }
   cats.forEach(c=>{h+=shelf(c);});
-  h+="<p class='learnnote'>Summaries written for KingsKiln; links go to the original articles and videos. "+
+  return h+"<p class='learnnote'>Summaries written for KingsKiln; links go to the original articles and videos. "+
     "General education, not medical advice.</p>";
-  return h+"</div>";
+}
+
+function searchBox(id,placeholder,value){
+  return "<div class='searchrow lsearch'><span class='lsicon'>"+icon("search","sm")+"</span>"+
+    "<input class='searchin' id='"+id+"' type='search' enterkeyhint='search' placeholder='"+placeholder+
+    "' autocomplete='off' autocorrect='off' value='"+esc(value||"")+"'></div>";
+}
+
+// Learn home, magazine-style: a big title, Training or Health, an always-there search, then
+// today's featured story and a swipeable shelf per category.
+function homeView(area){
+  return "<div class='wrap scroll lhome'>"+
+    "<div class='lmasthead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button></div>"+
+    "<div class='lbigtitle'>Learn</div>"+
+    (AREAS.length<2?"":"<div class='lpills'>"+AREAS.map(a=>"<button class='lpill"+(a[0]===area?" on":"")+
+      "' data-learnarea='"+a[0]+"'>"+a[1]+"</button>").join("")+"</div>")+
+    searchBox("learnsearch","Search "+(area==="health"?"health":"training"),state.learnQuery)+
+    "<div id='learnbody'>"+learnHomeBody()+"</div></div>";
 }
 
 // One category: tabs to hop between categories (or swipe), then people tiles or topic rows.
+// One category: tabs to hop between categories (or swipe), a search that filters what's here
+// as you type, then people tiles or topic rows.
 function categoryView(area,cats,cur){
   let h="<div class='wrap scroll'>"+pageHead(esc(tabName(cur.cat)))+
     "<div class='ltabs'>"+cats.map(c=>"<button class='ltab"+(c===cur?" on":"")+"' data-learncat=\""+
-      esc(c.cat)+"\">"+esc(tabName(c.cat))+"</button>").join("")+"</div>";
+      esc(c.cat)+"\">"+esc(tabName(c.cat))+"</button>").join("")+"</div>"+
+    searchBox("learncatsearch","Search "+esc(tabName(cur.cat).toLowerCase()),"");
   h+=isPeople(cur)?peopleGrid(cur.topics):topicRows(cur.topics,false);
-  return h+"</div>";
+  return h+"<div class='empty-note' id='learncatnone' hidden>No match.</div></div>";
 }
 
 function listView(){
   const area=state.learnArea||"training",cats=areaCats(area);
   const cur=cats.find(c=>c.cat===state.learnCat)||null;
-  return cur?categoryView(area,cats,cur):homeView(area,cats);
+  return cur?categoryView(area,cats,cur):homeView(area);
 }
 
 // Who they are, in brief: born (and died), age, where from, what they're known for, and

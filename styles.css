@@ -55,6 +55,8 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hero:#232833;--heroChip:#323844;}}
 :root[data-theme="dark"]{--hero:#232833;--heroChip:#323844;}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+/* Hidden means hidden, even for elements that set their own display. */
+[hidden]{display:none!important;}
 html{height:100%;}
 body{height:100%;margin:0;padding:0;overflow:hidden;background:var(--bg);color:var(--text);
   font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;

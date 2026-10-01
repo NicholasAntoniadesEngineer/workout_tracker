@@ -4,7 +4,7 @@ import {activeEx,addExerciseToDay,getSession,importBackup,lastPerformance,load,m
   restTargetFor,save,saveRoutine,selectSession,state} from "./store.js";
 import {parseImport} from "./csv.js";
 import {decodeRoutineHash} from "./share.js";
-import {paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
+import {learnHomeBody,paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
 import * as nav from "./actions/nav.js";
 import * as routines from "./actions/routines.js";
 import * as days from "./actions/days.js";
@@ -273,7 +273,7 @@ function watchLearnSwipe(){
   let sx=0,sy=0,on=false;
   document.body.addEventListener("touchstart",ev=>{
     on=state.view==="learn"&&!state.learnOpen&&ev.touches.length===1&&
-      !(ev.target.closest&&ev.target.closest(".ltabs,.lshelf,.lpills"));
+      !(ev.target.closest&&ev.target.closest(".ltabs,.lshelf,.lpills,input"));
     if(on){sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;}
   },{passive:true});
   document.body.addEventListener("touchend",ev=>{
@@ -323,7 +323,23 @@ document.body.addEventListener("input",ev=>{
   if(id==="editwork")state.editWork=parseClock(ev.target.value);
   else if(id==="editrest")state.editRest=parseClock(ev.target.value);
   else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
-  else if(id==="learnsearch"){state.learnQuery=ev.target.value;state.focusSearch="learnsearch";render();}
+  // Learn's searches never rebuild the page while you type — only the results change — so
+  // the box keeps focus and the phone keeps its keyboard.
+  else if(id==="learnsearch"){
+    state.learnQuery=ev.target.value;
+    const body=document.getElementById("learnbody");
+    if(body)body.innerHTML=learnHomeBody();
+  }
+  else if(id==="learncatsearch"){
+    const q=ev.target.value.trim().toLowerCase();
+    let shown=0;
+    document.querySelectorAll("[data-find]").forEach(el=>{
+      const hit=!q||el.getAttribute("data-find").indexOf(q)>=0;
+      el.hidden=!hit;if(hit)shown++;
+    });
+    const none=document.getElementById("learncatnone");
+    if(none)none.hidden=shown>0;
+  }
 });
 
 // Closing the picker follows the same rules whether by Done, a tap on the scrim, or Esc:

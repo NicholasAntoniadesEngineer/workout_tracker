@@ -18,6 +18,7 @@ import {VERSES} from "./verses.js";
 
 export {esc} from "./views/common.js";
 export {stepVerse} from "./views/home.js";
+export {learnHomeBody} from "./views/learn.js";
 export {setClockSeconds,setLabel,setSub,setsSummary,workoutLabel,
   workoutSub} from "./views/log.js";
 
