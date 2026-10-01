@@ -72,15 +72,9 @@ function putScroll(keep){
   });
   const wrap=document.querySelector(".wrap.scroll");
   if(wrap&&keep.__top&&keep.__top.view===state.view)wrap.scrollTop=keep.__top.y;
-  // A Learn topic just opened: bring its heading to the top of the screen, smoothly.
-  if(state.revealLearn){
-    const card=document.querySelector(".learncard.open");
-    state.revealLearn=false;
-    if(card&&wrap){
-      const y=wrap.scrollTop+card.getBoundingClientRect().top-wrap.getBoundingClientRect().top-12;
-      wrap.scrollTo({top:Math.max(0,y),behavior:"smooth"});
-    }
-  }
+  // A page asked to land somewhere specific — a topic opens at its top, Back returns the
+  // list to where you were.
+  if(wrap&&state.scrollTo!=null){wrap.scrollTop=state.scrollTo;state.scrollTo=null;}
 }
 
 function render(){

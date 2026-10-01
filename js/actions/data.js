@@ -22,13 +22,16 @@ export function handle(t,ctx){
     state.body=state.body.filter(b=>dateKey(b.at)!==day);
     ctx.render();return true;
   }
-  // Learn topics open one at a time; tapping the open one closes it.
+  // Learn: a topic opens as its own page, from the top; the list's place is remembered for Back.
   const learn=t.closest&&t.closest("[data-learn]");
   if(learn){
-    const id=learn.getAttribute("data-learn");
-    state.learnOpen=state.learnOpen===id?null:id;
-    state.revealLearn=!!state.learnOpen;ctx.render();return true;
+    const wrap=document.querySelector(".wrap.scroll");
+    state.learnListY=wrap?wrap.scrollTop:0;
+    state.learnOpen=learn.getAttribute("data-learn");state.scrollTo=0;
+    ctx.render();return true;
   }
+  const learnCat=t.closest&&t.closest("[data-learncat]");
+  if(learnCat){state.learnCat=learnCat.getAttribute("data-learncat");state.scrollTo=0;ctx.render();return true;}
   const bodyMet=t.closest&&t.closest("[data-bodymet]");
   if(bodyMet){state.bodyMetric=bodyMet.getAttribute("data-bodymet");ctx.render();return true;}
   const trend=t.closest&&t.closest("[data-trend]");

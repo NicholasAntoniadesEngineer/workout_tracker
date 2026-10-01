@@ -385,25 +385,46 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 /* Learn spans both columns, icon beside its name, so the grid stays three rows tall. */
 .hometile.wide{grid-column:1/-1;flex-direction:row;justify-content:center;gap:10px;
   padding-top:clamp(10px,1.5dvh,15px);padding-bottom:clamp(10px,1.5dvh,15px);}
-/* Learn: one topic open at a time, summary first, then the key points and links out. */
-.learnnote{font-size:var(--f-sm);color:var(--muted);margin:0 0 4px;text-align:center;}
-.learncard{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;
-  scroll-margin-top:12px;}
-.learncard.open{border-color:var(--accent);}
-.learnhead{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
-  background:none;border:none;color:var(--text);font:inherit;cursor:pointer;text-align:left;
-  padding:12px 14px;min-height:var(--tap);}
-.learnhead .lt{font-weight:700;font-size:calc(15px * var(--k));}
-.lchev{color:var(--accentText);font-weight:800;font-size:18px;flex:none;}
-.learnbody{padding:0 14px 12px;}
-.lsum{font-size:var(--f-md);line-height:1.5;margin:0 0 8px;}
-.llinks{display:flex;flex-direction:column;gap:6px;}
-.llink{display:flex;align-items:center;gap:8px;min-height:var(--tap);background:var(--panelHi);
-  border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-decoration:none;color:var(--text);}
-.llink .lk{flex:none;font-size:var(--f-tiny);font-weight:800;text-transform:uppercase;letter-spacing:1px;
-  color:var(--accentText);min-width:64px;}
-.llink .ll{flex:1;min-width:0;font-size:var(--f-sm);font-weight:600;}
-.llink .lx{flex:none;color:var(--muted);}
+/* Learn: tabs of topics; people as cards; each topic its own page with links grouped. */
+.learnnote{font-size:var(--f-sm);color:var(--muted);margin:14px 0 4px;text-align:center;}
+.ltabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px 12px;padding:2px;}
+.ltab{flex:none;background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:20px;
+  padding:8px 12px;min-height:38px;font:inherit;font-size:var(--f-md);font-weight:700;cursor:pointer;}
+.ltab.on{background:var(--accent);border-color:var(--accent);color:var(--onAccent);}
+.lgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.lcard{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;
+  background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;
+  color:var(--text);font:inherit;}
+.lcard:active{border-color:var(--accent);}
+.lname{font-weight:800;font-size:15px;line-height:1.2;}
+.lmeth{font-size:var(--f-sm);color:var(--accentText);font-weight:700;line-height:1.3;}
+.lcard .lpre{font-size:12px;color:var(--muted);line-height:1.35;margin-top:2px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.ltags{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto;padding-top:6px;}
+.ltag{font-size:10.5px;font-weight:700;color:var(--accentText);background:var(--accentDim);border-radius:10px;
+  padding:2px 7px;letter-spacing:.2px;}
+.llist{display:flex;flex-direction:column;gap:8px;}
+.lrow{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;column-gap:10px;row-gap:3px;
+  text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+  cursor:pointer;color:var(--text);font:inherit;}
+.lrow:active{border-color:var(--accent);}
+.lrow .lt{font-weight:800;font-size:15px;}
+.lrow .lpre{grid-column:1;font-size:var(--f-sm);color:var(--muted);line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.lrow .lchev{grid-column:2;grid-row:1/3;align-self:center;color:var(--accentText);font-size:22px;font-weight:800;}
+.ltopic{padding-bottom:8px;}
+.ltitle{font-size:24px;font-weight:800;letter-spacing:-.4px;line-height:1.15;}
+.lsubtitle{font-size:16px;font-weight:700;color:var(--accentText);margin-top:3px;}
+.ltopic .ltags{margin:8px 0 2px;padding-top:0;}
+.lsum{font-size:15px;line-height:1.6;margin:12px 0 4px;}
+.llinks{display:flex;flex-direction:column;gap:8px;}
+.llink{display:flex;align-items:center;gap:10px;min-height:var(--tap);background:var(--panel);
+  border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-decoration:none;color:var(--text);}
+.llink:active{border-color:var(--accent);}
+.llink .lbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.llink .ll{font-size:var(--f-md);font-weight:700;line-height:1.3;}
+.llink .ld{font-size:var(--f-sm);color:var(--muted);line-height:1.3;}
+.llink .lx{flex:none;color:var(--accentText);font-weight:800;}
 .homestat{text-align:center;font-size:12px;color:var(--muted);}
 /* Quiet footer on the home screen: feedback and sharing, found without hunting in Settings. */
 .homefoot{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:10px;
@@ -422,7 +443,6 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .wkday.future .wkdot{opacity:.4;}
 .wkday.now .wkinit{color:var(--accentText);font-weight:800;}
 /* Saved routines under the start button — one tap begins that day. */
-.routinelink{color:var(--accentText);margin-top:6px;}
 .ramp{font-size:var(--f-md);margin-bottom:6px;}
 /* Inline SVG icons: 24-grid strokes through currentColor, amber details via .acc/.accf. */
 /* Taps go to the button, never the drawing inside it, so every handler sees its button. */
@@ -737,6 +757,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .exbtn:not(.active):hover{background:var(--panelHi);}
   .exhbtn:hover{border-color:var(--accent);color:var(--accentText);}
   .chip.sheetitem:hover{border-color:var(--accent);}
+  .lcard:hover,.lrow:hover,.llink:hover,.ltab:not(.on):hover{border-color:var(--accent);}
 
   /* Selectable pills warm toward the accent. */
   .q:not(.on):hover,.setmult:hover{border-color:var(--accent);background:var(--accentDim);
