@@ -91,7 +91,7 @@ export const LEARN=[
       {t:"Rest-pause and drop-set training trial — Appl Physiol Nutr Metab",u:"https://pubmed.ncbi.nlm.nih.gov/34260860/",k:"study"}]},
     {id:"mentzer-recovery",title:"Heavy Duty: recovery & the Ideal Routine",
      summary:"Mentzer held that growth happens while you recover, not while you train, so very hard sessions needed long rest afterwards. His Ideal Routine rotated four short workouts, each with only a handful of working sets, spaced several days apart. Later consolidated versions trimmed sessions to a few compound lifts and stretched the rest further as trainees grew stronger.",
-     points:["Four short workouts on a rotating cycle","More rest days added as strength rises","Later versions cut to a few big lifts","Research favours hitting muscles about twice weekly"],
+     points:["Four short workouts on a rotating cycle","More rest days added as strength rises","Later versions cut to a few big lifts","Studies support weekly or twice-weekly training per muscle"],
      links:[
       {t:"Mentzer's Ideal Routine — mikementzer.org",u:"https://mikementzer.org/mike-mentzers-ideal-routine-a-heavy-duty-blueprint/",k:"article"},
       {t:"Time course of muscle protein synthesis — Can J Appl Physiol",u:"https://pubmed.ncbi.nlm.nih.gov/8563679/",k:"study"},
@@ -122,7 +122,8 @@ export const LEARN=[
      links:[
       {t:"Load vs repetition progression trial — PeerJ",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC9528903/",k:"study"},
       {t:"Progression models in resistance training — ACSM",u:"https://pubmed.ncbi.nlm.nih.gov/19204579/",k:"guideline"},
-      {t:"Evidence-based training explainers — Jeff Nippard (YouTube)",u:"https://www.youtube.com/@JeffNippard",k:"video"}]},
+      {t:"Evidence-based training explainers — Jeff Nippard (YouTube)",u:"https://www.youtube.com/@JeffNippard",k:"video"},
+      {t:"5/3/1 progression — Jim Wendler (official site)",u:"https://www.jimwendler.com/",k:"article"}]},
     {id:"reps",title:"Rep ranges: strength vs size",
      summary:"Muscle grows across a wide spread of loads, from heavy triples to light sets of twenty or more, as long as the sets are hard. Maximal strength responds best to heavier loads, partly because lifting heavy is a skill you have to practise. Many people use a heavier range for main lifts and moderate ranges for accessories.",
      points:["Heavier loads favour maximal strength","Size gains are similar across loads when effort is high","6–15 reps is a practical middle ground"],
@@ -136,7 +137,8 @@ export const LEARN=[
      links:[
       {t:"Weekly volume and muscle growth meta-analysis — J Sports Sci",u:"https://pubmed.ncbi.nlm.nih.gov/27433992/",k:"study"},
       {t:"Volume and frequency dose-response (2026) — Sports Medicine",u:"https://pubmed.ncbi.nlm.nih.gov/41343037/",k:"study"},
-      {t:"Hypertrophy and volume explainers — Renaissance Periodization (YouTube)",u:"https://www.youtube.com/@RenaissancePeriodization",k:"video"}]},
+      {t:"Hypertrophy and volume explainers — Renaissance Periodization (YouTube)",u:"https://www.youtube.com/@RenaissancePeriodization",k:"video"},
+      {t:"Training volume landmarks — RP Strength",u:"https://rpstrength.com/blogs/articles/training-volume-landmarks-muscle-growth",k:"article"}]},
     {id:"rest",title:"Rest between sets",
      summary:"Very short rests can leave you weaker on the next set, cutting into the useful work you get done. Pooled data now suggests rest length matters less for growth than once thought, though very short breaks may be slightly worse. A practical rule is to rest until you can repeat a quality set.",
      points:["Big compound lifts: about 2–3 minutes or more","Small isolation moves: 1–2 minutes often suffices","Rest long enough to keep rep quality high"],
@@ -149,7 +151,8 @@ export const LEARN=[
      links:[
       {t:"Training frequency and hypertrophy meta-analysis (2016) — Sports Medicine",u:"https://pubmed.ncbi.nlm.nih.gov/27102172/",k:"study"},
       {t:"How many times per week to train a muscle — J Sports Sci",u:"https://pubmed.ncbi.nlm.nih.gov/30558493/",k:"study"},
-      {t:"Volume and frequency dose-response (2026) — Sports Medicine",u:"https://pubmed.ncbi.nlm.nih.gov/41343037/",k:"study"}]},
+      {t:"Volume and frequency dose-response (2026) — Sports Medicine",u:"https://pubmed.ncbi.nlm.nih.gov/41343037/",k:"study"},
+      {t:"Easy Strength: frequent, submaximal practice — Experience Life",u:"https://experiencelife.lifetime.life/article/the-easy-strength-workout/",k:"article"}]},
     {id:"rir",title:"Effort & reps in reserve",
      summary:"Reps in reserve (RIR) is your estimate of how many more clean reps you could have managed. For size, sets finished close to failure appear to work better than easy ones, while strength gains look similar across a wide range of effort. Reaching absolute failure on every set isn't required and piles on fatigue.",
      points:["Finish most working sets with about 0–3 reps left","Save true failure for last sets or isolation work","Strength doesn't require grinding to failure","Your RIR guesses improve with practice"],
@@ -169,7 +172,8 @@ export const LEARN=[
      points:["Cut sets or load for a week; keep moving","Useful when progress stalls or joints feel worn","Evidence on ideal timing is still limited"],
      links:[
       {t:"One-week deload trial — PeerJ",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC10809978/",k:"study"},
-      {t:"Deloading practices survey — Sports Medicine Open",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC10948666/",k:"study"}]},
+      {t:"Deloading practices survey — Sports Medicine Open",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC10948666/",k:"study"},
+      {t:"5/3/1 with built-in deload weeks — BarBend",u:"https://barbend.com/5-3-1-program/",k:"article"}]},
   ]},
   {cat:"Workout types",topics:[
     {id:"strength",title:"Strength training basics",
@@ -178,27 +182,31 @@ export const LEARN=[
      links:[
       {t:"Resistance training prescription position stand (2026) — ACSM",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",k:"guideline"},
       {t:"Strength exercises — NHS",u:"https://www.nhs.uk/live-well/exercise/strength-exercises/",k:"guideline"},
-      {t:"Technique and joint-health videos — Squat University (YouTube)",u:"https://www.youtube.com/@SquatUniversity",k:"video"}]},
+      {t:"Technique and joint-health videos — Squat University (YouTube)",u:"https://www.youtube.com/@SquatUniversity",k:"video"},
+      {t:"Barbell technique videos — Starting Strength (YouTube)",u:"https://www.youtube.com/@StartingStrength",k:"video"}]},
     {id:"kettlebell",title:"Kettlebell training",
      summary:"Kettlebells blend strength and conditioning, mixing fast ballistic moves like swings with slower grinds like presses and goblet squats. The swing is a hip hinge: the power comes from driving the hips, not lifting with the arms. A small study found six weeks of swing training improved both maximal and explosive strength.",
      points:["Master the hinge and deadlift before swinging","Hips drive the bell; arms just guide it","Finish tall with glutes and abs braced","Start lighter than you think you need"],
      links:[
       {t:"Kettlebell swing training and strength — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/22580981/",k:"study"},
       {t:"Kettlebell training scoping review — BMC Sports Sci Med Rehabil",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6719359/",k:"study"},
-      {t:"Swing technique cues — StrongFirst",u:"https://www.strongfirst.com/two-swing-cues-to-unlock-power/",k:"article"}]},
+      {t:"Swing technique cues — StrongFirst",u:"https://www.strongfirst.com/two-swing-cues-to-unlock-power/",k:"article"},
+      {t:"Simple & Sinister standard (Pavel Tsatsouline) — StrongFirst",u:"https://www.strongfirst.com/achieve/sinister/",k:"article"}]},
     {id:"bands",title:"Resistance bands",
      summary:"Elastic bands get harder as they stretch, so tension peaks near the end of each rep. A meta-analysis found strength gains from band training similar to those from machines and free weights. Bands are cheap and portable, which makes them handy for home sessions, warm-ups and travel.",
      points:["Progress with thicker bands or less slack","Control the return; don't let it snap back","Check bands for nicks or tears before use"],
      links:[
       {t:"Elastic vs conventional resistance meta-analysis — SAGE Open Med",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6383082/",k:"study"},
-      {t:"Resistance training prescription position stand (2026) — ACSM",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",k:"guideline"}]},
+      {t:"Resistance training prescription position stand (2026) — ACSM",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",k:"guideline"},
+      {t:"Band-resisted speed work — Westside Barbell",u:"https://www.westside-barbell.com/blogs/the-blog/the-wsbb-guide-to-dynamic-effort-training",k:"article"}]},
     {id:"bodyweight",title:"Bodyweight & calisthenics",
      summary:"Your own body can supply plenty of resistance as long as you keep making the exercise harder. Progress by moving to tougher variations, such as incline to floor to feet-elevated push-ups, or by adding reps, slowing the tempo or pausing. In trials, progressive push-up training built strength comparable to bench pressing.",
      points:["Progress the variation, not just the reps","Slow tempos and pauses add difficulty","Balance pushing with pull-ups and rows"],
      links:[
       {t:"Progressive push-up training trial — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/29466268/",k:"study"},
       {t:"Push-up vs bench press strength trial — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/24983847/",k:"study"},
-      {t:"Strength exercises — NHS",u:"https://www.nhs.uk/live-well/exercise/strength-exercises/",k:"guideline"}]},
+      {t:"Strength exercises — NHS",u:"https://www.nhs.uk/live-well/exercise/strength-exercises/",k:"guideline"},
+      {t:"Grease-the-groove bodyweight articles — StrongFirst",u:"https://www.strongfirst.com/tag/grease-the-groove/",k:"article"}]},
     {id:"cardio",title:"Cardio & conditioning",
      summary:"Health guidelines call for at least 150 minutes of moderate or 75 minutes of vigorous aerobic activity a week, or a mix of the two. Moderate effort still lets you hold a conversation; vigorous leaves you only a few words at a time. Cardio and lifting complement each other, and spreading activity through the week works better than cramming it.",
      points:["150 min moderate or 75 min vigorous weekly","Some is better than none; more adds benefit","Pair cardio with two or more strength days"],
@@ -229,7 +237,8 @@ export const LEARN=[
      links:[
       {t:"Strength training vs stretching for range of motion — Healthcare",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC8067745/",k:"study"},
       {t:"Acute effects of stretching review — Appl Physiol Nutr Metab",u:"https://pubmed.ncbi.nlm.nih.gov/26642915/",k:"study"},
-      {t:"Flexibility exercises — NHS",u:"https://www.nhs.uk/live-well/exercise/flexibility-exercises/",k:"guideline"}]},
+      {t:"Flexibility exercises — NHS",u:"https://www.nhs.uk/live-well/exercise/flexibility-exercises/",k:"guideline"},
+      {t:"Mobility and joint-health videos — Squat University (YouTube)",u:"https://www.youtube.com/@SquatUniversity",k:"video"}]},
   ]},
   {cat:"Recovery & lifestyle",topics:[
     {id:"sleep",title:"Sleep & recovery",
