@@ -59,6 +59,13 @@ function shareMenu(){
   return h+"</div></div></div>";
 }
 
+// A newer version has arrived while the app was open.
+function updateToast(){
+  if(!state.updateReady||state.undo)return "";
+  return "<div class='toast'><span>KingsKiln has been updated</span>"+
+    "<button id='updatebtn'>Reload</button></div>";
+}
+
 // A set that beat everything before it: a short, warm banner — then it gets out of the way.
 function bestToast(){
   const b=state.best;
@@ -151,5 +158,5 @@ function feedbackModal(){
 
 export function paint(){
   document.getElementById("app").innerHTML=
-    (VIEWS[state.view]||logView)()+undoToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
+    (VIEWS[state.view]||logView)()+undoToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
 }

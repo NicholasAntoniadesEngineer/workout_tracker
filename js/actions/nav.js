@@ -4,6 +4,7 @@ import {getSession,state} from "../store.js";
 import {stepVerse} from "../views.js";
 
 export function handle(t,ctx){
+  if(t.id==="updatebtn"){location.reload();return true;}
   if(t.id==="undobtn"){ctx.restoreUndo();ctx.render();return true;}
 
   // Home is the hub the app opens to.

@@ -346,7 +346,15 @@ window.addEventListener("keydown",ev=>{
 
 // The whole app is precached, so it opens with no network at all; persistent storage
 // asks the browser never to evict months of history under storage pressure.
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+  // A new version took over while the app was open: offer a reload rather than leaving the
+  // old code running until the next cold start. Not on first install — nothing to update.
+  const hadController=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(hadController){state.updateReady=true;render();}
+  });
+}
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 
 load();
