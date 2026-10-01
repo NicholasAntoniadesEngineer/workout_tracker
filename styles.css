@@ -413,6 +413,15 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .lrow .lchev{grid-column:2;grid-row:1/3;align-self:center;color:var(--accentText);font-size:22px;font-weight:800;}
 .ltopic{padding-bottom:8px;}
+.lexlist{display:flex;flex-wrap:wrap;gap:6px;}
+.lex{font-size:var(--f-sm);font-weight:600;background:var(--panel);border:1px solid var(--line);
+  border-radius:16px;padding:5px 10px;}
+.lday{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;}
+.ldname{font-weight:800;font-size:15px;}
+.ldnote{font-size:var(--f-sm);color:var(--muted);margin-top:2px;}
+.ldex{margin:8px 0 10px;padding-left:20px;font-size:var(--f-md);line-height:1.55;}
+.ldacts{display:flex;gap:8px;flex-wrap:wrap;}
+.ldacts .btn{min-height:36px;}
 .ltitle{font-size:24px;font-weight:800;letter-spacing:-.4px;line-height:1.15;}
 .lsubtitle{font-size:16px;font-weight:700;color:var(--accentText);margin-top:3px;}
 .ltopic .ltags{margin:8px 0 2px;padding-top:0;}

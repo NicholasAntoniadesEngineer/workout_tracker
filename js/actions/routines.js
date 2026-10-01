@@ -4,8 +4,37 @@
 import {activeEx,addExerciseToDay,dropRoutine,findRoutine,getSession,saveRoutine,selectSession,
   state} from "../store.js";
 import {dateKey,makeSession,nowISO} from "../model.js";
+import {learnTopic} from "../learn.js";
+
+// A documented workout from Learn, by "topicId:index".
+function learnDay(ref){
+  const i=ref.lastIndexOf(":"),tp=learnTopic(ref.slice(0,i));
+  return tp&&tp.days?tp.days[+ref.slice(i+1)]||null:null;
+}
 
 export function handle(t,ctx){
+  // From a lifter's page: start their workout today, or keep it as a routine.
+  const lday=t.closest&&t.closest("[data-learnday]");
+  if(lday){
+    const d=learnDay(lday.getAttribute("data-learnday"));
+    if(d){
+      const today=dateKey(nowISO());
+      let ns=state.sessions.find(s=>dateKey(s.created)===today&&!s.ex.length&&!s.running);
+      if(!ns){ns=makeSession();state.sessions.push(ns);}
+      ns.title=d.name;selectSession(ns.id);
+      d.ex.forEach(addExerciseToDay);
+      state.exId=getSession().ex[0]?getSession().ex[0].id:null;
+      ctx.recallLast(activeEx());
+      state.origin="learn";state.sheet=false;state.view="log";ctx.markRefit();
+    }
+    ctx.render();return true;
+  }
+  const lsave=t.closest&&t.closest("[data-learnsave]");
+  if(lsave){
+    const d=learnDay(lsave.getAttribute("data-learnsave"));
+    if(d){ctx.snapshot("Saved routine "+d.name);saveRoutine(d.name,d.ex);}
+    ctx.render();return true;
+  }
   // Keep any day's exercises — today's or a past one's — as a named routine.
   const saveDay=t.closest&&t.closest("[data-saveroutine]");
   if(saveDay){

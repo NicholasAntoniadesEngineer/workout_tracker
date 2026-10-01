@@ -62,6 +62,22 @@ function topicView(tp){
     "<p class='lsum'>"+esc(tp.summary)+"</p>";
   if(tp.points&&tp.points.length)
     h+="<div class='picklbl'>Key points</div><ul class='cues'>"+tp.points.map(p=>"<li>"+esc(p)+"</li>").join("")+"</ul>";
+  // What they trained: their signature exercises, then documented workouts you can start or
+  // keep as a routine.
+  if(tp.exercises&&tp.exercises.length)
+    h+="<div class='picklbl'>Signature exercises</div><div class='lexlist'>"+
+      tp.exercises.map(n=>"<span class='lex'>"+esc(n)+"</span>").join("")+"</div>";
+  if(tp.days&&tp.days.length){
+    h+="<div class='picklbl'>Workouts</div>";
+    tp.days.forEach((d,i)=>{
+      const ref=esc(tp.id)+":"+i;
+      h+="<div class='lday'><div class='ldname'>"+esc(d.name)+"</div>"+
+        (d.note?"<div class='ldnote'>"+esc(d.note)+"</div>":"")+
+        "<ol class='ldex'>"+d.ex.map(n=>"<li>"+esc(n)+"</li>").join("")+"</ol>"+
+        "<div class='ldacts'><button class='btn primary tiny' data-learnday='"+ref+"'>Start this workout</button>"+
+        "<button class='btn ghost tiny' data-learnsave='"+ref+"'>Save as routine</button></div></div>";
+    });
+  }
   // Links grouped by what they are — read, watch, research — each with a line on what it covers.
   GROUPS.forEach(g=>{
     const links=(tp.links||[]).filter(l=>g[1].indexOf(l.k)>=0);
