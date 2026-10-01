@@ -1,14 +1,13 @@
 // The exercises a fresh install starts with in the picker, grouped by the movement they
 // train. A day begins empty; these are what you can choose from, not what you get.
 export const EXERCISE_GROUPS=[
-  ["Squat & lunge",["Squats","Slant board squats","Forward lunges","Backward lunges",
-    "Slant board steps","ATG split squat","Bulgarian split squat","Wall sit",
+  ["Squat & lunge",["Squats","Forward lunges","Backward lunges","Bulgarian split squat","Wall sit",
     "Front squat","Goblet squat","Box squat","Hack squat","Leg press","Leg extension",
     "Walking lunges","Step ups","Smith machine squat","Smith machine front squat",
     "Smith machine sumo squat","Smith machine split squat","Smith machine Bulgarian split squat",
     "Smith machine reverse lunge"]],
   ["Hinge & glutes",["Deadlift","Romanian deadlift","Kettlebell swings","Kettlebell deadlift",
-    "Single-leg RDL","Good mornings","Nordic curls","Glute bridge","Hip thrust",
+    "Single-leg RDL","Good mornings","Glute bridge","Hip thrust",
     "Cable pull-through","Trap bar deadlift","Sumo deadlift","Rack pull","Back extension",
     "Lying leg curl","Seated leg curl"]],
   ["Push",["Push ups","Pike push ups","Dips","Shoulder press",
@@ -26,7 +25,30 @@ export const EXERCISE_GROUPS=[
     "Single Arm High to Low woodchop","Single Arm Low to High woodchop"]],
   ["Carry & full body",["Farmer carry","Suitcase carry","Turkish get-up",
     "Kettlebell squat press clean","Burpees"]],
-  ["Lower leg",["Tibialis raises","Calf raises","Seated calf raise"]],
+  ["Lower leg",["Calf raises","Seated calf raise"]],
+  // Ben Patrick's Knees Over Toes / ATG work, by his names, gathered from his books and
+  // programs (Knee Ability Zero and Pro, the ATG Standards, his articles). Some overlap
+  // the sections above on purpose — this is the whole ATG library in one place.
+  ["ATG / Knees over toes",[
+    // Feet, shins and calves — where his programs start.
+    "Tibialis raises","FHL calf raise","KOT calf raise","Soleus raise","Single-leg calf raise",
+    // Knees and quads.
+    "Patrick step","Poliquin step-up","Petersen step-up","Slant step-down","Slant board steps",
+    "ATG split squat","KOT squat","Slant board squats","ATG squat","Sissy squat",
+    "Reverse Nordic","Reverse squat",
+    // Hamstrings, lower back and hips.
+    "Nordic curls","Hamstring roller","ATG RDL","Seated DB deadlift","Elephant walk",
+    "Jefferson curl","Seated good morning","Single-leg back extension","QL extension",
+    // Groin and mobility.
+    "Cossack squat","Standing pancake pulse","Couch stretch","Piriformis stretch",
+    "Pigeon push-up","Pigeon pose","Slant toe touch",
+    // Core and hip flexors.
+    "L-sit","Full knee raise","Hanging leg raise","Garhammer raise",
+    // Upper body and shoulders.
+    "Powell raise","External rotation","Trap 3 raise","Ring face pull","Cross bench pullover",
+    "ATG shoulder press","ATG dip","ATG chin-up",
+    // Sled and walking.
+    "Backward sled drag","Forward sled push","Backward walk"]],
   // A band and a door anchor cover every pattern — the travel kit, in one section.
   ["Bands",["Band squat","Band deadlift","Band Romanian deadlift","Band good morning",
     "Band lateral walk","Band glute kickback","Band chest press","Band overhead press",
