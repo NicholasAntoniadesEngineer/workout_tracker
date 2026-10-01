@@ -10,6 +10,7 @@ import {calendarView} from "./views/calendar.js";
 import {progressView} from "./views/progress.js";
 import {bodyView} from "./views/body.js";
 import {settingsView} from "./views/settings.js";
+import {learnView} from "./views/learn.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
 
@@ -19,7 +20,7 @@ export {setClockSeconds,setLabel,setSub,setsSummary,workoutLabel,
   workoutSub} from "./views/log.js";
 
 const VIEWS={home:homeView,history:historyView,calendar:calendarView,settings:settingsView,
-  progress:progressView,body:bodyView};
+  progress:progressView,body:bodyView,learn:learnView};
 
 // Destructive actions act at once and offer a few seconds of Undo, instead of a blocking
 // confirm dialog before and no way back after.

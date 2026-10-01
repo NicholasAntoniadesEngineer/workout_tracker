@@ -18,7 +18,7 @@ export function progressionHint(prevSets,opts){
   const work=(prevSets||[]).filter(x=>!x.wu);
   if(!work.length)return null;
   const unit=opts.unit||"reps",wu=opts.weightUnit||"kg";
-  const low=opts.low||8,top=opts.top||12;
+  const low=opts.low||10,top=opts.top||15;
   const best=Math.max(...work.map(x=>x.r));
   if(unit==="secs")return {text:"Last best "+best+"s — try "+(best+HOLD_STEP)+"s",apply:{r:best+HOLD_STEP}};
   if(unit==="m")return {text:"Last best "+best+"m — go a little farther",apply:{r:best}};

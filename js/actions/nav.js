@@ -16,6 +16,7 @@ export function handle(t,ctx){
   if(t.closest&&t.closest("#homedays")){state.view="history";ctx.render();return true;}
   if(t.closest&&t.closest("#homeprog")){state.view="progress";ctx.render();return true;}
   if(t.closest&&t.closest("#homebody")){state.view="body";ctx.render();return true;}
+  if(t.closest&&t.closest("#homelearn")){state.view="learn";ctx.render();return true;}
 
   if(t.closest&&(t.closest("#homecal")||t.closest("#calbtn"))){
     const c=getSession();

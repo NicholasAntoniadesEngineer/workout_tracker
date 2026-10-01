@@ -8,7 +8,7 @@ const SEC_PER_MIN=60;
 
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
-  bibleVersion:"web",feastSet:"western",restDay:0,repRange:"8-12",remindDays:"0,2,4",
+  bibleVersion:"web",feastSet:"western",restDay:0,progressRange:"10-15",remindDays:"0,2,4",
   remindTime:"07:00"};
 
 // History lives only on this device, so after a few workouts — and every few weeks after —
@@ -33,10 +33,11 @@ export function restTargetFor(session){
   return own||+state.settings.restTarget||0;
 }
 
-// The rep range progression works within, e.g. "10-14" → {low:10, top:14}.
+// The rep range progression works within, e.g. "10-15" → {low:10, top:15}: every set at 15
+// means go heavier next time.
 export function repRange(){
-  const p=String(state.settings.repRange||DEFAULTS.repRange).split("-").map(Number);
-  return {low:p[0]||8,top:p[1]||12};
+  const p=String(state.settings.progressRange||DEFAULTS.progressRange).split("-").map(Number);
+  return {low:p[0]||10,top:p[1]||15};
 }
 
 export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],body:[],routines:[],hiddenRoutines:[],

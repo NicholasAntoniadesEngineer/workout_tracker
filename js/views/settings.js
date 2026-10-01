@@ -64,8 +64,8 @@ export function settingsView(){
       [["Sunday",0],["Saturday",6]])+
 
     "<div class='setgroup'>Logging</div>"+
-    choiceRow("Rep range","Every set at the top of the range → go heavier next time.","repRange",
-      [["6–10","6-10"],["8–12","8-12"],["10–14","10-14"],["12–15","12-15"]])+
+    choiceRow("Rep range","Every set at the top of the range → go heavier next time.","progressRange",
+      [["6–10","6-10"],["8–12","8-12"],["10–15","10-15"],["12–15","12-15"]])+
     choiceRow("Starting reps","","startReps",START_REPS.map(n=>[String(n),n]))+
     toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
     choiceRow("Weight unit","","unit",[["kg","kg"],["lb","lb"]])+

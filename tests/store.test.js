@@ -274,10 +274,10 @@ describe("restTargetFor and repRange",()=>{
     s.ex[0].sets[0].at="2026-09-01T10:20:00.000Z";
     assert.equal(store.restTargetFor(s),180);
   });
-  test("repRange reads the setting, defaulting to 8–12",()=>{
+  test("repRange reads the setting, defaulting to 10–15",()=>{
     loadWith({});
-    assert.deepEqual(store.repRange(),{low:8,top:12});
-    loadWith({settings:{repRange:"10-14"}});
+    assert.deepEqual(store.repRange(),{low:10,top:15});
+    loadWith({settings:{progressRange:"10-14"}});
     assert.deepEqual(store.repRange(),{low:10,top:14});
   });
 });

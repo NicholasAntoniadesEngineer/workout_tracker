@@ -359,6 +359,27 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   border-radius:14px;padding:20px 12px;font-size:14px;font-weight:700;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;gap:8px;}
 .hticon{font-size:22px;}
+/* Learn spans the row under the four tiles, with a line saying what's inside. */
+.hometile.wide{flex-basis:100%;flex-direction:row;justify-content:center;flex-wrap:wrap;padding:16px 12px;}
+.hometile.wide .htsub{flex-basis:100%;font-size:12px;font-weight:600;color:var(--muted);}
+/* Learn: one topic open at a time, summary first, then the key points and links out. */
+.learnnote{font-size:var(--f-sm);color:var(--muted);margin:0 0 4px;text-align:center;}
+.learncard{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;}
+.learncard.open{border-color:var(--accent);}
+.learnhead{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:none;border:none;color:var(--text);font:inherit;cursor:pointer;text-align:left;
+  padding:12px 14px;min-height:var(--tap);}
+.learnhead .lt{font-weight:700;font-size:calc(15px * var(--k));}
+.lchev{color:var(--accentText);font-weight:800;font-size:18px;flex:none;}
+.learnbody{padding:0 14px 12px;}
+.lsum{font-size:var(--f-md);line-height:1.5;margin:0 0 8px;}
+.llinks{display:flex;flex-direction:column;gap:6px;}
+.llink{display:flex;align-items:center;gap:8px;min-height:var(--tap);background:var(--panelHi);
+  border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-decoration:none;color:var(--text);}
+.llink .lk{flex:none;font-size:var(--f-tiny);font-weight:800;text-transform:uppercase;letter-spacing:1px;
+  color:var(--accentText);min-width:64px;}
+.llink .ll{flex:1;min-width:0;font-size:var(--f-sm);font-weight:600;}
+.llink .lx{flex:none;color:var(--muted);}
 .homestat{text-align:center;font-size:12px;color:var(--muted);}
 /* Quiet footer on the home screen: feedback and sharing, found without hunting in Settings. */
 .homefoot{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:22px;
