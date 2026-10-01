@@ -131,8 +131,8 @@ export const LEARN=[
       {t:"Louie Simmons biography — Wikipedia",u:"https://en.wikipedia.org/wiki/Louie_Simmons",k:"article",d:"Career, records and the Westside gym"},
       {t:"Louie Simmons interview — YouTube search",u:"https://www.youtube.com/results?search_query=louie+simmons+westside+barbell+interview",k:"video",d:"Search results: interviews and seminars"}]},
     {id:"atg",title:"Ben Patrick: ATG (knees over toes)",era:"2010s–today",focus:"Knee resilience",
-     summary:"Ben Patrick, known online as the Kneesovertoesguy, founded ATG after years of his own knee problems. His programmes begin with very easy regressions and build strength through full, deep ranges using backward walking or sled work, tibialis raises, split squats, Nordic variations and more. Many people use it as a short, low-equipment add-on to their main training; see Knees over toes & knee resilience for what research does and doesn't show.",
-     points:["Start below your level and progress slowly","Long-range strength for knees, ankles and hips","Little equipment: slant board, sled or band","Independent research on specific moves is limited"],
+     summary:"Ben Patrick, known online as the Kneesovertoesguy, founded ATG after years of his own knee problems. His programmes begin with very easy regressions and build strength through full, deep ranges using backward walking or sled work, tibialis raises, split squats, Nordic variations and more. Many people use it as a short, low-equipment add-on to their main training.",
+     points:["Start below your level and progress slowly","Long-range strength for knees, ankles and hips","Little equipment: slant board, sled or band","A short daily add-on to your main training"],
      exercises:["Backward sled drag","Backward walk","Tibialis raises","Seated calf raise","Backward step-up","ATG split squat","Nordic curls","Couch stretch"],
      days:[
       {name:"Knee Ability sequence",note:"Sled first, lower legs next, then upper legs",ex:["Backward sled drag","Seated calf raise","Tibialis raises","Backward step-up","ATG split squat","Nordic curls","Couch stretch"]}],
@@ -339,7 +339,7 @@ export const LEARN=[
   ]},
   {cat:"Joints & resilience",topics:[
     {id:"kot",title:"Knees over toes & athletic knees",
-     summary:"The knees-over-toes approach, popularised by Ben Patrick (ATG), builds strength through the deep knee and ankle ranges that jumping, sprinting and cutting demand: tibialis raises, backward sled drags, split squats, and Nordic and reverse Nordic variations. Independent research backs the premise that knees travelling past the toes is normal; blocking it in a squat shifts stress to the hips and lower back. Many specific exercises still lack direct trials.",
+     summary:"The knees-over-toes approach, popularised by Ben Patrick (ATG), builds strength through the deep knee and ankle ranges that jumping, sprinting and cutting demand: tibialis raises, backward sled drags, split squats, and Nordic and reverse Nordic variations. Independent research backs the premise that knees travelling past the toes is normal; blocking it in a squat shifts stress to the hips and lower back.",
      points:["Tibialis raises: 2–3 sets of 15–25 reps","Backward sled drags: 5–10 minutes as a warm-up","Build split-squat depth gradually over months","Reviews don't show deep squats harm healthy knees"],
      links:[
       {t:"Official channel — The Kneesovertoesguy (YouTube)",u:"https://www.youtube.com/@TheKneesovertoesguy",k:"video",d:"Exercise demos and progressions from the originator"},
