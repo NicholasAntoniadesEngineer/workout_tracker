@@ -108,7 +108,7 @@ function render(){
   }
   // Filtering the list rebuilds the sheet each keystroke — keep the caret in the search box.
   if(state.focusSearch){
-    const el=document.getElementById("exsearch");
+    const el=document.getElementById(state.focusSearch==="learnsearch"?"learnsearch":"exsearch");
     if(el){el.focus();const v=el.value;try{el.setSelectionRange(v.length,v.length);}catch(e){}}
     state.focusSearch=false;
   }
@@ -281,9 +281,14 @@ function watchLearnSwipe(){
     on=false;
     const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<Math.abs(dy)*1.5)return;
-    const order=[null].concat(areaCats(state.learnArea||"training").map(c=>c.cat));
-    const i=Math.max(0,order.indexOf(state.learnCat||null));
-    const next=i+(dx<0?1:-1);
+    // On Learn's home a swipe flips Training and Health; in a category it moves to the next one.
+    if(!state.learnCat){
+      const area=state.learnArea||"training",want=dx<0?"health":"training";
+      if(area===want)return;
+      state.learnArea=want;state.learnQuery="";state.scrollTo=0;render();return;
+    }
+    const order=areaCats(state.learnArea||"training").map(c=>c.cat);
+    const next=order.indexOf(state.learnCat)+(dx<0?1:-1);
     if(next<0||next>=order.length)return;
     state.learnCat=order[next];state.scrollTo=0;
     render();
@@ -318,6 +323,7 @@ document.body.addEventListener("input",ev=>{
   if(id==="editwork")state.editWork=parseClock(ev.target.value);
   else if(id==="editrest")state.editRest=parseClock(ev.target.value);
   else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
+  else if(id==="learnsearch"){state.learnQuery=ev.target.value;state.focusSearch="learnsearch";render();}
 });
 
 // Closing the picker follows the same rules whether by Done, a tap on the scrim, or Esc:

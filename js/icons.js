@@ -9,6 +9,19 @@ const PATHS={
   home:"<path d='M4.5 10.8 L12 4.2 L19.5 10.8'/>"+
     "<path d='M6.8 9 V18 a1.6 1.6 0 0 0 1.6 1.6 h7.2 a1.6 1.6 0 0 0 1.6 -1.6 V9'/>"+
     "<path class='acc' d='M12 19.4 V14.6'/>",
+  // Learn categories.
+  people:"<circle cx='9' cy='8.5' r='3'/><path d='M3.5 19 a5.5 5.5 0 0 1 11 0'/>"+
+    "<circle class='acc' cx='16.5' cy='9.5' r='2.4'/><path class='acc' d='M15.5 14.2 a4.6 4.6 0 0 1 5 4.8'/>",
+  dumbbell:"<path d='M3.5 10 V14 M6.5 7.5 V16.5 M17.5 7.5 V16.5 M20.5 10 V14'/><path class='acc' d='M6.5 12 H17.5'/>",
+  target:"<circle cx='12' cy='12' r='8'/><circle cx='12' cy='12' r='4.2'/><circle class='accf' cx='12' cy='12' r='1.6'/>",
+  joint:"<path d='M7 4 L10.5 11.5 M13.5 12.5 L17 20'/><circle class='acc' cx='12' cy='12' r='2.6'/>"+
+    "<path d='M5.5 4 H8.5 M15.5 20 H18.5'/>",
+  pill:"<rect x='4' y='9' width='16' height='6.4' rx='3.2' transform='rotate(-35 12 12.2)'/>"+
+    "<path class='acc' d='M10.2 8.6 L13.9 15.8'/>",
+  bolt:"<path class='acc' d='M13 3.5 L6.5 13 H11.5 L10.5 20.5 L17.5 10.5 H12.5 Z'/>",
+  drop:"<path d='M12 4 C9 8 6.5 11 6.5 14 a5.5 5.5 0 0 0 11 0 C17.5 11 15 8 12 4 Z'/><path class='acc' d='M9.6 14.6 a2.6 2.6 0 0 0 2.4 2.4'/>",
+  moon:"<path d='M18.5 14.5 A7 7 0 1 1 9.5 5.5 A5.6 5.6 0 0 0 18.5 14.5 Z'/><circle class='accf' cx='17.5' cy='6.5' r='1.2'/>",
+  search:"<circle cx='10.5' cy='10.5' r='6'/><path class='acc' d='M15 15 L20 20'/>",
   book:"<path d='M12 6.5 C10 5 7.5 4.6 4.5 5 V18 C7.5 17.6 10 18 12 19.5 C14 18 16.5 17.6 19.5 18 V5 C16.5 4.6 14 5 12 6.5 Z'/>"+
     "<path class='acc' d='M12 6.5 V19.5'/>",
   chat:"<path d='M5 6.5 a1.5 1.5 0 0 1 1.5 -1.5 h11 a1.5 1.5 0 0 1 1.5 1.5 v8 a1.5 1.5 0 0 1 -1.5 1.5 h-7 l-4 3.5 v-3.5 a1.5 1.5 0 0 1 -1.5 -1.5 z'/>"+

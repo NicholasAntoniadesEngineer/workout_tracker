@@ -17,7 +17,7 @@ export function handle(t,ctx){
   if(t.closest&&t.closest("#homedays")){state.view="history";ctx.render();return true;}
   if(t.closest&&t.closest("#homeprog")){state.view="progress";ctx.render();return true;}
   if(t.closest&&t.closest("#homebody")){state.view="body";ctx.render();return true;}
-  if(t.closest&&t.closest("#homelearn")){state.view="learn";state.learnOpen=null;state.scrollTo=0;ctx.render();return true;}
+  if(t.closest&&t.closest("#homelearn")){state.view="learn";state.learnOpen=null;state.learnCat=null;state.learnQuery="";state.scrollTo=0;ctx.render();return true;}
   // From an exercise's sheet straight to the Learn topic behind it, opened.
   const jump=t.closest&&t.closest("[data-learnjump]");
   if(jump){
@@ -34,9 +34,12 @@ export function handle(t,ctx){
   }
 
   // Back walks toward the home hub: calendar to the days list, everything else home.
-  // In Learn, Back from a topic returns to its list, where you left it.
+  // In Learn, Back steps up a level: topic → its list (where you left it) → Learn home.
   if(t.closest&&t.closest("#backbtn")&&state.view==="learn"&&state.learnOpen){
     state.learnOpen=null;state.scrollTo=state.learnListY||0;ctx.render();return true;
+  }
+  if(t.closest&&t.closest("#backbtn")&&state.view==="learn"&&state.learnCat){
+    state.learnCat=null;state.scrollTo=0;ctx.render();return true;
   }
   if(t.closest&&t.closest("#backbtn")){
     state.view=state.view==="calendar"?"history":"home";

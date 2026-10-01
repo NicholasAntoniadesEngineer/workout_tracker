@@ -30,8 +30,9 @@ export function handle(t,ctx){
     state.learnOpen=learn.getAttribute("data-learn");state.scrollTo=0;
     ctx.render();return true;
   }
+  if(t.id==="learnsearchx"){state.learnQuery="";state.focusSearch="learnsearch";ctx.render();return true;}
   const learnArea=t.closest&&t.closest("[data-learnarea]");
-  if(learnArea){state.learnArea=learnArea.getAttribute("data-learnarea");state.learnCat=null;state.scrollTo=0;ctx.render();return true;}
+  if(learnArea){state.learnArea=learnArea.getAttribute("data-learnarea");state.learnCat=null;state.learnQuery="";state.scrollTo=0;ctx.render();return true;}
   const learnCat=t.closest&&t.closest("[data-learncat]");
   if(learnCat){state.learnCat=learnCat.getAttribute("data-learncat")||null;state.scrollTo=0;ctx.render();return true;}
   const bodyMet=t.closest&&t.closest("[data-bodymet]");
