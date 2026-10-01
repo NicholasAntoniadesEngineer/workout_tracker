@@ -3,7 +3,7 @@
 import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,exerciseGroup,
   exerciseTotal,fmtClock,fmtTime,isBandExercise,lastSet,restSeconds,secondsSince,setAnchor,
   shortDate,totals,workoutEnd,workoutSeconds} from "../model.js";
-import {activeEx,getSession,lastPerformance,newestFirst,state} from "../store.js";
+import {activeEx,allRoutines,getSession,lastPerformance,newestFirst,state} from "../store.js";
 import {est1RM} from "../charts.js";
 import {icon} from "../icons.js";
 import {esc} from "./common.js";
@@ -208,10 +208,11 @@ function exerciseSheet(session){
 
   // One sheet, two ways in: single exercises, or a whole routine at once.
   const tab=state.pickTab==="routines"?"routines":"ex";
+  const nRoutines=allRoutines().length;
   h+="<div class='seg picktabs'>"+
     "<button class='q"+(tab==="ex"?" on":"")+"' data-picktab='ex'>Exercises</button>"+
     "<button class='q"+(tab==="routines"?" on":"")+"' data-picktab='routines'>Routines"+
-      (state.routines.length?" <span class='rn'>"+state.routines.length+"</span>":"")+"</button></div>";
+      (nRoutines?" <span class='rn'>"+nRoutines+"</span>":"")+"</button></div>";
   h+=tab==="routines"?routinePane(session):exercisePane(rest);
 
   if(session.ex.length)
@@ -265,8 +266,9 @@ function exercisePane(rest){
 // Saved routines to drop in whole, and any day — this one or a past one — to keep as one.
 function routinePane(session){
   let h="";
-  if(state.routines.length){
-    state.routines.forEach(r=>{
+  const routines=allRoutines();
+  if(routines.length){
+    routines.forEach(r=>{
       h+="<div class='rrow'><button class='rpick' data-applyroutine='"+r.id+"'>"+
          "<span class='rt'>"+esc(r.name)+" <span class='rn'>"+r.ex.length+"</span></span>"+
          "<span class='rs'>"+esc(r.ex.join(" · "))+"</span></button>"+

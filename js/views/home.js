@@ -1,7 +1,7 @@
 // The landing page: the app opens here, not mid-workout. Says the date, offers to start or
 // continue today, and points at the calendar, history, progress and body — no filler.
 import {dateKey,nowISO} from "../model.js";
-import {newestFirst,state} from "../store.js";
+import {allRoutines,newestFirst,state} from "../store.js";
 import {VERSES} from "../verses.js";
 import {icon} from "../icons.js";
 import {esc} from "./common.js";
@@ -55,9 +55,10 @@ function sabbathWeek(){
 
 // Saved routines as one quiet row of chips — tap to start today from one.
 function routineRow(){
-  if(!state.routines.length)return "";
+  const routines=allRoutines();
+  if(!routines.length)return "";
   let h="<div class='routinerow'>";
-  state.routines.forEach(r=>{
+  routines.forEach(r=>{
     h+="<button class='chip rchip' data-routine='"+r.id+"'>"+esc(r.name)+
        " <span class='rn'>"+r.ex.length+"</span></button>";
   });
@@ -127,7 +128,8 @@ export function homeView(){
         "<div class='homeday'>"+esc(dateStr)+"</div>"+
         verseCard()+
         homeCta(running,finished,emptyOpen,doneToday)+
-        ((!running&&!emptyOpen)?routineRow():"")+
+        // Routines stay on offer until today has exercises in it.
+        ((!running&&!(emptyOpen&&emptyOpen.ex.length))?routineRow():"")+
       "</div>"+
       "<div class='homerow'>"+
         "<button class='hometile' id='homecal'>"+icon("calendar","ht")+"Calendar</button>"+

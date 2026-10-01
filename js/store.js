@@ -1,4 +1,4 @@
-import {RETIRED,SEED_EXERCISES,convertLength,convertWeight,dateKey,makeExercise,makeSession,normSet,
+import {BUILTIN_ROUTINES,RETIRED,SEED_EXERCISES,convertLength,convertWeight,dateKey,makeExercise,makeSession,normSet,
   options} from "./model.js";
 
 const KEY="workout_days_v2";
@@ -10,7 +10,7 @@ export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
   bibleVersion:"web",feastSet:"western",restDay:0};
 
-export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],body:[],routines:[],
+export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],body:[],routines:[],hiddenRoutines:[],
   settings:Object.assign({},DEFAULTS),
   reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,band:"",warmup:false,setStart:null,editing:null,
   adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
@@ -104,6 +104,7 @@ export function load(){
   state.removed=(saved&&saved.removed)||[];
   state.body=(saved&&saved.body)||[];
   state.routines=(saved&&saved.routines)||[];
+  state.hiddenRoutines=(saved&&saved.hiddenRoutines)||[];
   state.catalog=buildCatalog(saved);
   state.settings=Object.assign({},DEFAULTS,(saved&&saved.settings)||{});
   applySettings();
@@ -117,7 +118,8 @@ export function save(){
     localStorage.setItem(KEY,JSON.stringify(
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
-        setStart:state.setStart,body:state.body,routines:state.routines}));
+        setStart:state.setStart,body:state.body,routines:state.routines,
+        hiddenRoutines:state.hiddenRoutines}));
   }catch(e){}
 }
 
@@ -145,6 +147,25 @@ export function convertAllWeights(from,to){
     b.w=convertWeight(b.w,from,to);
     ["waist","chest","arm"].forEach(k=>{if(b[k])b[k]=convertLength(b[k],from,to);});
   });
+}
+
+// The routines on offer: the built-ins you haven't dropped, then your own. One of yours
+// with a built-in's name takes its place — re-saving a built-in is how you adjust it.
+export function allRoutines(){
+  const mine={};
+  state.routines.forEach(r=>{mine[key(r.name)]=true;});
+  const hidden=state.hiddenRoutines.map(key);
+  return BUILTIN_ROUTINES.filter(r=>!mine[key(r.name)]&&hidden.indexOf(key(r.name))<0)
+    .map(r=>({id:"b-"+key(r.name).replace(/[^a-z0-9]+/g,"-"),name:r.name,ex:r.ex.slice(),builtin:true}))
+    .concat(state.routines);
+}
+
+export function findRoutine(id){return allRoutines().find(r=>r.id===id)||null;}
+
+// A built-in is only hidden, and remembered so it stays gone; your own is deleted.
+export function dropRoutine(r){
+  if(!r.builtin){state.routines=state.routines.filter(x=>x.id!==r.id);return;}
+  if(state.hiddenRoutines.map(key).indexOf(key(r.name))<0)state.hiddenRoutines.push(r.name);
 }
 
 // One routine per name: saving again under the same name replaces its exercise list.
@@ -205,6 +226,9 @@ export function importBackup(d){
   (Array.isArray(d.body)?d.body:[]).forEach(b=>{if(b&&b.at)upsertBodyEntry(b);});
   (Array.isArray(d.routines)?d.routines:[]).forEach(r=>{
     if(r&&r.name&&Array.isArray(r.ex))saveRoutine(r.name,r.ex);
+  });
+  (Array.isArray(d.hiddenRoutines)?d.hiddenRoutines:[]).forEach(n=>{
+    if(n&&state.hiddenRoutines.map(key).indexOf(key(n))<0)state.hiddenRoutines.push(String(n));
   });
   if(d.settings&&typeof d.settings==="object")
     state.settings=Object.assign({},DEFAULTS,state.settings,d.settings);

@@ -1,7 +1,8 @@
 import {BANDS,addManualSets,addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,isBandExercise,
   makeExercise,makeSession,makeSessionOn,nowISO,parseClock,resetRestTimer,resetWorkout,
   restSeconds,setAnchor,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,workoutSeconds} from "./model.js";
-import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,getSession,importBackup,load,
+import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,dropRoutine,findRoutine,getSession,
+  importBackup,load,
   mergeSessions,removeFromCatalog,save,saveRoutine,selectSession,setSetting,state,
   upsertBodyEntry} from "./store.js";
 import {exportCSV,exportJSON,parseImport} from "./csv.js";
@@ -145,7 +146,7 @@ let undoTimer=null;
 function snapshot(label){
   state.undo={label,data:JSON.parse(JSON.stringify({sessions:state.sessions,
     sessionId:state.sessionId,exId:state.exId,catalog:state.catalog,removed:state.removed,
-    body:state.body,routines:state.routines}))};
+    body:state.body,routines:state.routines,hiddenRoutines:state.hiddenRoutines}))};
   if(undoTimer)clearTimeout(undoTimer);
   undoTimer=setTimeout(()=>{state.undo=null;render();},UNDO_MS);
 }
@@ -372,7 +373,7 @@ document.body.addEventListener("click",ev=>{
     state.shareMenu=null;
     if(kind==="app")shareApp();
     else if(m.type==="routine"){
-      const r=state.routines.find(x=>x.id===m.id);
+      const r=findRoutine(m.id);
       if(r)shareRoutine(r.name,r.ex);
     }else{
       const s=getSession();
@@ -385,10 +386,13 @@ document.body.addEventListener("click",ev=>{
   // Routines: start today from one (home), apply into the open day, save today's list, drop one.
   const startRoutine=t.closest&&t.closest("[data-routine]");
   if(startRoutine){
-    const r=state.routines.find(x=>x.id===startRoutine.getAttribute("data-routine"));
+    const r=findRoutine(startRoutine.getAttribute("data-routine"));
     if(r){
-      const ns=makeSession();ns.title=r.name;
-      state.sessions.push(ns);selectSession(ns.id);
+      // Today's blank day takes the routine, rather than leaving it behind as a second day.
+      const today=dateKey(nowISO());
+      let ns=state.sessions.find(s=>dateKey(s.created)===today&&!s.ex.length&&!s.running);
+      if(!ns){ns=makeSession();state.sessions.push(ns);}
+      ns.title=r.name;selectSession(ns.id);
       r.ex.forEach(addExerciseToDay);
       state.exId=getSession().ex[0]?getSession().ex[0].id:null;
       state.origin="home";state.sheet=false;
@@ -398,16 +402,16 @@ document.body.addEventListener("click",ev=>{
   }
   const applyRoutine=t.closest&&t.closest("[data-applyroutine]");
   if(applyRoutine){
-    const r=state.routines.find(x=>x.id===applyRoutine.getAttribute("data-applyroutine"));
+    const r=findRoutine(applyRoutine.getAttribute("data-applyroutine"));
     if(r)r.ex.forEach(addExerciseToDay);
     render();return;
   }
   const delRoutine=t.closest&&t.closest("[data-delroutine]");
   if(delRoutine){
-    const r=state.routines.find(x=>x.id===delRoutine.getAttribute("data-delroutine"));
+    const r=findRoutine(delRoutine.getAttribute("data-delroutine"));
     if(r){
       snapshot("Dropped routine "+r.name);
-      state.routines=state.routines.filter(x=>x.id!==r.id);
+      dropRoutine(r);
     }
     render();return;
   }
@@ -505,7 +509,8 @@ document.body.addEventListener("click",ev=>{
   if(t.id==="exportcsv"){exportCSV(state.sessions);return;}
   if(t.id==="exportjson"){
     exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
-      settings:state.settings,body:state.body,routines:state.routines});
+      settings:state.settings,body:state.body,routines:state.routines,
+      hiddenRoutines:state.hiddenRoutines});
     return;
   }
   if(t.id==="importcsv"){const cf=document.getElementById("csvfile");if(cf)cf.click();return;}
