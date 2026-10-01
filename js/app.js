@@ -55,9 +55,13 @@ function fit(){
 
 // Repainting throws the DOM away, which would jump the table back to set 1 every time
 // a set is logged. Carry the sideways scroll across, after fit() has settled the widths.
+// The page's own vertical scroll is kept too while the screen stays the same, so opening
+// something part-way down a long page doesn't jump back to the top.
 function grabScroll(){
   const keep={};
   document.querySelectorAll("[data-keepx]").forEach(el=>{keep[el.dataset.keepx]=el.scrollLeft;});
+  const wrap=document.querySelector(".wrap.scroll");
+  if(wrap)keep.__top={view:state.view,y:wrap.scrollTop};
   return keep;
 }
 
@@ -66,6 +70,17 @@ function putScroll(keep){
     const x=keep[el.dataset.keepx];
     if(x)el.scrollLeft=x;
   });
+  const wrap=document.querySelector(".wrap.scroll");
+  if(wrap&&keep.__top&&keep.__top.view===state.view)wrap.scrollTop=keep.__top.y;
+  // A Learn topic just opened: bring its heading to the top of the screen, smoothly.
+  if(state.revealLearn){
+    const card=document.querySelector(".learncard.open");
+    state.revealLearn=false;
+    if(card&&wrap){
+      const y=wrap.scrollTop+card.getBoundingClientRect().top-wrap.getBoundingClientRect().top-12;
+      wrap.scrollTo({top:Math.max(0,y),behavior:"smooth"});
+    }
+  }
 }
 
 function render(){

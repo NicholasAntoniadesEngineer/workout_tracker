@@ -363,7 +363,8 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .hometile .icn.ht{width:24px;height:24px;}
 /* Learn: one topic open at a time, summary first, then the key points and links out. */
 .learnnote{font-size:var(--f-sm);color:var(--muted);margin:0 0 4px;text-align:center;}
-.learncard{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;}
+.learncard{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;
+  scroll-margin-top:12px;}
 .learncard.open{border-color:var(--accent);}
 .learnhead{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
   background:none;border:none;color:var(--text);font:inherit;cursor:pointer;text-align:left;

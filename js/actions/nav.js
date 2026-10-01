@@ -21,7 +21,7 @@ export function handle(t,ctx){
   // From an exercise's sheet straight to the Learn topic behind it, opened.
   const jump=t.closest&&t.closest("[data-learnjump]");
   if(jump){
-    state.learnOpen=jump.getAttribute("data-learnjump");
+    state.learnOpen=jump.getAttribute("data-learnjump");state.revealLearn=true;
     state.exHist=false;state.sheet=false;state.view="learn";ctx.render();return true;
   }
 

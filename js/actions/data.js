@@ -26,7 +26,8 @@ export function handle(t,ctx){
   const learn=t.closest&&t.closest("[data-learn]");
   if(learn){
     const id=learn.getAttribute("data-learn");
-    state.learnOpen=state.learnOpen===id?null:id;ctx.render();return true;
+    state.learnOpen=state.learnOpen===id?null:id;
+    state.revealLearn=!!state.learnOpen;ctx.render();return true;
   }
   const bodyMet=t.closest&&t.closest("[data-bodymet]");
   if(bodyMet){state.bodyMetric=bodyMet.getAttribute("data-bodymet");ctx.render();return true;}
