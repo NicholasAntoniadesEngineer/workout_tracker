@@ -7,6 +7,8 @@
 export const HEALTH=[
   {cat:"Experts",topics:[
     {id:"h-lugavere",title:"Max Lugavere: whole foods for brain and body",era:"2010s–present",focus:"Nutrition & brain health",
+     people:[{name:"Max Lugavere",from:"New York City, New York, USA",known:"Health and science journalist; author of Genius Foods",
+       works:[{y:2018,t:"Genius Foods",k:"book"},{y:2018,t:"The Genius Life",k:"podcast"},{y:2020,t:"The Genius Life",k:"book"},{y:2022,t:"Genius Kitchen",k:"book"},{y:2024,t:"Little Empty Boxes",k:"film"}]}],
      summary:"Max Lugavere is a science journalist and author who turned to nutrition research after his mother was diagnosed with dementia. Across Genius Foods, The Genius Life and Genius Kitchen he makes the case for eating built on whole, nutrient-dense foods such as eggs, fish and meat, extra-virgin olive oil, leafy greens and berries, with ultra-processed food, refined flour, added sugar and industrial seed oils kept to a minimum. On his Genius Life podcast he regularly argues for prioritising protein, lifting weights and taking creatine for both muscle and brain.",
      points:["Build every meal around protein and whole, minimally processed food","Use extra-virgin olive oil in place of industrial seed oils","Keep added sugar and refined flour low to steady blood sugar","Takes creatine daily and discusses its brain as well as muscle benefits","Pairs diet with strength training, daily movement and protected sleep","Genius Kitchen gives 100+ gluten-free whole-food recipes for everyday cooking"],
      links:[
@@ -26,6 +28,8 @@ export const HEALTH=[
       {t:"Ep. 223: sleeping better with Roger Seheult — The Genius Life",u:"https://www.maxlugavere.com/podcast/223",k:"podcast",d:"Practical ways to improve sleep"},
       {t:"Official channel — Max Lugavere (YouTube)",u:"https://www.youtube.com/@maxlugavere",k:"video",d:"Full Genius Life episodes and short clips"}]},
     {id:"h-noakes",title:"Tim Noakes: drink to thirst and eat low-carb, high-fat",era:"1970s–present",focus:"Exercise science & LCHF nutrition",
+     people:[{name:"Tim Noakes",born:"1949",from:"Salisbury, Southern Rhodesia (now Harare, Zimbabwe)",known:"Emeritus professor of exercise science, University of Cape Town",
+       works:[{y:1985,t:"Lore of Running",k:"book"},{y:2011,t:"Challenging Beliefs: Memoirs of a Career",k:"book"},{y:2012,t:"Waterlogged",k:"book"},{y:2013,t:"The Real Meal Revolution",k:"book"},{y:2017,t:"Lore of Nutrition",k:"book"}]}],
      summary:"Tim Noakes is a South African physician and sports scientist, emeritus professor at the University of Cape Town and author of the running classic Lore of Running. His research described exercise-associated hyponatraemia, a dangerous drop in blood sodium caused by drinking too much during long events, and in Waterlogged he argues that athletes should drink to thirst rather than to a schedule. Since 2010 he has championed low-carbohydrate, high-fat (LCHF or Banting) eating, set out in The Real Meal Revolution and Lore of Nutrition and advanced through The Noakes Foundation.",
      points:["Drink to thirst during exercise; don't force fluids on a schedule","Over-drinking is the main driver of hyponatraemia in long events","Losing some body weight during a long race is normal","LCHF: cut sugar, grains and starches; eat meat, fish, eggs, vegetables and natural fats","Trained athletes can adapt to burn far more fat for fuel","He moved to LCHF in 2010 after decades of advising high-carb eating"],
      links:[
@@ -43,6 +47,8 @@ export const HEALTH=[
       {t:"Evidence for low-carbohydrate high-fat diets — Br J Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/28053201/",k:"study",d:"His narrative review supporting LCHF prescription"},
       {t:"Rethinking fat as a fuel for endurance exercise — Eur J Sport Sci",u:"https://pubmed.ncbi.nlm.nih.gov/25275931/",k:"study",d:"Co-authored case for fat-adapted endurance athletes"}]},
     {id:"h-huberman",title:"Andrew Huberman: protocols for caffeine, sleep and hydration",era:"2020s",focus:"Neuroscience & protocols",
+     people:[{name:"Andrew Huberman",born:"1975-09-26",from:"Palo Alto, California, USA",known:"Stanford neurobiologist; host of the Huberman Lab podcast",
+       works:[{y:2016,t:"Neural activity promotes long-distance, target-specific regeneration of adult retinal axons",k:"paper"},{y:2021,t:"Huberman Lab",k:"podcast"},{y:2023,t:"Brief structured respiration practices enhance mood and reduce physiological arousal",k:"paper"},{y:2026,t:"Protocols",k:"book"}]}],
      summary:"Andrew Huberman is a Stanford neuroscientist whose Huberman Lab podcast and free Neural Network newsletter turn physiology into step-by-step daily protocols. For athletes his most used toolkits cover caffeine timing, sleep, hydration and a tiered approach to supplements, and his six-part series with Andy Galpin goes deep on training, nutrition and recovery.",
      points:["Caffeine: start at 1–3 mg/kg, about 30 minutes before training","Delay caffeine 90–120 minutes after waking if you get afternoon crashes","Stop caffeine 8–12 hours before bed; theanine (100–200 mg) can blunt jitters","Get 10–30 minutes of outdoor light soon after waking; sleep cool and dark","Hydration: about 240 ml per hour over the first 10 waking hours, more when training","Supplements: behaviours and food first, then foundational, then targeted — one at a time"],
      links:[
@@ -62,6 +68,8 @@ export const HEALTH=[
       {t:"Dr. Rhonda Patrick: micronutrients for health — Huberman Lab",u:"https://www.hubermanlab.com/episode/dr-rhonda-patrick-micronutrients-for-health-and-longevity",k:"podcast",d:"Omega-3, vitamin D and other micronutrients"},
       {t:"Official channel — Andrew Huberman (YouTube)",u:"https://www.youtube.com/@hubermanlab",k:"video",d:"Full Huberman Lab episodes and clips"}]},
     {id:"h-ben-patrick",title:"Ben Patrick: joint-proofing for a long athletic life",era:"2010s–present",focus:"Joint health & athletic longevity",
+     people:[{name:"Ben Patrick",from:"USA",known:"Coach known as Kneesovertoesguy; founder of ATG",
+       works:[{y:2021,t:"Knee Ability Zero",k:"book"},{y:2023,t:"Back Ability Zero",k:"book"}]}],
      summary:"Ben Patrick, known online as the Kneesovertoesguy, rebuilt his own knees after surgeries and years of pain and went on to dunk again. His ATG approach strengthens joints through their full range with moves like backward sled walking, tibialis raises and knees-over-toes split squats, starting at an easy regression and progressing for years. He treats health as something trained in short daily sessions, and has said his training means he doesn't rely on supplements or other therapies.",
      points:["Start each joint at a pain-free regression, then progress patiently","Backward sled or treadmill walking to warm up and strengthen the knees","Train tibialis, calves and Achilles, not just the big lifts","Short, consistent daily sessions beat occasional long ones","Keep squat, hip-rotation and shoulder range by loading it","Training is his main recovery tool; he says he doesn't need supplements"],
      links:[
@@ -81,6 +89,8 @@ export const HEALTH=[
       {t:"Ben Patrick expert page — Bob & Brad",u:"https://www.bobandbrad.com/experts/ben-patrick",k:"article",d:"Profile and videos with two physical therapists"},
       {t:"Meet Ben Patrick — The Physical Movement",u:"https://thephysicalmovement.substack.com/p/tpm-336-meet-ben-patrick-knees-over",k:"article",d:"Profile of his coaching and youth work"}]},
     {id:"h-galpin",title:"Andy Galpin: fuel, fluids and recovery for performance",era:"2010s–present",focus:"Exercise physiology",
+     people:[{name:"Andy Galpin",from:"USA",known:"Exercise physiologist; directs Parker University's Human Performance Center",
+       works:[{y:2017,t:"Unplugged",k:"book"},{y:2024,t:"Perform with Dr. Andy Galpin",k:"podcast"}]}],
      summary:"Andy Galpin is a muscle physiologist who has worked with athletes across the NFL, NBA, UFC and Olympics and hosts the Perform podcast. His fuelling framework around training centres on four things: glucose, amino acids, hydration and gut comfort. He is known for the Galpin equation for drinking during exercise and for treating salt and creatine as performance basics.",
      points:["Galpin equation: body weight in kg × 2 = ml of fluid every 15–20 min of exercise","Add 50–100% more fluid in heat or heavy sweating","Rough daily baseline: about 33 ml of fluid per kg of body weight","Flat energy or focus in training can mean you're under-salted","Fuel around training with carbs, protein, fluid and gut-friendly foods","Creatine is a staple for muscle and possibly brain health"],
      links:[
@@ -100,6 +110,8 @@ export const HEALTH=[
       {t:"Diet, supplement and recovery protocol for peak performance — FoundMyFitness",u:"https://www.foundmyfitness.com/episodes/andy-galpin",k:"podcast",d:"The nutrition and supplement plan he gives athletes"},
       {t:"Official channel — Andy Galpin (YouTube)",u:"https://www.youtube.com/@DrAndyGalpin",k:"video",d:"Perform episodes and clips"}]},
     {id:"h-attia",title:"Peter Attia: protein, muscle and sleep for the long game",era:"2010s–present",focus:"Longevity medicine",
+     people:[{name:"Peter Attia",born:"1973-03-19",from:"Toronto, Ontario, Canada",known:"Physician focused on longevity medicine; author of Outlive",
+       works:[{y:2018,t:"The Peter Attia Drive",k:"podcast"},{y:2023,t:"Outlive",k:"book"}]}],
      summary:"Peter Attia is a physician focused on longevity, author of Outlive and host of The Drive podcast. He treats muscle mass, strength and cardiorespiratory fitness as central to a long, capable life, recommends protein at roughly double the RDA, and has explained in detail how alcohol and short sleep undermine recovery.",
      points:["Protein: about 1.6–2.2 g/kg/day, spread across meals","Pay attention to protein quantity, distribution and quality","Train strength, stability, zone 2 and VO2 max as pillars of healthspan","Treat sleep as a performance and health pillar","Alcohol fragments sleep and raises night-time heart rate","Use your own data (sleep, HRV) to see how habits affect you"],
      links:[
@@ -118,6 +130,8 @@ export const HEALTH=[
       {t:"Podcast archive — The Drive",u:"https://peterattiamd.com/podcast/archive/",k:"podcast",d:"Every episode of his podcast"},
       {t:"Official channel — Peter Attia MD (YouTube)",u:"https://www.youtube.com/@PeterAttiaMD",k:"video",d:"Episodes and clips from The Drive"}]},
     {id:"h-rhonda-patrick",title:"Rhonda Patrick: micronutrients, omega-3 and creatine",era:"2010s–present",focus:"Micronutrients & healthy ageing",
+     people:[{name:"Rhonda Patrick",from:"USA",known:"Biomedical scientist (PhD); founder and host of FoundMyFitness",
+       works:[{y:2014,t:"Vitamin D hormone regulates serotonin synthesis. Part 1: relevance for autism",k:"paper"},{y:2014,t:"FoundMyFitness",k:"podcast"},{y:2015,t:"Vitamin D and the omega-3 fatty acids control serotonin synthesis and action, part 2",k:"paper"},{y:2019,t:"Role of phosphatidylcholine-DHA in preventing APOE4-associated Alzheimer's disease",k:"paper"}]}],
      summary:"Rhonda Patrick is a biomedical scientist who hosts FoundMyFitness. She focuses on closing micronutrient gaps, with omega-3 fatty acids, vitamin D and magnesium high on her list, and has covered creatine for the brain as well as muscle, sauna as a heat-stress tool, and protein needs for building and keeping muscle with leading researchers.",
      points:["Her five priority supplements: omega-3, vitamin D, a multivitamin, sulforaphane and magnesium","Omega-3 (EPA and DHA) sits at the top of her list","Creatine for muscle, and studied at higher doses for the brain","Regular sauna use as a heat-stress tool alongside exercise","Protein needs for active people are higher than the RDA"],
      links:[
@@ -137,6 +151,8 @@ export const HEALTH=[
       {t:"#369 Rhonda Patrick on The Drive — Peter Attia",u:"https://peterattiamd.com/rhondapatrick3/",k:"podcast",d:"Protein needs, creatine and sauna"},
       {t:"Official channel — FoundMyFitness (YouTube)",u:"https://www.youtube.com/@FoundMyFitness",k:"video",d:"Her full episodes and clips"}]},
     {id:"h-walker",title:"Matthew Walker: sleep as a performance tool",era:"2010s–present",focus:"Sleep science",
+     people:[{name:"Matthew Walker",from:"Liverpool, England",known:"UC Berkeley professor of neuroscience and psychology; sleep researcher",
+       works:[{y:2002,t:"Practice with sleep makes perfect: sleep-dependent motor skill learning",k:"paper"},{y:2007,t:"The human emotional brain without sleep — a prefrontal amygdala disconnect",k:"paper"},{y:2017,t:"Why We Sleep",k:"book"},{y:2021,t:"The Matt Walker Podcast",k:"podcast"}]}],
      summary:"Matthew Walker is a neuroscience professor at UC Berkeley, author of Why We Sleep and host of The Matt Walker Podcast. He presents sleep as the base that training and nutrition sit on: short sleep cuts endurance and reaction time and raises injury risk, while a regular, cool, dark, caffeine- and alcohol-free night supports recovery.",
      points:["Same bed and wake time every day, weekends included","Keep the bedroom cool (around 18 °C / mid-60s °F) and dark","Caffeine lingers for many hours, so keep it to the morning","Alcohol fragments sleep and suppresses REM","Athletes need more sleep after hard training, not less"],
      links:[
@@ -150,6 +166,8 @@ export const HEALTH=[
       {t:"#127 AMA with Matthew Walker — The Drive",u:"https://peterattiamd.com/matthewwalkerama3/",k:"podcast",d:"Caffeine, fasting, blue light and REM sleep"},
       {t:"Matthew Walker on sleep — FoundMyFitness",u:"https://www.foundmyfitness.com/episodes/matthew-walker",k:"podcast",d:"Sleep for learning, immunity and brain clearance"}]},
     {id:"h-jeukendrup",title:"Asker Jeukendrup: carbs, caffeine and gut training",era:"1990s–present",focus:"Sports nutrition",
+     people:[{name:"Asker Jeukendrup",born:"1969",from:"Roermond, Limburg, Netherlands",known:"Exercise-metabolism scientist; former Gatorade Sports Science Institute global director",
+       works:[{y:2002,t:"High-Performance Cycling",k:"book"},{y:2004,t:"Sport Nutrition: An Introduction to Energy Production and Performance",k:"book"},{y:2014,t:"A Step Towards Personalized Sports Nutrition: Carbohydrate Intake During Exercise",k:"paper"},{y:2017,t:"Training the Gut for Athletes",k:"paper"}]}],
      summary:"Asker Jeukendrup is an exercise physiologist whose research shaped how athletes fuel with carbohydrate during endurance exercise, and he explains it on his mysportscience site. His work showed that mixing glucose and fructose lets athletes absorb more carbohydrate per hour, that the gut can be trained to handle it, and that caffeine works even for regular coffee drinkers.",
      points:["Under 30 minutes: no carbohydrate needed","1–2 hours: up to 30 g/h; 2–3 hours: up to 60 g/h","Over 2.5 hours: up to 90 g/h from glucose–fructose mixes","Practise race fuelling in training to train the gut","Caffeine still works for habitual coffee drinkers; gum acts fastest"],
      links:[
@@ -169,6 +187,8 @@ export const HEALTH=[
       {t:"Carbohydrate intake during exercise — Sports Med",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC4008807/",k:"study",d:"His paper on carb targets by event duration"},
       {t:"Training the gut for athletes — Sports Med",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5371619/",k:"study",d:"His review of gut adaptation to fuelling"}]},
     {id:"h-phillips",title:"Stuart Phillips: how much protein lifters really need",era:"2000s–present",focus:"Protein & muscle",
+     people:[{name:"Stuart Phillips",from:"United Kingdom",known:"McMaster kinesiology professor; Canada Research Chair in skeletal muscle health",
+       works:[{y:2009,t:"Ingested protein dose response of muscle and albumin protein synthesis after resistance exercise in young men",k:"paper"},{y:2012,t:"Resistance exercise load does not determine training-mediated hypertrophic gains in young men",k:"paper"},{y:2018,t:"A systematic review, meta-analysis and meta-regression of the effect of protein supplementation on resistance training-induced gains in muscle mass and strength in healthy adults",k:"paper"}]}],
      summary:"Stuart Phillips runs a muscle research lab at McMaster University and is one of the most cited protein scientists. His large meta-analysis found that the extra muscle from protein during resistance training levelled off around 1.6 g per kg of body weight per day on average, and he argues the RDA is too low for people who train and for older adults.",
      points:["About 1.6 g/kg/day captures most of the gain; aim a little higher for margin","Spread protein over the day rather than one big dose","Lifting drives growth; protein amplifies it","Both plant and animal proteins can work when total intake is high enough","Addresses common worries about high protein, kidneys and bones"],
      links:[
@@ -179,6 +199,8 @@ export const HEALTH=[
       {t:"Dietary protein for athletes — J Sports Sci",u:"https://pubmed.ncbi.nlm.nih.gov/22150425/",k:"study",d:"His review: from requirements to optimum adaptation"},
       {t:"Protein supplementation and resistance training meta-analysis — Br J Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/28698222/",k:"study",d:"His lab's analysis finding the 1.6 g/kg plateau"}]},
     {id:"h-norton",title:"Layne Norton: protein quality and physique nutrition",era:"2000s–present",focus:"Protein & physique nutrition",
+     people:[{name:"Layne Norton",from:"Evansville, Indiana, USA",known:"Nutritional sciences PhD, physique coach and competitive powerlifter",
+       works:[{y:2006,t:"Leucine Regulates Translation Initiation of Protein Synthesis in Skeletal Muscle after Exercise",k:"paper"},{y:2018,t:"The Complete Contest Prep Guide",k:"book"},{y:2019,t:"Fat Loss Forever: How to Lose Fat and KEEP It Off",k:"book"},{y:2020,t:"The Complete Reverse Dieting Guide: Your Path to Sustainable Results",k:"book"}]}],
      summary:"Layne Norton is a nutrition scientist and natural pro bodybuilder and powerlifter whose PhD research studied leucine and protein quality. He teaches that calories and total protein do most of the work, that each meal should carry enough high-quality protein to cross a leucine threshold, and that supplements should be ranked by evidence.",
      points:["Aim for roughly 2–3 g of leucine per meal from quality protein","Calories and protein first; timing and supplements are fine-tuning","Ranks supplements into tiers by strength of evidence","Flexible, sustainable dieting over rigid food rules"],
      links:[
@@ -192,6 +214,8 @@ export const HEALTH=[
       {t:"Six keys to building muscle with Layne Norton — The Genius Life",u:"https://www.maxlugavere.com/podcast/253",k:"podcast",d:"Muscle and longevity fundamentals"},
       {t:"Leucine content of a meal and muscle protein synthesis — J Nutr",u:"https://pubmed.ncbi.nlm.nih.gov/19403715/",k:"study",d:"His study on the meal leucine threshold"}]},
     {id:"h-schoenfeld",title:"Brad Schoenfeld: the anabolic window, revisited",era:"2000s–present",focus:"Hypertrophy & nutrient timing",
+     people:[{name:"Brad Schoenfeld",born:"1962-08-14",from:"New York City, New York, USA",known:"Lehman College exercise science professor and muscle-hypertrophy researcher",
+       works:[{y:2010,t:"The Mechanisms of Muscle Hypertrophy and Their Application to Resistance Training",k:"paper"},{y:2012,t:"The M.A.X. Muscle Plan",k:"book"},{y:2013,t:"Nutrient timing revisited: is there a post-exercise anabolic window?",k:"paper"},{y:2016,t:"Science and Development of Muscle Hypertrophy",k:"book"},{y:2016,t:"Strong & Sculpted",k:"book"},{y:2017,t:"Dose-response relationship between weekly resistance training volume and increases in muscle mass",k:"paper"}]}],
      summary:"Brad Schoenfeld is a hypertrophy researcher at Lehman College. With Alan Aragon he re-examined the post-workout anabolic window, and his meta-analysis of protein timing found that once total daily protein was matched, eating right after training made little difference. His practical line: hit your daily protein, spread it over several meals, and don't watch the clock.",
      points:["Total daily protein matters far more than exact timing","If you trained fasted, eat protein soon after","About 0.4 g/kg per meal across at least four meals","Pre- and post-workout meals within about 4–6 hours cover the window"],
      links:[
@@ -203,6 +227,8 @@ export const HEALTH=[
       {t:"Protein timing meta-analysis — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC3879660/",k:"study",d:"Timing effect vanished once total protein matched"},
       {t:"How much protein per meal — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5828430/",k:"study",d:"His 0.4 g/kg-per-meal distribution guidance"}]},
     {id:"h-helms",title:"Eric Helms: nutrition for natural lifters",era:"2010s–present",focus:"Natural bodybuilding nutrition",
+     people:[{name:"Eric Helms",from:"USA",known:"Strength and physique researcher at AUT's SPRINZ, New Zealand",
+       works:[{y:2014,t:"Evidence-based recommendations for natural bodybuilding contest preparation: nutrition and supplementation",k:"paper"},{y:2015,t:"The Muscle and Strength Pyramid: Nutrition",k:"book"},{y:2015,t:"The Muscle and Strength Pyramid: Training",k:"book"}]}],
      summary:"Eric Helms is a researcher at Auckland University of Technology, a coach with 3D Muscle Journey and a natural bodybuilder and powerlifter. His Muscle and Strength Pyramid ranks nutrition priorities from the base up, and his research set widely used targets for protein and rate of loss in lean, dieting athletes.",
      points:["Priority order: adherence, calories, macros, micronutrients, timing, supplements","Cutting lean: 2.3–3.1 g protein per kg of lean mass","Contest prep: lose about 0.5–1% of body weight per week","Off-season: a small surplus and slow gain to limit fat"],
      links:[
@@ -213,6 +239,8 @@ export const HEALTH=[
       {t:"Protein during caloric restriction in lean athletes — Int J Sport Nutr Exerc Metab",u:"https://pubmed.ncbi.nlm.nih.gov/24092765/",k:"study",d:"His case for higher protein when cutting"},
       {t:"Nutrition for bodybuilders in the off-season — Sports",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6680710/",k:"study",d:"Co-authored guide to surplus and gain rate"}]},
     {id:"h-israetel",title:"Mike Israetel & RP: diet priorities and phases",era:"2010s–present",focus:"Diet structure & phases",
+     people:[{name:"Mike Israetel",born:"1984-05-30",from:"Moscow, Soviet Union",known:"Sport physiologist (PhD) and co-founder of Renaissance Periodization",
+       works:[{y:2012,t:"Renaissance Periodization",k:"programme"},{y:2015,t:"Scientific Principles of Strength Training",k:"book"},{y:2020,t:"The Renaissance Diet 2.0",k:"book"},{y:2021,t:"Scientific Principles of Hypertrophy Training",k:"book"}]}],
      summary:"Mike Israetel co-founded Renaissance Periodization (RP), whose diet approach ranks priorities: calories first, then macronutrients (especially protein), meal timing, food quality, and supplements last. RP teaches that the top few deliver most of the results and that fat loss and muscle gain work best as planned phases.",
      points:["Rough weighting: calories ~50%, macros ~30%, timing ~10%, food quality and supplements ~5% each","Protein around 1 g per lb of body weight per day","4–5 meals a day, roughly every 3–5 hours","Around 2–4 litres of water daily","The best diet is the one you can actually follow"],
      links:[
@@ -225,6 +253,12 @@ export const HEALTH=[
   ]},
   {cat:"What the lifters say",topics:[
     {id:"h-golden-era",title:"Arnold, Mentzer & Yates on eating for size",era:"1970s–1990s",focus:"Bodybuilding nutrition",
+     people:[{name:"Arnold Schwarzenegger",born:"1947-07-30",from:"Thal, Styria, Austria",known:"Seven-time Mr. Olympia; actor and former governor of California",
+       works:[{y:1977,t:"Arnold: The Education of a Bodybuilder",k:"book"},{y:1977,t:"Pumping Iron",k:"film"},{y:1982,t:"Conan the Barbarian",k:"film"},{y:1984,t:"The Terminator",k:"film"},{y:1985,t:"Encyclopedia of Modern Bodybuilding",k:"book"},{y:2012,t:"Total Recall: My Unbelievably True Life Story",k:"book"},{y:2023,t:"Be Useful: Seven Tools for Life",k:"book"},{y:2023,t:"Arnold's Pump Club",k:"podcast"}]},
+       {name:"Mike Mentzer",born:"1951-11-15",died:"2001-06-10",from:"Philadelphia, Pennsylvania, USA",known:"1978 Mr. Universe with a perfect score; creator of Heavy Duty",
+       works:[{y:1980,t:"Heavy Duty Nutrition",k:"book"},{y:1982,t:"Mike Mentzer's Complete Book of Weight Training",k:"book"},{y:1993,t:"Heavy Duty",k:"book"},{y:1996,t:"Heavy Duty II: Mind and Body",k:"book"},{y:2003,t:"High-Intensity Training the Mike Mentzer Way",k:"book"}]},
+       {name:"Dorian Yates",born:"1962-04-19",from:"Solihull, England",known:"Six-time Mr. Olympia, 1992–1997",
+       works:[{y:1993,t:"Blood and Guts",k:"book"},{y:1998,t:"A Portrait of Dorian Yates",k:"book"},{y:2024,t:"Shadow Talk with Dorian Yates",k:"podcast"}]}],
      summary:"The golden-era champions ate in very different ways. Arnold Schwarzenegger now aims for at least 150 g of protein a day while eating far less meat than in his prime, and says plant and animal diets both build muscle when protein is high enough. Mike Mentzer's Heavy Duty Nutrition called for a balanced diet from all the food groups, carbohydrate-led and more modest in protein than most bodybuilders believed. Dorian Yates ate around 6,500–7,000 calories a day in his off-season from frequent whole-food meals.",
      points:["Arnold: 150 g+ protein daily; about 80% less meat than before","Arnold: simple, repeated meals beat perfect food choices","Mentzer: roughly 60% carbs, 25% protein, 15% fat from all food groups","Yates: oats, eggs, rice, chicken and turkey across many meals","Yates: shakes before and after training in the off-season"],
      links:[
@@ -234,6 +268,10 @@ export const HEALTH=[
       {t:"Dorian Yates' 7,000-calorie off-season diet — Generation Iron",u:"https://generationiron.com/dorian-yates-7000-calorie-offseason-diet-bodybuilding-prime/",k:"article",d:"What Yates ate during his Olympia years"},
       {t:"Shadow Talk with Dorian Yates — Apple Podcasts",u:"https://podcasts.apple.com/us/podcast/shadow-talk-with-dorian-yates/id1729820105",k:"podcast",d:"His own podcast on fitness and health"}]},
     {id:"h-strength-coaches",title:"Wendler & Dan John: eat like an adult",era:"2000s–present",focus:"Strength coaching",
+     people:[{name:"Jim Wendler",from:"USA",known:"Powerlifter and strength coach who created the 5/3/1 programme",
+       works:[{y:2009,t:"5/3/1: The Simplest and Most Effective Training System to Increase Raw Strength",k:"book"},{y:2011,t:"5/3/1 for Powerlifting",k:"book"},{y:2017,t:"5/3/1 Forever: Simple and Effective Programming for Size, Speed and Strength",k:"book"}]},
+       {name:"Dan John",born:"1957",from:"USA",known:"Strength coach, All-American discus thrower and author",
+       works:[{y:2009,t:"Never Let Go: A Philosophy of Lifting, Living and Learning",k:"book"},{y:2011,t:"Easy Strength",k:"book"},{y:2011,t:"Mass Made Simple",k:"book"},{y:2012,t:"Intervention: Course Corrections for the Athlete and Trainer",k:"book"},{y:2015,t:"Can You Go?",k:"book"}]}],
      summary:"Jim Wendler and Dan John keep nutrition blunt and simple. Wendler argues a young lifter can out-train a sloppy diet for a while but not age or years of bad habits, and for gaining size he favours a daily pound of ground beef over the old gallon-of-milk advice. Dan John tells lifters to put protein first at every meal and build the rest from whole foods, with a menu and shopping list doing the heavy lifting.",
      points:["Wendler: protein and carbs at every meal, eaten fairly cleanly","Wendler: you can't out-train age; eat like a grown-up","Wendler: gaining phase built on about a pound of ground beef a day","Dan John: protein first at every meal","Dan John: mostly protein, vegetables and water; plan meals and shop from a list"],
      links:[
@@ -243,6 +281,8 @@ export const HEALTH=[
       {t:"Day eleven: protein first — Dan John",u:"https://coachdanjohn.substack.com/p/day-eleven-protein-first",k:"article",d:"Why every meal should start with protein"},
       {t:"Day 26: eat like an adult — Dan John",u:"https://coachdanjohn.substack.com/p/day-26-eat-like-an-adult",k:"article",d:"Revisiting simple, grown-up eating habits"}]},
     {id:"h-nippard",title:"Jeff Nippard: science-based supplements and meals",era:"2010s–present",focus:"Evidence-based bodybuilding",
+     people:[{name:"Jeff Nippard",born:"1990-10-06",from:"Grand Falls-Windsor, Newfoundland and Labrador, Canada",known:"Science-based lifting YouTuber and natural bodybuilder",
+       works:[{y:2024,t:"The Muscle Ladder: Get Jacked Using Science",k:"book"}]}],
      summary:"Jeff Nippard is a natural bodybuilder and powerlifter with a science background whose videos summarise research for lifters. He rates creatine monohydrate, protein powder and caffeine as the well-supported basics, covers what to eat around training, and has explained how to bulk and how to lose fat while gaining muscle.",
      points:["Creatine monohydrate, protein powder and caffeine as the core basics","Protein powder is a convenience, not a requirement","Plan meals before, during and after training around your session","Bulk slowly to limit fat gain; recomposition is possible for many lifters"],
      links:[
