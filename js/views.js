@@ -13,6 +13,7 @@ import {settingsView} from "./views/settings.js";
 import {learnView} from "./views/learn.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
+import {VERSES} from "./verses.js";
 
 export {esc} from "./views/common.js";
 export {stepVerse} from "./views/home.js";
@@ -98,6 +99,12 @@ function summaryModal(){
     h+="<div class='picklbl'>New bests</div>";
     sm.bests.forEach(b=>{h+="<div class='histrow'><span class='histdate'>"+esc(b.name)+"</span>"+
       "<span class='histsets mono'>"+esc(b.label)+"</span></div>";});
+  }
+  // A verse to close on, chosen by the workout so it stays the same each time it's opened.
+  if(VERSES.length){
+    let n=0;for(const c of String(s.id))n=(n*31+c.charCodeAt(0))>>>0;
+    const v=VERSES[n%VERSES.length],txt=state.settings.bibleVersion==="kjv"?v.kjv:v.web;
+    h+="<div class='sumverse'>"+esc(txt)+" <span class='sv-ref'>"+esc(v.ref)+"</span></div>";
   }
   h+="<button class='btn primary sumshare' id='summaryshare'>"+icon("photo","sm")+"Share as image</button>";
   return h+"</div></div></div>";

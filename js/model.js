@@ -90,6 +90,25 @@ export function exerciseGroup(name){
   return GROUP_OF[String(name||"").trim().toLowerCase()]||OTHER_GROUP;
 }
 
+// Lifts done on a standard Olympic bar, where the plates per side are worth working out.
+const BARBELL_LIFTS=["deadlift","romanian deadlift","sumo deadlift","rack pull","squats","front squat",
+  "box squat","bench press","inclined bench press","decline bench press","good mornings","hip thrust",
+  "barbell row","barbell curl","trap bar deadlift"];
+export function isBarbellLift(name){return BARBELL_LIFTS.indexOf(String(name||"").trim().toLowerCase())>=0;}
+
+// Plates per side for a total weight on a standard bar (20kg / 45lb), largest first.
+// Returns null when the bar alone is the weight or more than it; inexact loads flag `exact`.
+const PLATES={kg:[25,20,15,10,5,2.5,1.25],lb:[45,35,25,10,5,2.5]};
+const BAR={kg:20,lb:45};
+export function platesPerSide(total,unit){
+  const u=unit==="lb"?"lb":"kg";
+  let side=(+total-BAR[u])/2;
+  if(!(side>0))return null;
+  const out=[];
+  PLATES[u].forEach(p=>{while(side>=p-1e-9){out.push(p);side=Math.round((side-p)*1000)/1000;}});
+  return {plates:out,exact:side<1e-9,bar:BAR[u]};
+}
+
 // Bands carry a resistance range, not a fixed weight — three bands, labelled in pounds.
 export const BANDS=["15–35","30–60","40–80"];
 export function isBandExercise(name){return exerciseGroup(name)==="Bands";}

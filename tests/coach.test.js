@@ -162,3 +162,25 @@ describe("reminderICS",()=>{
     assert.equal(reminderICS([],"07:00",now),"");
   });
 });
+
+import {platesPerSide,isBarbellLift} from "../js/model.js";
+describe("platesPerSide",()=>{
+  test("loads the largest plates first on a 20kg bar",()=>{
+    assert.deepEqual(platesPerSide(112.5,"kg").plates,[25,20,1.25]);
+    assert.equal(platesPerSide(112.5,"kg").exact,true);
+  });
+  test("works in pounds on a 45lb bar",()=>{
+    assert.deepEqual(platesPerSide(225,"lb").plates,[45,45]);
+  });
+  test("the bar alone needs no plates",()=>{
+    assert.equal(platesPerSide(20,"kg"),null);
+    assert.equal(platesPerSide(0,"kg"),null);
+  });
+  test("flags a load the plates can't make exactly",()=>{
+    assert.equal(platesPerSide(21,"kg").exact,false);
+  });
+  test("knows which lifts use a barbell",()=>{
+    assert.ok(isBarbellLift("Deadlift"));
+    assert.ok(!isBarbellLift("Goblet squat"));
+  });
+});

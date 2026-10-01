@@ -1,6 +1,6 @@
 // The logging screen: the day's table of sets, the panel that logs them, the exercise
 // strip and picker sheet, and the two-clock timer bar.
-import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,canResume,exerciseGroup,
+import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,canResume,exerciseGroup,isBarbellLift,platesPerSide,
   exerciseTotal,fmtClock,isBandExercise,lastSet,restSeconds,secondsSince,
   shortDate,totals,unitOf,workoutOffset,workoutSeconds} from "../model.js";
 import {activeEx,allRoutines,getSession,lastPerformance,newestFirst,repRange,restTargetFor,
@@ -120,6 +120,13 @@ function numEditor(a){
   return h;
 }
 
+// Under the weight on a barbell lift: what goes on each side of a standard bar.
+function plateCaption(a,unit){
+  const p=a&&isBarbellLift(a.name)?platesPerSide(state.weight,unit):null;
+  if(!p)return esc(unit)+" &middot; 0 = bodyweight";
+  return (p.exact?"":"&asymp; ")+"per side "+p.plates.join(" + ");
+}
+
 function logPanel(){
   const a=activeEx();
   // No header while logging: the Log set button already names the exercise, and the space
@@ -157,7 +164,7 @@ function logPanel(){
      numTile(UNIT_LABEL[u],"reps",state.reps,"tap to type")+
      (isBand?
        numTile("Band","band",state.band||"None","lb &middot; &plusmn; cycles",true):
-       numTile("Weight","weight",state.weight,esc(unit)+" &middot; 0 = bodyweight"))+
+       numTile("Weight","weight",state.weight,plateCaption(a,unit)))+
      "</div>";
   // Per-side doubling and warm-up are per set; the unit belongs to the exercise itself, and
   // its button steps reps → seconds → metres, naming whichever is in use.
