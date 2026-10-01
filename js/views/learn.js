@@ -24,8 +24,10 @@ function tags(tp){
   return list.length?"<div class='ltags'>"+list.map(x=>"<span class='ltag'>"+esc(x)+"</span>").join("")+"</div>":"";
 }
 
+// People — lifters, coaches, scientists — show as cards; everything else as rows. A category
+// is about people when its topics carry an era or focus.
 function section(c){
-  if(c.cat==="Lifters & methods"){
+  if(c.cat==="Lifters & methods"||c.topics.some(t=>t.era||t.focus)){
     // People as cards: who, what they're known for, and when.
     return "<div class='lgrid'>"+c.topics.map(tp=>{
       const t=splitTitle(tp.title);
