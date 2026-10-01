@@ -27,7 +27,15 @@ export function handle(t,ctx){
   if(learn){
     const wrap=document.querySelector(".wrap.scroll");
     state.learnListY=wrap?wrap.scrollTop:0;
-    state.learnOpen=learn.getAttribute("data-learn");state.scrollTo=0;
+    state.learnOpen=learn.getAttribute("data-learn");state.learnTab="overview";state.scrollTo=0;
+    ctx.render();return true;
+  }
+  const ltab=t.closest&&t.closest("[data-learntab]");
+  if(ltab){state.learnTab=ltab.getAttribute("data-learntab");state.scrollTo=0;ctx.render();return true;}
+  // The search icon opens the search box (focused); tapping it again closes and clears it.
+  if(t.closest&&t.closest("#learnsearchtoggle")){
+    state.learnSearching=!(state.learnSearching||state.learnQuery);
+    if(!state.learnSearching)state.learnQuery="";else state.focusSearch="learnsearch";
     ctx.render();return true;
   }
   if(t.id==="learnsearchx"){state.learnQuery="";state.focusSearch="learnsearch";ctx.render();return true;}

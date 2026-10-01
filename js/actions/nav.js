@@ -17,11 +17,11 @@ export function handle(t,ctx){
   if(t.closest&&t.closest("#homedays")){state.view="history";ctx.render();return true;}
   if(t.closest&&t.closest("#homeprog")){state.view="progress";ctx.render();return true;}
   if(t.closest&&t.closest("#homebody")){state.view="body";ctx.render();return true;}
-  if(t.closest&&t.closest("#homelearn")){state.view="learn";state.learnOpen=null;state.learnCat=null;state.learnQuery="";state.scrollTo=0;ctx.render();return true;}
+  if(t.closest&&t.closest("#homelearn")){state.view="learn";state.learnOpen=null;state.learnCat=null;state.learnQuery="";state.learnSearching=false;state.scrollTo=0;ctx.render();return true;}
   // From an exercise's sheet straight to the Learn topic behind it, opened.
   const jump=t.closest&&t.closest("[data-learnjump]");
   if(jump){
-    state.learnOpen=jump.getAttribute("data-learnjump");state.learnListY=0;state.scrollTo=0;
+    state.learnOpen=jump.getAttribute("data-learnjump");state.learnTab="overview";state.learnListY=0;state.scrollTo=0;
 
     state.exHist=false;state.sheet=false;state.view="learn";ctx.render();return true;
   }

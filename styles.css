@@ -50,6 +50,10 @@
   --shadow:rgba(0,0,0,.4);
 }
 :root[data-theme="light"]{color-scheme:light;}
+/* The magazine header colour: near-black on the light theme, a lifted slate on dark. */
+:root{--hero:#151920;--heroText:#ffffff;--heroMuted:#c9ced6;--heroChip:#2a2f38;--heroAccent:#ffc247;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hero:#232833;--heroChip:#323844;}}
+:root[data-theme="dark"]{--hero:#232833;--heroChip:#323844;}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html{height:100%;}
 body{height:100%;margin:0;padding:0;overflow:hidden;background:var(--bg);color:var(--text);
@@ -856,3 +860,67 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .homelink:hover,.reset button:hover,.searchx:hover{color:var(--text);}
   .h1:not(.plain):hover{color:var(--accentText);}
 }
+
+/* Learn, magazine-style. Everything sizes from the screen: type with clamp(), shelves that
+   scroll sideways inside themselves, so nothing ever pushes the page wider than the phone. */
+.lhome{gap:0;}
+.lmasthead{display:flex;justify-content:space-between;align-items:center;}
+.lsearchbtn{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--line);background:var(--panel);
+  color:var(--text);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.lsearchbtn.on{border-color:var(--accent);color:var(--accentText);}
+.lbigtitle{font-size:clamp(28px,8.5vw,36px);font-weight:800;letter-spacing:-1px;margin:10px 0 10px;}
+.lpills{display:flex;gap:8px;margin-bottom:14px;}
+.lpill{height:36px;padding:0 16px;border-radius:18px;border:1px solid var(--line);background:var(--panel);
+  color:var(--muted);font:inherit;font-weight:700;font-size:14px;cursor:pointer;}
+.lpill.on{background:var(--text);border-color:var(--text);color:var(--bg);}
+.lhome .lsearch{margin-top:0;}
+.lfeature{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;text-align:left;
+  border:none;border-radius:20px;background:var(--hero);color:var(--heroText);padding:clamp(16px,5vw,24px);
+  margin-bottom:20px;cursor:pointer;font:inherit;min-height:clamp(170px,46vw,210px);}
+.lfe{font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--heroAccent);}
+.lfn{font-size:clamp(24px,7.5vw,32px);font-weight:800;letter-spacing:-.6px;line-height:1.05;}
+.lfm{font-size:clamp(14px,4.2vw,17px);font-weight:700;color:var(--heroAccent);}
+.lfs{font-size:14px;color:var(--heroMuted);line-height:1.4;}
+.lfcta{margin-top:auto;padding:10px 18px;border-radius:20px;background:var(--accent);color:var(--onAccent);
+  font-weight:800;font-size:14px;}
+.lshelfhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:4px 0 8px;}
+.lshelft{font-size:18px;font-weight:800;min-width:0;}
+.lseeall{flex:none;background:none;border:none;color:var(--accentText);font:inherit;font-weight:700;font-size:13px;
+  cursor:pointer;min-height:36px;padding:0 2px;}
+.lshelf{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 calc(-1 * var(--sp)) 20px;
+  padding:2px var(--sp);scroll-padding:0 var(--sp);}
+.lshelf::-webkit-scrollbar{display:none;}
+.lsc{flex:none;scroll-snap-align:start;display:flex;text-align:left;border:1px solid var(--line);
+  background:var(--panel);color:var(--text);border-radius:16px;font:inherit;cursor:pointer;box-sizing:border-box;}
+.lscp{width:clamp(128px,35vw,158px);min-height:150px;flex-direction:column;justify-content:space-between;padding:12px;}
+.lscp .lav{width:42px;height:42px;font-size:13px;}
+.lscb{display:flex;flex-direction:column;gap:2px;}
+.lscn{font-weight:800;font-size:13.5px;line-height:1.2;overflow-wrap:break-word;hyphens:auto;}
+.lscm{font-size:12px;color:var(--muted);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden;}
+.lsct{width:clamp(150px,44vw,190px);min-height:96px;flex-direction:column;justify-content:space-between;gap:10px;padding:12px;}
+.lsci{width:30px;height:30px;border-radius:9px;background:var(--accentDim);display:flex;align-items:center;justify-content:center;}
+.lsci .icn{margin:0;}
+.lsc:active,.lfeature:active{filter:brightness(.97);}
+/* A topic: a dark header that runs to the screen edges, then tabs for its parts. */
+.ltopicwrap{padding-top:0;}
+.lhero{background:var(--hero);color:var(--heroText);margin:0 calc(-1 * var(--sp));
+  padding:max(14px,env(safe-area-inset-top)) var(--sp) 22px;display:flex;flex-direction:column;gap:6px;}
+.lheroback{align-self:flex-start;background:transparent;border-color:var(--heroChip);color:var(--heroText);margin-bottom:8px;}
+.lhe{font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--heroAccent);}
+.lhn{font-size:clamp(26px,8vw,34px);font-weight:800;letter-spacing:-.8px;line-height:1.05;}
+.lhm{font-size:clamp(15px,4.4vw,18px);font-weight:700;color:var(--heroAccent);}
+.lhchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.lhchips span{padding:5px 10px;border-radius:12px;background:var(--heroChip);font-size:12px;font-weight:700;}
+.ltopic{padding-top:14px;}
+.ltabs3{display:flex;gap:4px;background:var(--panelHi);border-radius:12px;padding:4px;margin-bottom:6px;}
+.ltabs3 .q{border:none;border-radius:9px;min-height:36px;background:transparent;}
+.ltabs3 .q.on{background:var(--panel);color:var(--text);box-shadow:0 1px 3px var(--shadow);}
+.lpoints{display:flex;flex-direction:column;gap:8px;margin:12px 0 4px;}
+.lpoint{display:flex;gap:10px;align-items:baseline;padding:11px 12px;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;font-size:14px;font-weight:600;line-height:1.35;}
+.lpdot{flex:none;width:8px;height:8px;border-radius:4px;background:var(--accent);transform:translateY(-1px);}
+.lstart{width:100%;margin-top:16px;min-height:48px;font-size:15px;}
+/* On a wide window short pages normally float towards the middle; a topic's header belongs at the top. */
+@media (min-width:700px){.wrap.scroll.ltopicwrap::before,.wrap.scroll.ltopicwrap::after{display:none;}}
