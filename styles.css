@@ -387,7 +387,7 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   padding-top:clamp(10px,1.5dvh,15px);padding-bottom:clamp(10px,1.5dvh,15px);}
 /* Learn: tabs of topics; people as cards; each topic its own page with links grouped. */
 .learnnote{font-size:var(--f-sm);color:var(--muted);margin:14px 0 4px;text-align:center;}
-.ltabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px 12px;padding:2px;}
+.ltabs{position:relative;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px 12px;padding:2px;}
 .ltab{flex:none;background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:20px;
   padding:8px 12px;min-height:38px;font:inherit;font-size:var(--f-md);font-weight:700;cursor:pointer;}
 .ltab.on{background:var(--accent);border-color:var(--accent);color:var(--onAccent);}

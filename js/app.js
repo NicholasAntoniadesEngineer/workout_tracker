@@ -11,6 +11,7 @@ import * as days from "./actions/days.js";
 import * as sharing from "./actions/share.js";
 import * as data from "./actions/data.js";
 import * as logging from "./actions/log.js";
+import {LEARN} from "./learn.js";
 
 const TICK_MS=1000;
 // Auto never shrinks type below this — past it the table scrolls instead, so a long day
@@ -53,13 +54,14 @@ function fit(){
   autoScale=k;
 }
 
-// Repainting throws the DOM away, which would jump the table back to set 1 every time
-// a set is logged. Carry the sideways scroll across, after fit() has settled the widths.
+// Repainting throws the DOM away, which would jump the table back to set 1 and the first
+// exercise every time anything is tapped. Carry its scroll across both ways, after fit() has
+// settled the sizes.
 // The page's own vertical scroll is kept too while the screen stays the same, so opening
 // something part-way down a long page doesn't jump back to the top.
 function grabScroll(){
   const keep={};
-  document.querySelectorAll("[data-keepx]").forEach(el=>{keep[el.dataset.keepx]=el.scrollLeft;});
+  document.querySelectorAll("[data-keepx]").forEach(el=>{keep[el.dataset.keepx]={x:el.scrollLeft,y:el.scrollTop};});
   const wrap=document.querySelector(".wrap.scroll");
   if(wrap)keep.__top={view:state.view,y:wrap.scrollTop};
   return keep;
@@ -67,14 +69,19 @@ function grabScroll(){
 
 function putScroll(keep){
   document.querySelectorAll("[data-keepx]").forEach(el=>{
-    const x=keep[el.dataset.keepx];
-    if(x)el.scrollLeft=x;
+    const at=keep[el.dataset.keepx];
+    if(!at)return;
+    if(at.x)el.scrollLeft=at.x;
+    if(at.y)el.scrollTop=at.y;
   });
   const wrap=document.querySelector(".wrap.scroll");
   if(wrap&&keep.__top&&keep.__top.view===state.view)wrap.scrollTop=keep.__top.y;
   // A page asked to land somewhere specific — a topic opens at its top, Back returns the
   // list to where you were.
   if(wrap&&state.scrollTo!=null){wrap.scrollTop=state.scrollTo;state.scrollTo=null;}
+  // Keep the chosen Learn filter in view in its strip, however it was reached.
+  const tab=document.querySelector(".ltab.on"),strip=tab&&tab.parentElement;
+  if(tab&&strip)strip.scrollLeft=tab.offsetLeft-(strip.clientWidth-tab.offsetWidth)/2;
 }
 
 function render(){
@@ -257,6 +264,30 @@ function watchDrag(){
   document.body.addEventListener("pointercancel",end);
 }
 
+// In Learn's list, a sideways swipe moves to the next or previous filter — All, then each
+// category — as well as tapping the tabs. Mostly-vertical drags are left to scrolling.
+const SWIPE_MIN=60;
+function watchLearnSwipe(){
+  let sx=0,sy=0,on=false;
+  document.body.addEventListener("touchstart",ev=>{
+    on=state.view==="learn"&&!state.learnOpen&&ev.touches.length===1&&
+      !(ev.target.closest&&ev.target.closest(".ltabs"));
+    if(on){sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;}
+  },{passive:true});
+  document.body.addEventListener("touchend",ev=>{
+    if(!on)return;
+    on=false;
+    const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<Math.abs(dy)*1.5)return;
+    const order=[null].concat(LEARN.map(c=>c.cat));
+    const i=Math.max(0,order.indexOf(state.learnCat||null));
+    const next=i+(dx<0?1:-1);
+    if(next<0||next>=order.length)return;
+    state.learnCat=order[next];state.scrollTo=0;
+    render();
+  },{passive:true});
+}
+
 function deleteDay(id){
   state.sessions=state.sessions.filter(s=>s.id!==id);
   if(!state.sessions.length)state.sessions=[makeSession()];
@@ -340,6 +371,7 @@ function tick(){
 }
 
 watchDrag();
+watchLearnSwipe();
 window.addEventListener("resize",()=>{markRefit();fit();});
 window.addEventListener("orientationchange",()=>{markRefit();fit();});
 
