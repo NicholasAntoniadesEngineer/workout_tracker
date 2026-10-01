@@ -544,11 +544,13 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .sheethead{flex:none;display:flex;justify-content:space-between;align-items:center;
   margin-bottom:calc(8px * var(--k));}
 .sheetbody{overflow-y:auto;-webkit-overflow-scrolling:touch;}
-.sheetgrid{display:grid;grid-template-columns:1fr 1fr;gap:calc(6px * var(--k));}
-.chip.sheetitem{justify-content:space-between;padding:calc(7px * var(--k)) 6px calc(7px * var(--k)) 12px;
-  font-size:var(--f-md);color:var(--text);}
-.chip.sheetitem .pick{text-align:left;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;
-  white-space:nowrap;}
+/* minmax(0,1fr) holds both columns to half the width — plain 1fr lets a long name push its
+   column wider and off the screen. Long names wrap onto a second line rather than being cut. */
+.sheetgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:calc(6px * var(--k));}
+.chip.sheetitem{justify-content:space-between;min-width:0;border-radius:14px;
+  padding:calc(7px * var(--k)) 6px calc(7px * var(--k)) 12px;font-size:var(--f-md);color:var(--text);}
+.chip.sheetitem .pick{text-align:left;flex:1;min-width:0;white-space:normal;
+  overflow-wrap:anywhere;line-height:1.25;}
 .sheetadd{display:flex;gap:6px;align-items:center;margin-top:calc(10px * var(--k));}
 .sheetadd input.name{flex:1;min-width:0;}
 

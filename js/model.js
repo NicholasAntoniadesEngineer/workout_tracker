@@ -5,7 +5,7 @@ export const EXERCISE_GROUPS=[
     "Front squat","Goblet squat","Box squat","Hack squat","Leg press","Leg extension",
     "Walking lunges","Step ups","Smith machine squat","Smith machine front squat",
     "Smith machine sumo squat","Smith machine split squat","Smith machine Bulgarian split squat",
-    "Smith machine reverse lunge"]],
+    "Smith machine reverse lunge","Smith machine front lunge"]],
   ["Hinge & glutes",["Deadlift","Romanian deadlift","Kettlebell swings","Kettlebell deadlift",
     "Single-leg RDL","Good mornings","Glute bridge","Hip thrust",
     "Cable pull-through","Trap bar deadlift","Sumo deadlift","Rack pull","Back extension",
