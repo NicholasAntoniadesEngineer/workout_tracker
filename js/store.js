@@ -44,7 +44,7 @@ export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],b
   settings:Object.assign({},DEFAULTS),
   reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,band:"",warmup:false,setStart:null,editing:null,
   adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
-  exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
+  supplements:[],stacks:[],exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
   backupAt:"",backupSnooze:"",focusSearch:false,origin:"home",view:"home",undo:null,progressEx:"",verseIdx:null,
   shareMenu:null,numEdit:null,feedback:null,
   calYear:new Date().getFullYear(),calMonth:new Date().getMonth(),calDay:null};
@@ -135,6 +135,8 @@ export function load(){
   state.removed=(saved&&saved.removed)||[];
   state.body=(saved&&saved.body)||[];
   state.routines=(saved&&saved.routines)||[];
+  state.supplements=(saved&&saved.supplements)||[];
+  state.stacks=(saved&&saved.stacks)||[];
   state.hiddenRoutines=(saved&&saved.hiddenRoutines)||[];
   state.restTargets=(saved&&saved.restTargets)||{};
   state.backupAt=(saved&&saved.backupAt)||"";
@@ -154,8 +156,13 @@ export function save(){
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,
         hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,
-        backupAt:state.backupAt,backupSnooze:state.backupSnooze}));
-  }catch(e){}
+        backupAt:state.backupAt,backupSnooze:state.backupSnooze,
+        supplements:state.supplements,stacks:state.stacks}));
+    state.storageFull=false;
+  }catch(e){
+    // Out of room (photos are the likely cause): say so rather than silently not saving.
+    state.storageFull=true;
+  }
 }
 
 // Adds a name to the day (and to the picker if it is new), and selects it.
@@ -261,6 +268,12 @@ export function importBackup(d){
   (Array.isArray(d.catalog)?d.catalog:[]).forEach(addToCatalog);
   (Array.isArray(d.removed)?d.removed:[]).forEach(removeFromCatalog);
   (Array.isArray(d.body)?d.body:[]).forEach(b=>{if(b&&b.at)upsertBodyEntry(b);});
+  // Supplements and stacks merge by id, so loading a backup twice doesn't duplicate them.
+  ["supplements","stacks"].forEach(k=>{
+    (Array.isArray(d[k])?d[k]:[]).forEach(x=>{
+      if(x&&x.id&&x.name&&!state[k].some(y=>y.id===x.id))state[k].push(x);
+    });
+  });
   (Array.isArray(d.routines)?d.routines:[]).forEach(r=>{
     if(r&&r.name&&Array.isArray(r.ex))saveRoutine(r.name,r.ex);
   });

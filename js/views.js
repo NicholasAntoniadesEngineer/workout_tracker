@@ -11,6 +11,7 @@ import {progressView} from "./views/progress.js";
 import {bodyView} from "./views/body.js";
 import {settingsView} from "./views/settings.js";
 import {learnView} from "./views/learn.js";
+import {stackView} from "./views/stack.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
 import {VERSES} from "./verses.js";
@@ -21,7 +22,7 @@ export {setClockSeconds,setLabel,setSub,setsSummary,workoutLabel,
   workoutSub} from "./views/log.js";
 
 const VIEWS={home:homeView,history:historyView,calendar:calendarView,settings:settingsView,
-  progress:progressView,body:bodyView,learn:learnView};
+  progress:progressView,body:bodyView,learn:learnView,stack:stackView};
 
 // Destructive actions act at once and offer a few seconds of Undo, instead of a blocking
 // confirm dialog before and no way back after.
@@ -57,6 +58,12 @@ function shareMenu(){
        "</span><span class='so-s'>"+o[2]+"</span></button>";
   });
   return h+"</div></div></div>";
+}
+
+// Local storage is full (photos are the usual cause): nothing new saves until room is made.
+function storageToast(){
+  if(!state.storageFull)return "";
+  return "<div class='toast'><span>Storage full — delete a supplement photo to keep saving</span></div>";
 }
 
 // A newer version has arrived while the app was open.
@@ -158,5 +165,5 @@ function feedbackModal(){
 
 export function paint(){
   document.getElementById("app").innerHTML=
-    (VIEWS[state.view]||logView)()+undoToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
+    (VIEWS[state.view]||logView)()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
 }

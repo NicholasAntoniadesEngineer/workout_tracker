@@ -63,7 +63,8 @@ export function handle(t,ctx){
     state.backupAt=nowISO();state.backupSnooze="";
     exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
       settings:state.settings,body:state.body,routines:state.routines,
-      hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets});
+      hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,
+      supplements:state.supplements,stacks:state.stacks});
     ctx.render();return true;
   }
   if(t.id==="backupsnooze"){

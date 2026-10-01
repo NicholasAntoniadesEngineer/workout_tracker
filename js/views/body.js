@@ -14,6 +14,10 @@ export function bodyView(){
   const today=state.body.find(b=>dateKey(b.at)===dateKey(nowISO()));
 
   let h="<div class='wrap scroll'>"+pageHead("Body");
+  // What you take sits with what you weigh: products, photos and your stacks.
+  h+="<button class='card supslink' id='opensupps'><span class='sl-t'>Supplements &amp; stacks</span>"+
+    "<span class='sl-s'>"+state.supplements.length+" products &middot; "+state.stacks.length+" stacks</span>"+
+    "<span class='lchev'>&rsaquo;</span></button>";
 
   h+="<div class='card chartcard'><div class='bodyform'>"+
     "<label class='timefield'><span>Weight ("+unit+")</span>"+

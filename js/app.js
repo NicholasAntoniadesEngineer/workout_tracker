@@ -11,6 +11,7 @@ import * as days from "./actions/days.js";
 import * as sharing from "./actions/share.js";
 import * as data from "./actions/data.js";
 import * as logging from "./actions/log.js";
+import * as stacking from "./actions/stack.js";
 import {areaCats} from "./library.js";
 
 const TICK_MS=1000;
@@ -174,7 +175,8 @@ let undoTimer=null;
 function snapshot(label){
   state.undo={label,data:JSON.parse(JSON.stringify({sessions:state.sessions,
     sessionId:state.sessionId,exId:state.exId,catalog:state.catalog,removed:state.removed,
-    body:state.body,routines:state.routines,hiddenRoutines:state.hiddenRoutines}))};
+    body:state.body,routines:state.routines,hiddenRoutines:state.hiddenRoutines,
+    supplements:state.supplements,stacks:state.stacks}))};
   if(undoTimer)clearTimeout(undoTimer);
   undoTimer=setTimeout(()=>{state.undo=null;render();},UNDO_MS);
 }
@@ -295,6 +297,9 @@ function deleteDay(id){
 }
 
 document.body.addEventListener("change",ev=>{
+  if(ev.target&&ev.target.id==="supphoto"){
+    stacking.pickPhoto(ev.target.files&&ev.target.files[0],render);ev.target.value="";return;
+  }
   if(ev.target&&ev.target.id==="trendsel"){state.progressEx=ev.target.value;render();return;}
   if(ev.target&&ev.target.id==="remtime"){setSetting("remindTime",ev.target.value);render();return;}
   if(ev.target&&ev.target.id==="csvfile"){
@@ -331,7 +336,7 @@ function dismissSheet(){
 // row act on its own before the row does (delete a day before opening it).
 const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
   addExercise,showBest};
-const AREAS=[nav,routines,days,sharing,data,logging];
+const AREAS=[stacking,nav,routines,days,sharing,data,logging];
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;

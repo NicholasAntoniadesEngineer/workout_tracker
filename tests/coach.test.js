@@ -197,3 +197,17 @@ describe("warmupRamp",()=>{
     assert.deepEqual(warmupRamp(30,"kg"),[{w:20,r:10},{w:25,r:1}]);
   });
 });
+
+import {stackCaffeine,lineText} from "../js/stack.js";
+describe("stacks",()=>{
+  test("caffeine adds up across lines in mg and g, ignoring other ingredients",()=>{
+    assert.equal(stackCaffeine([{name:"Caffeine",dose:"200",unit:"mg"},{name:"Caffeine anhydrous",dose:"0.2",unit:"g"},
+      {name:"Citrulline malate",dose:"10",unit:"g"}]),400);
+  });
+  test("caffeine in capsules can't be counted without the label",()=>{
+    assert.equal(stackCaffeine([{name:"Caffeine",dose:"2",unit:"caps"}]),0);
+  });
+  test("a line reads as name, dose and unit",()=>{
+    assert.equal(lineText({name:"Salt",dose:"1",unit:"tsp"}),"Salt — 1 tsp");
+  });
+});
