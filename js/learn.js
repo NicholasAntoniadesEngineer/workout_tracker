@@ -5,7 +5,7 @@ export const LEARN=[
   {cat:"Lifters & methods",topics:[
     {id:"arnold",title:"Arnold Schwarzenegger: high-volume splits",era:"1970s golden era",focus:"Bodybuilding",
      summary:"Arnold won Mr. Olympia seven times in bodybuilding's golden era and remains the best-known face of high-volume split training. At his peak he often trained twice a day, six days a week, hitting each muscle with many sets from several angles and pairing opposing muscles such as chest and back. He also stressed concentrating hard on the working muscle during each rep, often called the mind-muscle connection.",
-     points:["Double split: two sessions on many training days","Many sets per muscle, varied angles and rep ranges","Built for full-time, experienced bodybuilders","Scale volume down to fit normal recovery"],
+     points:["Double split: two sessions on many training days","Many sets per muscle, varied angles and rep ranges","Pair opposing muscles: chest with back","Chase the pump; vary exercises to shock the muscle"],
      exercises:["Bench press","Inclined Bench Press","Dumbbell fly","Dips","Dumbbell pullover","Chin ups","T-bar row","Barbell row","Squats","Front squat","Hack squat","Lying leg curl","Standing leg curl","Stiff-leg deadlift","Donkey calf raise","Calf raises","Seated calf raise","Behind-the-neck press","Dumbbell lateral raise","Rear delt fly","Shoulder shrugs","Barbell curl","Incline dumbbell curl","Concentration curl","Skull crusher","Cable tricep pushdown","Single-arm overhead tricep extension","Wrist curl","Reverse wrist curl","Crunch","Reverse crunch"],
      days:[
       {name:"Chest & back (Mon/Wed/Fri morning)",note:"Opposing muscles paired for a big upper-body pump",ex:["Bench press","Inclined Bench Press","Dumbbell fly","Dips","Dumbbell pullover","Chin ups","T-bar row","Barbell row"]},
@@ -54,7 +54,7 @@ export const LEARN=[
       {t:"Bill Starr 5×5 — YouTube search",u:"https://www.youtube.com/results?search_query=bill+starr+5x5",k:"video",d:"Search results: walkthroughs of the programme"}]},
     {id:"startingstrength",title:"Mark Rippetoe: Starting Strength",era:"2005–today",focus:"Barbell strength",
      summary:"Starting Strength is coach Mark Rippetoe's beginner barbell programme, built around the squat, deadlift, bench press, overhead press and power clean. Two short full-body workouts alternate across three days a week, and the bar gets slightly heavier nearly every session for as long as that keeps working, which is called a novice linear progression. Coaching good technique is central to the method.",
-     points:["Three full-body barbell sessions per week","Add a little weight almost every workout","Best for true beginners and returning lifters","Light on upper-body and isolation work"],
+     points:["Three full-body barbell sessions per week","Add a little weight almost every workout","Best for true beginners and returning lifters","Big compound lifts over isolation work"],
      exercises:["Squats","Shoulder press","Bench press","Deadlift","Power clean","Chin ups","Pull ups","Back extension"],
      days:[
       {name:"Workout A",note:"Alternate A and B, three days a week",ex:["Squats","Shoulder press","Deadlift"]},
@@ -153,7 +153,7 @@ export const LEARN=[
       {t:"Official channel — Renaissance Periodization (YouTube)",u:"https://www.youtube.com/@RenaissancePeriodization",k:"video",d:"Hypertrophy explainers and technique videos"}]},
     {id:"mentzer",title:"Mike Mentzer: Heavy Duty",era:"1970s–1990s",focus:"Bodybuilding",
      summary:"Mike Mentzer won the 1976 Mr. America, earned the first perfect score at the 1978 Mr. Universe and took the heavyweight class at the 1979 Mr. Olympia. Introduced to high-intensity training through Casey Viator and Arthur Jones's ideas, he developed it into Heavy Duty: brief, very hard, infrequent workouts. A keen student of philosophy and admirer of Ayn Rand, he argued training should follow from reasoned principles rather than gym tradition.",
-     points:["Brief, all-out sessions with long recovery","A logic-first approach shaped by philosophy","Influenced a generation of low-volume lifters","See the next topics for method, recovery and evidence"],
+     points:["Brief, all-out sessions with long recovery","A logic-first approach shaped by philosophy","Influenced a generation of low-volume lifters","See the next topics for his method and recovery"],
      exercises:["Pec deck","Inclined Bench Press","Cable crossover","Close-grip lat pulldown","Nautilus pullover","Barbell row","Deadlift","Shoulder shrugs","Upright row","Leg extension","Leg press","Squats","Lying leg curl","Calf raises","Dumbbell lateral raise","Rear delt fly","Barbell curl","Preacher curl","Concentration curl","Cable tricep pushdown","Dips"],
      links:[
       {t:"Official home of Mike Mentzer & Heavy Duty — mikementzer.org",u:"https://mikementzer.org/",k:"article",d:"The estate's site: books, articles and courses"},
@@ -166,7 +166,7 @@ export const LEARN=[
       {t:"Official channel — Heavy Duty College (YouTube)",u:"https://www.youtube.com/@HEAVYDUTYCOLLEGE",k:"video",d:"Mentzer's own seminars and interviews"}]},
     {id:"mentzer-hit",title:"Heavy Duty: the method",era:"1970s–1990s",focus:"High intensity",
      summary:"After a couple of warm-up sets, Heavy Duty calls for one working set per exercise, taken to the point where another clean rep is impossible. Mentzer often pushed past that point with forced reps from a partner, slow negatives or rest-pause mini-sets. He also used pre-exhaust pairs, an isolation move straight into a compound one, so the target muscle gives out before the helpers do.",
-     points:["One all-out working set per exercise","Beyond failure: forced reps, negatives, rest-pause","Pre-exhaust: isolation then compound, no rest","Very demanding; use intensity tools sparingly"],
+     points:["One all-out working set per exercise","Beyond failure: forced reps, negatives, rest-pause","Pre-exhaust: isolation then compound, no rest","Train to true failure: quality over quantity"],
      exercises:["Pec deck","Inclined Bench Press","Cable crossover","Leg extension","Leg press","Squats","Cable tricep pushdown","Dips"],
      days:[
       {name:"Pre-exhaust: chest",note:"Isolation straight into compound, no rest",ex:["Pec deck","Inclined Bench Press"]},
@@ -179,12 +179,10 @@ export const LEARN=[
       {t:"Heavy Duty guide — The Art of Manliness",u:"https://www.artofmanliness.com/strength/fitness/mike-mentzer-heavy-duty/",k:"article",d:"Long-form guide to his philosophy and workouts"},
       {t:"Mike Mentzer workout routine — StrengthLog",u:"https://www.strengthlog.com/mike-mentzer-workout-routine/",k:"article",d:"Heavy Duty laid out workout by workout"},
       {t:"High-Intensity Training the Mike Mentzer Way (McGraw-Hill) — Google Books",u:"https://books.google.com/books/about/High_Intensity_Training_the_Mike_Mentzer.html?id=miFFBM1SvPAC",k:"article",d:"His 2003 book with John Little"},
-      {t:"Pre-exhaustion training trial — Appl Physiol Nutr Metab",u:"https://pubmed.ncbi.nlm.nih.gov/25092528/",k:"study",d:"Pre-exhaust gave no extra benefit over normal order"},
-      {t:"Rest-pause and drop-set training trial — Appl Physiol Nutr Metab",u:"https://pubmed.ncbi.nlm.nih.gov/34260860/",k:"study",d:"Rest-pause vs traditional sets in trained men"},
       {t:"Mike Mentzer Heavy Duty interview — YouTube search",u:"https://www.youtube.com/results?search_query=mike+mentzer+heavy+duty+interview",k:"video",d:"Search results: archive interviews and seminars"}]},
     {id:"mentzer-recovery",title:"Heavy Duty: recovery & the Ideal Routine",era:"1990s",focus:"Recovery",
      summary:"Mentzer held that growth happens while you recover, not while you train, so very hard sessions needed long rest afterwards. His Ideal Routine rotated four short workouts, each with only a handful of working sets, spaced several days apart. Later consolidated versions trimmed sessions to a few compound lifts and stretched the rest further as trainees grew stronger.",
-     points:["Four short workouts on a rotating cycle","More rest days added as strength rises","Later versions cut to a few big lifts","Most research favours each muscle 2–3× weekly"],
+     points:["Four short workouts on a rotating cycle","More rest days added as strength rises","Later versions cut to a few big lifts","Overtraining, not undertraining, is the usual mistake"],
      exercises:["Pec deck","Inclined Bench Press","Close-grip lat pulldown","Deadlift","Shoulder shrugs","Leg extension","Leg press","Squats","Calf raises","Dumbbell lateral raise","Rear delt fly","Barbell curl","Cable tricep pushdown","Dips"],
      days:[
       {name:"Ideal Routine 1: chest & back",note:"One all-out set each; 4+ rest days between workouts",ex:["Pec deck","Inclined Bench Press","Close-grip lat pulldown","Deadlift"]},
@@ -197,10 +195,7 @@ export const LEARN=[
       {t:"Mentzer's Ideal Routine — mikementzer.org",u:"https://mikementzer.org/mike-mentzers-ideal-routine-a-heavy-duty-blueprint/",k:"article",d:"The four workouts, exercise by exercise"},
       {t:"The Consolidated Program seminar — mikementzer.org",u:"https://mikementzer.org/consolidated-program-final-heavy-duty-logic/",k:"article",d:"Two alternating workouts, about one a week"},
       {t:"Mentzer's recovery principle — mikementzer.org",u:"https://mikementzer.org/mike-mentzer-recovery-principle-muscle-growth/",k:"article",d:"Why he believed frequent training stalls growth"},
-      {t:"The recovery factor — mikementzer.org",u:"https://mikementzer.org/the-recovery-factor-revolutionary-bodybuilding/",k:"article",d:"Overview of his case for long recovery"},
-      {t:"Time course of muscle protein synthesis — Can J Appl Physiol",u:"https://pubmed.ncbi.nlm.nih.gov/8563679/",k:"study",d:"Protein synthesis back near baseline by 36 hours"},
-      {t:"How many times per week to train a muscle — J Sports Sci",u:"https://pubmed.ncbi.nlm.nih.gov/30558493/",k:"study",d:"Frequency research on muscle growth"},
-      {t:"Volume and frequency dose-response (2026) — Sports Medicine",u:"https://pubmed.ncbi.nlm.nih.gov/41343037/",k:"study",d:"Higher frequency helps strength more than size"}]},
+      {t:"The recovery factor — mikementzer.org",u:"https://mikementzer.org/the-recovery-factor-revolutionary-bodybuilding/",k:"article",d:"Overview of his case for long recovery"}]},
     {id:"mentzer-yates",title:"Yates' Blood & Guts vs high volume",era:"1990s",focus:"Bodybuilding",
      summary:"Six-time Mr. Olympia Dorian Yates, who worked with Mentzer in the early 1990s, adapted Heavy Duty into his own Blood & Guts style. He kept one or two all-out working sets per exercise after warm-ups but used a conventional split with several exercises per muscle. Arnold's golden-era approach sits at the other end, with many sets and frequent sessions. Champions came from both, so neither style owns the results.",
      points:["Yates: 1–2 working sets taken to failure","Arnold: high volume over double-split days","Both styles produced Mr. Olympia winners","Choose the style your recovery and schedule allow"],
@@ -217,15 +212,6 @@ export const LEARN=[
       {t:"Dorian Yates' Blood & Guts training programme — Bodybuilding.com (YouTube)",u:"https://www.youtube.com/watch?v=afqHMID-VEQ",k:"video",d:"Training series filmed with Yates"},
       {t:"Dorian Yates biography — Wikipedia",u:"https://en.wikipedia.org/wiki/Dorian_Yates",k:"article",d:"Six Olympia wins and career"},
       {t:"The Arnold workout split — BarBend",u:"https://barbend.com/arnold-schwarzenegger-workout-split/",k:"article",d:"His full double-split routine with sets and reps"}]},
-    {id:"mentzer-research",title:"Heavy Duty: what the research says",era:"Modern research",focus:"Evidence",
-     summary:"Research partly backs Mentzer: a single hard set per exercise reliably builds strength and muscle, and finishing sets near failure seems to matter for size. But meta-analyses consistently find that more sets bring more growth and strength, so one set is effective rather than optimal. Pushing beyond failure with forced reps showed no added strength benefit in one trial, and the very long layoffs of his later routines have little research support.",
-     points:["One hard set works; more sets usually work better","Effort close to failure matters most for size","Forced reps added nothing in one strength trial","Very long gaps between sessions lack research support"],
-     links:[
-      {t:"Single vs multiple sets for hypertrophy — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/20300012/",k:"study",d:"More sets per exercise, more muscle growth"},
-      {t:"Single vs multiple sets for strength — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/19661829/",k:"study",d:"Two to three sets beat one for strength"},
-      {t:"Minimum effective dose for strength — Sports Medicine",u:"https://pubmed.ncbi.nlm.nih.gov/31797219/",k:"study",d:"One hard set 2–3× weekly still builds strength"},
-      {t:"Proximity to failure and hypertrophy meta-analysis — Sports Medicine",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC9935748/",k:"study",d:"Failure vs non-failure for muscle size"},
-      {t:"Forced repetitions and strength trial — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/17685709/",k:"study",d:"More forced reps didn't add strength"}]},
   ]},
   {cat:"Training principles",topics:[
     {id:"overload",title:"Progressive overload & periodisation",
