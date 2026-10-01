@@ -30,6 +30,8 @@ export function handle(t,ctx){
     state.learnOpen=learn.getAttribute("data-learn");state.learnTab="overview";state.scrollTo=0;
     ctx.render();return true;
   }
+  // Featured: Next steps to another story for now; tomorrow brings a new one anyway.
+  if(t.closest&&t.closest("[data-featurenext]")){state.featureShift=(state.featureShift||0)+1;ctx.render();return true;}
   const ltab=t.closest&&t.closest("[data-learntab]");
   if(ltab){state.learnTab=ltab.getAttribute("data-learntab");state.scrollTo=0;ctx.render();return true;}
   // The search icon opens the search box (focused); tapping it again closes and clears it.

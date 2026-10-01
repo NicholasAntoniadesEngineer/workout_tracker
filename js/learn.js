@@ -452,26 +452,8 @@ export const LEARN=[
       {t:"Strength training vs stretching for range of motion — Healthcare",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC8067745/",k:"study",d:"Full-range lifting matched stretching for range"},
       {t:"Acute effects of stretching review — Appl Physiol Nutr Metab",u:"https://pubmed.ncbi.nlm.nih.gov/26642915/",k:"study",d:"How stretch type and length affect performance"},
       {t:"Mobility and joint-health videos — Squat University (YouTube)",u:"https://www.youtube.com/@SquatUniversity",k:"video",d:"Ankle, hip and shoulder mobility drills"}]},
-  ]},
-  {cat:"Recovery & nutrition",topics:[
-    {id:"sleep",title:"Sleep for athletes",
-     summary:"Athletes recovering from hard training often need more sleep than the general population. When college basketball players extended their sleep towards ten hours a night, sprint times, shooting accuracy and reaction times all improved. Daytime naps of half an hour or longer also appear to boost endurance and power in athletes who already sleep normally.",
-     points:["Target 8–10 hours in bed each night","Add a 30–60+ minute nap on heavy days","Keep the same wake time every day"],
-     links:[
-      {t:"Sleep extension in college basketball players — Sleep",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC3119836/",k:"study",d:"More sleep, faster sprints and better shooting"},
-      {t:"Sleep and the athlete expert consensus — Br J Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/33144349/",k:"study",d:"Expert recommendations and a sleep toolbox for athletes"},
-      {t:"Napping and team-sport performance meta-analysis — Front Physiol",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC13439405/",k:"study",d:"Longer naps gave the biggest performance boosts"},
-      {t:"How sleep loss affects your workouts — Stronger By Science",u:"https://www.strongerbyscience.com/sleep-deprivation-affect-workouts/",k:"article",d:"What poor sleep does to training performance"}]},
-    {id:"protein",title:"Protein for athletes",
-     summary:"Athletes building muscle should aim for about 1.6–2.2 g of protein per kg of body weight daily; in pooled trials the benefit levelled off near 1.6 g/kg on average, so the upper end covers individual variation. When dieting lean, needs rise to roughly 2.3–3.1 g per kg of lean mass to help preserve muscle. Spread intake across at least four meals.",
-     points:["Building: 1.6–2.2 g/kg of body weight daily","Cutting: 2.3–3.1 g/kg of lean mass daily","4+ meals of about 0.4 g/kg each","Protein meal within about two hours of training"],
-     links:[
-      {t:"Protein supplementation meta-analysis — Br J Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/28698222/",k:"study",d:"Gains plateaued near 1.6 g/kg/day on average"},
-      {t:"Protein and exercise position stand — ISSN",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5477153/",k:"guideline",d:"Daily targets, dose per meal and timing"},
-      {t:"Protein needs during caloric restriction — Int J Sport Nutr Exerc Metab",u:"https://pubmed.ncbi.nlm.nih.gov/24092765/",k:"study",d:"Why lean, dieting lifters need more protein"},
-      {t:"How much protein per meal — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5828430/",k:"study",d:"0.4 g/kg per meal across four or more meals"},
-      {t:"Nutrient timing position stand — ISSN",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5596471/",k:"guideline",d:"When to eat protein and carbs around training"}]},
-  ]},
+  ]}
+
 ];
 
 export function learnTopic(id){

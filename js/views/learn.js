@@ -9,7 +9,7 @@ import {esc,pageHead} from "./common.js";
 
 // Short tab names for the categories, in the order the library lists them.
 const SHORT={"Lifters & methods":"Lifters","Training principles":"Principles","Workout types":"Workouts",
-  "Joints & resilience":"Joints","Recovery & lifestyle":"Recovery","Recovery & nutrition":"Recovery",
+  "Joints & resilience":"Joints",
   "What the lifters say":"Lifters","Protein & supplements":"Supplements"};
 const tabName=c=>SHORT[c]||c.split(" & ")[0];
 const GROUPS=[["Read",["article"]],["Watch",["video"]],["Listen",["podcast"]],["Research",["study","guideline"]]];
@@ -27,7 +27,7 @@ function tags(tp){
 }
 
 // Each category's icon on the Learn home grid.
-const CAT_ICON={"Joints & resilience":"joint","Lifters & methods":"people","Recovery & nutrition":"moon",
+const CAT_ICON={"Joints & resilience":"joint","Lifters & methods":"people",
   "Training principles":"target","Workout types":"dumbbell","Experts":"people","Fuel & hydration":"drop",
   "Pre-workout":"bolt","Protein & supplements":"pill","Recovery & health":"moon","What the lifters say":"chat"};
 
@@ -64,15 +64,15 @@ function areaSwitch(area){
     "' data-learnarea='"+a[0]+"'>"+a[1]+"</button>").join("")+"</div>";
 }
 
-// The featured story: one person (or topic) a day, steady through the day and changing at
-// midnight — people with workouts first, so there's something to start.
+// The featured story: drawn from every topic in the area — people and subjects alike — in a
+// shuffled order that is new each year, stepping on one each day. Next skips ahead.
+function hashOf(s){let n=2166136261;for(const ch of s)n=Math.imul(n^ch.charCodeAt(0),16777619)>>>0;return n;}
 function featured(cats){
-  const people=[].concat(...cats.filter(isPeople).map(c=>c.topics));
-  const pool=people.filter(t=>t.days&&t.days.length).concat(people.filter(t=>!(t.days&&t.days.length)));
-  const all=pool.length?pool:[].concat(...cats.map(c=>c.topics));
-  if(!all.length)return null;
   const d=new Date(),day=Math.floor((d-new Date(d.getFullYear(),0,0))/86400000);
-  return all[day%all.length];
+  const all=[].concat(...cats.map(c=>c.topics))
+    .sort((a,b)=>hashOf(a.id+d.getFullYear())-hashOf(b.id+d.getFullYear()));
+  if(!all.length)return null;
+  return all[(day+(state.featureShift||0))%all.length];
 }
 
 // A shelf: the category's name and a See all, then its topics in a row you swipe sideways.
@@ -121,11 +121,13 @@ function homeView(area,cats){
   const f=featured(cats);
   if(f){
     const t=splitTitle(f.title),c=catOfTopic(f.id),n=f.days?f.days.length:0;
-    h+="<button class='lfeature' data-learn='"+esc(f.id)+"'>"+
-      "<span class='lfe'>Featured &middot; "+esc(c?tabName(c.cat):"")+"</span>"+
-      "<span class='lfn'>"+esc(t[0])+"</span>"+(t[1]?"<span class='lfm'>"+esc(t[1])+"</span>":"")+
-      "<span class='lfs'>"+esc((f.points&&f.points[0])||"")+"</span>"+
-      "<span class='lfcta'>Read"+(n?" &middot; "+n+" workout"+(n>1?"s":""):"")+"</span></button>";
+    h+="<div class='lfeature'>"+
+      "<div class='lftop'><span class='lfe'>Featured &middot; "+esc(c?tabName(c.cat):"")+"</span>"+
+        "<button class='lfnext' data-featurenext='1' aria-label='Show another'>Next &rsaquo;</button></div>"+
+      "<button class='lfbody' data-learn='"+esc(f.id)+"'>"+
+        "<span class='lfn'>"+esc(t[0])+"</span>"+(t[1]?"<span class='lfm'>"+esc(t[1])+"</span>":"")+
+        "<span class='lfs'>"+esc((f.points&&f.points[0])||"")+"</span>"+
+        "<span class='lfcta'>Read"+(n?" &middot; "+n+" workout"+(n>1?"s":""):"")+"</span></button></div>";
   }
   cats.forEach(c=>{h+=shelf(c);});
   h+="<p class='learnnote'>Summaries written for KingsKiln; links go to the original articles and videos. "+
