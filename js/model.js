@@ -61,9 +61,9 @@ export const SEED_EXERCISES=EXERCISE_GROUPS.reduce((all,g)=>all.concat(g[1]),[])
 // Routines that ship with the app, kept here like the exercises above: add or change one and
 // every install has it on its next update. Each name should be one of the exercises above.
 export const BUILTIN_ROUTINES=[
-  {name:"Legs, Back & Biceps",ex:["Squats","Walking lunges","Lying leg curl",
+  {name:"Legs, Back & Biceps",ex:["Smith machine squat","Smith machine front squat","Deadlift",
     "Barbell row","Seated cable row","Straight-arm pulldown",
-    "EZ-bar curl","Incline dumbbell curl","Hammer curl"]}
+    "Hammer curl","Barbell curl"]}
 ];
 
 // Built-ins since dropped. An older install still lists them, so the picker leaves them out
