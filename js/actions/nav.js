@@ -2,7 +2,6 @@
 // Each handler returns true once it has dealt with the tap.
 import {getSession,state} from "../store.js";
 import {stepVerse} from "../views.js";
-import {LEARN} from "../learn.js";
 
 export function handle(t,ctx){
   if(t.id==="updatebtn"){location.reload();return true;}
@@ -23,8 +22,7 @@ export function handle(t,ctx){
   const jump=t.closest&&t.closest("[data-learnjump]");
   if(jump){
     state.learnOpen=jump.getAttribute("data-learnjump");state.learnListY=0;state.scrollTo=0;
-    const cat=LEARN.find(c=>c.topics.some(x=>x.id===state.learnOpen));
-    if(cat)state.learnCat=cat.cat;
+
     state.exHist=false;state.sheet=false;state.view="learn";ctx.render();return true;
   }
 

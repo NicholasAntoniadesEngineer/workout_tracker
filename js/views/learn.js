@@ -25,24 +25,30 @@ function tags(tp){
   return list.length?"<div class='ltags'>"+list.map(x=>"<span class='ltag'>"+esc(x)+"</span>").join("")+"</div>":"";
 }
 
-function listView(){
-  const cur=LEARN.find(c=>c.cat===state.learnCat)||LEARN[0];
-  let h="<div class='wrap scroll'>"+pageHead("Learn")+
-    "<div class='ltabs'>"+LEARN.map(c=>"<button class='ltab"+(c===cur?" on":"")+"' data-learncat=\""+
-      esc(c.cat)+"\">"+esc(tabName(c.cat))+"</button>").join("")+"</div>";
-  if(cur.cat==="Lifters & methods"){
+function section(c){
+  if(c.cat==="Lifters & methods"){
     // People as cards: who, what they're known for, and when.
-    h+="<div class='lgrid'>"+cur.topics.map(tp=>{
+    return "<div class='lgrid'>"+c.topics.map(tp=>{
       const t=splitTitle(tp.title);
       return "<button class='lcard' data-learn='"+esc(tp.id)+"'><span class='lname'>"+esc(t[0])+"</span>"+
         (t[1]?"<span class='lmeth'>"+esc(t[1])+"</span>":"")+
         "<span class='lpre'>"+esc(tp.summary)+"</span>"+tags(tp)+"</button>";
     }).join("")+"</div>";
-  }else{
-    h+="<div class='llist'>"+cur.topics.map(tp=>
-      "<button class='lrow' data-learn='"+esc(tp.id)+"'><span class='lt'>"+esc(tp.title)+"</span>"+
-      "<span class='lpre'>"+esc(tp.summary)+"</span><span class='lchev'>&rsaquo;</span></button>").join("")+"</div>";
   }
+  return "<div class='llist'>"+c.topics.map(tp=>
+    "<button class='lrow' data-learn='"+esc(tp.id)+"'><span class='lt'>"+esc(tp.title)+"</span>"+
+    "<span class='lpre'>"+esc(tp.summary)+"</span><span class='lchev'>&rsaquo;</span></button>").join("")+"</div>";
+}
+
+// All topics by default, under their category headings; a tab filters to one category.
+function listView(){
+  const cur=LEARN.find(c=>c.cat===state.learnCat)||null;
+  let h="<div class='wrap scroll'>"+pageHead("Learn")+
+    "<div class='ltabs'><button class='ltab"+(cur?"":" on")+"' data-learncat=''>All</button>"+
+    LEARN.map(c=>"<button class='ltab"+(c===cur?" on":"")+"' data-learncat=\""+
+      esc(c.cat)+"\">"+esc(tabName(c.cat))+"</button>").join("")+"</div>";
+  if(cur)h+=section(cur);
+  else LEARN.forEach(c=>{h+="<div class='setgroup'>"+esc(c.cat)+"</div>"+section(c);});
   h+="<p class='learnnote'>Summaries written for KingsKiln; links go to the original articles, research "+
     "and videos. General education, not medical advice.</p>";
   return h+"</div>";

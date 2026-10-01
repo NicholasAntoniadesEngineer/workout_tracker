@@ -31,7 +31,7 @@ export function handle(t,ctx){
     ctx.render();return true;
   }
   const learnCat=t.closest&&t.closest("[data-learncat]");
-  if(learnCat){state.learnCat=learnCat.getAttribute("data-learncat");state.scrollTo=0;ctx.render();return true;}
+  if(learnCat){state.learnCat=learnCat.getAttribute("data-learncat")||null;state.scrollTo=0;ctx.render();return true;}
   const bodyMet=t.closest&&t.closest("[data-bodymet]");
   if(bodyMet){state.bodyMetric=bodyMet.getAttribute("data-bodymet");ctx.render();return true;}
   const trend=t.closest&&t.closest("[data-trend]");
