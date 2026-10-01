@@ -392,6 +392,8 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .fbtick .icn{width:28px;height:28px;fill:none;stroke-width:2.4;}
 .fbh{font-size:19px;font-weight:800;}
 .fbp{font-size:var(--f-md);color:var(--muted);margin-top:5px;}
+.fbwhy{font-size:var(--f-xs);color:var(--muted);margin-top:8px;font-family:ui-monospace,Menlo,monospace;
+  word-break:break-word;}
 .fbmail{display:block;margin-top:12px;color:var(--accentText);font-weight:700;font-size:var(--f-md);
   text-decoration:none;}
 .fbspin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);

@@ -17,6 +17,8 @@ export function sendFeedback(kind,message,email,ctx){
     _subject:"KingsKiln feedback — "+kind,
     _template:"table",
     _captcha:"false",
+    // FormSubmit activates per site address; the live app always runs on www, so name it.
+    _url:"https://www.kingskiln.com/",
     Type:kind,
     Message:message,
     Screen:ctx.screen,

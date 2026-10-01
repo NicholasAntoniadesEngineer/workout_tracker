@@ -342,7 +342,8 @@ document.body.addEventListener("click",ev=>{
     f.sending=true;f.error=false;render();
     sendFeedback(f.kind,f.msg.trim(),(f.email||"").trim(),feedbackContext(state.view))
       .then(()=>{if(state.feedback){state.feedback.sending=false;state.feedback.sent=true;render();}})
-      .catch(()=>{if(state.feedback){state.feedback.sending=false;state.feedback.error=true;render();}});
+      .catch(err=>{if(state.feedback){state.feedback.sending=false;state.feedback.error=true;
+        state.feedback.errMsg=(err&&err.message)||"";render();}});
     return;
   }
   if(t.id==="fbmailto"&&state.feedback){

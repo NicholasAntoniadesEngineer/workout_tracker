@@ -73,6 +73,7 @@ function feedbackModal(){
   }else if(f.error){
     body="<div class='fbstate'><div class='fbh'>Couldn&rsquo;t send</div>"+
       "<div class='fbp'>No connection, maybe. Try again, or send it as an email instead.</div>"+
+      (f.errMsg?"<div class='fbwhy'>"+esc(f.errMsg)+"</div>":"")+
       "<button class='btn primary' id='fbretry'>Try again</button>"+
       "<a class='fbmail' id='fbmailto' href='#'>Email it instead</a></div>";
   }else{
