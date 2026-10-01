@@ -30,16 +30,14 @@ function tags(tp){
 const CAT_ICON={"Joints & resilience":"joint","Lifters & methods":"people","Recovery & nutrition":"moon",
   "Training principles":"target","Workout types":"dumbbell","Experts":"people","Fuel & hydration":"drop",
   "Pre-workout":"bolt","Protein & supplements":"pill","Recovery & health":"moon","What the lifters say":"chat"};
-const AVATAR_COLOURS=["#e8a317","#2a9d8f","#4c78dd","#d1495b","#8e6cd8","#5a9e3a","#c46f2b","#3b8fb5"];
 
 const isPeople=c=>c.cat==="Lifters & methods"||c.topics.some(t=>t.era||t.focus);
 
-// A person's badge: their initials on a colour picked from their name — no photos of anyone.
+// A person's badge: their initials in the app's one accent colour — no photos of anyone.
 function avatar(name){
   const words=name.replace(/[^A-Za-z& ]/g," ").split(/\s+/).filter(w=>w&&w!=="&");
   const ini=(words[0]?words[0][0]:"")+(words.length>1?words[words.length-1][0]:"");
-  let n=0;for(const ch of name)n=(n*31+ch.charCodeAt(0))>>>0;
-  return "<span class='lav' style='background:"+AVATAR_COLOURS[n%AVATAR_COLOURS.length]+"'>"+esc(ini.toUpperCase())+"</span>";
+  return "<span class='lav'>"+esc(ini.toUpperCase())+"</span>";
 }
 
 // People as compact tiles — badge, name, one line on what they're known for. No summaries
