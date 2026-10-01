@@ -345,6 +345,16 @@ export function demoUrl(name){
   return "https://www.youtube.com/results?search_query="+encodeURIComponent(q);
 }
 
+// The Learn topic behind an exercise's style of training, where there is a clear one.
+function learnFor(name){
+  const n=String(name).toLowerCase(),g=exerciseGroup(name);
+  if(n.indexOf("nordic")>=0)return ["nordic","Nordic curls & hamstring health"];
+  if(g===ATG_GROUP)return ["kot","Knees over toes & knee resilience"];
+  if(g==="Bands")return ["bands","Resistance bands"];
+  if(n.indexOf("kettlebell")>=0)return ["kettlebell","Kettlebell training"];
+  return null;
+}
+
 const REST_CHOICES=[["1:00",60],["1:30",90],["2:00",120],["3:00",180]];
 
 // How to do it, then everything it has ever done — records on top, newest day first —
@@ -384,6 +394,8 @@ function exerciseHistorySheet(name){
     "<a class='demolink' href='"+esc(demoUrl(name))+"' target='_blank' rel='noopener'>"+
       "Watch a demo &#8599;</a>"+
     "<div class='cuenote'>General form cues, not medical advice. Stop if anything hurts.</div>";
+  const topic=learnFor(name);
+  if(topic)h+="<button class='demolink learnjump' data-learnjump='"+topic[0]+"'>Learn: "+esc(topic[1])+" &rsaquo;</button>";
   // Rest after this exercise: its own target, or the default from Settings.
   const own=state.restTargets&&state.restTargets[k];
   const def=+state.settings.restTarget||0;
