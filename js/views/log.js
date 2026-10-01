@@ -211,12 +211,15 @@ function exerciseSheet(session){
      (q?"<button class='searchx' id='exsearchx'>&times;</button>":"")+"</div>";
   const shown=q?rest.filter(n=>n.toLowerCase().indexOf(q)>=0):rest;
 
-  // Grouped by movement, so a long list stays readable. Empty groups are left out.
+  // Grouped by movement and alphabetical within each, so a long list stays readable.
+  // Empty groups are left out.
   const byGroup={};
   shown.forEach(n=>{
     const g=exerciseGroup(n);
     (byGroup[g]=byGroup[g]||[]).push(n);
   });
+  Object.values(byGroup).forEach(names=>names.sort((a,b)=>
+    a.localeCompare(b,undefined,{sensitivity:"base",numeric:true})));
   EXERCISE_GROUPS.map(g=>g[0]).concat(OTHER_GROUP).forEach(g=>{
     const names=byGroup[g];
     if(!names)return;
