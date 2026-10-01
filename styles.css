@@ -327,7 +327,28 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   padding:max(20px,env(safe-area-inset-top)) 20px 20px;box-sizing:border-box;text-align:center;}
 /* Auto top/bottom margins centre the block vertically yet still let it scroll if it ever
    outgrows a short screen — unlike justify-content:center, which would clip the top. */
+/* On a phone the home page is exactly one screen: the tiles take whatever height the verse,
+   button and chips leave — big on a tall phone, smaller on a short one — so it never scrolls. */
 .homeinner{margin:auto 0;width:100%;max-width:420px;}
+@media (max-width:699px){
+  .wrap.scroll.home{overflow-y:auto;}
+  .wrap.scroll.home>.homeinner{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;margin:0;}
+  .homeinner .homerow{flex:1 1 auto;min-height:168px;max-height:330px;grid-template-rows:1fr 1fr auto;}
+  .homeinner .hometile{justify-content:center;padding-top:8px;padding-bottom:8px;}
+}
+/* Short phones (SE-size): tighter type and spacing so even a long verse fits. */
+@media (max-width:699px) and (max-height:720px){
+  .wrap.home .brand{margin-bottom:8px;font-size:18px;}
+  .wrap.home .homeday{font-size:26px;margin-bottom:8px;}
+  .wrap.home .homeverse{font-size:13px;line-height:1.4;padding:9px 12px;margin-bottom:10px;}
+  .wrap.home .verfoot{margin-top:6px;}
+  .wrap.home .homecta{padding:12px;font-size:16px;}
+  .wrap.home .homehero{margin-bottom:12px;}
+  .wrap.home .homeinner .homerow{min-height:132px;gap:8px;margin-bottom:10px;}
+  .wrap.home .homeinner .hometile{gap:4px;font-size:14px;}
+  .wrap.home .homefoot{margin-top:4px;}
+  .wrap.scroll.home{padding-top:max(12px,env(safe-area-inset-top));padding-bottom:12px;}
+}
 .homegear{position:absolute;top:max(16px,env(safe-area-inset-top));right:18px;z-index:2;}
 .brand{font-size:20px;font-weight:800;letter-spacing:-0.5px;margin-bottom:16px;
   display:flex;align-items:center;justify-content:center;gap:7px;}
@@ -354,13 +375,16 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .homelink{display:block;width:100%;margin-top:10px;background:none;border:0;color:var(--muted);
   font-size:14px;font-weight:600;cursor:pointer;text-align:center;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-/* The ways out of home, in one compact row: icon above a short name, so the whole landing
-   page fits on a phone screen without scrolling. */
-.homerow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:16px;}
+/* The ways out of home: big two-column tiles with Learn across the bottom — sized so the
+   whole landing page still fits on one phone screen without scrolling. */
+.homerow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .hometile{background:var(--panel);border:1px solid var(--line);color:var(--text);
-  border-radius:14px;padding:11px 2px 9px;font-size:12px;font-weight:700;cursor:pointer;min-width:0;
-  display:flex;flex-direction:column;align-items:center;gap:6px;}
-.hometile .icn.ht{width:24px;height:24px;}
+  border-radius:14px;padding:clamp(12px,2.4dvh,24px) 10px;font-size:15px;font-weight:700;cursor:pointer;
+  min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;}
+.hometile .icn.ht{width:26px;height:26px;}
+/* Learn spans both columns, icon beside its name, so the grid stays three rows tall. */
+.hometile.wide{grid-column:1/-1;flex-direction:row;justify-content:center;gap:10px;
+  padding-top:clamp(10px,1.5dvh,15px);padding-bottom:clamp(10px,1.5dvh,15px);}
 /* Learn: one topic open at a time, summary first, then the key points and links out. */
 .learnnote{font-size:var(--f-sm);color:var(--muted);margin:0 0 4px;text-align:center;}
 .learncard{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;
@@ -398,9 +422,7 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .wkday.future .wkdot{opacity:.4;}
 .wkday.now .wkinit{color:var(--accentText);font-weight:800;}
 /* Saved routines under the start button — one tap begins that day. */
-.routinerow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px;}
-.rchip .rn{opacity:.55;font-weight:600;margin-left:2px;}
-.rchip.more{background:transparent;border-style:dashed;color:var(--accentText);}
+.routinelink{color:var(--accentText);margin-top:6px;}
 .ramp{font-size:var(--f-md);margin-bottom:6px;}
 /* Inline SVG icons: 24-grid strokes through currentColor, amber details via .acc/.accf. */
 /* Taps go to the button, never the drawing inside it, so every handler sees its button. */

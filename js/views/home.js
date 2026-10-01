@@ -54,21 +54,11 @@ function sabbathWeek(){
 }
 
 // Saved routines as one quiet row of chips — tap to start today from one.
+// One quiet way into routines — a link, not a row of chips — so home stays uncluttered.
+// It opens a new day on the picker's Routines tab, where every routine is listed.
 function routineRow(){
-  // Your own routines first — they're the ones you made for yourself — then the built-ins.
-  const all=allRoutines();
-  const routines=all.filter(r=>!r.builtin).concat(all.filter(r=>r.builtin));
-  if(!routines.length)return "";
-  // A few on the home screen; the rest are one tap away in the picker's Routines tab.
-  const SHOWN=4;
-  let h="<div class='routinerow'>";
-  routines.slice(0,SHOWN).forEach(r=>{
-    h+="<button class='chip rchip' data-routine='"+r.id+"'>"+esc(r.name)+
-       " <span class='rn'>"+r.ex.length+"</span></button>";
-  });
-  if(routines.length>SHOWN)
-    h+="<button class='chip rchip more' id='homeroutines'>All routines <span class='rn'>"+routines.length+"</span></button>";
-  return h+"</div>";
+  if(!allRoutines().length)return "";
+  return "<button class='homelink routinelink' id='homeroutines'>Start from a routine &rsaquo;</button>";
 }
 
 function verseCard(){
@@ -142,7 +132,7 @@ export function homeView(){
         "<button class='hometile' id='homedays'>"+icon("days","ht")+"History</button>"+
         "<button class='hometile' id='homeprog'>"+icon("progress","ht")+"Progress</button>"+
         "<button class='hometile' id='homebody'>"+icon("body","ht")+"Body</button>"+
-        "<button class='hometile' id='homelearn'>"+icon("book","ht")+"Learn</button>"+
+        "<button class='hometile wide' id='homelearn'>"+icon("book","ht")+"Learn</button>"+
       "</div>";
   if(backupDue()){
     h+="<div class='backupcard'><div class='bc-t'>"+icon("save","sm")+"Back up your history</div>"+
