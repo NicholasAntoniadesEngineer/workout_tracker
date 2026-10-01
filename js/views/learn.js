@@ -5,6 +5,7 @@
 import {AREAS,areaCats,catOfTopic,topicById} from "../library.js";
 import {state} from "../store.js";
 import {icon} from "../icons.js";
+import {ageText,fmtBioDate,workKind} from "../bio.js";
 import {esc,pageHead} from "./common.js";
 
 // Short tab names for the categories, in the order the library lists them.
@@ -150,6 +151,25 @@ function listView(){
   return cur?categoryView(area,cats,cur):homeView(area,cats);
 }
 
+// Who they are, in brief: born (and died), age, where from, what they're known for, and
+// what they've published — newest first.
+function aboutPeople(people){
+  return "<div class='picklbl'>About</div>"+people.map(p=>{
+    const works=(p.works||[]).slice().sort((a,b)=>(b.y||0)-(a.y||0));
+    return "<div class='lbio'><div class='lbiohead'>"+avatar(p.name)+"<div class='lbion'><span class='lbionm'>"+esc(p.name)+"</span>"+
+      (p.known?"<span class='lbiok'>"+esc(p.known)+"</span>":"")+"</div></div>"+
+      "<div class='lbiofacts'>"+
+        (p.born?"<div><span>Born</span>"+esc(fmtBioDate(p.born))+(p.from?" &middot; "+esc(p.from):"")+"</div>":
+          (p.from?"<div><span>From</span>"+esc(p.from)+"</div>":""))+
+        (p.died?"<div><span>Died</span>"+esc(fmtBioDate(p.died))+"</div>":"")+
+        (p.born?"<div><span>Age</span>"+esc(ageText(p.born,p.died))+"</div>":"")+
+      "</div>"+
+      (works.length?"<div class='lworks'>"+works.map(w=>"<div class='lwork'><span class='lwy mono'>"+esc(w.y||"")+"</span>"+
+        "<span class='lwt'>"+esc(w.t)+"</span>"+(workKind(w.k)?"<span class='lwk'>"+workKind(w.k)+"</span>":"")+"</div>").join("")+"</div>":"")+
+      "</div>";
+  }).join("");
+}
+
 // A topic, magazine-style: a dark header with who, what and how much there is, then
 // Overview · Workouts · Links, so the page never gets long and text-heavy.
 function topicView(tp){
@@ -168,6 +188,7 @@ function topicView(tp){
     h+="<div class='seg ltabs3'>"+tabs.map(x=>"<button class='q"+(x[0]===tab?" on":"")+"' data-learntab='"+x[0]+"'>"+x[1]+"</button>").join("")+"</div>";
   if(tab==="overview"){
     h+="<p class='lsum'>"+esc(tp.summary)+"</p>";
+    if(tp.people&&tp.people.length)h+=aboutPeople(tp.people);
     if(tp.points&&tp.points.length)
       h+="<div class='lpoints'>"+tp.points.map(p=>"<div class='lpoint'><span class='lpdot'></span><span>"+esc(p)+"</span></div>").join("")+"</div>";
     if(ne)h+="<div class='picklbl'>Signature exercises</div><div class='lexlist'>"+

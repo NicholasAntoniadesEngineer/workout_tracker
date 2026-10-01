@@ -72,3 +72,14 @@ test("Learn lists categories and topics A–Z in both areas",()=>{
     a[2].forEach(c=>{const t=c.topics.map(x=>x.title);assert.deepEqual(t,az(t),c.cat);});
   });
 });
+
+import {fmtBioDate,bioAge,ageText} from "../js/bio.js";
+test("bios read dates and keep age current",()=>{
+  assert.equal(fmtBioDate("1951-11-15"),"15 Nov 1951");
+  assert.equal(fmtBioDate("1890"),"1890");
+  assert.equal(ageText("1951-11-15","2001-06-10"),"aged 49 at death");
+  assert.equal(ageText("1947-07-30",null,"2026-10-01"),"79 years old");
+  assert.equal(ageText("1947-07-30",null,"2026-07-29"),"78 years old");
+  assert.equal(ageText("1980",null,"2026-10-01"),"about 46 years old");
+  assert.equal(bioAge("bad"),null);
+});
