@@ -25,3 +25,10 @@ test("learnTopic finds a topic by id",()=>{
   assert.equal(learnTopic(topics[0].id),topics[0]);
   assert.equal(learnTopic("nope"),null);
 });
+
+import {VERSES} from "../js/verses.js";
+test("the KJV stays within Cambridge University Press's 500-verse allowance",()=>{
+  let n=0;
+  VERSES.forEach(v=>{const m=v.ref.match(/:(\d+)(?:-(\d+))?$/);n+=m&&m[2]?(+m[2]-+m[1]+1):1;});
+  assert.ok(n<500,n+" verses");
+});

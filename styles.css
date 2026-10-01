@@ -329,18 +329,18 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
    outgrows a short screen — unlike justify-content:center, which would clip the top. */
 .homeinner{margin:auto 0;width:100%;max-width:420px;}
 .homegear{position:absolute;top:max(16px,env(safe-area-inset-top));right:18px;z-index:2;}
-.brand{font-size:20px;font-weight:800;letter-spacing:-0.5px;margin-bottom:28px;
+.brand{font-size:20px;font-weight:800;letter-spacing:-0.5px;margin-bottom:16px;
   display:flex;align-items:center;justify-content:center;gap:7px;}
 .brand .bk{color:var(--accent);}
 .brandshield{width:20px;height:20px;flex:none;}
-.homehero{margin-bottom:26px;}
+.homehero{margin-bottom:18px;}
 .homeday{font-size:clamp(26px,8vw,34px);font-weight:800;letter-spacing:-1px;line-height:1.1;
-  margin-bottom:16px;}
+  margin-bottom:12px;}
 /* The day's verse in its own bordered card, so it reads as a deliberate quotation rather
    than loose text — upright and full-contrast, but quieter than the date or the button. */
 .homeverse{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  padding:14px 16px;font-size:14px;line-height:1.5;color:var(--text);
-  max-width:40ch;margin:0 auto 18px;}
+  padding:12px 14px;font-size:14px;line-height:1.45;color:var(--text);
+  max-width:40ch;margin:0 auto 14px;}
 /* Reference in the middle, a light step-arrow in each bottom corner of the box. */
 .verfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;}
 .homeref{font-weight:700;font-size:12.5px;color:var(--accentText);text-decoration:none;}
@@ -349,19 +349,18 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   font-size:22px;color:var(--muted);opacity:.55;}
 .verstep:hover{opacity:1;color:var(--accentText);}
 .homecta{width:100%;background:var(--accent);color:var(--onAccent);border:1px solid var(--accent);
-  border-radius:14px;padding:16px;font-size:17px;font-weight:800;cursor:pointer;
+  border-radius:14px;padding:14px;font-size:17px;font-weight:800;cursor:pointer;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .homelink{display:block;width:100%;margin-top:10px;background:none;border:0;color:var(--muted);
   font-size:14px;font-weight:600;cursor:pointer;text-align:center;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.homerow{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px;}
-.hometile{flex:1 1 40%;background:var(--panel);border:1px solid var(--line);color:var(--text);
-  border-radius:14px;padding:20px 12px;font-size:14px;font-weight:700;cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;gap:8px;}
-.hticon{font-size:22px;}
-/* Learn spans the row under the four tiles, with a line saying what's inside. */
-.hometile.wide{flex-basis:100%;flex-direction:row;justify-content:center;flex-wrap:wrap;padding:16px 12px;}
-.hometile.wide .htsub{flex-basis:100%;font-size:12px;font-weight:600;color:var(--muted);}
+/* The ways out of home, in one compact row: icon above a short name, so the whole landing
+   page fits on a phone screen without scrolling. */
+.homerow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:16px;}
+.hometile{background:var(--panel);border:1px solid var(--line);color:var(--text);
+  border-radius:14px;padding:11px 2px 9px;font-size:12px;font-weight:700;cursor:pointer;min-width:0;
+  display:flex;flex-direction:column;align-items:center;gap:6px;}
+.hometile .icn.ht{width:24px;height:24px;}
 /* Learn: one topic open at a time, summary first, then the key points and links out. */
 .learnnote{font-size:var(--f-sm);color:var(--muted);margin:0 0 4px;text-align:center;}
 .learncard{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;}
@@ -382,7 +381,7 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .llink .lx{flex:none;color:var(--muted);}
 .homestat{text-align:center;font-size:12px;color:var(--muted);}
 /* Quiet footer on the home screen: feedback and sharing, found without hunting in Settings. */
-.homefoot{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:22px;
+.homefoot{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:10px;
   font-size:13px;color:var(--muted);}
 .homefoot button{background:none;border:none;color:var(--muted);font:inherit;font-weight:600;
   cursor:pointer;padding:10px 6px;min-height:var(--tap);display:inline-flex;align-items:center;gap:5px;}

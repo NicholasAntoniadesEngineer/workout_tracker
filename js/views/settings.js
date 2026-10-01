@@ -32,6 +32,12 @@ function toggleRow(label,hint,key){
     "</div></div>";
 }
 
+// Cambridge University Press's required wording for quoting the KJV (UK Crown copyright).
+// The app quotes well under their 500-verse limit and no complete book.
+const KJV_NOTICE="Scripture quotations from The Authorized (King James) Version. Rights in the "+
+  "Authorized Version in the United Kingdom are vested in the Crown. Reproduced by permission of "+
+  "the Crown's patentee, Cambridge University Press.";
+
 // A weekly reminder, set once into the phone's calendar: pick days and a time, then add it.
 const REMIND_TIMES=["05:30","06:00","06:30","07:00","07:30","08:00","12:00","12:30","17:00","17:30",
   "18:00","18:30","19:00","19:30","20:00"];
@@ -57,7 +63,7 @@ export function settingsView(){
     choiceRow("Text size","","textScale",TEXT_SIZES,"onerow")+
     choiceRow("Theme","","theme",THEMES)+
     toggleRow("Time of each set","","showSetTimes")+
-    choiceRow("Bible version","","bibleVersion",[["WEB","web"],["KJV","kjv"]])+
+    choiceRow("Bible version",state.settings.bibleVersion==="kjv"?KJV_NOTICE:"","bibleVersion",[["WEB","web"],["KJV","kjv"]])+
     choiceRow("Church calendar","Feast days marked in the calendar.","feastSet",
       [["Off","off"],["Western","western"],["Orthodox","orthodox"]])+
     choiceRow("Rest day","The day the week keeps for rest.","restDay",
@@ -98,6 +104,9 @@ export function settingsView(){
     "<div class='setopts'><button class='q' id='feedbackbtn'>&#9998; Tell the developer</button>"+
     "</div></div>"+
 
+    // Where the verses come from, and the acknowledgement the KJV's UK rights holder asks for.
+    "<div class='setrow'><div class='setlbl'>Bible text</div>"+
+    "<div class='sethint'>World English Bible (WEB): public domain. "+KJV_NOTICE+"</div></div>"+
     // Names are used only to describe movements; saying so plainly avoids implying endorsement.
     "<div class='setrow'><div class='setlbl'>Exercise names</div>"+
     "<div class='sethint'>Exercise and method names, including ATG and knees-over-toes terms, are used "+
