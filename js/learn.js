@@ -327,7 +327,6 @@ export const LEARN=[
       {t:"Load vs repetition progression trial — PeerJ",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC9528903/",k:"study",d:"Adding reps worked as well as adding load"},
       {t:"New horizons in training periodisation — Sports Medicine",u:"https://pubmed.ncbi.nlm.nih.gov/20199119/",k:"study",d:"Issurin's case for block periodisation in elite sport"},
       {t:"Periodisation: what the data say — Stronger By Science",u:"https://www.strongerbyscience.com/periodization-data/",k:"article",d:"Long-form review of periodised vs non-periodised training"},
-      {t:"Progression models in resistance training — ACSM",u:"https://pubmed.ncbi.nlm.nih.gov/19204579/",k:"guideline",d:"Position stand on progressing load, volume and frequency"},
       {t:"5/3/1 progression — Jim Wendler (official site)",u:"https://www.jimwendler.com/",k:"article",d:"Slow, cycle-by-cycle strength progression in practice"}]},
     {id:"reps",title:"Rep ranges: strength vs size",
      summary:"Muscle grows across a wide load spectrum, from heavy fives to sets of thirty, provided sets finish close to failure. Maximal strength responds best to heavy work at roughly 80% of 1RM and above, because lifting heavy is a skill that needs practice. Most athletes run heavy low-rep sets on main lifts and moderate-to-high reps on accessories.",
@@ -335,7 +334,6 @@ export const LEARN=[
      links:[
       {t:"Low- vs high-load training meta-analysis — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/28834797/",k:"study",d:"Heavy loads win for strength; size similar across loads"},
       {t:"Re-examining the repetition continuum — Sports",u:"https://pubmed.ncbi.nlm.nih.gov/33671664/",k:"study",d:"Updated look at reps for strength, size and endurance"},
-      {t:"Resistance training prescription position stand (2026) — ACSM",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",k:"guideline",d:"Overview of 137 reviews on how to prescribe training"},
       {t:"Evidence-based training explainers — Jeff Nippard (YouTube)",u:"https://www.youtube.com/@JeffNippard",k:"video",d:"Science-based videos on reps, volume and technique"}]},
     {id:"volume",title:"Training volume",
      summary:"Weekly hard sets per muscle are the main dial for growth. For trained lifters roughly 10–20 sets per muscle per week is the productive range, and some advanced athletes respond to more than 20, though returns shrink and recovery becomes the limit. Rather than holding volume flat, ramp it through a block from your minimum effective dose towards your recoverable maximum, then deload.",
@@ -389,10 +387,9 @@ export const LEARN=[
   ]},
   {cat:"Workout types",topics:[
     {id:"strength",title:"Strength training for athletes",
-     summary:"Maximal strength underpins speed, power and change of direction, and research links greater strength with better performance across many sports. Build programmes around squat, hinge, press, pull and carry patterns, each trained heavy two or three times a week. The 2026 ACSM position stand found strength favoured loads of 80% of 1RM or more, full range of motion, and doing the key lift early in the session.",
+     summary:"Maximal strength underpins speed, power and change of direction, and research links greater strength with better performance across many sports. Build programmes around squat, hinge, press, pull and carry patterns, each trained heavy two or three times a week. Strength responds best to loads of 80% of 1RM or more, full range of motion, and doing the key lift early in the session.",
      points:["Main lifts 2–3× per week at 80%+ of 1RM","2–5 hard sets of 1–6 reps on primary lifts","Train the key lift first, through full range","Build strength in the off-season, maintain in-season"],
      links:[
-      {t:"Resistance training prescription position stand (2026) — ACSM",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",k:"guideline",d:"What actually moves strength, size and power"},
       {t:"The importance of muscular strength in athletic performance — Sports Medicine",u:"https://pubmed.ncbi.nlm.nih.gov/26838985/",k:"study",d:"Why stronger athletes tend to perform better"},
       {t:"The importance of muscular strength: training considerations — Sports Medicine",u:"https://pubmed.ncbi.nlm.nih.gov/29372481/",k:"study",d:"How to programme strength for athletes"},
       {t:"Barbell technique videos — Starting Strength (YouTube)",u:"https://www.youtube.com/@StartingStrength",k:"video",d:"Coaching the squat, press, deadlift and bench"},
