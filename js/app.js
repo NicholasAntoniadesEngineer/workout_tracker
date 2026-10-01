@@ -268,7 +268,16 @@ function watchDrag(){
 
 // In Learn a sideways swipe does what the tabs at that level do: on home it flips Training and
 // Health, in a category it moves to the next category, and on a topic it steps through that
-// topic's sections (Overview, Workouts, Links). Mostly-vertical drags are left to scrolling.
+// topic's sections (Overview, Workouts, Links). Swiping back past the first one steps out a
+// level — topic → its list → Learn home → the app's home — and a swipe that starts at the
+// screen's left edge always steps out. Mostly-vertical drags are left to scrolling.
+const EDGE_PX=28;
+function learnBack(){
+  if(state.learnOpen){state.learnOpen=null;state.scrollTo=state.learnListY||0;}
+  else if(state.learnCat){state.learnCat=null;state.scrollTo=0;}
+  else{state.view="home";state.learnQuery="";}
+  render();
+}
 const SWIPE_MIN=60;
 function watchLearnSwipe(){
   let sx=0,sy=0,on=false;
@@ -282,22 +291,25 @@ function watchLearnSwipe(){
     on=false;
     const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<Math.abs(dy)*1.5)return;
+    if(dx>0&&sx<=EDGE_PX){learnBack();return;}
     if(state.learnOpen){
       const tabs=[...document.querySelectorAll("[data-learntab]")].map(b=>b.getAttribute("data-learntab"));
-      if(tabs.length<2)return;
+      if(tabs.length<2){if(dx>0)learnBack();return;}
       const cur=Math.max(0,tabs.indexOf(state.learnTab||"overview"));
       const next=cur+(dx<0?1:-1);
-      if(next<0||next>=tabs.length)return;
+      if(next<0){learnBack();return;}
+      if(next>=tabs.length)return;
       state.learnTab=tabs[next];state.scrollTo=0;render();return;
     }
     if(!state.learnCat){
       const area=state.learnArea||"training",want=dx<0?"health":"training";
-      if(area===want)return;
+      if(area===want){if(dx>0)learnBack();return;}
       state.learnArea=want;state.learnQuery="";state.scrollTo=0;render();return;
     }
     const order=areaCats(state.learnArea||"training").map(c=>c.cat);
     const next=order.indexOf(state.learnCat)+(dx<0?1:-1);
-    if(next<0||next>=order.length)return;
+    if(next<0){learnBack();return;}
+    if(next>=order.length)return;
     state.learnCat=order[next];state.scrollTo=0;
     render();
   },{passive:true});
