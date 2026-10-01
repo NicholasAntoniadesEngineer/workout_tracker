@@ -9,6 +9,8 @@ const PATHS={
   home:"<path d='M4.5 10.8 L12 4.2 L19.5 10.8'/>"+
     "<path d='M6.8 9 V18 a1.6 1.6 0 0 0 1.6 1.6 h7.2 a1.6 1.6 0 0 0 1.6 -1.6 V9'/>"+
     "<path class='acc' d='M12 19.4 V14.6'/>",
+  bookmark:"<path d='M7 4.5 h10 a1 1 0 0 1 1 1 V19.5 L12 15.6 L6 19.5 V5.5 a1 1 0 0 1 1 -1 z'/>"+
+    "<path class='acc' d='M10 9.5 H14'/>",
   days:"<path d='M5 6.5 H19 M5 12 H19 M5 17.5 H12'/>"+
     "<circle class='accf' cx='17' cy='17.5' r='1.7'/>",
   settings:"<path d='M4.5 8 H19.5 M4.5 16 H19.5'/>"+

@@ -25,6 +25,8 @@ export function historyView(){
       (secs===null?"":" &middot; "+fmtClock(secs))+
       (s.running?" <span class='live'>live</span>":"")+"</div></div>"+
       "<div class='nums'><div class='r mono'>"+t.reps+"</div><div class='rl'>reps</div></div>"+
+      (s.ex.length?"<button class='copy' data-saveroutine='"+s.id+"' title='Save as a routine'>"+
+        icon("bookmark","sm")+"</button>":"")+
       "<button class='copy' data-copyday='"+s.id+"' title='Repeat this day&rsquo;s exercises today'>&#10697;</button>"+
       "<button class='del' data-delday='"+s.id+"'>&times;</button></div>";
   });

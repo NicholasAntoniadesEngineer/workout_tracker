@@ -9,6 +9,8 @@ import {icon} from "../icons.js";
 import {esc} from "./common.js";
 
 const MIN_SET_COLUMNS=1;
+// Past days offered for saving as a routine — the recent ones; History reaches the rest.
+const PAST_DAYS_SHOWN=8;
 
 function setColumns(session){
   return session.ex.reduce((most,e)=>Math.max(most,e.sets.length),MIN_SET_COLUMNS);
@@ -204,6 +206,22 @@ function exerciseSheet(session){
   });
   h+="</div>";
 
+  // One sheet, two ways in: single exercises, or a whole routine at once.
+  const tab=state.pickTab==="routines"?"routines":"ex";
+  h+="<div class='seg picktabs'>"+
+    "<button class='q"+(tab==="ex"?" on":"")+"' data-picktab='ex'>Exercises</button>"+
+    "<button class='q"+(tab==="routines"?" on":"")+"' data-picktab='routines'>Routines"+
+      (state.routines.length?" <span class='rn'>"+state.routines.length+"</span>":"")+"</button></div>";
+  h+=tab==="routines"?routinePane(session):exercisePane(rest);
+
+  if(session.ex.length)
+    h+="<div class='reset'><button id='reset'>Clear this day's sets</button></div>";
+  return h+"</div></div></div>";
+}
+
+// The catalog, searchable and grouped by movement.
+function exercisePane(rest){
+  let h="";
   // Search filters the list as you type — the list is long enough now to warrant it.
   const q=(state.exSearch||"").trim().toLowerCase();
   h+="<div class='searchrow'><input class='searchin' id='exsearch' type='search' "+
@@ -241,23 +259,36 @@ function exerciseSheet(session){
     h+="<button class='addbtn' id='addbtn'>+ New exercise</button>";
   }
   h+="</div>";
+  return h;
+}
 
-  // Routines: today's list saved under a name, and saved ones applied or dropped here.
-  if(state.routines.length||session.ex.length){
-    h+="<div class='picklbl'>Routines</div><div class='chips'>";
+// Saved routines to drop in whole, and any day — this one or a past one — to keep as one.
+function routinePane(session){
+  let h="";
+  if(state.routines.length){
     state.routines.forEach(r=>{
-      h+="<span class='chip rchip'><button class='pick' data-applyroutine='"+r.id+"'>"+
-         esc(r.name)+" <span class='rn'>"+r.ex.length+"</span></button>"+
+      h+="<div class='rrow'><button class='rpick' data-applyroutine='"+r.id+"'>"+
+         "<span class='rt'>"+esc(r.name)+" <span class='rn'>"+r.ex.length+"</span></span>"+
+         "<span class='rs'>"+esc(r.ex.join(" · "))+"</span></button>"+
          "<button class='x share' data-shareroutine='"+r.id+"' title='Share this routine'>"+icon("share","sm")+"</button>"+
-         "<button class='x' data-delroutine='"+r.id+"'>&times;</button></span>";
+         "<button class='x' data-delroutine='"+r.id+"'>&times;</button></div>";
     });
-    if(session.ex.length)
-      h+="<button class='addbtn' id='saveroutine'>+ Save day as routine</button>";
-    h+="</div>";
+  }else{
+    h+="<div class='empty-note'>No routines yet. Save a day&rsquo;s exercises as one below.</div>";
   }
+  const past=newestFirst(state.sessions).filter(s=>s.id!==session.id&&s.ex.length).slice(0,PAST_DAYS_SHOWN);
+  if(!session.ex.length&&!past.length)return h;
+  h+="<div class='picklbl'>Save a day as a routine</div>";
   if(session.ex.length)
-    h+="<div class='reset'><button id='reset'>Clear this day's sets</button></div>";
-  return h+"</div></div></div>";
+    h+="<button class='addbtn' data-saveroutine='"+session.id+"'>+ This day&rsquo;s "+
+       session.ex.length+" exercises</button>";
+  past.forEach(s=>{
+    h+="<div class='rrow past'><div class='rpick'>"+
+       "<span class='rt'>"+esc(s.title)+"</span>"+
+       "<span class='rs'>"+shortDate(s.created)+" &middot; "+esc(s.ex.map(e=>e.name).join(" · "))+"</span></div>"+
+       "<button class='btn ghost tiny' data-saveroutine='"+s.id+"'>Save</button></div>";
+  });
+  return h;
 }
 
 // Everything this exercise has ever done, newest day first, with its records on top.

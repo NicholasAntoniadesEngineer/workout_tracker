@@ -287,6 +287,20 @@ document.body.addEventListener("click",ev=>{
     }
     render();return;
   }
+  // Keep any day's exercises — today's or a past one's — as a named routine.
+  const saveDay=t.closest&&t.closest("[data-saveroutine]");
+  if(saveDay){
+    const src=state.sessions.find(s=>s.id===saveDay.getAttribute("data-saveroutine"));
+    const name=src&&src.ex.length?prompt("Name this routine",src.title):null;
+    if(name!==null&&name.trim()){
+      snapshot("Saved routine "+name.trim());
+      saveRoutine(name,src.ex.map(e=>e.name));
+      state.pickTab="routines";
+    }
+    render();return;
+  }
+  const pickTab=t.closest&&t.closest("[data-picktab]");
+  if(pickTab){state.pickTab=pickTab.getAttribute("data-picktab");state.adding=false;render();return;}
   const loadDay=t.closest&&t.closest("[data-load]");
   if(loadDay){
     state.origin=state.view;                 // return here if the picker is dismissed empty
@@ -395,12 +409,6 @@ document.body.addEventListener("click",ev=>{
       snapshot("Dropped routine "+r.name);
       state.routines=state.routines.filter(x=>x.id!==r.id);
     }
-    render();return;
-  }
-  if(t.id==="saveroutine"){
-    const s=getSession();
-    const name=prompt("Name this routine",s.title);
-    if(name!==null&&name.trim())saveRoutine(name,s.ex.map(e=>e.name));
     render();return;
   }
   // Home tiles hold an icon span, so a tap can land inside the button — match by ancestor.
