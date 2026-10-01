@@ -10,6 +10,8 @@ import {calendarView} from "./views/calendar.js";
 import {progressView} from "./views/progress.js";
 import {bodyView} from "./views/body.js";
 import {settingsView} from "./views/settings.js";
+import {fmtClock,shortDate} from "./model.js";
+import {workoutSummary} from "./coach.js";
 
 export {esc} from "./views/common.js";
 export {stepVerse} from "./views/home.js";
@@ -55,6 +57,51 @@ function shareMenu(){
   return h+"</div></div></div>";
 }
 
+// A set that beat everything before it: a short, warm banner — then it gets out of the way.
+function bestToast(){
+  const b=state.best;
+  // The summary lists today's bests itself, so the banner steps aside while it's open.
+  if(!b||state.summary)return "";
+  return "<div class='besttoast' role='status'><span class='bt-k'>New best</span>"+
+    "<span class='bt-n'>"+esc(b.name)+"</span><span class='bt-l'>"+esc(b.label)+"</span></div>";
+}
+
+// The end of a workout gets a moment of its own: how long, how much, how it compares with
+// the last time this workout was done, and any new bests — with the share card one tap away.
+function summaryModal(){
+  const s=state.summary&&state.sessions.find(x=>x.id===state.summary);
+  if(!s)return "";
+  const unit=state.settings.unit||"kg";
+  const sm=workoutSummary(state.sessions,s,unit);
+  const vol=v=>v>=10000?Math.round(v/100)/10+"k":String(v);
+  let cmp="";
+  if(sm.prev&&sm.prev.volume&&sm.volume){
+    const d=Math.round((sm.volume-sm.prev.volume)/sm.prev.volume*100);
+    cmp=(d>0?"+"+d+"% volume":(d<0?d+"% volume":"Same volume"))+" vs "+esc(shortDate(sm.prev.created));
+  }else if(sm.prev&&sm.prev.reps){
+    const d=sm.reps-sm.prev.reps;
+    cmp=(d>0?"+"+d:(d<0?String(d):"Same"))+" reps vs "+esc(shortDate(sm.prev.created));
+  }
+  let h="<div class='overlay' id='summaryback'><div class='sheet actionsheet sumsheet'>"+
+    "<div class='sheethead'><div class='plabel'>Workout done</div>"+
+    "<button class='btn ghost tiny' id='summaryclose'>Close</button></div><div class='sheetbody'>"+
+    "<div class='sumtitle'>"+esc(s.title)+"</div>"+
+    "<div class='prgrid sumgrid'>"+
+      "<div class='stat'><div class='v mono'>"+(sm.secs===null?"&mdash;":fmtClock(sm.secs))+"</div><div class='l'>Time</div></div>"+
+      "<div class='stat'><div class='v mono'>"+sm.sets+"</div><div class='l'>Sets</div></div>"+
+      "<div class='stat'><div class='v mono'>"+sm.reps+"</div><div class='l'>Reps</div></div>"+
+      "<div class='stat'><div class='v mono'>"+(sm.volume?vol(sm.volume)+"<span class='pru'>"+esc(unit)+"</span>":"&mdash;")+
+        "</div><div class='l'>Lifted</div></div></div>"+
+    (cmp?"<div class='sumcmp'>"+cmp+"</div>":"");
+  if(sm.bests.length){
+    h+="<div class='picklbl'>New bests</div>";
+    sm.bests.forEach(b=>{h+="<div class='histrow'><span class='histdate'>"+esc(b.name)+"</span>"+
+      "<span class='histsets mono'>"+esc(b.label)+"</span></div>";});
+  }
+  h+="<button class='btn primary sumshare' id='summaryshare'>"+icon("photo","sm")+"Share as image</button>";
+  return h+"</div></div></div>";
+}
+
 const FB_KINDS=[["idea","Idea"],["problem","Problem"],["praise","Praise"]];
 
 // Feedback window: a bottom sheet to type a note; typing never re-renders (values are read
@@ -96,5 +143,5 @@ function feedbackModal(){
 
 export function paint(){
   document.getElementById("app").innerHTML=
-    (VIEWS[state.view]||logView)()+undoToast()+shareMenu()+feedbackModal();
+    (VIEWS[state.view]||logView)()+undoToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
 }

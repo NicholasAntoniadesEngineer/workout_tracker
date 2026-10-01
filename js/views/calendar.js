@@ -31,7 +31,7 @@ function monthStats(list){
   list.forEach(s=>s.ex.forEach(e=>e.sets.forEach(x=>{
     if(x.wu)return;
     sets++;
-    if(!e.timed){reps+=setReps(x);ton+=setReps(x)*(+x.w||0);}
+    if(!e.timed&&!e.dist){reps+=setReps(x);ton+=setReps(x)*(+x.w||0);}
   })));
   return {sets,reps,ton:Math.round(ton)};
 }

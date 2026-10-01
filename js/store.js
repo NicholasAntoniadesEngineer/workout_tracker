@@ -1,4 +1,4 @@
-import {BUILTIN_ROUTINES,RETIRED,SEED_EXERCISES,convertLength,convertWeight,dateKey,makeExercise,makeSession,normSet,
+import {BUILTIN_ROUTINES,RETIRED,SEED_EXERCISES,lastSetExercise,convertLength,convertWeight,dateKey,makeExercise,makeSession,normSet,
   options} from "./model.js";
 
 const KEY="workout_days_v2";
@@ -8,13 +8,43 @@ const SEC_PER_MIN=60;
 
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
-  bibleVersion:"web",feastSet:"western",restDay:0};
+  bibleVersion:"web",feastSet:"western",restDay:0,repRange:"8-12",remindDays:"0,2,4",
+  remindTime:"07:00"};
+
+// History lives only on this device, so after a few workouts — and every few weeks after —
+// home suggests saving a backup file. "Not now" quiets it for a week.
+const BACKUP_AFTER_WORKOUTS=3;
+const BACKUP_EVERY_DAYS=21;
+const DAY_MS=86400000;
+export function backupDue(now){
+  const t=now||Date.now();
+  if(state.backupSnooze&&Date.parse(state.backupSnooze)>t)return false;
+  const done=state.sessions.filter(s=>s.ex.some(e=>e.sets.length));
+  if(done.length<BACKUP_AFTER_WORKOUTS)return false;
+  if(!state.backupAt)return true;
+  const newer=done.some(s=>(s.created||"")>state.backupAt);
+  return newer&&(t-Date.parse(state.backupAt))/DAY_MS>=BACKUP_EVERY_DAYS;
+}
+
+// Rest after a set follows that exercise's own target if it has one, else the default.
+export function restTargetFor(session){
+  const e=lastSetExercise(session);
+  const own=e&&state.restTargets&&state.restTargets[key(e.name)];
+  return own||+state.settings.restTarget||0;
+}
+
+// The rep range progression works within, e.g. "10-14" → {low:10, top:14}.
+export function repRange(){
+  const p=String(state.settings.repRange||DEFAULTS.repRange).split("-").map(Number);
+  return {low:p[0]||8,top:p[1]||12};
+}
 
 export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],body:[],routines:[],hiddenRoutines:[],
   settings:Object.assign({},DEFAULTS),
   reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,band:"",warmup:false,setStart:null,editing:null,
   adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
-  exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",focusSearch:false,origin:"home",view:"home",undo:null,progressEx:"",verseIdx:null,
+  exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
+  backupAt:"",backupSnooze:"",focusSearch:false,origin:"home",view:"home",undo:null,progressEx:"",verseIdx:null,
   shareMenu:null,numEdit:null,feedback:null,
   calYear:new Date().getFullYear(),calMonth:new Date().getMonth(),calDay:null};
 
@@ -90,7 +120,7 @@ function normSession(s){
   s.ended=s.ended||"";
   s.timerFrom=s.timerFrom||"";
   s.running=!!s.running;
-  s.ex.forEach(e=>{e.timed=!!e.timed;e.sets=(e.sets||[]).map(normSet);});
+  s.ex.forEach(e=>{e.timed=!!e.timed;e.dist=!!e.dist&&!e.timed;e.sets=(e.sets||[]).map(normSet);});
   return s;
 }
 
@@ -105,6 +135,9 @@ export function load(){
   state.body=(saved&&saved.body)||[];
   state.routines=(saved&&saved.routines)||[];
   state.hiddenRoutines=(saved&&saved.hiddenRoutines)||[];
+  state.restTargets=(saved&&saved.restTargets)||{};
+  state.backupAt=(saved&&saved.backupAt)||"";
+  state.backupSnooze=(saved&&saved.backupSnooze)||"";
   state.catalog=buildCatalog(saved);
   state.settings=Object.assign({},DEFAULTS,(saved&&saved.settings)||{});
   applySettings();
@@ -119,7 +152,8 @@ export function save(){
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,
-        hiddenRoutines:state.hiddenRoutines}));
+        hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,
+        backupAt:state.backupAt,backupSnooze:state.backupSnooze}));
   }catch(e){}
 }
 
@@ -173,7 +207,9 @@ export function saveRoutine(name,exNames){
   const n=String(name||"").trim();
   if(!n||!exNames.length)return null;
   state.routines=state.routines.filter(r=>key(r.name)!==key(n));
-  const r={id:"r"+Date.now().toString(36)+state.routines.length,name:n,ex:exNames.slice()};
+  // Time plus a random tail: two routines saved in the same millisecond (a backup being
+  // loaded) still get different ids.
+  const r={id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,8),name:n,ex:exNames.slice()};
   state.routines.push(r);
   return r;
 }
@@ -227,6 +263,8 @@ export function importBackup(d){
   (Array.isArray(d.routines)?d.routines:[]).forEach(r=>{
     if(r&&r.name&&Array.isArray(r.ex))saveRoutine(r.name,r.ex);
   });
+  if(d.restTargets&&typeof d.restTargets==="object")
+    state.restTargets=Object.assign({},state.restTargets,d.restTargets);
   (Array.isArray(d.hiddenRoutines)?d.hiddenRoutines:[]).forEach(n=>{
     if(n&&state.hiddenRoutines.map(key).indexOf(key(n))<0)state.hiddenRoutines.push(String(n));
   });

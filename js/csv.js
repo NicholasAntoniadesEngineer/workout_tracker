@@ -17,7 +17,7 @@ export function buildCSV(sessions){
   const oldestFirst=sessions.slice().sort((a,b)=>(a.created||"").localeCompare(b.created||""));
   oldestFirst.forEach(s=>s.ex.forEach(e=>{
     const day=[s.created,s.title,s.started||"",workoutEnd(s)];
-    const mode=e.timed?"sec":"";
+    const mode=e.timed?"sec":(e.dist?"m":"");
     if(e.sets.length)e.sets.forEach((x,i)=>
       rows.push(day.concat([e.name,i+1,x.r,x.side?SIDE_MARK:"",x.w||"",x.band||"",x.rest||"",x.t||"",x.at||"",
         x.wu?"warmup":"",mode])));
@@ -76,8 +76,10 @@ export function parseImport(text){
       order.push(key);
     }
     const g=groups[key];
-    if(!g.byName[name]){g.byName[name]={name,timed:false,tmp:[]};g.ex.push(g.byName[name]);}
-    if(col.mode>=0&&(row[col.mode]||"").trim().toLowerCase()==="sec")g.byName[name].timed=true;
+    if(!g.byName[name]){g.byName[name]={name,timed:false,dist:false,tmp:[]};g.ex.push(g.byName[name]);}
+    const mode=col.mode>=0?(row[col.mode]||"").trim().toLowerCase():"";
+    if(mode==="sec")g.byName[name].timed=true;
+    else if(mode==="m")g.byName[name].dist=true;
     const repsRaw=(row[col.reps]||"").trim();
     if(repsRaw==="")continue;
     const reps=parseInt(repsRaw,10);
@@ -98,7 +100,7 @@ export function parseImport(text){
     return Object.assign(day,{
       ex:g.ex.map(e=>{
         e.tmp.sort((a,b)=>a.i-b.i);
-        return {id:uid(),name:e.name,timed:!!e.timed,sets:e.tmp.map(o=>({r:o.r,side:o.side,w:o.w,band:o.band||"",t:o.t,rest:o.rest,at:o.at,wu:o.wu}))};
+        return {id:uid(),name:e.name,timed:!!e.timed,dist:!!e.dist,sets:e.tmp.map(o=>({r:o.r,side:o.side,w:o.w,band:o.band||"",t:o.t,rest:o.rest,at:o.at,wu:o.wu}))};
       })});
   });
   if(!imported.length)throw new Error("No workout rows found in that file.");
@@ -113,7 +115,7 @@ function download(text,fname,mime){
 }
 
 // The share sheet where it exists — straight to AirDrop, Drive, mail — a download otherwise.
-function deliver(text,fname,mime){
+export function deliver(text,fname,mime){
   try{
     const file=new File([text],fname,{type:mime});
     if(navigator.canShare&&navigator.canShare({files:[file]})){

@@ -2,7 +2,6 @@
 // No libraries — the charts inherit the theme through currentColor and CSS variables.
 import {dateKey,setReps} from "./model.js";
 
-const MS_PER_DAY=86400000;
 const WEEKS_SHOWN=8;
 const TREND_POINTS=12;
 
@@ -35,7 +34,9 @@ export function weeklyVolume(sessions){
   const weeks=[];
   const thisWeek=weekStart(new Date());
   for(let i=WEEKS_SHOWN-1;i>=0;i--){
-    const start=new Date(thisWeek.getTime()-i*7*MS_PER_DAY);
+    // Step back by calendar days, not 24-hour blocks, so a daylight-saving change never
+    // lands a week on Sunday 23:00 and loses the sessions in it.
+    const start=new Date(thisWeek.getFullYear(),thisWeek.getMonth(),thisWeek.getDate()-i*7);
     weeks.push({key:dateKey(start.toISOString()),
       label:start.toLocaleDateString(undefined,{day:"numeric",month:"short"}),
       reps:0,ton:0,days:{}});
@@ -64,8 +65,9 @@ export function exerciseRecords(sessions){
     if(!e.sets.length)return;
     const k=e.name.trim().toLowerCase();
     const rec=by[k]=by[k]||{name:e.name,days:0,bestW:0,bestWReps:0,best1RM:0,bestR:0,last:"",
-      timed:false};
+      timed:false,dist:false};
     rec.timed=rec.timed||!!e.timed;
+    rec.dist=rec.dist||!!e.dist;
     rec.days++;
     if((s.created||"")>rec.last)rec.last=s.created||"";
     e.sets.forEach(x=>{

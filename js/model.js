@@ -63,7 +63,11 @@ export const SEED_EXERCISES=EXERCISE_GROUPS.reduce((all,g)=>all.concat(g[1]),[])
 export const BUILTIN_ROUTINES=[
   {name:"Legs, Back & Biceps",ex:["Smith machine squat","Smith machine front lunge","Deadlift",
     "Barbell row","Seated cable row","Straight-arm pulldown",
-    "Hammer curl","Barbell curl"]}
+    "Hammer curl","Barbell curl"]},
+  // Lower legs up to the hips, slow and light: shins, feet and calves first, then knee travel
+  // over the toes, then hamstrings, hip flexors and a quad stretch. Named for what it does.
+  {name:"Knee & ankle foundations",ex:["Tibialis raises","FHL calf raise","KOT calf raise",
+    "Patrick step","ATG split squat","Elephant walk","L-sit","Couch stretch"]}
 ];
 
 // Built-ins since dropped. An older install still lists them, so the picker leaves them out
@@ -160,11 +164,25 @@ export function setReps(x){return (x.side&&options.perSideDouble)?x.r*SIDES_PER_
 
 export function exerciseTotal(e){return e.sets.reduce((sum,x)=>sum+(x.wu?0:setReps(x)),0);}
 
-// Timed exercises hold seconds in r, so they count toward sets but never the rep total.
+// An exercise counts in one of three units: reps (the default), seconds held (timed), or
+// metres covered (dist) — a plank is held, a sled is dragged, a squat is counted.
+export function unitOf(e){return e&&e.timed?"secs":(e&&e.dist?"m":"reps");}
+
+// Timed and distance exercises hold seconds or metres in r, so they count toward sets but
+// never the rep total.
 export function totals(session){
   let reps=0,sets=0;
-  session.ex.forEach(e=>e.sets.forEach(x=>{if(!x.wu&&!e.timed)reps+=setReps(x);sets++;}));
+  session.ex.forEach(e=>e.sets.forEach(x=>{if(!x.wu&&!e.timed&&!e.dist)reps+=setReps(x);sets++;}));
   return {reps,sets};
+}
+
+// The exercise the newest set belongs to — rest after it follows that exercise's target.
+export function lastSetExercise(session){
+  let best=null,at=null;
+  session.ex.forEach(e=>e.sets.forEach(x=>{
+    if(at===null||(x.at||"")>=at){at=x.at||"";best=e;}
+  }));
+  return best;
 }
 
 // Sets append per exercise, so the newest stamp has to be found across all of them.
@@ -183,8 +201,6 @@ export function lastSet(session){
   return newest;
 }
 
-// Rest is measured from the last set, the workout start, or wherever the timer was last
-// reset to — whichever is most recent. It can never predate the workout itself.
 // How far into the workout a moment fell, in seconds — the workout's own clock rather
 // than the time of day, so it matches the Workout clock. Sets from before the clock was
 // last started (a workout begun again later the same day) count from the day's first set
@@ -197,6 +213,8 @@ export function workoutOffset(session,iso){
   return Math.max(0,(Date.parse(iso)-Date.parse(start))/MS_PER_SEC);
 }
 
+// Rest is measured from the last set, the workout start, or wherever the timer was last
+// reset to — whichever is most recent. It can never predate the workout itself.
 export function setAnchor(session){
   return [lastSetAt(session),session.started||"",session.timerFrom||""]
     .reduce((a,b)=>b>a?b:a,"");
@@ -360,6 +378,16 @@ export function resetWorkout(session){
   session.started="";session.ended="";session.running=false;session.timerFrom="";
 }
 
+// Holds and stretches start counted in seconds, sled work in metres; anything else in reps.
+// The unit can still be switched per exercise from the logging panel.
+const TIMED_BY_DEFAULT=["plank","side plank","hollow hold","wall sit","bar hangs","l-sit",
+  "couch stretch","piriformis stretch","pigeon pose"];
+const DIST_BY_DEFAULT=["backward sled drag","forward sled push","backward walk"];
+
 export function makeExercise(name){
-  return {id:uid(),name,sets:[]};
+  const k=String(name||"").trim().toLowerCase();
+  const e={id:uid(),name,sets:[]};
+  if(TIMED_BY_DEFAULT.indexOf(k)>=0)e.timed=true;
+  else if(DIST_BY_DEFAULT.indexOf(k)>=0)e.dist=true;
+  return e;
 }

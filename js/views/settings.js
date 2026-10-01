@@ -1,7 +1,9 @@
 // Settings: display, logging and workout behaviour, as rows of labelled choices.
 import {state} from "../store.js";
 import {icon} from "../icons.js";
-import {pageHead} from "./common.js";
+import {esc,pageHead} from "./common.js";
+import {shortDate} from "../model.js";
+import {DAY_LETTERS} from "../reminder.js";
 
 // Short labels so all seven sit on one row, even on a small phone.
 const TEXT_SIZES=[["Auto",0],["XS",.7],["S",.85],["M",1],
@@ -30,6 +32,23 @@ function toggleRow(label,hint,key){
     "</div></div>";
 }
 
+// A weekly reminder, set once into the phone's calendar: pick days and a time, then add it.
+const REMIND_TIMES=["05:30","06:00","06:30","07:00","07:30","08:00","12:00","12:30","17:00","17:30",
+  "18:00","18:30","19:00","19:30","20:00"];
+function reminderRow(){
+  const days=String(state.settings.remindDays||"").split(",").filter(x=>x!=="").map(Number);
+  const time=state.settings.remindTime||"07:00";
+  return "<div class='setgroup'>Reminder</div>"+
+    "<div class='setrow'><div class='setlbl'>Training reminder</div>"+
+    "<div class='sethint'>Adds a repeating event to your calendar, which reminds you — no account, works offline.</div>"+
+    "<div class='setopts onerow'>"+DAY_LETTERS.map((l,i)=>"<button class='q"+(days.indexOf(i)>=0?" on":"")+
+      "' data-remday='"+i+"'>"+l+"</button>").join("")+"</div>"+
+    "<div class='setopts'><select class='trendsel' id='remtime'>"+REMIND_TIMES.map(t=>
+      "<option"+(t===time?" selected":"")+">"+t+"</option>").join("")+"</select></div>"+
+    "<div class='setopts'><button class='q' id='addreminder'"+(days.length?"":" disabled")+">"+
+      icon("calendar","sm")+"Add to calendar</button></div></div>";
+}
+
 export function settingsView(){
   return "<div class='wrap scroll'>"+
     pageHead("Settings")+
@@ -45,6 +64,8 @@ export function settingsView(){
       [["Sunday",0],["Saturday",6]])+
 
     "<div class='setgroup'>Logging</div>"+
+    choiceRow("Rep range","Every set at the top of the range → go heavier next time.","repRange",
+      [["6–10","6-10"],["8–12","8-12"],["10–14","10-14"],["12–15","12-15"]])+
     choiceRow("Starting reps","","startReps",START_REPS.map(n=>[String(n),n]))+
     toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
     choiceRow("Weight unit","","unit",[["kg","kg"],["lb","lb"]])+
@@ -57,7 +78,8 @@ export function settingsView(){
     // Files in and out: a spreadsheet of every set, a full backup, and loading either back.
     "<div class='setgroup'>Your data</div>"+
     "<div class='setrow'><div class='setlbl'>Save and load history</div>"+
-    "<div class='sethint'>CSV opens in a spreadsheet. A backup also keeps routines, body log and settings.</div>"+
+    "<div class='sethint'>CSV opens in a spreadsheet. A backup also keeps routines, body log and settings. "+
+      "Last backup: "+(state.backupAt?esc(shortDate(state.backupAt)):"never")+".</div>"+
     "<div class='setopts'>"+
       "<button class='q' id='exportcsv'>"+icon("save","sm")+"CSV</button>"+
       "<button class='q' id='exportjson'>"+icon("save","sm")+"Backup</button>"+
@@ -66,6 +88,8 @@ export function settingsView(){
     "<input type='file' id='csvfile' accept='.csv,.json,text/csv,application/json' style='display:none'>"+
     "</div>"+
 
+    reminderRow()+
+
     "<div class='setgroup'>About</div>"+
     "<div class='setrow'><div class='setlbl'>Share KingsKiln</div>"+
     "<div class='setopts'><button class='q' id='shareapp'>&#8679; Send the app to a friend</button>"+
@@ -73,6 +97,12 @@ export function settingsView(){
     "<div class='setrow'><div class='setlbl'>Send feedback</div>"+
     "<div class='setopts'><button class='q' id='feedbackbtn'>&#9998; Tell the developer</button>"+
     "</div></div>"+
+
+    // Names are used only to describe movements; saying so plainly avoids implying endorsement.
+    "<div class='setrow'><div class='setlbl'>Exercise names</div>"+
+    "<div class='sethint'>Exercise and method names, including ATG and knees-over-toes terms, are used "+
+      "only to describe movements. KingsKiln is independent and not affiliated with or endorsed by "+
+      "anyone those names refer to. Demo links open a YouTube search.</div></div>"+
 
     "<div class='reset'><button id='resetsettings'>Restore defaults</button></div>"+
     "</div>";

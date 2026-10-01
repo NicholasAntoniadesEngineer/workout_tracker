@@ -2,13 +2,17 @@
 // strip and picker sheet, and the two-clock timer bar.
 import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,canResume,exerciseGroup,
   exerciseTotal,fmtClock,isBandExercise,lastSet,restSeconds,secondsSince,
-  shortDate,totals,workoutOffset,workoutSeconds} from "../model.js";
-import {activeEx,allRoutines,getSession,lastPerformance,newestFirst,state} from "../store.js";
+  shortDate,totals,unitOf,workoutOffset,workoutSeconds} from "../model.js";
+import {activeEx,allRoutines,getSession,lastPerformance,newestFirst,repRange,restTargetFor,
+  state} from "../store.js";
+import {progressionHint} from "../coach.js";
+import {cuesFor} from "../cues.js";
 import {est1RM} from "../charts.js";
 import {icon} from "../icons.js";
 import {esc} from "./common.js";
 
 const MIN_SET_COLUMNS=1;
+const UNIT_LABEL={reps:"Reps",secs:"Secs",m:"Metres"};
 // Past days offered for saving as a routine — the recent ones; History reaches the rest.
 const PAST_DAYS_SHOWN=8;
 
@@ -44,7 +48,7 @@ function setsTable(session){
       const editing=state.editing&&state.editing.ex===e.id&&state.editing.i===i;
       h+="<td class='cell has mono"+(editing?" editing":"")+(x.wu?" wu":"")+
          "' data-ex='"+e.id+"' data-i='"+i+"'>"+
-         "<span class='cr'>"+x.r+(e.timed?"<span class='sd'>s</span>":"")+
+         "<span class='cr'>"+x.r+(e.timed?"<span class='sd'>s</span>":(e.dist?"<span class='sd'>m</span>":""))+
          (x.side?"<span class='sd'>/s</span>":"")+
          (x.band?"<span class='wt band'>"+esc(x.band)+"</span>":(x.w?"<span class='wt'>"+x.w+"</span>":""))+
          (x.wu?"<span class='wt wumk'>w</span>":"")+"</span>"+
@@ -53,15 +57,15 @@ function setsTable(session){
            fmtClock(workoutOffset(session,x.at))+"</span>":"")+"</td>";
     }
     // A timed exercise's total is time under tension, so it reads as a clock, not a count.
-    h+="<td class='sum mono'>"+(e.timed?fmtClock(exerciseTotal(e)):exerciseTotal(e))+"</td></tr>";
+    h+="<td class='sum mono'>"+(e.timed?fmtClock(exerciseTotal(e)):exerciseTotal(e)+(e.dist?"m":""))+"</td></tr>";
   });
   return h+"</tbody></table></div>";
 }
 
 // A day's sets in one line — "10, 10/s, 8 @12" — for the previous-performance strip
-// and the history sheet. Timed exercises read in seconds: "30s, 45s".
-export function setsSummary(sets,timed){
-  const parts=sets.slice(0,8).map(x=>x.r+(timed?"s":"")+(x.side?"/s":"")+
+// and the history sheet. Timed exercises read in seconds ("30s, 45s"), distance in metres.
+export function setsSummary(sets,unit){
+  const parts=sets.slice(0,8).map(x=>x.r+(unit==="secs"?"s":(unit==="m"?"m":""))+(x.side?"/s":"")+
     (x.band?" "+x.band:(x.w?" @"+x.w:""))+(x.wu?"w":""));
   return parts.join(", ")+(sets.length>8?" &hellip;":"");
 }
@@ -92,8 +96,7 @@ function numEditor(a){
     });
     return h+"</div></div></div></div>";
   }
-  const timed=!!(a&&a.timed);
-  const title=f.field==="weight"?"Weight &middot; "+esc(unit):(timed?"Seconds":"Reps");
+  const title=f.field==="weight"?"Weight &middot; "+esc(unit):({reps:"Reps",secs:"Seconds",m:"Metres"})[unitOf(a)];
   const cur=f.field==="weight"?(state.weight||0):state.reps;
   h+="<div class='sheethead'><div class='plabel'>"+title+"</div>"+
      "<button class='btn ghost tiny' id='numedcancel'>Cancel</button></div><div class='sheetbody'>";
@@ -128,7 +131,18 @@ function logPanel(){
   if(prev){
     h+="<button class='prevline' id='exhistbtn'><span class='prevlbl'>Last</span> "+
        esc(shortDate(prev.session.created))+" &middot; <span class='mono'>"+
-       setsSummary(prev.ex.sets,prev.ex.timed)+"</span> <span class='prevmore'>&rsaquo;</span></button>";
+       setsSummary(prev.ex.sets,unitOf(prev.ex))+"</span> <span class='prevmore'>&rsaquo;</span></button>";
+    // The next step, by a plain rule: stay at a weight until every set reaches the top of
+    // your rep range, then go up. Tapping it loads the suggestion into reps and weight.
+    const rr=repRange();
+    const hint=progressionHint(prev.ex.sets,{unit:unitOf(a),weightUnit:state.settings.unit||"kg",
+      low:rr.low,top:rr.top,isBand:isBandExercise(a.name)});
+    if(hint)h+="<button class='hintline' id='hintbtn'"+(hint.apply?" data-hw='"+(hint.apply.w===undefined?"":hint.apply.w)+
+       "' data-hr='"+(hint.apply.r===undefined?"":hint.apply.r)+"'":" disabled")+">&rarr; "+esc(hint.text)+"</button>";
+  }else if(a&&!state.editing){
+    // Never done before: the same line opens the exercise's tips and a demo instead.
+    h+="<button class='prevline' id='exhistbtn'><span class='prevlbl'>New</span> First time &middot; tips and demo "+
+       "<span class='prevmore'>&rsaquo;</span></button>";
   }
   if(state.editing){
     h+="<div class='prow'><div class='plabel'>Editing set</div>"+
@@ -136,22 +150,23 @@ function logPanel(){
   }
   // Reps and load share one control: a labelled tile with a ± stepper and a tappable number
   // that opens the keypad. A timed exercise counts seconds; a band one carries a range, not lbs.
-  const timed=!!(a&&a.timed);
+  const u=unitOf(a);
   const unit=state.settings.unit||"kg";
   const isBand=!!(a&&isBandExercise(a.name));
   h+="<div class='dualrow'>"+
-     numTile(timed?"Secs":"Reps","reps",state.reps,"tap to type")+
+     numTile(UNIT_LABEL[u],"reps",state.reps,"tap to type")+
      (isBand?
        numTile("Band","band",state.band||"None","lb &middot; &plusmn; cycles",true):
        numTile("Weight","weight",state.weight,esc(unit)+" &middot; 0 = bodyweight"))+
      "</div>";
-  // Per-side doubling and warm-up are per set; Secs mode belongs to the exercise itself.
+  // Per-side doubling and warm-up are per set; the unit belongs to the exercise itself, and
+  // its button steps reps → seconds → metres, naming whichever is in use.
   h+="<div class='togrow'>"+
      "<button class='q"+(state.perSide?" on":"")+"' id='sidebtn'>Per side</button>"+
      "<button class='q"+(state.warmup?" on":"")+"' id='warmbtn' "+
        "title='Warm-up sets stay out of totals and records'>Warm-up</button>"+
-     (a?"<button class='q"+(timed?" on":"")+"' id='timedbtn' "+
-       "title='Count this exercise in seconds instead of reps'>Secs</button>":"")+
+     (a?"<button class='q"+(u!=="reps"?" on":"")+"' id='timedbtn' "+
+       "title='Count this exercise in reps, seconds or metres'>"+UNIT_LABEL[u]+"</button>":"")+
      "</div>";
   if(state.editing){
     // Every set is fully editable — reps and weight above, its recorded times here — so a
@@ -322,7 +337,18 @@ function routinePane(session){
   return h;
 }
 
-// Everything this exercise has ever done, newest day first, with its records on top.
+// A demo is a search, not a copy: it opens a YouTube search for the movement, so the app
+// carries no one else's videos or text and the link never goes stale.
+const ATG_GROUP="ATG / Knees over toes";
+export function demoUrl(name){
+  const q=name+(exerciseGroup(name)===ATG_GROUP?" knees over toes":" exercise")+" form";
+  return "https://www.youtube.com/results?search_query="+encodeURIComponent(q);
+}
+
+const REST_CHOICES=[["1:00",60],["1:30",90],["2:00",120],["3:00",180]];
+
+// How to do it, then everything it has ever done — records on top, newest day first —
+// and how long to rest after it.
 function exerciseHistorySheet(name){
   const k=String(name).trim().toLowerCase();
   const days=[];
@@ -350,11 +376,26 @@ function exerciseHistorySheet(name){
     "<div class='stat'><div class='v mono'>"+(bestRM?bestRM.v+"<span class='pru'>"+unit+"</span>":"&mdash;")+
       "</div><div class='l'>Est 1RM</div></div>"+
     "<div class='stat'><div class='v mono'>"+(bestR?bestR.r:"&mdash;")+"</div><div class='l'>Best "+
-      (days.length&&days[0].e.timed?"secs":"reps")+"</div></div>"+
+      (days.length?({secs:"secs",m:"metres",reps:"reps"})[unitOf(days[0].e)]:"reps")+"</div></div>"+
     "<div class='stat'><div class='v mono'>"+setCount+"</div><div class='l'>Sets logged</div></div></div>";
+  const cues=cuesFor(name);
+  h+="<div class='picklbl'>How to</div>"+
+    (cues?"<ul class='cues'>"+cues.map(c=>"<li>"+esc(c)+"</li>").join("")+"</ul>":"")+
+    "<a class='demolink' href='"+esc(demoUrl(name))+"' target='_blank' rel='noopener'>"+
+      "Watch a demo &#8599;</a>"+
+    "<div class='cuenote'>General form cues, not medical advice. Stop if anything hurts.</div>";
+  // Rest after this exercise: its own target, or the default from Settings.
+  const own=state.restTargets&&state.restTargets[k];
+  const def=+state.settings.restTarget||0;
+  h+="<div class='picklbl'>Rest after this exercise</div><div class='seg restseg'>"+
+    "<button class='q"+(own?"":" on")+"' data-resttarget='0'>Default"+
+      (def?" "+fmtClock(def):"")+"</button>"+
+    REST_CHOICES.map(c=>"<button class='q"+(own===c[1]?" on":"")+"' data-resttarget='"+c[1]+"'>"+c[0]+"</button>").join("")+
+    "</div>";
+  if(days.length)h+="<div class='picklbl'>History</div>";
   days.forEach(d=>{
     h+="<div class='histrow'><span class='histdate'>"+esc(shortDate(d.s.created))+"</span>"+
-       "<span class='histsets mono'>"+setsSummary(d.e.sets,d.e.timed)+"</span></div>";
+       "<span class='histsets mono'>"+setsSummary(d.e.sets,unitOf(d.e))+"</span></div>";
   });
   if(!days.length)h+="<div class='empty-note'>No sets logged yet.</div>";
   return h+"</div></div></div>";
@@ -389,7 +430,8 @@ export function setSub(session){
   if(state.setStart)return "started at "+fmtClock(workoutOffset(session,state.setStart));
   if(!session.started)return "start the workout";
   if(!session.running)return lastSet(session)?"work time":"paused";
-  return lastSet(session)?"since last set":"since start";
+  const target=restTargetFor(session);
+  return (lastSet(session)?"since last set":"since start")+(target?" &middot; target "+fmtClock(target):"");
 }
 
 function timerBar(session){

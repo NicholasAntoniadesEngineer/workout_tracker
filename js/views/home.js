@@ -1,7 +1,7 @@
 // The landing page: the app opens here, not mid-workout. Says the date, offers to start or
 // continue today, and points at the calendar, history, progress and body — no filler.
 import {dateKey,nowISO} from "../model.js";
-import {allRoutines,newestFirst,state} from "../store.js";
+import {allRoutines,backupDue,newestFirst,state} from "../store.js";
 import {VERSES} from "../verses.js";
 import {icon} from "../icons.js";
 import {esc} from "./common.js";
@@ -137,6 +137,12 @@ export function homeView(){
         "<button class='hometile' id='homeprog'>"+icon("progress","ht")+"Progress</button>"+
         "<button class='hometile' id='homebody'>"+icon("body","ht")+"Body</button>"+
       "</div>";
+  if(backupDue()){
+    h+="<div class='backupcard'><div class='bc-t'>"+icon("save","sm")+"Back up your history</div>"+
+      "<div class='bc-p'>It lives only on this phone. Save a copy to Files or iCloud Drive.</div>"+
+      "<div class='bc-a'><button class='btn primary tiny' id='backupnow'>Save backup</button>"+
+      "<button class='btn ghost tiny' id='backupsnooze'>Not now</button></div></div>";
+  }
   if(totalDone)h+=sabbathWeek();
   // Feedback sits where everyone passes — the foot of home — not only deep in Settings.
   h+="<div class='homefoot'>"+

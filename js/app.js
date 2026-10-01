@@ -1,22 +1,22 @@
-import {BANDS,addManualSets,addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,isBandExercise,
-  makeExercise,makeSession,makeSessionOn,nowISO,parseClock,resetRestTimer,resetWorkout,
-  restSeconds,setAnchor,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,workoutSeconds} from "./model.js";
-import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,dropRoutine,findRoutine,getSession,
-  importBackup,lastPerformance,load,
-  mergeSessions,removeFromCatalog,save,saveRoutine,selectSession,setSetting,state,
-  upsertBodyEntry} from "./store.js";
-import {exportCSV,exportJSON,parseImport} from "./csv.js";
-import {decodeRoutineHash,shareApp,shareDay,shareRoutine} from "./share.js";
-import {feedbackContext,feedbackMailto,sendFeedback} from "./feedback.js";
-import {paint,setClockSeconds,setSub,stepVerse,workoutLabel,workoutSub} from "./views.js";
+import {autoEndIfStale,fmtClock,isBandExercise,makeSession,parseClock,restSeconds,
+  setAnchor} from "./model.js";
+import {activeEx,addExerciseToDay,getSession,importBackup,lastPerformance,load,mergeSessions,
+  restTargetFor,save,saveRoutine,selectSession,state} from "./store.js";
+import {parseImport} from "./csv.js";
+import {decodeRoutineHash} from "./share.js";
+import {paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
+import * as nav from "./actions/nav.js";
+import * as routines from "./actions/routines.js";
+import * as days from "./actions/days.js";
+import * as sharing from "./actions/share.js";
+import * as data from "./actions/data.js";
+import * as logging from "./actions/log.js";
 
-const MIN_REPS=0;
 const TICK_MS=1000;
 // Auto never shrinks type below this — past it the table scrolls instead, so a long day
 // stays readable rather than shrinking to fit.
 const FIT_MIN=0.84;
 const FIT_STEP=0.04;
-const SEC_PER_MIN=60;
 const LONG_PRESS_MS=450;
 const MOVE_SLOP=8;
 
@@ -168,6 +168,16 @@ function restoreUndo(){
   if(!getSession())state.sessionId=state.sessions[0].id;
 }
 
+// A new best shows for a few seconds over the panel, then gets out of the way.
+const BEST_MS=4500;
+let bestTimer=null;
+function showBest(name,label){
+  state.best={name,label};
+  if(navigator.vibrate)navigator.vibrate([30,60,30]);
+  if(bestTimer)clearTimeout(bestTimer);
+  bestTimer=setTimeout(()=>{state.best=null;render();},BEST_MS);
+}
+
 // Dropping an exercise that has already been logged destroys those sets — undoable.
 function removeExercise(id){
   const s=getSession();
@@ -242,6 +252,7 @@ function deleteDay(id){
 
 document.body.addEventListener("change",ev=>{
   if(ev.target&&ev.target.id==="trendsel"){state.progressEx=ev.target.value;render();return;}
+  if(ev.target&&ev.target.id==="remtime"){setSetting("remindTime",ev.target.value);render();return;}
   if(ev.target&&ev.target.id==="csvfile"){
     const f=ev.target.files&&ev.target.files[0];
     if(!f)return;
@@ -272,449 +283,15 @@ function dismissSheet(){
   }
 }
 
+// Every tap goes to the area it belongs to, in an order that lets a button inside a tappable
+// row act on its own before the row does (delete a day before opening it).
+const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
+  addExercise,showBest};
+const AREAS=[nav,routines,days,sharing,data,logging];
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;
-
-  if(t.id==="undobtn"){restoreUndo();render();return;}
-  const delDay=t.closest&&t.closest("[data-delday]");
-  if(delDay){
-    snapshot("Day deleted");
-    deleteDay(delDay.getAttribute("data-delday"));
-    render();return;
-  }
-  // Repeat a day: a fresh session today with the same exercises, ready to log against.
-  const copyDay=t.closest&&t.closest("[data-copyday]");
-  if(copyDay){
-    const src=state.sessions.find(s=>s.id===copyDay.getAttribute("data-copyday"));
-    if(src){
-      const ns=makeSession();
-      ns.ex=src.ex.map(e=>Object.assign(makeExercise(e.name),{timed:!!e.timed}));
-      state.sessions.push(ns);
-      selectSession(ns.id);
-      recallLast(activeEx());
-      state.origin=state.view;state.sheet=false;
-      state.view="log";markRefit();
-    }
-    render();return;
-  }
-  // Keep any day's exercises — today's or a past one's — as a named routine.
-  const saveDay=t.closest&&t.closest("[data-saveroutine]");
-  if(saveDay){
-    const src=state.sessions.find(s=>s.id===saveDay.getAttribute("data-saveroutine"));
-    const name=src&&src.ex.length?prompt("Name this routine",src.title):null;
-    if(name!==null&&name.trim()){
-      snapshot("Saved routine "+name.trim());
-      saveRoutine(name,src.ex.map(e=>e.name));
-      state.pickTab="routines";
-    }
-    render();return;
-  }
-  const pickTab=t.closest&&t.closest("[data-picktab]");
-  if(pickTab){state.pickTab=pickTab.getAttribute("data-picktab");state.adding=false;render();return;}
-  const loadDay=t.closest&&t.closest("[data-load]");
-  if(loadDay){
-    state.origin=state.view;                 // return here if the picker is dismissed empty
-    selectSession(loadDay.getAttribute("data-load"));
-    recallLast(activeEx());
-    state.calDay=null;
-    state.sheet=!getSession().ex.length;
-    state.view="log";markRefit();render();return;
-  }
-
-  // Home is the hub the app opens to.
-  if(t.id==="homebtn"){state.view="home";state.sheet=false;state.adding=false;render();return;}
-  const homeResume=t.closest&&t.closest("[data-resume]");
-  if(homeResume){
-    selectSession(homeResume.getAttribute("data-resume"));
-    recallLast(activeEx());
-    state.origin="home";state.sheet=!getSession().ex.length;
-    state.view="log";markRefit();render();return;
-  }
-  if(t.id==="homestart"){
-    const todayK=dateKey(nowISO());
-    const done=state.sessions.filter(s=>dateKey(s.created)===todayK&&s.ex.some(e=>e.sets.length)).length;
-    const ns=makeSession();
-    if(done)ns.title=ns.title+" · "+(done+1);
-    state.sessions.push(ns);selectSession(ns.id);
-    state.origin="home";state.sheet=true;
-    state.view="log";markRefit();render();return;
-  }
-  if(t.id==="verprev"){stepVerse(-1);render();return;}
-  if(t.id==="vernext"){stepVerse(1);render();return;}
-  // One share button everywhere: it opens a menu of what this context can share.
-  if(t.id==="sharebtn"){state.shareMenu={type:"day"};render();return;}
-  const shRoutine=t.closest&&t.closest("[data-shareroutine]");
-  if(shRoutine){
-    state.shareMenu={type:"routine",id:shRoutine.getAttribute("data-shareroutine")};
-    render();return;
-  }
-  if(t.id==="shareapp"){shareApp();return;}
-  // Feedback window. Typing isn't re-rendered, so read the fields from the DOM when needed.
-  if(t.id==="feedbackbtn"){state.feedback={kind:"idea",msg:"",email:""};render();return;}
-  if(t.id==="feedbackclose"||t.id==="feedbackback"){state.feedback=null;render();return;}
-  const captureFb=()=>{
-    const m=document.getElementById("fbmsg"),e=document.getElementById("fbemail");
-    if(m)state.feedback.msg=m.value;
-    if(e)state.feedback.email=e.value;
-  };
-  const fbKind=t.closest&&t.closest("[data-fbkind]");
-  if(fbKind&&state.feedback){
-    captureFb();state.feedback.kind=fbKind.getAttribute("data-fbkind");render();return;
-  }
-  if((t.id==="fbsend"||t.id==="fbretry")&&state.feedback){
-    if(t.id==="fbsend")captureFb();
-    const f=state.feedback;
-    if(!(f.msg||"").trim()){const m=document.getElementById("fbmsg");if(m)m.focus();return;}
-    f.sending=true;f.error=false;render();
-    sendFeedback(f.kind,f.msg.trim(),(f.email||"").trim(),feedbackContext(state.view))
-      .then(()=>{if(state.feedback){state.feedback.sending=false;state.feedback.sent=true;render();}})
-      .catch(err=>{if(state.feedback){state.feedback.sending=false;state.feedback.error=true;
-        state.feedback.errMsg=(err&&err.message)||"";render();}});
-    return;
-  }
-  if(t.id==="fbmailto"&&state.feedback){
-    const f=state.feedback;
-    window.location.href=feedbackMailto(f.kind,(f.msg||"").trim(),(f.email||"").trim());
-    return;
-  }
-  const shareOpt=t.closest&&t.closest("[data-shareopt]");
-  if(shareOpt){
-    const kind=shareOpt.getAttribute("data-shareopt");
-    const m=state.shareMenu||{};
-    state.shareMenu=null;
-    if(kind==="app")shareApp();
-    else if(m.type==="routine"){
-      const r=findRoutine(m.id);
-      if(r)shareRoutine(r.name,r.ex);
-    }else{
-      const s=getSession();
-      if(kind==="image")shareDay(s);
-      else shareRoutine(s.title,s.ex.map(e=>e.name));
-    }
-    render();return;
-  }
-  if(t.id==="sharemenuclose"||t.id==="sharemenuback"){state.shareMenu=null;render();return;}
-  // Routines: start today from one (home), apply into the open day, save today's list, drop one.
-  const startRoutine=t.closest&&t.closest("[data-routine]");
-  if(startRoutine){
-    const r=findRoutine(startRoutine.getAttribute("data-routine"));
-    if(r){
-      // Today's blank day takes the routine, rather than leaving it behind as a second day.
-      const today=dateKey(nowISO());
-      let ns=state.sessions.find(s=>dateKey(s.created)===today&&!s.ex.length&&!s.running);
-      if(!ns){ns=makeSession();state.sessions.push(ns);}
-      ns.title=r.name;selectSession(ns.id);
-      r.ex.forEach(addExerciseToDay);
-      state.exId=getSession().ex[0]?getSession().ex[0].id:null;
-      recallLast(activeEx());
-      state.origin="home";state.sheet=false;
-      state.view="log";markRefit();
-    }
-    render();return;
-  }
-  const applyRoutine=t.closest&&t.closest("[data-applyroutine]");
-  if(applyRoutine){
-    const r=findRoutine(applyRoutine.getAttribute("data-applyroutine"));
-    if(r){r.ex.forEach(addExerciseToDay);recallLast(activeEx());}
-    render();return;
-  }
-  const delRoutine=t.closest&&t.closest("[data-delroutine]");
-  if(delRoutine){
-    const r=findRoutine(delRoutine.getAttribute("data-delroutine"));
-    if(r){
-      snapshot("Dropped routine "+r.name);
-      dropRoutine(r);
-    }
-    render();return;
-  }
-  // Home tiles hold an icon span, so a tap can land inside the button — match by ancestor.
-  if(t.closest&&t.closest("#homedays")){state.view="history";render();return;}
-  if(t.closest&&t.closest("#homeprog")){state.view="progress";render();return;}
-  if(t.closest&&t.closest("#homebody")){state.view="body";render();return;}
-  if(t.id==="bodysave"){
-    const num=id=>{const el=document.getElementById(id);
-      const v=el?parseFloat(el.value):NaN;return isNaN(v)||v<=0?0:Math.round(v*10)/10;};
-    const entry={at:nowISO(),w:num("bodyw"),waist:num("body_waist"),
-      chest:num("body_chest"),arm:num("body_arm")};
-    if(entry.w||entry.waist||entry.chest||entry.arm)upsertBodyEntry(entry);
-    render();return;
-  }
-  const delBody=t.closest&&t.closest("[data-delbody]");
-  if(delBody){
-    snapshot("Entry deleted");
-    const day=delBody.getAttribute("data-delbody");
-    state.body=state.body.filter(b=>dateKey(b.at)!==day);
-    render();return;
-  }
-  const bodyMet=t.closest&&t.closest("[data-bodymet]");
-  if(bodyMet){state.bodyMetric=bodyMet.getAttribute("data-bodymet");render();return;}
-  const trend=t.closest&&t.closest("[data-trend]");
-  if(trend){state.progressEx=trend.getAttribute("data-trend");render();return;}
-  if(t.closest&&(t.closest("#homecal")||t.closest("#calbtn"))){
-    const c=getSession();
-    const d=c?new Date(c.created):new Date();
-    state.calYear=d.getFullYear();state.calMonth=d.getMonth();state.calDay=null;
-    state.view="calendar";render();return;
-  }
-  if(t.id==="calprev"||t.id==="calnext"){
-    state.calMonth+=(t.id==="calnext"?1:-1);
-    if(state.calMonth<0){state.calMonth=11;state.calYear--;}
-    else if(state.calMonth>11){state.calMonth=0;state.calYear++;}
-    state.calDay=null;render();return;
-  }
-  if(t.id==="caldone"||t.id==="calback"){state.calDay=null;render();return;}
-  const calDay=t.closest&&t.closest("[data-calday]");
-  if(calDay){
-    const key=calDay.getAttribute("data-calday");
-    const onDay=state.sessions.filter(s=>dateKey(s.created)===key);
-    // One workout opens straight away; several open a picker for that day.
-    if(onDay.length===1){
-      state.origin="calendar";
-      selectSession(onDay[0].id);
-      recallLast(activeEx());
-      state.calDay=null;state.sheet=!getSession().ex.length;
-      state.view="log";markRefit();render();return;
-    }
-    state.calDay=key;render();return;
-  }
-  // Tapping an empty day starts a workout dated to it — backfill a past day or plan a future one.
-  const newDay=t.closest&&t.closest("[data-newday]");
-  if(newDay){
-    const parts=newDay.getAttribute("data-newday").split("-").map(Number);
-    const ns=makeSessionOn(parts[0],parts[1]-1,parts[2]);
-    state.sessions.push(ns);
-    selectSession(ns.id);
-    state.origin="calendar";state.calDay=null;state.sheet=true;
-    state.view="log";markRefit();render();return;
-  }
-  // Back walks toward the home hub: calendar to the days list, everything else home.
-  if(t.closest&&t.closest("#backbtn")){
-    state.view=state.view==="calendar"?"history":"home";
-    state.sheet=false;state.adding=false;render();return;
-  }
-  if(t.id==="newday"){
-    const ns=makeSession();
-    state.sessions.push(ns);
-    selectSession(ns.id);
-    state.origin=state.view;state.sheet=true;
-    state.view="log";markRefit();render();return;
-  }
-  if(t.id==="daysbtn"){state.view="history";state.sheet=false;state.adding=false;render();return;}
-  if(t.id==="settingsbtn"){state.view="settings";state.sheet=false;state.adding=false;render();return;}
-
-  const setBtn=t.closest&&t.closest("[data-set]");
-  if(setBtn){
-    const key=setBtn.getAttribute("data-set"),raw=setBtn.getAttribute("data-val");
-    const was=DEFAULTS[key];
-    const oldUnit=state.settings.unit;
-    setSetting(key,typeof was==="boolean"?raw==="1":(typeof was==="number"?Number(raw):raw));
-    if(key==="startReps")state.reps=Number(raw);
-    if(key==="unit")convertAllWeights(oldUnit,state.settings.unit);
-    markRefit();
-    render();return;
-  }
-  if(t.id==="resetsettings"){
-    const oldUnit=state.settings.unit;
-    Object.keys(DEFAULTS).forEach(k=>setSetting(k,DEFAULTS[k]));
-    state.reps=DEFAULTS.startReps;
-    convertAllWeights(oldUnit,state.settings.unit);
-    markRefit();
-    render();return;
-  }
-  if(t.closest&&t.closest("#exportcsv")){exportCSV(state.sessions);return;}
-  if(t.closest&&t.closest("#exportjson")){
-    exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
-      settings:state.settings,body:state.body,routines:state.routines,
-      hiddenRoutines:state.hiddenRoutines});
-    return;
-  }
-  if(t.closest&&t.closest("#importcsv")){const cf=document.getElementById("csvfile");if(cf)cf.click();return;}
-
-  if(t.closest&&t.closest("#daytitle")){
-    const s=getSession();
-    const name=prompt("Name this day",s.title);
-    if(name!==null&&name.trim())s.title=name.trim();
-    render();return;
-  }
-  if(t.closest&&t.closest("#managebtn")){
-    state.sheet=true;state.editing=null;render();return;
-  }
-  if(t.id==="opensheet"){state.sheet=true;state.editing=null;render();return;}
-  if(t.closest&&t.closest("#exhistbtn")){state.exHist=true;render();return;}
-  if(t.id==="histdone"||t.id==="histback"){state.exHist=false;render();return;}
-  if(t.id==="sheetdone"||t.id==="sheetback"){dismissSheet();render();return;}
-  if(t.id==="sidebtn"){state.perSide=!state.perSide;render();return;}
-  if(t.id==="warmbtn"){state.warmup=!state.warmup;render();return;}
-  // Seconds mode belongs to the exercise, not the set — a plank is timed every day.
-  if(t.id==="timedbtn"){
-    const e=activeEx();
-    if(e)e.timed=!e.timed;
-    render();return;
-  }
-  // The ± nudges beside each value: reps and weight by one, band cycles the range list.
-  const step=t.closest&&t.closest("[data-step]");
-  if(step){
-    const parts=step.getAttribute("data-step").split(":"),field=parts[0],d=parseInt(parts[1],10);
-    if(field==="reps")state.reps=Math.max(MIN_REPS,state.reps+d);
-    else if(field==="weight")state.weight=Math.max(0,Math.round((state.weight+d)*10)/10);
-    else if(field==="band"){
-      const opts=[""].concat(BANDS);let i=opts.indexOf(state.band);if(i<0)i=0;
-      state.band=opts[(i+d+opts.length)%opts.length];
-    }
-    render();return;
-  }
-  // Tapping a value opens the editor: a keypad for numbers, the band list for a band tile.
-  const editField=t.closest&&t.closest("[data-edit]");
-  if(editField){state.numEdit={field:editField.getAttribute("data-edit"),buf:""};render();return;}
-  if(state.numEdit&&t.dataset&&t.dataset.key!==undefined){
-    const k=t.dataset.key,f=state.numEdit;
-    if(k==="back")f.buf=f.buf.slice(0,-1);
-    // One decimal point, weight only — 67.5 and 2.5kg plates — never on reps or seconds.
-    else if(k==="."){if(f.field==="weight"&&f.buf.indexOf(".")<0)f.buf=(f.buf||"0")+".";}
-    else if(k==="done"){
-      if(f.buf!==""){const v=parseFloat(f.buf)||0;
-        if(f.field==="weight")state.weight=Math.max(0,v);
-        else state.reps=Math.max(MIN_REPS,Math.round(v));}
-      state.numEdit=null;
-    }else if(f.buf.length<6&&!/\.\d\d$/.test(f.buf))f.buf+=k;
-    render();return;
-  }
-  const bandPick=t.closest&&t.closest("[data-band]");
-  if(bandPick){state.band=bandPick.getAttribute("data-band");state.numEdit=null;render();return;}
-  if(t.id==="numedcancel"||t.id==="numedclose"||t.id==="numedback"){state.numEdit=null;render();return;}
-
-  if(t.dataset&&t.dataset.ex&&t.classList.contains("exbtn")){
-    state.exId=t.dataset.ex;state.editing=null;
-    recallLast(activeEx());
-    render();return;
-  }
-  const cell=t.closest&&t.closest(".cell.has");
-  if(cell){
-    const e=getSession().ex.find(x=>x.id===cell.dataset.ex);
-    const i=parseInt(cell.dataset.i,10);
-    state.exId=cell.dataset.ex;
-    state.reps=e.sets[i].r;
-    state.perSide=e.sets[i].side;
-    state.weight=+e.sets[i].w||0;
-    state.band=e.sets[i].band||"";
-    state.warmup=!!e.sets[i].wu;
-    state.editWork=+e.sets[i].t||0;
-    state.editRest=+e.sets[i].rest||0;
-    state.editing={ex:cell.dataset.ex,i};
-    render();return;
-  }
-  if(t.id==="wtoggle"){
-    const s=getSession();
-    if(s.running){
-      if(!confirm("End the workout? The clock stops at "+fmtClock(workoutSeconds(s))+"."))return;
-      endWorkout(s);
-    }else startWorkout(s);
-    state.setStart=null;
-    render();return;
-  }
-  // Starting a set stamps its beginning: the gap before it is rest, the gap after is work.
-  if(t.id==="setstart"){
-    const s=getSession();
-    if(state.setStart){state.setStart=null;}
-    else{if(!s.running)startWorkout(s);state.setStart=nowISO();}
-    render();return;
-  }
-  if(t.id==="timerreset"){
-    if(!confirm("Reset the rest clock to zero? Logged sets are not affected."))return;
-    resetRestTimer(getSession());
-    state.setStart=null;
-    render();return;
-  }
-  if(t.id==="workreset"){
-    if(!confirm("Reset the workout time? Logged sets are not affected."))return;
-    resetWorkout(getSession());
-    state.setStart=null;
-    render();return;
-  }
-  if(t.closest&&t.closest("#worktime")){
-    const s=getSession();
-    const cur=Math.round((workoutSeconds(s)||0)/SEC_PER_MIN);
-    // Today's workout counts live from now; another day's is a fixed span on that date.
-    const onToday=dateKey(s.created)===dateKey(nowISO());
-    const answer=prompt(onToday?"Minutes the workout has been going:":"Minutes the workout lasted:",
-      String(cur));
-    if(answer!==null&&answer.trim()!==""){
-      const mins=parseFloat(answer);
-      if(onToday)setWorkoutMinutes(s,mins);
-      else setWorkoutSpanOn(s,mins);
-    }
-    render();return;
-  }
-  if(t.id==="logbtn"){
-    const s=getSession(),e=activeEx();
-    if(e){
-      // Bands record a resistance range and no weight; everything else records the weight.
-      const isB=isBandExercise(e.name),w=isB?0:state.weight,bd=isB?state.band:"";
-      // A live set on today counts with the timer; a past day is manual transcription.
-      const live=dateKey(s.created)===dateKey(nowISO());
-      if(live)addSet(s,e,state.reps,state.perSide,state.setStart,w,state.warmup,bd);
-      else addManualSets(s,e,state.reps,state.perSide,w,1,state.warmup,bd);
-    }
-    // Warm-up is per set, not sticky: the set after a warm-up is working weight again.
-    state.setStart=null;state.warmup=false;
-    render();return;
-  }
-  if(t.id==="upd"){
-    const e=getSession().ex.find(x=>x.id===state.editing.ex);
-    if(e){
-      const old=e.sets[state.editing.i];
-      const isB=isBandExercise(e.name);
-      e.sets[state.editing.i]={r:state.reps,side:state.perSide,w:isB?0:state.weight,
-        t:state.editWork||0,rest:state.editRest||0,at:old.at||"",wu:state.warmup,
-        band:isB?state.band:""};
-    }
-    state.editing=null;state.warmup=false;render();return;
-  }
-  if(t.id==="del"){
-    const e=getSession().ex.find(x=>x.id===state.editing.ex);
-    if(e){snapshot("Set deleted");e.sets.splice(state.editing.i,1);}
-    state.editing=null;render();return;
-  }
-  if(t.id==="cxl"){state.editing=null;state.warmup=false;render();return;}
-  // Picking a listed name closes the new-exercise box, rather than leaving it open to
-  // grab focus — and the keyboard with it — on every later repaint.
-  // Adding only happens from the sheet, and picking one name should not close it —
-  // the day stops being empty on the first pick, which is what used to shut it.
-  if(t.id==="exsearchx"){state.exSearch="";state.focusSearch=true;render();return;}
-  const add=t.closest&&t.closest("[data-add]");
-  if(add){
-    addExerciseToDay(add.getAttribute("data-add"));
-    recallLast(activeEx());
-    state.adding=false;
-    state.sheet=true;
-    render();return;
-  }
-
-  const sel=t.closest&&t.closest("[data-sel]");
-  if(sel){
-    state.exId=sel.getAttribute("data-sel");state.editing=null;
-    recallLast(activeEx());
-    render();return;
-  }
-
-  const delCat=t.closest&&t.closest("[data-delcat]");
-  if(delCat){
-    const name=delCat.getAttribute("data-delcat");
-    snapshot("Removed "+name+" from the list");
-    removeFromCatalog(name);
-    render();return;
-  }
-  if(t.id==="removesel"){const e=activeEx();if(e)removeExercise(e.id);render();return;}
-  if(t.dataset&&t.dataset.rm){removeExercise(t.dataset.rm);render();return;}
-  if(t.id==="addbtn"){state.adding=true;state.focusAdd=true;render();return;}
-  if(t.id==="editlist"){state.editList=!state.editList;render();return;}
-  if(t.id==="addok"){addExercise();return;}
-  if(t.id==="reset"){
-    snapshot("Day's sets cleared");
-    getSession().ex.forEach(x=>{x.sets=[];});
-    state.editing=null;render();return;
-  }
+  for(const area of AREAS)if(area.handle(t,ctx))return;
 });
 
 // Rest target: once the gap since the last set passes it, the clock turns amber and the
@@ -722,7 +299,7 @@ document.body.addEventListener("click",ev=>{
 let restAlerted="";
 function restAlert(s){
   const el=document.getElementById("settime");
-  const target=+state.settings.restTarget||0;
+  const target=restTargetFor(s);
   const armed=target&&s.running&&!state.setStart;
   const over=armed&&restSeconds(s)>=target;
   if(el)el.classList.toggle("over",!!over);

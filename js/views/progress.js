@@ -68,7 +68,7 @@ export function progressView(){
       h+="<div class='histrow'><span class='histdate'>"+esc(r.name)+"</span>"+
         "<span class='histsets mono'>"+
         (r.bestW?r.bestW+unit+" &times;"+r.bestWReps+" &middot; e1RM "+r.best1RM+unit
-          :r.bestR+(r.timed?"s best":" reps"))+"</span></div>";
+          :r.bestR+(r.timed?"s best":(r.dist?" m best":" reps")))+"</span></div>";
     });
     h+="</div>";
   }
