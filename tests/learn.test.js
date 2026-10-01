@@ -32,3 +32,15 @@ test("the KJV stays within Cambridge University Press's 500-verse allowance",()=
   VERSES.forEach(v=>{const m=v.ref.match(/:(\d+)(?:-(\d+))?$/);n+=m&&m[2]?(+m[2]-+m[1]+1):1;});
   assert.ok(n<500,n+" verses");
 });
+
+import {SEED_EXERCISES} from "../js/model.js";
+test("every lifter exercise and workout uses an exercise in the app's list",()=>{
+  const known=new Set(SEED_EXERCISES.map(n=>n.toLowerCase()));
+  topics.forEach(t=>{
+    (t.exercises||[]).forEach(n=>assert.ok(known.has(n.toLowerCase()),t.id+": "+n));
+    (t.days||[]).forEach(d=>{
+      assert.ok(d.name&&d.ex.length,t.id);
+      d.ex.forEach(n=>assert.ok(known.has(n.toLowerCase()),t.id+" / "+d.name+": "+n));
+    });
+  });
+});

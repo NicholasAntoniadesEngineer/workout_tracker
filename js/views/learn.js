@@ -2,7 +2,7 @@
 // research, guidelines and videos behind it. The summaries are written for KingsKiln; the
 // links go to the original publishers, so nothing of theirs is copied into the app.
 // Laid out as tabs of topics; a topic opens as its own page, so nothing jumps in place.
-import {LEARN,learnTopic} from "../learn.js";
+import {AREAS,areaCats,catOfTopic,topicById} from "../library.js";
 import {state} from "../store.js";
 import {esc,pageHead} from "./common.js";
 
@@ -12,7 +12,6 @@ const SHORT={"Lifters & methods":"Lifters","Training principles":"Principles","W
 const tabName=c=>SHORT[c]||c.split(" & ")[0];
 const GROUPS=[["Read",["article"]],["Watch",["video"]],["Research",["study","guideline"]]];
 
-function catOf(id){return LEARN.find(c=>c.topics.some(t=>t.id===id))||null;}
 
 // "Arnold Schwarzenegger: high-volume splits" → the person, then the method.
 function splitTitle(t){
@@ -42,20 +41,24 @@ function section(c){
 
 // All topics by default, under their category headings; a tab filters to one category.
 function listView(){
-  const cur=LEARN.find(c=>c.cat===state.learnCat)||null;
+  const area=state.learnArea||"training",cats=areaCats(area);
+  const cur=cats.find(c=>c.cat===state.learnCat)||null;
+  // Training or Health first, then All or one category within it.
   let h="<div class='wrap scroll'>"+pageHead("Learn")+
+    (AREAS.length<2?"":"<div class='seg lareas'>"+AREAS.map(a=>"<button class='q"+(a[0]===area?" on":"")+
+      "' data-learnarea='"+a[0]+"'>"+a[1]+"</button>").join("")+"</div>")+
     "<div class='ltabs'><button class='ltab"+(cur?"":" on")+"' data-learncat=''>All</button>"+
-    LEARN.map(c=>"<button class='ltab"+(c===cur?" on":"")+"' data-learncat=\""+
+    cats.map(c=>"<button class='ltab"+(c===cur?" on":"")+"' data-learncat=\""+
       esc(c.cat)+"\">"+esc(tabName(c.cat))+"</button>").join("")+"</div>";
   if(cur)h+=section(cur);
-  else LEARN.forEach(c=>{h+="<div class='setgroup'>"+esc(c.cat)+"</div>"+section(c);});
+  else cats.forEach(c=>{h+="<div class='setgroup'>"+esc(c.cat)+"</div>"+section(c);});
   h+="<p class='learnnote'>Summaries written for KingsKiln; links go to the original articles, research "+
     "and videos. General education, not medical advice.</p>";
   return h+"</div>";
 }
 
 function topicView(tp){
-  const t=splitTitle(tp.title),cat=catOf(tp.id);
+  const t=splitTitle(tp.title),cat=catOfTopic(tp.id);
   let h="<div class='wrap scroll'>"+pageHead(esc(cat?tabName(cat.cat):"Learn"))+
     "<div class='ltopic'><div class='ltitle'>"+esc(t[0])+"</div>"+
     (t[1]?"<div class='lsubtitle'>"+esc(t[1])+"</div>":"")+tags(tp)+
@@ -91,6 +94,6 @@ function topicView(tp){
 }
 
 export function learnView(){
-  const tp=state.learnOpen&&learnTopic(state.learnOpen);
+  const tp=state.learnOpen&&topicById(state.learnOpen);
   return tp?topicView(tp):listView();
 }

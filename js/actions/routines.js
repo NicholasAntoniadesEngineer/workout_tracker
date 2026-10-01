@@ -4,11 +4,11 @@
 import {activeEx,addExerciseToDay,dropRoutine,findRoutine,getSession,saveRoutine,selectSession,
   state} from "../store.js";
 import {dateKey,makeSession,nowISO} from "../model.js";
-import {learnTopic} from "../learn.js";
+import {topicById} from "../library.js";
 
 // A documented workout from Learn, by "topicId:index".
 function learnDay(ref){
-  const i=ref.lastIndexOf(":"),tp=learnTopic(ref.slice(0,i));
+  const i=ref.lastIndexOf(":"),tp=topicById(ref.slice(0,i));
   return tp&&tp.days?tp.days[+ref.slice(i+1)]||null:null;
 }
 

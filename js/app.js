@@ -11,7 +11,7 @@ import * as days from "./actions/days.js";
 import * as sharing from "./actions/share.js";
 import * as data from "./actions/data.js";
 import * as logging from "./actions/log.js";
-import {LEARN} from "./learn.js";
+import {areaCats} from "./library.js";
 
 const TICK_MS=1000;
 // Auto never shrinks type below this — past it the table scrolls instead, so a long day
@@ -279,7 +279,7 @@ function watchLearnSwipe(){
     on=false;
     const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<Math.abs(dy)*1.5)return;
-    const order=[null].concat(LEARN.map(c=>c.cat));
+    const order=[null].concat(areaCats(state.learnArea||"training").map(c=>c.cat));
     const i=Math.max(0,order.indexOf(state.learnCat||null));
     const next=i+(dx<0?1:-1);
     if(next<0||next>=order.length)return;
