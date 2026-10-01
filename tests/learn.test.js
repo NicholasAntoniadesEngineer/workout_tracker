@@ -44,3 +44,21 @@ test("every lifter exercise and workout uses an exercise in the app's list",()=>
     });
   });
 });
+
+import {HEALTH,healthTopic} from "../js/health.js";
+test("Health topics are well formed, start with h- and never clash with Training ids",()=>{
+  const ht=HEALTH.flatMap(c=>c.topics);
+  const ids=ht.map(t=>t.id);
+  assert.equal(new Set(ids).size,ids.length);
+  ids.forEach(id=>assert.match(id,/^h-/));
+  const training=new Set(topics.map(t=>t.id));
+  ids.forEach(id=>assert.ok(!training.has(id),id));
+  ht.forEach(t=>{
+    assert.ok(t.title&&t.summary&&t.links.length,t.id);
+    t.links.forEach(l=>{
+      assert.match(l.u,/^https:\/\//,t.id);
+      assert.ok(["article","study","video","guideline","podcast"].includes(l.k),t.id+": "+l.k);
+    });
+  });
+  assert.equal(healthTopic(ids[0]),ht[0]);
+});

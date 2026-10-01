@@ -8,7 +8,8 @@ import {esc,pageHead} from "./common.js";
 
 // Short tab names for the categories, in the order the library lists them.
 const SHORT={"Lifters & methods":"Lifters","Training principles":"Principles","Workout types":"Workouts",
-  "Joints & resilience":"Joints","Recovery & lifestyle":"Recovery","Recovery & nutrition":"Recovery"};
+  "Joints & resilience":"Joints","Recovery & lifestyle":"Recovery","Recovery & nutrition":"Recovery",
+  "What the lifters say":"Lifters","Protein & supplements":"Supplements"};
 const tabName=c=>SHORT[c]||c.split(" & ")[0];
 const GROUPS=[["Read",["article"]],["Watch",["video"]],["Listen",["podcast"]],["Research",["study","guideline"]]];
 
