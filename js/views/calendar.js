@@ -1,11 +1,10 @@
 // A month of training at a glance: done days, planned days, and empty ones ready to take
 // a backfill or a plan. A day holding several workouts opens a picker sheet.
-import {dateKey,fmtClock,keyOf,monthLabel,shortDate,timeLabel,totals,
+import {dateKey,fmtClock,keyOf,monthLabel,setReps,shortDate,timeLabel,totals,
   workoutSeconds} from "../model.js";
 import {state} from "../store.js";
 import {feastsForMonth} from "../feasts.js";
-import {icon} from "../icons.js";
-import {esc} from "./common.js";
+import {esc,pageHead} from "./common.js";
 
 // Sessions grouped by the local calendar day they were created on. A day can hold more
 // than one, which is what makes two-a-days first-class rather than a merge conflict.
@@ -19,19 +18,45 @@ function sessionsByDay(){
   return byDay;
 }
 
-const WEEKDAYS=["S","M","T","W","T","F","S"];
+// Monday first, matching the week strip on the home screen.
+const WEEKDAYS=["M","T","W","T","F","S","S"];
+
+// Each kind of workout gets its own dot colour, keyed on the day's name, so a month shows
+// its pattern — push, pull, legs — at a glance. The legend under the grid names them.
+const KIND_COLOURS=["#e8a317","#2a9d8f","#4c78dd","#d1495b","#8e6cd8","#5a9e3a","#c46f2b","#3b8fb5"];
+function kindKey(s){return String(s.title||"").trim().toLowerCase();}
+
+function monthStats(list){
+  let sets=0,reps=0,ton=0;
+  list.forEach(s=>s.ex.forEach(e=>e.sets.forEach(x=>{
+    if(x.wu)return;
+    sets++;
+    if(!e.timed){reps+=setReps(x);ton+=setReps(x)*(+x.w||0);}
+  })));
+  return {sets,reps,ton:Math.round(ton)};
+}
 
 export function calendarView(){
   const now=new Date();
   const y=state.calYear,m=state.calMonth;
   const byDay=sessionsByDay();
   const todayKey=keyOf(now.getFullYear(),now.getMonth(),now.getDate());
-  const first=new Date(y,m,1).getDay();          // 0=Sun leading blanks
+  const first=(new Date(y,m,1).getDay()+6)%7;    // 0=Mon leading blanks
   const days=new Date(y,m+1,0).getDate();        // days in this month
 
+  // Colours go to this month's kinds of workout in order of first appearance.
+  const kinds=[];
+  const monthList=[];
+  for(let day=1;day<=days;day++){
+    (byDay[keyOf(y,m,day)]||[]).forEach(s=>{
+      monthList.push(s);
+      if(s.ex.some(e=>e.sets.length)&&kinds.indexOf(kindKey(s))<0)kinds.push(kindKey(s));
+    });
+  }
+  const colourOf=s=>KIND_COLOURS[Math.max(0,kinds.indexOf(kindKey(s)))%KIND_COLOURS.length];
+
   let h="<div class='wrap scroll'>"+
-    "<div class='hhead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button>"+
-    "<button class='newday' id='newday'>+ New workout</button></div>"+
+    pageHead("Calendar","<button class='newday' id='newday'>+ New</button>")+
     "<div class='calnav'>"+
       "<button class='calarrow' id='calprev'>&lsaquo;</button>"+
       "<div class='calmonth'>"+esc(monthLabel(y,m))+"</div>"+
@@ -66,7 +91,8 @@ export function calendarView(){
        (feasts[day]?"<span class='calfeast'>&#10013;</span>":"")+
        "<span class='caldate'>"+day+"</span>"+
        (worked?"<span class='caldots'>"+
-         list.slice(0,3).map(()=>"<span class='caldot'></span>").join("")+
+         list.slice(0,3).map(s=>"<span class='caldot'"+
+           (s.ex.some(e=>e.sets.length)?" style='background:"+colourOf(s)+"'":"")+"></span>").join("")+
          (list.length>3?"<span class='calmore'>+"+(list.length-3)+"</span>":"")+
          "</span>":"<span class='caladd'>+</span>")+
        "</button>";
@@ -79,6 +105,24 @@ export function calendarView(){
   if(plannedDays)parts.push(plannedDays+" planned");
   h+="<div class='calfoot'>"+(parts.length?parts.join(" &middot; ")+" this month"
     :"Nothing logged this month yet.")+"</div>";
+
+  // What the month added up to, and which colour is which workout.
+  if(doneDays){
+    const st=monthStats(monthList);
+    const unit=esc(state.settings.unit||"kg");
+    h+="<div class='prgrid calstats'>"+
+      "<div class='stat'><div class='v mono'>"+doneDays+"</div><div class='l'>Days trained</div></div>"+
+      "<div class='stat'><div class='v mono'>"+st.sets+"</div><div class='l'>Sets</div></div>"+
+      "<div class='stat'><div class='v mono'>"+st.reps+"</div><div class='l'>Reps</div></div>"+
+      "<div class='stat'><div class='v mono'>"+(st.ton?(st.ton>=10000?Math.round(st.ton/100)/10+"k":st.ton):"&mdash;")+
+        (st.ton?"<span class='pru'>"+unit+"</span>":"")+"</div><div class='l'>Lifted</div></div></div>";
+    const names={};
+    monthList.forEach(s=>{if(!names[kindKey(s)])names[kindKey(s)]=s.title;});
+    h+="<div class='callegend'>"+kinds.map(k=>
+      "<span class='legitem'><span class='caldot' style='background:"+
+      KIND_COLOURS[kinds.indexOf(k)%KIND_COLOURS.length]+"'></span>"+esc(names[k])+"</span>").join("")+
+      "</div>";
+  }
 
   // The month's feasts, named under the grid — the marks above just point here.
   const fdays=Object.keys(feasts).map(Number).sort((a,b)=>a-b);

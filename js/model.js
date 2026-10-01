@@ -185,6 +185,18 @@ export function lastSet(session){
 
 // Rest is measured from the last set, the workout start, or wherever the timer was last
 // reset to — whichever is most recent. It can never predate the workout itself.
+// How far into the workout a moment fell, in seconds — the workout's own clock rather
+// than the time of day, so it matches the Workout clock. Sets from before the clock was
+// last started (a workout begun again later the same day) count from the day's first set
+// instead, so nothing is ever "before" its workout. Null for an unstamped moment.
+export function workoutOffset(session,iso){
+  if(!iso)return null;
+  let start=session.started&&iso>=session.started?session.started:"";
+  if(!start)session.ex.forEach(e=>e.sets.forEach(x=>{if(x.at&&(!start||x.at<start))start=x.at;}));
+  if(!start)return null;
+  return Math.max(0,(Date.parse(iso)-Date.parse(start))/MS_PER_SEC);
+}
+
 export function setAnchor(session){
   return [lastSetAt(session),session.started||"",session.timerFrom||""]
     .reduce((a,b)=>b>a?b:a,"");
@@ -220,11 +232,16 @@ export function workoutEnd(session){
 
 // Start means "a new workout begins now" — except right after an accidental End,
 // where picking straight back up should keep the clock you were already running.
+// A stopped workout picks back up if it ended recently; after that, starting again begins
+// a fresh clock rather than counting the gap as training.
+export function canResume(session){
+  return !!(session.started&&!session.running&&session.ended&&
+    (Date.now()-Date.parse(session.ended))/MS_PER_SEC<=RESUME_SECONDS);
+}
+
 export function startWorkout(session){
-  const now=nowISO();
-  const resuming=session.started&&session.ended&&
-    (Date.parse(now)-Date.parse(session.ended))/MS_PER_SEC<=RESUME_SECONDS;
-  if(!resuming)session.started=now;
+  const resuming=canResume(session);
+  if(!resuming)session.started=nowISO();
   session.ended="";
   session.running=true;
 }

@@ -138,6 +138,10 @@ export function homeView(){
         "<button class='hometile' id='homebody'>"+icon("body","ht")+"Body</button>"+
       "</div>";
   if(totalDone)h+=sabbathWeek();
+  // Feedback sits where everyone passes — the foot of home — not only deep in Settings.
+  h+="<div class='homefoot'>"+
+    "<button id='feedbackbtn'>"+icon("chat","sm")+"Send feedback</button><span>&middot;</span>"+
+    "<button id='shareapp'>"+icon("share","sm")+"Share KingsKiln</button></div>";
   h+="</div>";
   return h+"</div>";
 }

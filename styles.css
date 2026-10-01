@@ -10,10 +10,14 @@
   --k:1;
   --sp:calc(clamp(9px,2.8vw,14px) * var(--k));
   --gap:calc(clamp(6px,2vw,10px) * var(--k));
-  --f-tiny:calc(9px * var(--k));
-  --f-xs:calc(10px * var(--k));
-  --f-sm:calc(12px * var(--k));
-  --f-md:calc(13px * var(--k));
+  /* Small text has a floor: shrinking to fit never takes a label below what reads at arm's
+     length in a gym. Above the floor everything still scales with --k. */
+  --f-tiny:max(10px,calc(10px * var(--k)));
+  --f-xs:max(10.5px,calc(11px * var(--k)));
+  --f-sm:max(11.5px,calc(12px * var(--k)));
+  --f-md:max(12.5px,calc(13px * var(--k)));
+  /* The smallest comfortable thumb target. */
+  --tap:40px;
   --f-lg:calc(15px * var(--k));
   --f-clock:calc(clamp(23px,6.4vw,28px) * var(--k));
   --f-rep:calc(clamp(26px,7.4vw,34px) * var(--k));
@@ -74,6 +78,11 @@ button{font-family:inherit;}
 }
 
 .head{flex:none;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+/* A long day name stays on one line and ends in an ellipsis; tapping it shows it in full. */
+.head>div:first-child{min-width:0;flex:1;}
+.head .h1{display:flex;max-width:100%;}
+.head .httl{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.head .h1 .pen{flex:none;}
 .eyebrow{font-size:var(--f-tiny);letter-spacing:2px;text-transform:uppercase;
   color:var(--accentText);font-weight:700;}
 .h1{font-size:calc(clamp(18px,5.2vw,22px) * var(--k));font-weight:800;letter-spacing:-0.4px;
@@ -81,7 +90,7 @@ button{font-family:inherit;}
 .h1 .pen{font-size:var(--f-sm);color:var(--muted);}
 .daysbtn{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:20px;
   padding:calc(8px * var(--k)) calc(13px * var(--k));font-size:var(--f-md);font-weight:700;
-  cursor:pointer;white-space:nowrap;flex:none;}
+  cursor:pointer;white-space:nowrap;flex:none;min-height:var(--tap);min-width:var(--tap);}
 
 .stats{flex:none;display:flex;gap:var(--gap);margin:var(--sp) 0;}
 .stat{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;
@@ -94,7 +103,7 @@ button{font-family:inherit;}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:calc(9px * var(--k));}
 /* Sets grow to the right forever, so the table is the one thing allowed to scroll. */
 /* Never squeezed to a sliver: at a big fixed text size the page scrolls instead. */
-.tblwrap{flex:1 1 auto;min-height:calc(116px * var(--k));overflow:auto;
+.tblwrap{flex:1 1 auto;min-height:calc(156px * var(--k));overflow:auto;
   -webkit-overflow-scrolling:touch;}
 table{border-collapse:separate;border-spacing:5px calc(5px * var(--k));width:100%;}
 th{font-size:var(--f-tiny);color:var(--muted);text-transform:uppercase;letter-spacing:1px;
@@ -106,7 +115,7 @@ th.exh,tbody td:first-child{position:sticky;left:0;z-index:1;background:var(--pa
 /* Reads as a button, so it is clear the day's exercises can be edited from here. */
 .exhbtn{background:var(--panelHi);border:1px solid var(--line);border-radius:8px;
   padding:calc(4px * var(--k)) calc(7px * var(--k));color:var(--muted);
-  font-size:calc(10px * var(--k));text-transform:uppercase;letter-spacing:1px;
+  font-size:var(--f-tiny);text-transform:uppercase;letter-spacing:1px;
   font-weight:700;cursor:pointer;white-space:nowrap;}
 .exhbtn .pen{color:var(--accentText);font-size:calc(12px * var(--k));}
 .exbtn{width:100%;text-align:left;background:transparent;border:1px solid transparent;color:var(--text);
@@ -123,10 +132,10 @@ td.sum{min-width:36px;text-align:center;color:var(--accentText);
 .cr{display:block;}
 .sd{font-size:var(--f-xs);color:var(--muted);margin-left:1px;}
 /* Marks a set as carrying weight, next to the /s marker for per-side work. */
-.wt{font-size:var(--f-xs);color:var(--accentText);font-weight:800;margin-left:2px;
+.wt{font-size:max(11px,calc(12px * var(--k)));color:var(--accentText);font-weight:800;margin-left:2px;
   vertical-align:super;line-height:1;}
 /* A band's range is wider than a weight, so it drops the superscript and sits inline. */
-.wt.band{vertical-align:baseline;font-size:calc(9px * var(--k));white-space:nowrap;}
+.wt.band{vertical-align:baseline;font-size:var(--f-tiny);white-space:nowrap;}
 .quick.bands{align-items:center;}
 .bandunit{font-size:var(--f-xs);color:var(--muted);align-self:center;margin-left:2px;}
 /* Warm-up sets sit quieter in the grid and carry a small w — logged, never counted. */
@@ -210,18 +219,10 @@ td.cell.has.wu{opacity:.55;}
   -webkit-user-select:text;user-select:text;width:100%;}
 .timein:focus{border-color:var(--accent);}
 
-.addstrip{flex:none;display:flex;align-items:center;margin-top:var(--sp);}
-/* Pinned outside the scroller so the actions are reachable however long the list is. */
-.stripact{flex:none;display:flex;align-items:center;gap:5px;padding-left:4px;
-  border-left:1px solid var(--line);}
-.striprow{padding-right:2px;}
-.stripact input.name{width:min(28vw,110px);}
-.striprow{flex:1;min-width:0;display:flex;align-items:center;gap:calc(5px * var(--k));
-  overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;padding-bottom:2px;}
-.striprow .addbtn{flex:none;}
-.chip.spick{flex:none;padding:calc(5px * var(--k)) 12px;cursor:pointer;background:var(--panelHi);}
-.striprow .chip{flex:none;padding:calc(5px * var(--k)) 12px;cursor:pointer;}
-.striprow .chip.on.sel{background:var(--accent);border-color:var(--accent);color:var(--onAccent);}
+/* Add on the left, Remove on the right — both full thumb height. */
+.addstrip{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  margin-top:var(--sp);}
+.addstrip .addbtn,.addstrip .rmbtn{min-height:var(--tap);padding-left:16px;padding-right:16px;}
 .picklbl{font-size:var(--f-tiny);text-transform:uppercase;letter-spacing:1px;color:var(--muted);
   font-weight:700;margin:calc(10px * var(--k)) 0 calc(5px * var(--k));}
 .pickmsg{font-size:var(--f-sm);color:var(--muted);}
@@ -233,6 +234,9 @@ td.cell.has.wu{opacity:.55;}
   border-radius:20px;padding:calc(4px * var(--k)) 5px calc(4px * var(--k)) 11px;
   font-size:var(--f-sm);color:var(--muted);}
 .chip .x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:var(--f-lg);padding:0 3px;}
+/* Chips that are tapped to act get a full-height target; the × inside widens to match. */
+.chips .chip{min-height:36px;}
+.chips .chip .x,.chip.sheetitem .x{min-width:32px;min-height:32px;}
 /* The picker's two ways in: single exercises, or a whole routine at once. */
 .picktabs{display:flex;gap:6px;margin:calc(10px * var(--k)) 0 calc(6px * var(--k));}
 .picktabs .q .rn{opacity:.6;margin-left:3px;}
@@ -247,11 +251,14 @@ td.cell.has.wu{opacity:.55;}
 .rpick .rs{font-size:calc(11px * var(--k));color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .rrow.past .btn{flex:none;}
 .addbtn{background:transparent;border:1px dashed var(--line);color:var(--accentText);border-radius:20px;
-  padding:calc(5px * var(--k)) 13px;font-size:var(--f-sm);font-weight:600;cursor:pointer;}
+  padding:calc(5px * var(--k)) 13px;font-size:var(--f-sm);font-weight:600;cursor:pointer;
+  min-height:36px;}
+/* A quieter companion to + New exercise: Edit list, for removing names from the list. */
+.addbtn.quiet{border-style:solid;color:var(--muted);margin-left:auto;}
 /* Acts on whichever exercise is selected, so it names it rather than sitting anonymous. */
 .rmbtn{flex:none;background:transparent;border:1px dashed var(--danger);color:var(--danger);
   border-radius:20px;padding:calc(5px * var(--k)) 13px;font-size:var(--f-sm);font-weight:600;
-  cursor:pointer;white-space:nowrap;}
+  cursor:pointer;white-space:nowrap;min-height:36px;}
 .rmbtn:active{background:var(--danger);color:#fff;border-style:solid;}
 .addrow{display:inline-flex;gap:6px;align-items:center;}
 .addrow .btn{flex:none;padding:calc(6px * var(--k)) 12px;font-size:var(--f-md);}
@@ -301,11 +308,19 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .setlbl{font-size:calc(14px * var(--k));font-weight:700;}
 .sethint{font-size:calc(11px * var(--k));color:var(--muted);margin-top:2px;line-height:1.35;}
 .setopts{display:flex;flex-wrap:wrap;gap:5px;margin-top:calc(9px * var(--k));}
-.setopts .q{flex:1 0 auto;min-width:calc(52px * var(--k));
-  padding:calc(7px * var(--k)) calc(10px * var(--k));font-size:calc(12px * var(--k));}
+.setopts .q{flex:1 0 auto;min-width:calc(52px * var(--k));min-height:36px;
+  padding:calc(7px * var(--k)) calc(10px * var(--k));font-size:var(--f-sm);
+  display:inline-flex;align-items:center;justify-content:center;}
+/* Seven text sizes on one row: equal columns, no orphan on a line of its own. */
+.setopts.onerow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));}
+.setopts.onerow .q{min-width:0;padding-left:0;padding-right:0;}
 
-.hhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;}
-.csvrow{margin-top:-2px;margin-bottom:16px;}
+/* Back · title · action, the same on every secondary screen. Equal side columns keep the
+   title centred whatever sits either side of it. */
+.hhead{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-bottom:12px;}
+.hhead .backbtn{justify-self:start;}
+.hhead .htitle{font-size:calc(18px * var(--k));text-align:center;white-space:nowrap;}
+.hact{justify-self:end;display:flex;align-items:center;gap:6px;}
 
 /* Landing page — the app opens here. Calm, few words, clear next step. */
 .wrap.scroll.home{position:relative;display:flex;flex-direction:column;align-items:center;
@@ -345,6 +360,12 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   display:flex;flex-direction:column;align-items:center;gap:8px;}
 .hticon{font-size:22px;}
 .homestat{text-align:center;font-size:12px;color:var(--muted);}
+/* Quiet footer on the home screen: feedback and sharing, found without hunting in Settings. */
+.homefoot{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:22px;
+  font-size:13px;color:var(--muted);}
+.homefoot button{background:none;border:none;color:var(--muted);font:inherit;font-weight:600;
+  cursor:pointer;padding:10px 6px;min-height:var(--tap);display:inline-flex;align-items:center;gap:5px;}
+.homefoot button:active{color:var(--accentText);}
 /* The week as work and rest: filled days trained, the cross crowning the rest day. */
 .homeweek{margin-top:2px;}
 .wkrow{display:flex;justify-content:center;gap:10px;margin-bottom:8px;}
@@ -359,15 +380,16 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .routinerow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px;}
 .rchip .rn{opacity:.55;font-weight:600;margin-left:2px;}
 /* Inline SVG icons: 24-grid strokes through currentColor, amber details via .acc/.accf. */
+/* Taps go to the button, never the drawing inside it, so every handler sees its button. */
 .icn{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;
-  stroke-linecap:round;stroke-linejoin:round;vertical-align:-3.5px;flex:none;}
+  stroke-linecap:round;stroke-linejoin:round;vertical-align:-3.5px;flex:none;pointer-events:none;}
 .icn .acc{stroke:var(--accent);}
 .icn .accf{fill:var(--accent);stroke:none;}
 .icn.sm{width:15px;height:15px;vertical-align:-3px;margin-right:5px;}
 .icn.ht{width:26px;height:26px;}
 .daysbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;}
-.daysbtn .cnt{font-size:12px;color:var(--muted);font-weight:700;}
-.backbtn{display:inline-flex;align-items:center;}
+.backbtn{display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);}
+.backbtn.iconbtn .icn{margin:0;}
 .shareopt .so-l{display:inline-flex;align-items:center;}
 /* The tap-to-edit window: a keypad for reps/weight/seconds, band buttons for a band tile. */
 .numed{max-width:320px;}
@@ -382,6 +404,7 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .key{background:var(--panelHi);border:1px solid var(--line);color:var(--text);border-radius:11px;
   padding:calc(14px * var(--k)) 0;font-size:calc(20px * var(--k));font-weight:700;cursor:pointer;}
 .key.done{background:var(--accent);border-color:var(--accent);color:var(--onAccent);}
+.key.wide{grid-column:1/-1;}
 .bandopts{display:flex;flex-direction:column;gap:8px;}
 .bandopt{background:var(--panelHi);border:1px solid var(--line);color:var(--text);border-radius:11px;
   padding:calc(14px * var(--k));font-size:var(--f-lg);font-weight:700;cursor:pointer;text-align:center;}
@@ -439,7 +462,7 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .calnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .calmonth{font-size:16px;font-weight:800;letter-spacing:-0.3px;}
 .calarrow{background:var(--panel);border:1px solid var(--line);color:var(--text);
-  border-radius:10px;width:38px;height:34px;font-size:18px;font-weight:700;cursor:pointer;}
+  border-radius:10px;width:var(--tap);height:var(--tap);font-size:18px;font-weight:700;cursor:pointer;}
 .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
 .calhead{margin-bottom:5px;}
 .calwd{text-align:center;font-size:10px;font-weight:700;color:var(--muted);
@@ -469,13 +492,20 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .caldot{width:5px;height:5px;border-radius:50%;background:currentColor;}
 .calmore{font-size:8px;font-weight:800;line-height:1;}
 .calfoot{margin:14px 0 4px;text-align:center;font-size:12px;color:var(--muted);}
+/* The month in numbers, then which dot colour is which workout. */
+.calstats{margin-top:14px;grid-template-columns:repeat(4,minmax(0,1fr));}
+.calstats .stat .v{font-size:calc(18px * var(--k));}
+.callegend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-top:4px;
+  font-size:12px;color:var(--muted);}
+.legitem{display:inline-flex;align-items:center;gap:6px;}
+.legitem .caldot{width:8px;height:8px;}
 @media (prefers-reduced-motion:no-preference){.calcell,.calarrow{transition:all .12s ease;}}
 .backbtn{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:20px;
   padding:calc(8px * var(--k)) calc(14px * var(--k));font-size:calc(13px * var(--k));
   font-weight:700;cursor:pointer;}
 .newday{background:var(--accent);border:1px solid var(--accent);color:var(--onAccent);border-radius:20px;
-  padding:calc(8px * var(--k)) calc(16px * var(--k));font-size:calc(13px * var(--k));
-  font-weight:800;cursor:pointer;}
+  padding:calc(8px * var(--k)) calc(16px * var(--k));font-size:var(--f-md);
+  font-weight:800;cursor:pointer;min-height:var(--tap);white-space:nowrap;}
 .day{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
   border-radius:12px;padding:calc(11px * var(--k)) calc(12px * var(--k));
   margin-bottom:calc(8px * var(--k));cursor:pointer;}
@@ -492,12 +522,19 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .day .nums .r{font-size:calc(20px * var(--k));font-weight:800;color:var(--accentText);line-height:1;}
 .day .nums .rl{font-size:calc(10px * var(--k));color:var(--muted);
   text-transform:uppercase;letter-spacing:1px;}
-.day .del{background:none;border:none;color:var(--muted);font-size:calc(20px * var(--k));
-  cursor:pointer;flex:none;padding:0 4px;}
-/* Repeat this day's exercises as a fresh workout today. */
-.day .copy{background:none;border:none;color:var(--muted);font-size:calc(16px * var(--k));
-  cursor:pointer;flex:none;padding:0 4px;}
-.day .copy:active{color:var(--accentText);}
+/* The exercises a day held, in one quiet line — enough to tell days apart at a glance. */
+.day .exl{font-size:calc(12px * var(--k));color:var(--muted);margin-top:3px;opacity:.85;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.day.hday{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:0;
+  align-items:center;padding-bottom:calc(4px * var(--k));}
+.hday .exl{margin-top:0;}
+/* A day's actions — save as routine, repeat, delete — each a full thumb-sized target. */
+.dayacts{flex:none;display:flex;align-items:center;margin-right:-6px;}
+.dact{width:var(--tap);height:var(--tap);display:inline-flex;align-items:center;justify-content:center;
+  background:none;border:none;border-radius:10px;color:var(--muted);cursor:pointer;padding:0;flex:none;}
+.dact.del{font-size:22px;}
+.dact:active{color:var(--accentText);background:var(--panelHi);}
+.dact.del:active{color:var(--danger);}
 .empty-note{color:var(--muted);font-size:calc(13px * var(--k));text-align:center;padding:20px;}
 
 @media (prefers-reduced-motion:no-preference){.exbtn,.q,.round,.btn,.tbtn,.day{transition:all .12s ease;}}
@@ -514,9 +551,18 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .chart.line circle{fill:var(--panel);stroke:var(--accent);stroke-width:2;}
 .chart.line circle.now{fill:var(--accent);}
 .chartlbls{display:flex;justify-content:space-between;gap:8px;margin-top:calc(6px * var(--k));
-  font-size:var(--f-tiny);color:var(--muted);font-weight:600;}
-.trendchips{display:flex;flex-wrap:wrap;gap:5px;}
-.trendchips .q{flex:0 1 auto;font-size:var(--f-sm);padding:calc(6px * var(--k)) 10px;}
+  font-size:var(--f-xs);color:var(--muted);font-weight:600;}
+/* The scale down the chart's left edge: top value and bottom value. */
+.chartbox{display:flex;align-items:stretch;gap:6px;}
+.chartbox .chart{flex:1;min-width:0;}
+.yax{flex:none;display:flex;flex-direction:column;justify-content:space-between;text-align:right;
+  font-size:var(--f-tiny);color:var(--muted);margin-top:calc(6px * var(--k));padding:1px 0;}
+.trendsel{width:100%;background:var(--panelHi);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:10px 12px;font:inherit;font-size:16px;font-weight:700;min-height:var(--tap);}
+.bodymet{display:flex;gap:6px;margin-bottom:6px;}
+.bodymet .q{min-height:36px;}
+.bodyrow{align-items:center;}
+.histsets.wrapvals{white-space:normal;line-height:1.4;}
 
 /* Body log: weight and girth fields in one row, one entry per day. */
 .bodyform{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:calc(10px * var(--k));}
@@ -547,7 +593,7 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 /* minmax(0,1fr) holds both columns to half the width — plain 1fr lets a long name push its
    column wider and off the screen. Long names wrap onto a second line rather than being cut. */
 .sheetgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:calc(6px * var(--k));}
-.chip.sheetitem{justify-content:space-between;min-width:0;border-radius:14px;
+.chip.sheetitem{justify-content:space-between;min-width:0;border-radius:14px;min-height:var(--tap);
   padding:calc(7px * var(--k)) 6px calc(7px * var(--k)) 12px;font-size:var(--f-md);color:var(--text);}
 .chip.sheetitem .pick{text-align:left;flex:1;min-width:0;white-space:normal;
   overflow-wrap:anywhere;line-height:1.25;}
@@ -585,15 +631,14 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
    are excluded so a live selection never dims to a neutral hover. */
 @media (hover:hover) and (pointer:fine){
   .daysbtn,.backbtn,.iconbtn,.calarrow,.exhbtn,.addbtn,.rmbtn,.q,.round,.tbtn,.setmult,
-  .chip.spick,.striprow .chip,.chip.sheetitem,.day,.exbtn,.calcell,.hometile,.homecta,
+  .chip.sheetitem,.dact,.day,.exbtn,.calcell,.hometile,.homecta,
   .homelink,.btn,.newday,.reset button,.h1,.searchx,.chip .x,.day .del{
     transition:background-color .12s ease,border-color .12s ease,color .12s ease,
       box-shadow .12s ease,transform .12s ease,filter .12s ease;}
 
   /* Neutral controls: warm the border and surface. */
   .daysbtn:hover,.backbtn:hover,.iconbtn:hover,.calarrow:hover,
-  .tbtn:not(.go):not(.stop):not(.on):hover,.round:hover,
-  .chip.spick:hover,.striprow .chip:not(.on):hover{
+  .tbtn:not(.go):not(.stop):not(.on):hover,.round:hover{
     border-color:var(--accent);background:var(--panelHi);}
   .exbtn:not(.active):hover{background:var(--panelHi);}
   .exhbtn:hover{border-color:var(--accent);color:var(--accentText);}
@@ -621,7 +666,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
   /* Destructive controls fill in on hover, matching their pressed state. */
   .rmbtn:hover,.btn.dang:hover{background:var(--danger);color:#fff;border-style:solid;}
-  .day .del:hover,.chip .x:hover{color:var(--danger);}
+  .dact.del:hover,.chip .x:hover{color:var(--danger);}
+  .dact:not(.del):hover{color:var(--accentText);background:var(--panelHi);}
 
   /* Quiet text buttons gain contrast. */
   .homelink:hover,.reset button:hover,.searchx:hover{color:var(--text);}

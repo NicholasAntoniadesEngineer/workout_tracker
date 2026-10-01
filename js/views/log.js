@@ -1,8 +1,8 @@
 // The logging screen: the day's table of sets, the panel that logs them, the exercise
 // strip and picker sheet, and the two-clock timer bar.
-import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,exerciseGroup,
-  exerciseTotal,fmtClock,fmtTime,isBandExercise,lastSet,restSeconds,secondsSince,setAnchor,
-  shortDate,totals,workoutEnd,workoutSeconds} from "../model.js";
+import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,canResume,exerciseGroup,
+  exerciseTotal,fmtClock,isBandExercise,lastSet,restSeconds,secondsSince,
+  shortDate,totals,workoutOffset,workoutSeconds} from "../model.js";
 import {activeEx,allRoutines,getSession,lastPerformance,newestFirst,state} from "../store.js";
 import {est1RM} from "../charts.js";
 import {icon} from "../icons.js";
@@ -48,7 +48,9 @@ function setsTable(session){
          (x.side?"<span class='sd'>/s</span>":"")+
          (x.band?"<span class='wt band'>"+esc(x.band)+"</span>":(x.w?"<span class='wt'>"+x.w+"</span>":""))+
          (x.wu?"<span class='wt wumk'>w</span>":"")+"</span>"+
-         ((x.at&&state.settings.showSetTimes)?"<span class='ct'>"+esc(fmtTime(x.at))+"</span>":"")+"</td>";
+         // When in the workout the set was logged — its own clock, not the time of day.
+         ((x.at&&state.settings.showSetTimes)?"<span class='ct'>"+
+           fmtClock(workoutOffset(session,x.at))+"</span>":"")+"</td>";
     }
     // A timed exercise's total is time under tension, so it reads as a clock, not a count.
     h+="<td class='sum mono'>"+(e.timed?fmtClock(exerciseTotal(e)):exerciseTotal(e))+"</td></tr>";
@@ -99,9 +101,18 @@ function numEditor(a){
      "<span class='caret'></span></div>";
   h+="<div class='keypad'>";
   ["1","2","3","4","5","6","7","8","9"].forEach(k=>h+="<button class='key' data-key='"+k+"'>"+k+"</button>");
-  h+="<button class='key' data-key='back'>&larr;</button>"+
-     "<button class='key' data-key='0'>0</button>"+
-     "<button class='key done' data-key='done'>&#10003;</button>";
+  // Weight takes a decimal point (67.5, 2.5kg plates), so its keypad gives Done a row of
+  // its own; reps and seconds are whole numbers and keep the compact layout.
+  if(f.field==="weight"){
+    h+="<button class='key' data-key='.'>.</button>"+
+       "<button class='key' data-key='0'>0</button>"+
+       "<button class='key' data-key='back'>&larr;</button>"+
+       "<button class='key done wide' data-key='done'>&#10003; Done</button>";
+  }else{
+    h+="<button class='key' data-key='back'>&larr;</button>"+
+       "<button class='key' data-key='0'>0</button>"+
+       "<button class='key done' data-key='done'>&#10003;</button>";
+  }
   h+="</div></div></div></div>";
   return h;
 }
@@ -161,28 +172,19 @@ function logPanel(){
     h+="<div class='logrow'>"+
        "<button class='btn log' id='logbtn'"+(a?"":" disabled")+">Log set"+
        (a?" &rarr; "+esc(a.name):"")+
-       (state.setStart?" <span class='at'>@ "+esc(fmtTime(state.setStart))+"</span>":"")+
+       (state.setStart?" <span class='at'>@ "+fmtClock(workoutOffset(getSession(),state.setStart))+"</span>":"")+
        "</button></div>";
   }
   return h+"</div>";
 }
 
-// Always on screen under the table, and the only place exercises are added or dropped
-// mid-workout: today's first with an ×, then the rest with a + to add. Scrolls sideways
-// rather than growing, so it costs the same height however long the list gets.
-// Only today's exercises live here — a handful, so switching between them stays one tap.
-// The full list is too long to scroll past, so it opens as a sheet instead.
-function exerciseStrip(session){
-  let h="<div class='addstrip'><div class='striprow' data-keepx='strip'>";
-  session.ex.forEach(e=>{
-    h+="<button class='chip on"+(e.id===state.exId?" sel":"")+"' data-sel='"+e.id+"'>"+
-       esc(e.name)+"</button>";
-  });
-  h+="</div><div class='stripact'>"+
-     "<button class='addbtn' id='opensheet'>+ Add</button>";
+// Under the table: add from the full list, or drop the selected exercise. Switching
+// exercise is a tap on its row in the table, so nothing here repeats the day's names.
+function exerciseStrip(){
   const a=activeEx();
-  if(a)h+="<button class='rmbtn' id='removesel'>&minus; Remove</button>";
-  return h+"</div></div>";
+  return "<div class='addstrip'>"+
+    "<button class='addbtn' id='opensheet'>+ Add exercise</button>"+
+    (a?"<button class='rmbtn' id='removesel'>&minus; Remove</button>":"")+"</div>";
 }
 
 // The whole list, as a sheet over the app: pick several, drop several, then close.
@@ -213,15 +215,38 @@ function exerciseSheet(session){
     "<button class='q"+(tab==="ex"?" on":"")+"' data-picktab='ex'>Exercises</button>"+
     "<button class='q"+(tab==="routines"?" on":"")+"' data-picktab='routines'>Routines"+
       (nRoutines?" <span class='rn'>"+nRoutines+"</span>":"")+"</button></div>";
-  h+=tab==="routines"?routinePane(session):exercisePane(rest);
+  h+=tab==="routines"?routinePane(session):exercisePane(rest,session);
 
   if(session.ex.length)
     h+="<div class='reset'><button id='reset'>Clear this day's sets</button></div>";
   return h+"</div></div></div>";
 }
 
+// What you've trained lately, newest first — the lifts you reach for most, one tap away.
+const RECENT_SHOWN=10;
+function recentNames(rest,session){
+  const offered={},seen={},out=[];
+  rest.forEach(n=>{offered[n.trim().toLowerCase()]=n;});
+  newestFirst(state.sessions).forEach(s=>{
+    if(s.id===session.id)return;
+    s.ex.forEach(e=>{
+      const k=e.name.trim().toLowerCase();
+      if(e.sets.length&&offered[k]&&!seen[k]&&out.length<RECENT_SHOWN){seen[k]=true;out.push(offered[k]);}
+    });
+  });
+  return out;
+}
+
+// One exercise in the list. Deleting from the list lives behind Edit list, so a stray tap
+// while picking can't drop an exercise.
+function pickChip(n){
+  return "<span class='chip sheetitem'><button class='pick' data-add=\""+esc(n)+"\">"+esc(n)+"</button>"+
+    (state.editList?"<button class='x' data-delcat=\""+esc(n)+"\" title='Remove from the list'>&times;</button>":"")+
+    "</span>";
+}
+
 // The catalog, searchable and grouped by movement.
-function exercisePane(rest){
+function exercisePane(rest,session){
   let h="";
   // Search filters the list as you type — the list is long enough now to warrant it.
   const q=(state.exSearch||"").trim().toLowerCase();
@@ -229,6 +254,12 @@ function exercisePane(rest){
      "placeholder='Search exercises' autocomplete='off' value='"+esc(state.exSearch||"")+"'>"+
      (q?"<button class='searchx' id='exsearchx'>&times;</button>":"")+"</div>";
   const shown=q?rest.filter(n=>n.toLowerCase().indexOf(q)>=0):rest;
+  const recent=(q||state.editList)?[]:recentNames(rest,session);
+  if(recent.length){
+    h+="<div class='picklbl'>Recent</div><div class='sheetgrid'>";
+    recent.forEach(n=>{h+=pickChip(n);});
+    h+="</div>";
+  }
 
   // Grouped by movement and alphabetical within each, so a long list stays readable.
   // Empty groups are left out.
@@ -243,10 +274,7 @@ function exercisePane(rest){
     const names=byGroup[g];
     if(!names)return;
     h+="<div class='picklbl'>"+esc(g)+"</div><div class='sheetgrid'>";
-    names.forEach(n=>{
-      h+="<span class='chip sheetitem'><button class='pick' data-add=\""+esc(n)+"\">"+
-         esc(n)+"</button><button class='x' data-delcat=\""+esc(n)+"\">&times;</button></span>";
-    });
+    names.forEach(n=>{h+=pickChip(n);});
     h+="</div>";
   });
   if(q&&!shown.length)
@@ -257,7 +285,8 @@ function exercisePane(rest){
     h+="<input class='name' id='newname' placeholder='New exercise' autocomplete='off'>"+
        "<button class='btn primary' id='addok'>Add</button>";
   }else{
-    h+="<button class='addbtn' id='addbtn'>+ New exercise</button>";
+    h+="<button class='addbtn' id='addbtn'>+ New exercise</button>"+
+       "<button class='addbtn quiet' id='editlist'>"+(state.editList?"Done editing":"Edit list")+"</button>";
   }
   h+="</div>";
   return h;
@@ -336,10 +365,10 @@ export function workoutLabel(session){
   return secs===null?"&mdash;":fmtClock(secs);
 }
 
+// The clocks speak in workout time — how long, how far in — never the time of day.
 export function workoutSub(session){
   if(!session.started)return "not started";
-  if(session.running)return "from "+fmtTime(session.started);
-  return fmtTime(session.started)+"&ndash;"+fmtTime(workoutEnd(session));
+  return session.running?"elapsed":"total time";
 }
 
 // One clock, three things to say: the set you are in, the rest since the last one, or —
@@ -357,10 +386,10 @@ export function setLabel(session){
 }
 
 export function setSub(session){
-  if(state.setStart)return "started "+fmtTime(state.setStart);
+  if(state.setStart)return "started at "+fmtClock(workoutOffset(session,state.setStart));
   if(!session.started)return "start the workout";
   if(!session.running)return lastSet(session)?"work time":"paused";
-  return "since "+fmtTime(setAnchor(session));
+  return lastSet(session)?"since last set":"since start";
 }
 
 function timerBar(session){
@@ -376,13 +405,14 @@ function timerBar(session){
         "<button class='tbtn narrow' id='timerreset' title='Reset the rest clock'>"+icon("reset")+"</button>"+
       "</div></div>"+
     "<div class='tcell'>"+
-      "<div class='tl'>Workout</div>"+
+      "<div class='tl'>Workout"+(session.started&&!on?" &middot; ended":"")+"</div>"+
       "<div class='tv mono edit' id='worktime' title='Tap to set the elapsed time'>"+
         workoutLabel(session)+"</div>"+
       "<div class='tsub' id='worksub'>"+workoutSub(session)+"</div>"+
       "<div class='tbtnrow'>"+
         "<button class='tbtn "+(on?"stop":"go")+"' id='wtoggle'>"+
-          (on?"End workout":"Start workout")+"</button>"+
+          (on?"End workout":(canResume(session)?"Resume workout":
+            (session.started?"Start again":"Start workout")))+"</button>"+
         "<button class='tbtn narrow' id='workreset' title='Reset the workout time'>"+icon("reset")+"</button>"+
       "</div></div></div></div>";
 }
@@ -392,19 +422,18 @@ export function logView(){
   return "<div class='wrap'>"+
     "<div class='head'><div>"+
     "<div class='eyebrow'>Session</div>"+
-    "<div class='h1' id='daytitle'>"+esc(s.title)+" <span class='pen'>&#9998;</span></div>"+
+    "<div class='h1' id='daytitle'><span class='httl'>"+esc(s.title)+"</span> <span class='pen'>&#9998;</span></div>"+
     "</div><div class='headbtns'>"+
     (s.ex.length?
       "<button class='daysbtn iconbtn' id='sharebtn' title='"+
       (s.ex.some(e=>e.sets.length)?"Share this day":"Share this workout plan")+
       "'>"+icon("share")+"</button>":"")+
     "<button class='daysbtn iconbtn' id='homebtn' title='Home'>"+icon("home")+"</button>"+
-    "<button class='daysbtn' id='daysbtn' title='Days'>"+icon("days")+
-      "<span class='cnt'>"+state.sessions.length+"</span></button>"+
+    "<button class='daysbtn iconbtn' id='daysbtn' title='History'>"+icon("days")+"</button>"+
     "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>"+icon("settings")+"</button>"+
     "</div></div>"+
     statsBar(s,totals(s))+setsTable(s)+
-    exerciseStrip(s)+logPanel()+
+    exerciseStrip()+logPanel()+
     "</div>"+timerBar(s)+
     (state.sheet?exerciseSheet(s):"")+
     (state.numEdit?numEditor(activeEx()):"")+

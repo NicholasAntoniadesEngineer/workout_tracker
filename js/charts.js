@@ -129,6 +129,13 @@ export function barChart(values){
   return h+"</svg>";
 }
 
+// A chart's scale, printed down its left edge: the top value and the bottom one, so a bar
+// or a line reads as a number rather than just a shape.
+export function withAxis(svg,hi,lo){
+  return "<div class='chartbox'><div class='yax mono'><span>"+hi+"</span><span>"+lo+"</span></div>"+
+    svg+"</div>";
+}
+
 export function lineChart(values){
   const max=Math.max(1,...values),min=Math.min(...values);
   const span=Math.max(1,max-min);

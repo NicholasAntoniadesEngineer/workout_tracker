@@ -2,7 +2,7 @@ import {BANDS,addManualSets,addSet,autoEndIfStale,dateKey,endWorkout,fmtClock,is
   makeExercise,makeSession,makeSessionOn,nowISO,parseClock,resetRestTimer,resetWorkout,
   restSeconds,setAnchor,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,workoutSeconds} from "./model.js";
 import {DEFAULTS,activeEx,addExerciseToDay,convertAllWeights,dropRoutine,findRoutine,getSession,
-  importBackup,load,
+  importBackup,lastPerformance,load,
   mergeSessions,removeFromCatalog,save,saveRoutine,selectSession,setSetting,state,
   upsertBodyEntry} from "./store.js";
 import {exportCSV,exportJSON,parseImport} from "./csv.js";
@@ -12,7 +12,9 @@ import {paint,setClockSeconds,setSub,stepVerse,workoutLabel,workoutSub} from "./
 
 const MIN_REPS=0;
 const TICK_MS=1000;
-const FIT_MIN=0.58;
+// Auto never shrinks type below this — past it the table scrolls instead, so a long day
+// stays readable rather than shrinking to fit.
+const FIT_MIN=0.84;
 const FIT_STEP=0.04;
 const SEC_PER_MIN=60;
 const LONG_PRESS_MS=450;
@@ -122,11 +124,17 @@ function importText(text){
 }
 
 // Each exercise remembers how it was last done, so coming back to it picks up where you
-// left off. An exercise with no sets yet keeps the reps on screen for convenience but
-// never inherits a weight — logging 12kg onto push ups because curls were selected
-// before would be silently wrong.
+// left off: today's last set if there is one, otherwise the last working set from the
+// previous day it was trained. Only ever the same exercise — logging 12kg onto push ups
+// because curls were selected before would be silently wrong — and with no history at
+// all the weight starts at zero.
 function recallLast(e){
-  const last=e&&e.sets.length?e.sets[e.sets.length-1]:null;
+  let last=e&&e.sets.length?e.sets[e.sets.length-1]:null;
+  if(!last&&e){
+    const prev=lastPerformance(e.name);
+    const sets=prev?prev.ex.sets.filter(x=>!x.wu):[];
+    last=sets.length?sets[sets.length-1]:null;
+  }
   // Bands carry a resistance range instead of a weight; the picker only appears for them.
   state.band=e&&isBandExercise(e.name)?(last?last.band||"":"") : "";
   if(last){
@@ -233,6 +241,7 @@ function deleteDay(id){
 }
 
 document.body.addEventListener("change",ev=>{
+  if(ev.target&&ev.target.id==="trendsel"){state.progressEx=ev.target.value;render();return;}
   if(ev.target&&ev.target.id==="csvfile"){
     const f=ev.target.files&&ev.target.files[0];
     if(!f)return;
@@ -254,7 +263,7 @@ document.body.addEventListener("input",ev=>{
 // Closing the picker follows the same rules whether by Done, a tap on the scrim, or Esc:
 // a day opened from elsewhere but left empty is dropped, returning you to where you came from.
 function dismissSheet(){
-  state.sheet=false;state.adding=false;state.exSearch="";
+  state.sheet=false;state.adding=false;state.exSearch="";state.editList=false;
   const s=getSession();
   if(s&&!s.ex.length&&state.origin&&state.origin!=="log"){
     const back=state.origin;state.origin="home";
@@ -283,6 +292,7 @@ document.body.addEventListener("click",ev=>{
       ns.ex=src.ex.map(e=>Object.assign(makeExercise(e.name),{timed:!!e.timed}));
       state.sessions.push(ns);
       selectSession(ns.id);
+      recallLast(activeEx());
       state.origin=state.view;state.sheet=false;
       state.view="log";markRefit();
     }
@@ -306,6 +316,7 @@ document.body.addEventListener("click",ev=>{
   if(loadDay){
     state.origin=state.view;                 // return here if the picker is dismissed empty
     selectSession(loadDay.getAttribute("data-load"));
+    recallLast(activeEx());
     state.calDay=null;
     state.sheet=!getSession().ex.length;
     state.view="log";markRefit();render();return;
@@ -316,6 +327,7 @@ document.body.addEventListener("click",ev=>{
   const homeResume=t.closest&&t.closest("[data-resume]");
   if(homeResume){
     selectSession(homeResume.getAttribute("data-resume"));
+    recallLast(activeEx());
     state.origin="home";state.sheet=!getSession().ex.length;
     state.view="log";markRefit();render();return;
   }
@@ -395,6 +407,7 @@ document.body.addEventListener("click",ev=>{
       ns.title=r.name;selectSession(ns.id);
       r.ex.forEach(addExerciseToDay);
       state.exId=getSession().ex[0]?getSession().ex[0].id:null;
+      recallLast(activeEx());
       state.origin="home";state.sheet=false;
       state.view="log";markRefit();
     }
@@ -403,7 +416,7 @@ document.body.addEventListener("click",ev=>{
   const applyRoutine=t.closest&&t.closest("[data-applyroutine]");
   if(applyRoutine){
     const r=findRoutine(applyRoutine.getAttribute("data-applyroutine"));
-    if(r)r.ex.forEach(addExerciseToDay);
+    if(r){r.ex.forEach(addExerciseToDay);recallLast(activeEx());}
     render();return;
   }
   const delRoutine=t.closest&&t.closest("[data-delroutine]");
@@ -434,9 +447,11 @@ document.body.addEventListener("click",ev=>{
     state.body=state.body.filter(b=>dateKey(b.at)!==day);
     render();return;
   }
+  const bodyMet=t.closest&&t.closest("[data-bodymet]");
+  if(bodyMet){state.bodyMetric=bodyMet.getAttribute("data-bodymet");render();return;}
   const trend=t.closest&&t.closest("[data-trend]");
   if(trend){state.progressEx=trend.getAttribute("data-trend");render();return;}
-  if((t.closest&&t.closest("#homecal"))||t.id==="calbtn"){
+  if(t.closest&&(t.closest("#homecal")||t.closest("#calbtn"))){
     const c=getSession();
     const d=c?new Date(c.created):new Date();
     state.calYear=d.getFullYear();state.calMonth=d.getMonth();state.calDay=null;
@@ -457,6 +472,7 @@ document.body.addEventListener("click",ev=>{
     if(onDay.length===1){
       state.origin="calendar";
       selectSession(onDay[0].id);
+      recallLast(activeEx());
       state.calDay=null;state.sheet=!getSession().ex.length;
       state.view="log";markRefit();render();return;
     }
@@ -473,7 +489,7 @@ document.body.addEventListener("click",ev=>{
     state.view="log";markRefit();render();return;
   }
   // Back walks toward the home hub: calendar to the days list, everything else home.
-  if(t.id==="backbtn"){
+  if(t.closest&&t.closest("#backbtn")){
     state.view=state.view==="calendar"?"history":"home";
     state.sheet=false;state.adding=false;render();return;
   }
@@ -506,14 +522,14 @@ document.body.addEventListener("click",ev=>{
     markRefit();
     render();return;
   }
-  if(t.id==="exportcsv"){exportCSV(state.sessions);return;}
-  if(t.id==="exportjson"){
+  if(t.closest&&t.closest("#exportcsv")){exportCSV(state.sessions);return;}
+  if(t.closest&&t.closest("#exportjson")){
     exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
       settings:state.settings,body:state.body,routines:state.routines,
       hiddenRoutines:state.hiddenRoutines});
     return;
   }
-  if(t.id==="importcsv"){const cf=document.getElementById("csvfile");if(cf)cf.click();return;}
+  if(t.closest&&t.closest("#importcsv")){const cf=document.getElementById("csvfile");if(cf)cf.click();return;}
 
   if(t.closest&&t.closest("#daytitle")){
     const s=getSession();
@@ -554,12 +570,14 @@ document.body.addEventListener("click",ev=>{
   if(state.numEdit&&t.dataset&&t.dataset.key!==undefined){
     const k=t.dataset.key,f=state.numEdit;
     if(k==="back")f.buf=f.buf.slice(0,-1);
+    // One decimal point, weight only — 67.5 and 2.5kg plates — never on reps or seconds.
+    else if(k==="."){if(f.field==="weight"&&f.buf.indexOf(".")<0)f.buf=(f.buf||"0")+".";}
     else if(k==="done"){
       if(f.buf!==""){const v=parseFloat(f.buf)||0;
         if(f.field==="weight")state.weight=Math.max(0,v);
         else state.reps=Math.max(MIN_REPS,Math.round(v));}
       state.numEdit=null;
-    }else if(f.buf.length<5)f.buf+=k;
+    }else if(f.buf.length<6&&!/\.\d\d$/.test(f.buf))f.buf+=k;
     render();return;
   }
   const bandPick=t.closest&&t.closest("[data-band]");
@@ -667,6 +685,7 @@ document.body.addEventListener("click",ev=>{
   const add=t.closest&&t.closest("[data-add]");
   if(add){
     addExerciseToDay(add.getAttribute("data-add"));
+    recallLast(activeEx());
     state.adding=false;
     state.sheet=true;
     render();return;
@@ -689,6 +708,7 @@ document.body.addEventListener("click",ev=>{
   if(t.id==="removesel"){const e=activeEx();if(e)removeExercise(e.id);render();return;}
   if(t.dataset&&t.dataset.rm){removeExercise(t.dataset.rm);render();return;}
   if(t.id==="addbtn"){state.adding=true;state.focusAdd=true;render();return;}
+  if(t.id==="editlist"){state.editList=!state.editList;render();return;}
   if(t.id==="addok"){addExercise();return;}
   if(t.id==="reset"){
     snapshot("Day's sets cleared");
@@ -750,6 +770,7 @@ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catc
 
 load();
 state.sessions.forEach(autoEndIfStale);
+recallLast(activeEx());
 // A day with nothing picked opens the list for you — but it can be closed again.
 state.sheet=!getSession().ex.length;
 // Opened from a shared workout link: keep the routine at once — the toast offers Undo —
