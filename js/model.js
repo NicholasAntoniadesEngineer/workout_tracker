@@ -47,7 +47,9 @@ export const EXERCISE_GROUPS=[
   ["Combat & skill",["Wrestling practice","Pahlavani wrestling","Pa zadan footwork","Charkh spins","Mallakhamb",
     "Stick fighting","Oil wrestling","Peşrev","Judo randori","Jiu-jitsu drilling",
     "Jiu-jitsu rolling","Shrimping","Technical stand-up","Breakfalls","Capoeira roda","Ginga","Aú",
-    "Meia lua de frente","Meia lua de compasso","Armada","Esquiva","Negativa","Capoeira sequences","Palus drill","Shadow boxing"]],
+    "Meia lua de frente","Meia lua de compasso","Armada","Esquiva","Negativa","Capoeira sequences","Palus drill","Shadow boxing",
+    "Shiko","Koshiwari","Matawari","Suriashi","Teppo","Butsukari-geiko","Uchikomi","Makiwara","Chi-ishi",
+    "Nigiri-game","Ishi-sashi","Kongoken"]],
   ["Lower leg",["Calf raises","Seated calf raise","Donkey calf raise","Leg press calf raise"]],
   // Ben Patrick's Knees Over Toes / ATG work, by his names, gathered from his books and
   // programs (Knee Ability Zero and Pro, the ATG Standards, his articles). Some overlap
