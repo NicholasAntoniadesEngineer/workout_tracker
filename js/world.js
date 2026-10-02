@@ -26,6 +26,7 @@ import {IRAN} from "./world-iran.js";
 import {JAMAICA} from "./world-jamaica.js";
 import {JAPAN} from "./world-japan.js";
 import {BULGARIA} from "./world-bulgaria.js";
+import {MONGOLIA} from "./world-mongolia.js";
 import {NORDIC} from "./world-nordic.js";
 import {UK} from "./world-uk.js";
 import {USA} from "./world-us.js";
@@ -47,5 +48,5 @@ function culture(cat,region,...modules){
 
 export const WORLD=[
   culture("Russia & former USSR","Russia & former USSR",SOVIET,SOVIET_HEALTH),
-  ANCIENT,AUSTRALIA,BRAZIL,BULGARIA,CHINA,EAST_AFRICA,INDIA,IRAN,JAMAICA,JAPAN,NORDIC,SOUTH_AFRICA,TURKEY,UK,USA
+  ANCIENT,AUSTRALIA,BRAZIL,BULGARIA,CHINA,EAST_AFRICA,INDIA,IRAN,JAMAICA,JAPAN,MONGOLIA,NORDIC,SOUTH_AFRICA,TURKEY,UK,USA
 ].filter(c=>c&&c.topics&&c.topics.length);
