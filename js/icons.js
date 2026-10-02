@@ -20,6 +20,7 @@ const PATHS={
     "<path class='acc' d='M10.2 8.6 L13.9 15.8'/>",
   bolt:"<path class='acc' d='M13 3.5 L6.5 13 H11.5 L10.5 20.5 L17.5 10.5 H12.5 Z'/>",
   drop:"<path d='M12 4 C9 8 6.5 11 6.5 14 a5.5 5.5 0 0 0 11 0 C17.5 11 15 8 12 4 Z'/><path class='acc' d='M9.6 14.6 a2.6 2.6 0 0 0 2.4 2.4'/>",
+  bowl:"<path d='M4 11.5 H20 A8 8 0 0 1 4 11.5 Z'/><path d='M9 19.5 H15'/><path class='acc' d='M10 8 C10 6.5 11.5 6.5 11.5 5 M14 8 C14 6.5 15.5 6.5 15.5 5'/>",
   moon:"<path d='M18.5 14.5 A7 7 0 1 1 9.5 5.5 A5.6 5.6 0 0 0 18.5 14.5 Z'/><circle class='accf' cx='17.5' cy='6.5' r='1.2'/>",
   search:"<circle cx='10.5' cy='10.5' r='6'/><path class='acc' d='M15 15 L20 20'/>",
   book:"<path d='M12 6.5 C10 5 7.5 4.6 4.5 5 V18 C7.5 17.6 10 18 12 19.5 C14 18 16.5 17.6 19.5 18 V5 C16.5 4.6 14 5 12 6.5 Z'/>"+
