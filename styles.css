@@ -946,3 +946,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .lwy{color:var(--accentText);font-weight:800;}
 .lwt{font-weight:600;overflow-wrap:break-word;}
 .lwk{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
+
+/* World: region headings over the culture shelves, and part headings on a culture page. */
+.lregion{font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--accentText);
+  margin:10px 0 2px;}
+.lpart{margin-top:16px;}

@@ -1,7 +1,8 @@
-// The Learn library in two areas — Training (lifters, principles, workouts, joints) and
-// Health (protein, supplements, fuel, recovery) — with one lookup across both.
+// The Learn library in three areas — Training (how to train), Health (fuel and recovery) and
+// World (traditions by culture) — with one lookup across all of them.
 import {LEARN} from "./learn.js";
 import {HEALTH} from "./health.js";
+import {REGIONS,WORLD} from "./world.js";
 
 // Everything reads A–Z: categories by name, topics by the title on their card.
 const az=(a,b)=>a.localeCompare(b,undefined,{sensitivity:"base",numeric:true});
@@ -11,8 +12,12 @@ function sorted(cats){
 }
 
 // An area only shows once it has content.
-export const AREAS=[["training","Training",sorted(LEARN)],["health","Health",sorted(HEALTH)]]
-  .filter(a=>a[2].length);
+// World keeps its own order — by region, then culture A–Z — rather than one A–Z list.
+function byRegion(cats){
+  return sorted(cats).sort((a,b)=>REGIONS.indexOf(a.region)-REGIONS.indexOf(b.region)||az(a.cat,b.cat));
+}
+export const AREAS=[["training","Training",sorted(LEARN)],["health","Health",sorted(HEALTH)],
+  ["world","World",byRegion(WORLD)]].filter(a=>a[2].length);
 
 export function areaCats(area){
   const a=AREAS.find(x=>x[0]===area)||AREAS[0];

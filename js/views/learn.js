@@ -3,6 +3,7 @@
 // links go to the original publishers, so nothing of theirs is copied into the app.
 // Laid out as tabs of topics; a topic opens as its own page, so nothing jumps in place.
 import {AREAS,areaCats,catOfTopic,topicById} from "../library.js";
+import {PARTS,partOf} from "../world.js";
 import {state} from "../store.js";
 import {icon} from "../icons.js";
 import {ageText,fmtBioDate,workKind} from "../bio.js";
@@ -128,7 +129,12 @@ export function learnHomeBody(){
         "<span class='lfs'>"+esc((f.points&&f.points[0])||"")+"</span>"+
         "<span class='lfcta'>Read"+(n?" &middot; "+n+" workout"+(n>1?"s":""):"")+"</span></button></div>";
   }
-  cats.forEach(c=>{h+=shelf(c);});
+  // World groups its culture shelves under region headings.
+  let region=null;
+  cats.forEach(c=>{
+    if(c.region&&c.region!==region){region=c.region;h+="<div class='lregion'>"+esc(region)+"</div>";}
+    h+=shelf(c);
+  });
   return h+"<p class='learnnote'>Summaries written for KingsKiln; links go to the original articles and videos. "+
     "General education, not medical advice.</p>";
 }
@@ -159,7 +165,14 @@ function categoryView(area,cats,cur){
     "<div class='ltabs'>"+cats.map(c=>"<button class='ltab"+(c===cur?" on":"")+"' data-learncat=\""+
       esc(c.cat)+"\">"+esc(tabName(c.cat))+"</button>").join("")+"</div>"+
     searchBox("learncatsearch","Search "+esc(tabName(cur.cat).toLowerCase()),"");
-  h+=isPeople(cur)?peopleGrid(cur.topics):topicRows(cur.topics,false);
+  if(cur.region){
+    // A culture: History, Athletes & coaches, Methods, Food & recovery — each part that has topics.
+    PARTS.forEach(([key,label])=>{
+      const list=cur.topics.filter(tp=>partOf(tp)===key);
+      if(!list.length)return;
+      h+="<div class='picklbl lpart'>"+label+"</div>"+(key==="people"?peopleGrid(list):topicRows(list,false));
+    });
+  }else h+=isPeople(cur)?peopleGrid(cur.topics):topicRows(cur.topics,false);
   return h+"<div class='empty-note' id='learncatnone' hidden>No match.</div></div>";
 }
 
