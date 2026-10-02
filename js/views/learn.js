@@ -1,14 +1,15 @@
 // Learn: short, plain-words summaries of how training works, each pointing out to the
 // research, guidelines and videos behind it. The summaries are written for KingsKiln; the
 // links go to the original publishers, so nothing of theirs is copied into the app.
-// Laid out as tabs of topics; a topic opens as its own page, so nothing jumps in place.
+// Calm and tiled: Learn's home is a grid of categories, a category is one page of people and
+// topics, and a topic opens as its own page, so nothing jumps in place.
 import {AREAS,areaCats,booksFrom,catOfTopic,topicById} from "../library.js";
 import {bookPos,scanEmbed,scanLink} from "../reader.js";
 import {PARTS,partOf} from "../world.js";
 import {state} from "../store.js";
 import {icon} from "../icons.js";
 import {ageText,fmtBioDate,workKind} from "../bio.js";
-import {esc,pageHead} from "./common.js";
+import {esc} from "./common.js";
 
 // Short tab names for the categories, in the order the library lists them.
 const SHORT={"Lifters & methods":"Lifters","Training principles":"Principles","Workout types":"Workouts",
@@ -22,11 +23,6 @@ const GROUPS=[["Read",["article"]],["Watch",["video"]],["Listen",["podcast"]],["
 function splitTitle(t){
   const i=t.indexOf(": ");
   return i>0?[t.slice(0,i),t.slice(i+2)]:[t,""];
-}
-
-function tags(tp){
-  const list=[tp.era,tp.focus].filter(Boolean);
-  return list.length?"<div class='ltags'>"+list.map(x=>"<span class='ltag'>"+esc(x)+"</span>").join("")+"</div>":"";
 }
 
 // Each category's icon on the Learn home grid.
@@ -44,21 +40,10 @@ function avatar(name){
   return "<span class='lav'>"+esc(ini.toUpperCase())+"</span>";
 }
 
-// People as compact tiles — badge, name, one line on what they're known for. No summaries
-// here; the detail lives on their page.
 // Everything a category search can match on: title, summary, key points, exercises, people.
 function searchText(tp){
   return (tp.title+" "+tp.summary+" "+(tp.points||[]).join(" ")+" "+(tp.exercises||[]).join(" ")+" "+
     (tp.people||[]).map(p=>p.name).join(" ")).toLowerCase();
-}
-
-function peopleGrid(topics){
-  return "<div class='lpeople'>"+topics.map(tp=>{
-    const t=splitTitle(tp.title);
-    return "<button class='lperson' data-learn='"+esc(tp.id)+"' data-find=\""+esc(searchText(tp))+"\">"+avatar(t[0])+
-      "<span class='lpn'>"+esc(t[0])+"</span>"+
-      "<span class='lpf'>"+esc(t[1]||tp.focus||"")+"</span></button>";
-  }).join("")+"</div>";
 }
 
 function topicRows(topics,showCat){
@@ -76,11 +61,6 @@ function bookTile(tp){
     "<span class='lbka'>"+esc(t[1]?t[0]:"")+"</span><span class='lbky mono'>"+esc(tp.era||"")+"</span></span></button>";
 }
 
-function areaSwitch(area){
-  return AREAS.length<2?"":"<div class='seg lareas'>"+AREAS.map(a=>"<button class='q"+(a[0]===area?" on":"")+
-    "' data-learnarea='"+a[0]+"'>"+a[1]+"</button>").join("")+"</div>";
-}
-
 // The featured story: drawn from every topic in the area — people and subjects alike — in a
 // shuffled order that is new each year, stepping on one each day. Next skips ahead.
 function hashOf(s){let n=2166136261;for(const ch of s)n=Math.imul(n^ch.charCodeAt(0),16777619)>>>0;return n;}
@@ -92,26 +72,25 @@ function featured(cats){
   return all[(day+(state.featureShift||0))%all.length];
 }
 
-// A shelf: the category's name and a See all, then its topics in a row you swipe sideways.
-function shelf(c){
-  const people=isPeople(c);
-  let h="<div class='lshelfhead'><div class='lshelft'>"+esc(c.cat)+"</div>"+
-    "<button class='lseeall' data-learncat=\""+esc(c.cat)+"\">See all "+c.topics.length+"</button></div>"+
-    "<div class='lshelf"+(people?" people":isBooks(c)?" books":"")+"'>";
-  c.topics.forEach(tp=>{
-    const t=splitTitle(tp.title);
-    if(tp.book){h+=bookTile(tp);return;}
-    h+=people?
-      "<button class='lsc lscp' data-learn='"+esc(tp.id)+"'>"+avatar(t[0])+
-        "<span class='lscb'><span class='lscn'>"+esc(t[0])+"</span><span class='lscm'>"+esc(t[1]||tp.focus||"")+"</span></span></button>":
-      "<button class='lsc lsct' data-learn='"+esc(tp.id)+"'><span class='lsci'>"+icon(CAT_ICON[c.cat]||"book","sm")+"</span>"+
-        "<span class='lscn'>"+esc(tp.title)+"</span></button>";
-  });
-  return h+"</div>";
+// Each culture's badge: a short country code in a gold ring.
+const CODE={"Ancient Greece & Rome":"GR","Australia":"AU","Brazil":"BR","Bulgaria":"BG","China":"CN","Cuba":"CU",
+  "Georgia & Caucasus":"GE","India":"IN","Iran":"IR","Jamaica":"JM","Japan":"JP","Kenya & Ethiopia":"KE","Korea":"KR",
+  "Mexico":"MX","Mongolia":"MN","New Zealand & Pacific":"NZ","Nordic & Celtic":"NC","Russia & former USSR":"RU",
+  "South Africa":"ZA","Turkey":"TR","United Kingdom":"UK","United States":"US"};
+function badge(c,big){
+  return "<span class='lring"+(big?" big":"")+"'>"+(c.region?esc(CODE[c.cat]||c.cat.slice(0,2).toUpperCase()):icon(CAT_ICON[c.cat]||"book","sm"))+"</span>";
+}
+const plural=(n,w)=>n+" "+w+(n===1?"":"s");
+function catStats(c){
+  const w=c.topics.reduce((a,t)=>a+(t.days?t.days.length:0),0),l=c.topics.reduce((a,t)=>a+(t.links||[]).length,0);
+  return [plural(c.topics.length,"topic")].concat(w?[plural(w,"workout")]:[]).concat(l?[plural(l,"link")]:[]).join(" &middot; ");
+}
+// A category on Learn's home: its badge, its name, and where it is or how much is in it.
+function tile(c){
+  return "<button class='ltile' data-learncat=\""+esc(c.cat)+"\">"+badge(c)+
+    "<span class='ltilen'>"+esc(c.cat)+"</span><span class='ltiles2'>"+(c.region?esc(c.region)+" &middot; ":"")+plural(c.topics.length,"topic")+"</span></button>";
 }
 
-// Learn home, magazine-style: a big title and search, Training or Health, today's featured
-// story, then a swipeable shelf per category.
 // What sits under the search on Learn's home: search hits while something is typed, else the
 // featured story and the shelves. Typing repaints only this part, so the box keeps its
 // keyboard and caret.
@@ -131,19 +110,19 @@ export function learnHomeBody(){
   const f=featured(cats);
   if(f){
     const t=splitTitle(f.title),c=catOfTopic(f.id),n=f.days?f.days.length:0;
-    h+="<div class='lfeature'>"+
-      "<div class='lftop'><span class='lfe'>Featured &middot; "+esc(c?tabName(c.cat):"")+"</span>"+
-        "<button class='lfnext' data-featurenext='1' aria-label='Show another'>Next &rsaquo;</button></div>"+
-      "<button class='lfbody' data-learn='"+esc(f.id)+"'>"+
-        "<span class='lfn'>"+esc(t[0])+"</span>"+(t[1]?"<span class='lfm'>"+esc(t[1])+"</span>":"")+
-        "<span class='lfs'>"+esc((f.points&&f.points[0])||"")+"</span>"+
-        "<span class='lfcta'>Read"+(n?" &middot; "+n+" workout"+(n>1?"s":""):"")+"</span></button></div>";
+    h+="<div class='lfeat'>"+
+      "<div class='lfeattop'><span class='lfeate'><span class='lgdot'></span>Featured &middot; "+esc(c?tabName(c.cat):"")+"</span>"+
+        "<button class='lfeatnext' data-featurenext='1' aria-label='Show another'>Next &rsaquo;</button></div>"+
+      "<button class='lfeatbody' data-learn='"+esc(f.id)+"'>"+
+        "<span class='lfeatn'>"+esc(t[0])+"</span><span class='lfeatm'>"+esc(t[1]||(f.points&&f.points[0])||"")+"</span>"+
+        "<span class='lfeatcta'>"+(n?"Read and train":"Read")+" &rsaquo;</span></button></div>";
   }
-  // World's cultures run A–Z, each shelf labelled with its region.
-  cats.forEach(c=>{
-    if(c.region&&c.region!==c.cat)h+="<div class='lregion'>"+esc(c.region)+"</div>";
-    h+=shelf(c);
-  });
+  if(area==="books"){
+    cats.forEach(c=>{h+="<div class='llabel'>"+esc(c.cat)+"</div><div class='lbooks'>"+c.topics.map(bookTile).join("")+"</div>";});
+  }else{
+    h+="<div class='llabel'>"+(area==="world"?cats.length+" cultures &middot; A&ndash;Z":cats.length+" categories")+"</div>"+
+      "<div class='ltiles'>"+cats.map(tile).join("")+"</div>";
+  }
   return h+(area==="books"?
     "<p class='learnnote'>Public-domain books, first published before 1931, read as the original printed pages "+
       "from the Internet Archive. General education, not medical advice.</p>":
@@ -160,33 +139,52 @@ function searchBox(id,placeholder,value){
 // Learn home, magazine-style: a big title, Training or Health, an always-there search, then
 // today's featured story and a swipeable shelf per category.
 function homeView(area){
+  const open=state.learnSearchOpen||!!state.learnQuery;
   return "<div class='wrap scroll lhome'>"+
-    "<div class='lmasthead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button></div>"+
+    "<div class='lmasthead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button>"+
+      "<button class='lsearchbtn' id='learnsearchbtn' aria-label='Search'>"+icon("search","sm")+"</button></div>"+
     "<div class='lbigtitle'>Learn</div>"+
-    (AREAS.length<2?"":"<div class='lpills'>"+AREAS.map(a=>"<button class='lpill"+(a[0]===area?" on":"")+
+    (AREAS.length<2?"":"<div class='lseg'>"+AREAS.map(a=>"<button class='lsegb"+(a[0]===area?" on":"")+
       "' data-learnarea='"+a[0]+"'>"+a[1]+"</button>").join("")+"</div>")+
-    searchBox("learnsearch","Search "+(area==="health"?"health":area==="world"?"the world":area==="books"?"books":"training"),state.learnQuery)+
+    (open?searchBox("learnsearch","Search "+(area==="health"?"health":area==="world"?"the world":area==="books"?"books":"training"),state.learnQuery):"")+
     "<div id='learnbody'>"+learnHomeBody()+"</div></div>";
 }
 
-// One category: tabs to hop between categories (or swipe), then people tiles or topic rows.
-// One category: tabs to hop between categories (or swipe), a search that filters what's here
-// as you type, then people tiles or topic rows.
+// One category, calm and on one page: its badge and name, what's in it, then its people as
+// compact cards and its other topics as rows that show how many workouts each holds. A culture
+// adds chips to narrow to one part — athletes, methods, food, history. Swipe for the next one.
+function personCards(topics){
+  return "<div class='lpcards'>"+topics.map(tp=>{
+    const t=splitTitle(tp.title);
+    return "<button class='lpcard' data-learn='"+esc(tp.id)+"'>"+avatar(t[0])+
+      "<span class='lpcb'><span class='lpcn'>"+esc(t[0])+"</span><span class='lpcm'>"+esc(t[1]||tp.focus||"")+"</span></span></button>";
+  }).join("")+"</div>";
+}
+function workRows(topics){
+  return "<div class='lwrows'>"+topics.map(tp=>{
+    const n=tp.days?tp.days.length:0;
+    return "<button class='lwrow' data-learn='"+esc(tp.id)+"'><span class='lwrt'>"+esc(tp.title)+"</span>"+
+      (n?"<span class='lwbadge'>"+plural(n,"workout")+"</span>":"")+"<span class='lchev'>&rsaquo;</span></button>";
+  }).join("")+"</div>";
+}
 function categoryView(area,cats,cur){
-  let h="<div class='wrap scroll'>"+pageHead(esc(tabName(cur.cat)))+
-    "<div class='ltabs'>"+cats.map(c=>"<button class='ltab"+(c===cur?" on":"")+"' data-learncat=\""+
-      esc(c.cat)+"\">"+esc(tabName(c.cat))+"</button>").join("")+"</div>"+
-    searchBox("learncatsearch","Search "+esc(cur.region?tabName(cur.cat):tabName(cur.cat).toLowerCase()),"");
+  const areaName=(AREAS.find(a=>a[0]===area)||["","Learn"])[1];
+  let h="<div class='wrap scroll lcatpage'><button class='backbtn' id='backbtn'>"+icon("back","sm")+esc(areaName)+"</button>"+
+    "<div class='lcathead'>"+badge(cur,true)+"<div class='lcatt'><span class='leyebrow'>"+esc(cur.region||areaName)+"</span>"+
+      "<span class='lcatn'>"+esc(cur.cat)+"</span></div></div>"+
+    "<div class='lcatstats'>"+catStats(cur)+"</div>";
   if(cur.region){
-    // A culture: History, Athletes & coaches, Methods, Food & recovery — each part that has topics.
-    PARTS.forEach(([key,label])=>{
+    const parts=PARTS.filter(([key])=>cur.topics.some(tp=>partOf(tp)===key));
+    const on=state.learnPartCat===cur.cat&&parts.some(p=>p[0]===state.learnPart)?state.learnPart:null;
+    h+="<div class='lchips'><button class='lchip"+(on?"":" on")+"' data-learnpart=''>All</button>"+
+      parts.map(([key,label])=>"<button class='lchip"+(on===key?" on":"")+"' data-learnpart='"+key+"'>"+label+"</button>").join("")+"</div>";
+    parts.filter(([key])=>!on||on===key).forEach(([key,label])=>{
       const list=cur.topics.filter(tp=>partOf(tp)===key);
-      if(!list.length)return;
-      h+="<div class='picklbl lpart'>"+label+"</div>"+(key==="people"?peopleGrid(list):topicRows(list,false));
+      h+="<div class='llabel'>"+label+"</div>"+(key==="people"?personCards(list):workRows(list));
     });
   }else if(isBooks(cur))h+="<div class='lbooks'>"+cur.topics.map(bookTile).join("")+"</div>";
-  else h+=isPeople(cur)?peopleGrid(cur.topics):topicRows(cur.topics,false);
-  return h+"<div class='empty-note' id='learncatnone' hidden>No match.</div></div>";
+  else h+=isPeople(cur)?personCards(cur.topics):workRows(cur.topics);
+  return h+"</div>";
 }
 
 function listView(){
@@ -214,25 +212,27 @@ function aboutPeople(people){
   }).join("");
 }
 
-// A topic, magazine-style: a dark header with who, what and how much there is, then
-// Overview · Workouts · Links, so the page never gets long and text-heavy.
+// A topic: a quiet header with where it sits, who or what it is and how much it holds, then
+// Overview · Train · Read & watch, so the page never gets long and text-heavy.
 function topicView(tp){
   const t=splitTitle(tp.title),cat=catOfTopic(tp.id);
   const nd=tp.days?tp.days.length:0,nl=(tp.links||[]).length,ne=tp.exercises?tp.exercises.length:0;
   if(tp.ia&&state.learnTab==="read"&&state.bookFor===tp.book&&state.bookCh!=null)return scanView(tp);
-  const tabs=[["overview","Overview"]].concat(tp.book?[["read","Read"]]:[]).concat(nd?[["workouts","Workouts"]]:[])
-    .concat(nl?[["links","Links"]]:[]);
+  const tabs=[["overview","Overview"]].concat(tp.book?[["read","Read"]]:[]).concat(nd?[["workouts","Train"]]:[])
+    .concat(nl?[["links",tp.book?"Links":"Read &amp; watch"]]:[]);
   const tab=tabs.some(x=>x[0]===state.learnTab)?state.learnTab:"overview";
-  let h="<div class='wrap scroll ltopicwrap'><div class='lhero'>"+
-    "<button class='backbtn lheroback' id='backbtn'>"+icon("back","sm")+esc(cat?tabName(cat.cat):"Learn")+"</button>"+
-    "<div class='lhe'>"+esc([cat?tabName(cat.cat):"",tp.era].filter(Boolean).join(" · "))+"</div>"+
-    "<div class='lhn'>"+esc(t[0])+"</div>"+(t[1]?"<div class='lhm'>"+esc(t[1])+"</div>":"")+
-    "<div class='lhchips'>"+(tp.contents?"<span>"+tp.contents.length+" chapters</span>":"")+
-      (tp.images?"<span>"+tp.images+" illustrations</span>":"")+(nl?"<span>"+nl+" link"+(nl>1?"s":"")+"</span>":"")+(nd?"<span>"+nd+" workout"+(nd>1?"s":"")+"</span>":"")+
-      (ne?"<span>"+ne+" exercises</span>":"")+(tp.focus?"<span>"+esc(tp.focus)+"</span>":"")+"</div></div>"+
+  const part=cat&&cat.region?(PARTS.find(p=>p[0]===partOf(tp))||[])[1]:null;
+  const eyebrow=cat&&cat.region?[cat.cat,part]:[cat?tabName(cat.cat):"",tp.era];
+  const stats=[[nd,"workout"],[ne,"exercise"],[tp.contents?tp.contents.length:0,"chapter"],[nl,"link"]].filter(x=>x[0]).slice(0,3);
+  let h="<div class='wrap scroll ltopicwrap'><div class='lhead'>"+
+    "<button class='backbtn' id='backbtn'>"+icon("back","sm")+esc(cat?tabName(cat.cat):"Learn")+"</button>"+
+    "<div class='leyebrow'>"+esc(eyebrow.filter(Boolean).join(" · "))+"</div>"+
+    "<div class='lheadn'>"+esc(t[0])+"</div>"+((t[1]||tp.focus)?"<div class='lheadm'>"+esc(t[1]||tp.focus)+"</div>":"")+"</div>"+
+    (stats.length?"<div class='lstats'>"+stats.map(x=>"<div class='lstat'><span class='lstatv'>"+x[0]+"</span><span class='lstatl'>"+
+      x[1]+(x[0]===1?"":"s")+"</span></div>").join("")+"</div>":"")+
     "<div class='ltopic'>";
   if(tabs.length>1)
-    h+="<div class='seg ltabs3'>"+tabs.map(x=>"<button class='q"+(x[0]===tab?" on":"")+"' data-learntab='"+x[0]+"'>"+x[1]+"</button>").join("")+"</div>";
+    h+="<div class='lseg'>"+tabs.map(x=>"<button class='lsegb"+(x[0]===tab?" on":"")+"' data-learntab='"+x[0]+"'>"+x[1]+"</button>").join("")+"</div>";
   if(tab==="overview"){
     h+="<p class='lsum'>"+esc(tp.summary)+"</p>";
     if(tp.book)h+=readButton(tp);
@@ -249,11 +249,11 @@ function topicView(tp){
   }else if(tab==="workouts"){
     tp.days.forEach((d,i)=>{
       const ref=esc(tp.id)+":"+i;
-      h+="<div class='lday'><div class='ldname'>"+esc(d.name)+"</div>"+
+      h+="<div class='lday2'><div class='ldname'>"+esc(d.name)+"</div>"+
         (d.note?"<div class='ldnote'>"+esc(d.note)+"</div>":"")+
-        "<ol class='ldex'>"+d.ex.map(n=>"<li>"+esc(n)+"</li>").join("")+"</ol>"+
-        "<div class='ldacts'><button class='btn primary tiny' data-learnday='"+ref+"'>Start this workout</button>"+
-        "<button class='btn ghost tiny' data-learnsave='"+ref+"'>Save as routine</button></div></div>";
+        "<div class='ldchips'>"+d.ex.map(n=>"<span>"+esc(n)+"</span>").join("")+"</div>"+
+        "<div class='ldacts'><button class='btn primary' data-learnday='"+ref+"'>Start workout</button>"+
+        "<button class='btn ghost' data-learnsave='"+ref+"'>Save as routine</button></div></div>";
     });
   }else{
     // Links grouped by what they are, each with a line on what it covers.

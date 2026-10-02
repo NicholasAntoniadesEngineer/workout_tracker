@@ -285,7 +285,7 @@ function watchLearnSwipe(){
   let sx=0,sy=0,on=false;
   document.body.addEventListener("touchstart",ev=>{
     on=state.view==="learn"&&ev.touches.length===1&&
-      !(ev.target.closest&&ev.target.closest(".ltabs,.lshelf,.lpills,input"));
+      !(ev.target.closest&&ev.target.closest(".lchips,.lshelf,input"));
     if(on){sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;}
   },{passive:true});
   document.body.addEventListener("touchend",ev=>{

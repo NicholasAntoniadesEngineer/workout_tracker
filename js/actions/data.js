@@ -49,6 +49,15 @@ export function handle(t,ctx){
     ctx.render();return true;
   }
   if(t.closest&&t.closest("#bookback")){state.bookCh=null;state.scrollTo=0;ctx.render();return true;}
+  // Learn's search opens from the magnifier and stays open while something is typed.
+  if(t.closest&&t.closest("#learnsearchbtn")){
+    state.learnSearchOpen=!(state.learnSearchOpen||state.learnQuery);
+    if(!state.learnSearchOpen)state.learnQuery="";else state.focusSearch="learnsearch";
+    ctx.render();return true;
+  }
+  // A culture's chips narrow it to one part — athletes, methods, food or history.
+  const lpart=t.closest&&t.closest("[data-learnpart]");
+  if(lpart){state.learnPart=lpart.getAttribute("data-learnpart")||null;state.learnPartCat=state.learnCat;state.scrollTo=0;ctx.render();return true;}
   if(t.id==="learnsearchx"){state.learnQuery="";state.focusSearch="learnsearch";ctx.render();return true;}
   const learnArea=t.closest&&t.closest("[data-learnarea]");
   if(learnArea){state.learnArea=learnArea.getAttribute("data-learnarea");state.learnCat=null;state.learnQuery="";state.scrollTo=0;ctx.render();return true;}
