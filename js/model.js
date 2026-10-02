@@ -18,7 +18,7 @@ export const EXERCISE_GROUPS=[
     "Skull crusher","Overhead tricep extension","Single-arm overhead tricep extension",
     "Rolling dumbbell tricep extension","Floor press","Pec deck","Cable crossover","Smith machine shoulder press",
     "Hindu push-ups","Shena push-ups","Persian meels","Kabbadeh","Sang press","Kettlebell press","Bridge press","Push press","Seated press",
-    "Log press","Incline log press","Axle press","Barbell pullover","Bent press"]],
+    "Log press","Incline log press","Axle press","Barbell pullover","Bent press","One-hand barbell press","One-arm push"]],
   ["Pull",["Pull ups","Chin ups","Gorilla rows","Standing kettlebell rows","Shoulder shrugs",
     "Lat pulldown","Seated cable row","Straight-arm pulldown","Bicep curls",
     "Kettlebell bicep curl","Cable bicep curl","Cable hammer curl","Cable face pull","Bar Hangs",
@@ -39,7 +39,9 @@ export const EXERCISE_GROUPS=[
     "Atlas stone lift","Natural stone lift","Stone carry","Yoke carry","Stone put","Caber toss",
     "Scottish hammer throw","Weight for distance","Weight over bar","Keg toss",
     "Indian club front circle","Indian club back circle","Indian club side circle","Indian club moulinet",
-    "Indian club windmill"]],
+    "Indian club windmill",
+    "One-hand barbell clean","One-hand barbell jerk","One-hand barbell snatch","Two-dumbbell clean and jerk",
+    "One-hand dumbbell swing"]],
   ["Lower leg",["Calf raises","Seated calf raise","Donkey calf raise","Leg press calf raise"]],
   // Ben Patrick's Knees Over Toes / ATG work, by his names, gathered from his books and
   // programs (Knee Ability Zero and Pro, the ATG Standards, his articles). Some overlap
