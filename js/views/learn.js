@@ -153,7 +153,7 @@ function homeView(area){
     "<div class='lbigtitle'>Learn</div>"+
     (AREAS.length<2?"":"<div class='lpills'>"+AREAS.map(a=>"<button class='lpill"+(a[0]===area?" on":"")+
       "' data-learnarea='"+a[0]+"'>"+a[1]+"</button>").join("")+"</div>")+
-    searchBox("learnsearch","Search "+(area==="health"?"health":"training"),state.learnQuery)+
+    searchBox("learnsearch","Search "+(area==="health"?"health":area==="world"?"the world":"training"),state.learnQuery)+
     "<div id='learnbody'>"+learnHomeBody()+"</div></div>";
 }
 
