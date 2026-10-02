@@ -191,6 +191,7 @@ export const AUSTRALIA={cat:"Australia",region:"Oceania",topics:[
    exercises:["Snatch","Clean and jerk"],
    links:[
     {t:"Dean Lukin — Olympedia",u:"https://www.olympedia.org/athletes/55154",k:"article",d:"His titles and his life as a fisherman"},
+    {t:"Dean Lukin — Australian Olympic Committee",u:"https://www.olympics.com.au/olympians/dean-lukin/",k:"article",d:"AOC historian on his family, the boycott and his gold"},
     {t:"Dean Lukin — Sport Australia Hall of Fame",u:"https://sahof.org.au/hall-of-fame-member/dean-lukin/",k:"article",d:"Holme, the tuna season and the 240 kg lift"},
     {t:"Port Lincoln tuna fisher Dean Lukin hauls in Olympic gold — Adelaide AZ",u:"https://adelaideaz.com/articles/port-lincoln-tuna-fisherman-dean-lukin-hauls-in-australia-s-only-olympic-gold-medal-in-weight-lifting",k:"article",d:"South Australia's encyclopedia on his win"},
     {t:"Weightlifting at the 1984 Olympics: men's +110 kg — Wikipedia",u:"https://en.wikipedia.org/wiki/Weightlifting_at_the_1984_Summer_Olympics_%E2%80%93_Men%27s_%2B110_kg",k:"article",d:"The full results of his event"},
