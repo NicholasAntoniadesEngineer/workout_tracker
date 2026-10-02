@@ -23,6 +23,7 @@ export function partOf(tp){
 import {INDIA} from "./world-india.js";
 import {IRAN} from "./world-iran.js";
 import {BULGARIA} from "./world-bulgaria.js";
+import {NORDIC} from "./world-nordic.js";
 import {SOVIET} from "./soviet.js";
 import {SOVIET_HEALTH} from "./soviet-health.js";
 
@@ -34,5 +35,5 @@ function culture(cat,region,...modules){
 
 export const WORLD=[
   culture("Russia & former USSR","Russia & former USSR",SOVIET,SOVIET_HEALTH),
-  BULGARIA,INDIA,IRAN
+  BULGARIA,INDIA,IRAN,NORDIC
 ].filter(c=>c&&c.topics&&c.topics.length);
