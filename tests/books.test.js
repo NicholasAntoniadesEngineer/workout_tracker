@@ -5,11 +5,16 @@ import {SEED_EXERCISES} from "../js/model.js";
 
 const books=BOOKS.flatMap(c=>c.topics);
 
-test("every book card points to a pre-1931 scan, with each chapter at its page",()=>{
+test("every book card is US public domain and points to a scan, with each chapter at its page",()=>{
   books.forEach(t=>{
     assert.match(t.id,/^bk-/);
     assert.ok(t.title&&t.summary&&t.era&&t.book,t.id);
-    assert.ok(+String(t.era).slice(0,4)<1931,t.id+" must be first published before 1931");
+    // US public domain: published before 1931, or a US book from 1931–1963 whose copyright
+    // was never renewed — and then the card records how that was checked.
+    const y=+String(t.era).slice(0,4);
+    if(y>=1931){
+      assert.ok(y<=1963&&t.pd&&/not renewed/.test(t.pd.basis)&&t.pd.checked,t.id+" needs a recorded renewal check");
+    }
     // An Internet Archive scan (read inside the app) or another full scan with a page pattern.
     if(t.ia)assert.match(t.ia,/^[A-Za-z0-9._-]+$/,t.id+": archive.org identifier");
     else assert.ok(t.scan&&/^https:\/\//.test(t.scan.page)&&t.scan.page.includes("{page}"),t.id+": scan page pattern");

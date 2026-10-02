@@ -124,7 +124,7 @@ export function learnHomeBody(){
       "<div class='ltiles'>"+cats.map(tile).join("")+"</div>";
   }
   return h+(area==="books"?
-    "<p class='learnnote'>Public-domain books, first published before 1931, read as the original printed pages "+
+    "<p class='learnnote'>Public-domain books, read as the original printed pages "+
       "from the Internet Archive. General education, not medical advice.</p>":
     "<p class='learnnote'>Summaries written for KingsKiln; links go to the original articles and videos. "+
       "General education, not medical advice.</p>");

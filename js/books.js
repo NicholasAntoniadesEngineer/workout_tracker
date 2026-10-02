@@ -1,4 +1,5 @@
-// Books: public-domain classics (first published before 1931), read inside the app as the
+// Books: US public-domain classics (published before 1931, or a US book from 1931–1963 whose
+// copyright was never renewed — `pd` records that check), read inside the app as the
 // original scan at the Internet Archive (js/reader.js). Each card is what Learn shows and
 // searches: `ia` is the scan's identifier, `contents` the chapters with the page leaf each
 // starts on, and `from` the Learn topics — the author's own page — that point to the book.
