@@ -2,12 +2,13 @@
 // region, and its topics fall into four parts — its history, its athletes and coaches, its
 // training methods, and its food and recovery. Culture modules are added here as they land.
 
-// Regions in the order the World home shows them.
+// The regions a culture can belong to; each culture's shelf is labelled with its region.
 export const REGIONS=["Russia & former USSR","Eastern Europe","Middle East","South Asia","East Asia",
   "Africa","Nordic & Celtic","Ancient world","Americas & Western Europe"];
 
-export const PARTS=[["history","History"],["people","Athletes & coaches"],["method","Methods"],
-  ["food","Food & recovery"]];
+// A culture page's sections, A–Z like everything else in Learn.
+export const PARTS=[["people","Athletes & coaches"],["food","Food & recovery"],["history","History"],
+  ["method","Methods"]];
 
 // A topic's part: as marked, else worked out — a nutrition topic (id starting "h") is food, even
 // when it's about one person; people have era/focus or bios; a programme without a person is a

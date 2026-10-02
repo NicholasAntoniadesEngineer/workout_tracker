@@ -1,8 +1,9 @@
-// The Learn library in three areas — Training (how to train), Health (fuel and recovery) and
-// World (traditions by culture) — with one lookup across all of them.
+// The Learn library in four areas — Training (how to train), Health (fuel and recovery), World
+// (traditions by culture) and Books (classics to read in full) — with one lookup across them.
 import {LEARN} from "./learn.js";
 import {HEALTH} from "./health.js";
-import {REGIONS,WORLD} from "./world.js";
+import {WORLD} from "./world.js";
+import {BOOKS} from "./books.js";
 
 // Everything reads A–Z: categories by name, topics by the title on their card.
 const az=(a,b)=>a.localeCompare(b,undefined,{sensitivity:"base",numeric:true});
@@ -12,12 +13,8 @@ function sorted(cats){
 }
 
 // An area only shows once it has content.
-// World keeps its own order — by region, then culture A–Z — rather than one A–Z list.
-function byRegion(cats){
-  return sorted(cats).sort((a,b)=>REGIONS.indexOf(a.region)-REGIONS.indexOf(b.region)||az(a.cat,b.cat));
-}
 export const AREAS=[["training","Training",sorted(LEARN)],["health","Health",sorted(HEALTH)],
-  ["world","World",byRegion(WORLD)]].filter(a=>a[2].length);
+  ["world","World",sorted(WORLD)],["books","Books",sorted(BOOKS.filter(c=>c.topics.length))]].filter(a=>a[2].length);
 
 export function areaCats(area){
   const a=AREAS.find(x=>x[0]===area)||AREAS[0];
@@ -32,4 +29,11 @@ export function topicById(id){
 export function catOfTopic(id){
   for(const a of AREAS)for(const c of a[2])if(c.topics.some(x=>x.id===id))return c;
   return null;
+}
+
+// The books in the library that an author's own page points to.
+export function booksFrom(id){
+  const out=[];
+  for(const a of AREAS)for(const c of a[2])c.topics.forEach(t=>{if(t.book&&(t.from||[]).indexOf(id)>=0)out.push(t);});
+  return out;
 }

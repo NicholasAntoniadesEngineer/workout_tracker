@@ -129,10 +129,9 @@ export function learnHomeBody(){
         "<span class='lfs'>"+esc((f.points&&f.points[0])||"")+"</span>"+
         "<span class='lfcta'>Read"+(n?" &middot; "+n+" workout"+(n>1?"s":""):"")+"</span></button></div>";
   }
-  // World groups its culture shelves under region headings.
-  let region=null;
+  // World's cultures run A–Z, each shelf labelled with its region.
   cats.forEach(c=>{
-    if(c.region&&c.region!==region){region=c.region;h+="<div class='lregion'>"+esc(region)+"</div>";}
+    if(c.region&&c.region!==c.cat)h+="<div class='lregion'>"+esc(c.region)+"</div>";
     h+=shelf(c);
   });
   return h+"<p class='learnnote'>Summaries written for KingsKiln; links go to the original articles and videos. "+
