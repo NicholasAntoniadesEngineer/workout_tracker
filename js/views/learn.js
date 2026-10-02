@@ -5,7 +5,7 @@
 // topics, and a topic opens as its own page, so nothing jumps in place.
 import {AREAS,areaCats,booksFrom,catOfTopic,topicById} from "../library.js";
 import {bookPos,scanEmbed,scanLink} from "../reader.js";
-import {filmEmbed,filmPage,filmsFor} from "../films.js";
+import {filmEmbed,filmKey,filmPage,filmsFor} from "../films.js";
 import {PARTS,partOf} from "../world.js";
 import {state} from "../store.js";
 import {icon} from "../icons.js";
@@ -277,14 +277,15 @@ function filmsHtml(tp){
   if(!films.length)return "";
   const offline=typeof navigator!=="undefined"&&navigator.onLine===false;
   const len=m=>m<1?"under a minute":m>=90?Math.round(m/60*10)/10+" hours":Math.round(m)+" min";
-  return "<div class='llabel'>Film</div><div class='lfilms'>"+films.map(f=>{
-    const meta="<span class='lfilmm'>"+f.y+" &middot; "+len(f.min)+" &middot; public domain</span>";
-    if(state.filmOpen===f.ia)return "<div class='lfilm'>"+(offline?
-      "<div class='empty-note'>Films play from the Internet Archive, so they need a connection.</div>":
-      "<iframe class='lfilmf' src='"+esc(filmEmbed(f.ia))+"' title='"+esc(f.t)+"' allowfullscreen referrerpolicy='no-referrer'></iframe>")+
+  return "<div class='llabel'>Watch</div><div class='lfilms'>"+films.map(f=>{
+    const meta="<span class='lfilmm'>"+[f.y,f.min?len(f.min):"",f.yt?f.ch:"public domain"].filter(Boolean).join(" &middot; ")+"</span>";
+    const key=filmKey(f);
+    if(state.filmOpen===key)return "<div class='lfilm'>"+(offline?
+      "<div class='empty-note'>Videos play online, so they need a connection.</div>":
+      "<iframe class='lfilmf' src='"+esc(filmEmbed(f))+"' title='"+esc(f.t)+"' allow='autoplay; encrypted-media; picture-in-picture; fullscreen' allowfullscreen referrerpolicy='strict-origin-when-cross-origin'></iframe>")+
       "<div class='lfilmc'><span class='lfilmt'>"+esc(f.t)+"</span>"+meta+
-      "<a class='lfilml' href='"+esc(filmPage(f.ia))+"' target='_blank' rel='noopener'>Open at the Internet Archive &#8599;</a></div></div>";
-    return "<button class='lfilmb' data-film='"+esc(f.ia)+"'><span class='lfilmp' aria-hidden='true'>&#9654;</span>"+
+      "<a class='lfilml' href='"+esc(filmPage(f))+"' target='_blank' rel='noopener'>"+(f.yt?"Open on YouTube":"Open at the Internet Archive")+" &#8599;</a></div></div>";
+    return "<button class='lfilmb' data-film='"+esc(key)+"'><span class='lfilmp' aria-hidden='true'>&#9654;</span>"+
       "<span class='lfilmc'><span class='lfilmt'>"+esc(f.t)+"</span>"+meta+"<span class='lfilmd'>"+esc(f.d)+"</span></span></button>";
   }).join("")+"</div>";
 }

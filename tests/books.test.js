@@ -39,3 +39,11 @@ test("every film sits on a real Learn topic and is public domain by age or US-go
     list.forEach(f=>{assert.match(f.ia,/^[A-Za-z0-9._-]+$/,f.ia);assert.ok(f.t&&f.y&&f.d,f.ia);});
   });
 });
+
+import {VIDEOS} from "../js/videos.js";
+test("every video is a YouTube id on a real Learn topic, credited to its channel",()=>{
+  Object.entries(VIDEOS).forEach(([id,list])=>{
+    assert.ok(topicById(id),"video topic "+id);
+    list.forEach(v=>{assert.match(v.yt,/^[A-Za-z0-9_-]{11}$/,v.yt);assert.ok(v.t&&v.ch,v.yt);});
+  });
+});

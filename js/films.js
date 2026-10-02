@@ -1,6 +1,7 @@
-// Films: public-domain footage at the Internet Archive — US-public-domain by age (before 1931)
-// or as works of the US government — shown on the Learn topics they belong to. Each plays in
-// the app from the Internet Archive's own player when tapped, so nothing loads until asked.
+// Films and videos on Learn topics. Public-domain footage at the Internet Archive (`ia`: US
+// public domain by age, before 1931, or as works of the US government) and videos from the
+// athletes' and federations' own YouTube channels (`yt`), played through YouTube's own player
+// — the uploader allows embedding. Nothing loads until Play is tapped.
 export const FILMS={
  "classic": [
   {
@@ -173,6 +174,11 @@ export const FILMS={
  ]
 };
 
-export const filmsFor=id=>FILMS[id]||[];
-export const filmEmbed=ia=>"https://archive.org/embed/"+encodeURIComponent(ia);
-export const filmPage=ia=>"https://archive.org/details/"+encodeURIComponent(ia);
+import {VIDEOS} from "./videos.js";
+
+export const filmsFor=id=>(FILMS[id]||[]).concat(VIDEOS[id]||[]);
+export const filmKey=f=>f.ia||f.yt;
+export const filmEmbed=f=>f.yt?"https://www.youtube-nocookie.com/embed/"+encodeURIComponent(f.yt)+"?rel=0&playsinline=1&autoplay=1":
+  "https://archive.org/embed/"+encodeURIComponent(f.ia);
+export const filmPage=f=>f.yt?"https://www.youtube.com/watch?v="+encodeURIComponent(f.yt):
+  "https://archive.org/details/"+encodeURIComponent(f.ia);
