@@ -178,7 +178,7 @@ import {VIDEOS} from "./videos.js";
 
 export const filmsFor=id=>(FILMS[id]||[]).concat(VIDEOS[id]||[]);
 export const filmKey=f=>f.ia||f.yt;
-export const filmEmbed=f=>f.yt?"https://www.youtube-nocookie.com/embed/"+encodeURIComponent(f.yt)+"?rel=0&playsinline=1&autoplay=1":
+export const filmEmbed=f=>f.yt?"https://www.youtube-nocookie.com/embed/"+encodeURIComponent(f.yt)+"?rel=0&playsinline=1":
   "https://archive.org/embed/"+encodeURIComponent(f.ia);
 export const filmPage=f=>f.yt?"https://www.youtube.com/watch?v="+encodeURIComponent(f.yt):
   "https://archive.org/details/"+encodeURIComponent(f.ia);
