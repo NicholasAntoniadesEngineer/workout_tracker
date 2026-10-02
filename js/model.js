@@ -17,7 +17,7 @@ export const EXERCISE_GROUPS=[
     "Dumbbell pullover","Behind-the-neck press","Dumbbell lateral raise","Front raise","Single-arm dumbbell press",
     "Skull crusher","Overhead tricep extension","Single-arm overhead tricep extension",
     "Rolling dumbbell tricep extension","Floor press","Pec deck","Cable crossover","Smith machine shoulder press",
-    "Hindu push-ups"]],
+    "Hindu push-ups","Shena push-ups","Persian meels","Kabbadeh","Sang press"]],
   ["Pull",["Pull ups","Chin ups","Gorilla rows","Standing kettlebell rows","Shoulder shrugs",
     "Lat pulldown","Seated cable row","Straight-arm pulldown","Bicep curls",
     "Kettlebell bicep curl","Cable bicep curl","Cable hammer curl","Cable face pull","Bar Hangs",
@@ -32,7 +32,8 @@ export const EXERCISE_GROUPS=[
     "GHD sit-up","Wrestler's bridge"]],
   ["Carry & full body",["Farmer carry","Suitcase carry","Turkish get-up",
     "Kettlebell squat press clean","Burpees","Power clean","Sled drag","Snatch","Clean and jerk",
-    "Indian clubs","Mace swings","Mallakhamb","Wrestling practice","Pit digging"]],
+    "Indian clubs","Mace swings","Mallakhamb","Wrestling practice","Pit digging","Pa zadan footwork",
+    "Charkh spins","Pahlavani wrestling","Power snatch"]],
   ["Lower leg",["Calf raises","Seated calf raise","Donkey calf raise","Leg press calf raise"]],
   // Ben Patrick's Knees Over Toes / ATG work, by his names, gathered from his books and
   // programs (Knee Ability Zero and Pro, the ATG Standards, his articles). Some overlap

@@ -20,6 +20,7 @@ export function partOf(tp){
 }
 
 import {INDIA} from "./world-india.js";
+import {IRAN} from "./world-iran.js";
 
 // Each culture: {cat, region, topics}. Training and nutrition modules for the same culture
 // merge into one category.
@@ -28,5 +29,5 @@ function culture(cat,region,...modules){
 }
 
 export const WORLD=[
-  INDIA
+  INDIA,IRAN
 ].filter(c=>c&&c.topics&&c.topics.length);

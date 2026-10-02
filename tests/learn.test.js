@@ -64,11 +64,15 @@ test("Health topics are well formed, start with h- and never clash with Training
 });
 
 import {AREAS} from "../js/library.js";
-test("Learn lists categories and topics A–Z in both areas",()=>{
+test("Learn lists categories and topics A–Z (World by region, then A–Z)",()=>{
   const az=list=>list.slice().sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base",numeric:true}));
   AREAS.forEach(a=>{
     const cats=a[2].map(c=>c.cat);
-    assert.deepEqual(cats,az(cats),a[0]);
+    if(a[0]==="world"){
+      // World goes by region first, then A–Z within a region.
+      const ri=a[2].map(c=>REGIONS.indexOf(c.region));
+      ri.forEach((r,i)=>{if(i)assert.ok(r>=ri[i-1],"region order at "+cats[i]);});
+    }else assert.deepEqual(cats,az(cats),a[0]);
     a[2].forEach(c=>{const t=c.topics.map(x=>x.title);assert.deepEqual(t,az(t),c.cat);});
   });
 });
