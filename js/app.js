@@ -12,7 +12,7 @@ import * as sharing from "./actions/share.js";
 import * as data from "./actions/data.js";
 import * as logging from "./actions/log.js";
 import * as stacking from "./actions/stack.js";
-import {areaCats} from "./library.js";
+import {AREAS as LEARN_AREAS,areaCats} from "./library.js";
 
 const TICK_MS=1000;
 // Auto never shrinks type below this — past it the table scrolls instead, so a long day
@@ -302,9 +302,11 @@ function watchLearnSwipe(){
       state.learnTab=tabs[next];state.scrollTo=0;render();return;
     }
     if(!state.learnCat){
-      const area=state.learnArea||"training",want=dx<0?"health":"training";
-      if(area===want){if(dx>0)learnBack();return;}
-      state.learnArea=want;state.learnQuery="";state.scrollTo=0;render();return;
+      // Training → Health → World and back; past Training steps out of Learn.
+      const order=LEARN_AREAS.map(a=>a[0]),next=order.indexOf(state.learnArea||"training")+(dx<0?1:-1);
+      if(next<0){learnBack();return;}
+      if(next>=order.length)return;
+      state.learnArea=order[next];state.learnQuery="";state.scrollTo=0;render();return;
     }
     const order=areaCats(state.learnArea||"training").map(c=>c.cat);
     const next=order.indexOf(state.learnCat)+(dx<0?1:-1);

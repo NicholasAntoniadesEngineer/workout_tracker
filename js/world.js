@@ -19,6 +19,8 @@ export function partOf(tp){
   return "history";
 }
 
+import {INDIA} from "./world-india.js";
+
 // Each culture: {cat, region, topics}. Training and nutrition modules for the same culture
 // merge into one category.
 function culture(cat,region,...modules){
@@ -26,4 +28,5 @@ function culture(cat,region,...modules){
 }
 
 export const WORLD=[
-].filter(c=>c.topics.length);
+  INDIA
+].filter(c=>c&&c.topics&&c.topics.length);

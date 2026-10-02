@@ -83,3 +83,17 @@ test("bios read dates and keep age current",()=>{
   assert.equal(ageText("1980",null,"2026-10-01"),"about 46 years old");
   assert.equal(bioAge("bad"),null);
 });
+
+import {WORLD,REGIONS,partOf} from "../js/world.js";
+test("World cultures sit in a known region, every topic has a part, and workouts use known exercises",()=>{
+  const known=new Set(SEED_EXERCISES.map(n=>n.toLowerCase()));
+  const ids=new Set();
+  WORLD.forEach(c=>{
+    assert.ok(REGIONS.includes(c.region),c.cat+": "+c.region);
+    c.topics.forEach(t=>{
+      assert.ok(!ids.has(t.id),"duplicate "+t.id);ids.add(t.id);
+      assert.ok(["history","people","method","food"].includes(partOf(t)),t.id);
+      (t.days||[]).forEach(d=>d.ex.forEach(n=>assert.ok(known.has(n.toLowerCase()),t.id+": "+n)));
+    });
+  });
+});
