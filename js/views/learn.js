@@ -13,7 +13,7 @@ import {esc,pageHead} from "./common.js";
 // Short tab names for the categories, in the order the library lists them.
 const SHORT={"Lifters & methods":"Lifters","Training principles":"Principles","Workout types":"Workouts",
   "Joints & resilience":"Joints",
-  "What the lifters say":"Lifters","Protein & supplements":"Supplements"};
+  "What the lifters say":"Lifters","Protein & supplements":"Supplements","Kenya & Ethiopia":"Kenya & Ethiopia"};
 const tabName=c=>SHORT[c]||c.split(" & ")[0];
 const GROUPS=[["Read",["article"]],["Watch",["video"]],["Listen",["podcast"]],["Research",["study","guideline"]]];
 
@@ -176,7 +176,7 @@ function categoryView(area,cats,cur){
   let h="<div class='wrap scroll'>"+pageHead(esc(tabName(cur.cat)))+
     "<div class='ltabs'>"+cats.map(c=>"<button class='ltab"+(c===cur?" on":"")+"' data-learncat=\""+
       esc(c.cat)+"\">"+esc(tabName(c.cat))+"</button>").join("")+"</div>"+
-    searchBox("learncatsearch","Search "+esc(tabName(cur.cat).toLowerCase()),"");
+    searchBox("learncatsearch","Search "+esc(cur.region?tabName(cur.cat):tabName(cur.cat).toLowerCase()),"");
   if(cur.region){
     // A culture: History, Athletes & coaches, Methods, Food & recovery — each part that has topics.
     PARTS.forEach(([key,label])=>{
