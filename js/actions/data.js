@@ -5,7 +5,7 @@ import {DEFAULTS,convertAllWeights,setSetting,state,upsertBodyEntry} from "../st
 import {dateKey,nowISO} from "../model.js";
 import {deliver,exportCSV,exportJSON} from "../csv.js";
 import {reminderICS} from "../reminder.js";
-import {bookPos,retryBook,saveBookPos} from "../reader.js";
+import {bookPos,saveBookPos} from "../reader.js";
 
 export function handle(t,ctx){
   if(t.id==="bodysave"){
@@ -35,27 +35,20 @@ export function handle(t,ctx){
   if(t.closest&&t.closest("[data-featurenext]")){state.featureShift=(state.featureShift||0)+1;ctx.render();return true;}
   const ltab=t.closest&&t.closest("[data-learntab]");
   if(ltab){state.learnTab=ltab.getAttribute("data-learntab");state.bookCh=null;state.scrollTo=0;ctx.render();return true;}
-  // Books: open a chapter, carry on where you were, back to the contents, text size.
+  // Books: open a chapter, carry on where you were, back to the contents.
   const bookCh=t.closest&&t.closest("[data-bookch]");
   if(bookCh){
     const v=bookCh.getAttribute("data-bookch"),i=v.lastIndexOf(":"),id=v.slice(0,i),n=+v.slice(i+1);
-    state.bookFor=id;state.bookCh=n;state.learnTab="read";state.scrollTo=0;saveBookPos(id,n,0);
+    state.bookFor=id;state.bookCh=n;state.learnTab="read";state.scrollTo=0;saveBookPos(id,n);
     ctx.render();return true;
   }
   const bookGo=t.closest&&t.closest("[data-bookgo]");
   if(bookGo){
     const id=bookGo.getAttribute("data-bookgo"),pos=bookPos(id);
-    state.bookFor=id;state.bookCh=pos?pos.chapter:0;state.learnTab="read";state.scrollTo=0;
-    state.bookScrollWant=pos?pos.scroll:0;
+    state.bookFor=id;state.bookCh=pos?pos.chapter:0;state.learnTab="read";state.scrollTo=0;saveBookPos(id,state.bookCh);
     ctx.render();return true;
   }
   if(t.closest&&t.closest("#bookback")){state.bookCh=null;state.scrollTo=0;ctx.render();return true;}
-  const retry=t.closest&&t.closest("[data-bookretry]");
-  if(retry){retryBook(retry.getAttribute("data-bookretry"));ctx.render();return true;}
-  if(t.closest&&t.closest("[data-booksize]")){
-    try{const n=+localStorage.getItem("kk_booksize")||1;localStorage.setItem("kk_booksize",String(n%3+1));}catch(e){}
-    ctx.render();return true;
-  }
   if(t.id==="learnsearchx"){state.learnQuery="";state.focusSearch="learnsearch";ctx.render();return true;}
   const learnArea=t.closest&&t.closest("[data-learnarea]");
   if(learnArea){state.learnArea=learnArea.getAttribute("data-learnarea");state.learnCat=null;state.learnQuery="";state.scrollTo=0;ctx.render();return true;}

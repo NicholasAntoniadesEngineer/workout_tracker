@@ -4,8 +4,7 @@ import {activeEx,addExerciseToDay,getSession,importBackup,lastPerformance,load,m
   restTargetFor,save,saveRoutine,selectSession,state} from "./store.js";
 import {parseImport} from "./csv.js";
 import {decodeRoutineHash} from "./share.js";
-import {learnHomeBody,paint,setBookRepaint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
-import {bookText,saveBookPos} from "./reader.js";
+import {learnHomeBody,paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
 import * as nav from "./actions/nav.js";
 import * as routines from "./actions/routines.js";
 import * as days from "./actions/days.js";
@@ -286,7 +285,7 @@ function watchLearnSwipe(){
   let sx=0,sy=0,on=false;
   document.body.addEventListener("touchstart",ev=>{
     on=state.view==="learn"&&ev.touches.length===1&&
-      !(ev.target.closest&&ev.target.closest(".ltabs,.lshelf,.lpills,input,pre"));
+      !(ev.target.closest&&ev.target.closest(".ltabs,.lshelf,.lpills,input"));
     if(on){sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;}
   },{passive:true});
   document.body.addEventListener("touchend",ev=>{
@@ -295,13 +294,8 @@ function watchLearnSwipe(){
     const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<Math.abs(dy)*1.5)return;
     if(dx>0&&sx<=EDGE_PX){learnBack();return;}
-    if(reading()){
-      // In a book, a swipe turns the chapter; back past the first returns to the contents.
-      const b=bookText(state.bookFor),next=state.bookCh+(dx<0?1:-1);
-      if(next<0){learnBack();return;}
-      if(!b||next>=b.chapters.length)return;
-      state.bookCh=next;state.scrollTo=0;saveBookPos(state.bookFor,next,0);render();return;
-    }
+    // Reading a scan: the pages turn inside it; a swipe on the bar goes back to the contents.
+    if(reading()){if(dx>0)learnBack();return;}
     if(state.learnOpen){
       const tabs=[...document.querySelectorAll("[data-learntab]")].map(b=>b.getAttribute("data-learntab"));
       if(tabs.length<2){if(dx>0)learnBack();return;}
@@ -431,15 +425,7 @@ function tick(){
 
 watchDrag();
 watchLearnSwipe();
-setBookRepaint(()=>{if(state.view==="learn")render();});
-// Remember how far down the chapter you are, so Continue reading lands on the same spot.
-let readSaveT=null;
-document.addEventListener("scroll",ev=>{
-  if(!reading()||!ev.target.classList||!ev.target.classList.contains("lreadwrap"))return;
-  clearTimeout(readSaveT);
-  const y=ev.target.scrollTop,id=state.bookFor,ch=state.bookCh;
-  readSaveT=setTimeout(()=>saveBookPos(id,ch,y),400);
-},true);
+
 window.addEventListener("resize",()=>{markRefit();fit();});
 window.addEventListener("orientationchange",()=>{markRefit();fit();});
 

@@ -1,10 +1,7 @@
 // Precache the whole app so it opens instantly and fully offline. Bump VERSION whenever
 // a listed file changes — activate drops every older cache.
-const VERSION="v77";
+const VERSION="v78";
 const CACHE="kingskiln-"+VERSION;
-// Books (books/…) aren't precached — each is fetched the first time it's opened and kept in a
-// cache of its own that survives app updates, so a book once opened always reads offline.
-const BOOKS="kingskiln-books";
 const ASSETS=["./","index.html","styles.css","manifest.webmanifest",
   "js/app.js","js/store.js","js/model.js","js/views.js","js/csv.js","js/charts.js","js/verses.js","js/feasts.js","js/share.js","js/icons.js","js/feedback.js",
   "js/coach.js","js/cues.js","js/reminder.js",
@@ -27,7 +24,7 @@ self.addEventListener("install",e=>{
 
 self.addEventListener("activate",e=>{
   e.waitUntil(caches.keys()
-    .then(keys=>Promise.all(keys.filter(k=>k!==CACHE&&k!==BOOKS).map(k=>caches.delete(k))))
+    .then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
     .then(()=>self.clients.claim()));
 });
 
@@ -35,12 +32,11 @@ self.addEventListener("activate",e=>{
 // so the next load picks up a deploy without this one ever waiting on it.
 self.addEventListener("fetch",e=>{
   if(e.request.method!=="GET")return;
-  const store=new URL(e.request.url).pathname.indexOf("/books/")>=0?BOOKS:CACHE;
   e.respondWith(caches.match(e.request).then(hit=>{
     const fresh=fetch(e.request).then(res=>{
       if(res&&res.ok){
         const copy=res.clone();
-        caches.open(store).then(c=>c.put(e.request,copy));
+        caches.open(CACHE).then(c=>c.put(e.request,copy));
       }
       return res;
     }).catch(()=>hit);

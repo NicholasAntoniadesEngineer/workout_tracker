@@ -3,7 +3,7 @@
 // links go to the original publishers, so nothing of theirs is copied into the app.
 // Laid out as tabs of topics; a topic opens as its own page, so nothing jumps in place.
 import {AREAS,areaCats,booksFrom,catOfTopic,topicById} from "../library.js";
-import {bookFailed,bookPos,bookText,chapterHtml,chapterMinutes} from "../reader.js";
+import {bookPos,scanEmbed,scanLink} from "../reader.js";
 import {PARTS,partOf} from "../world.js";
 import {state} from "../store.js";
 import {icon} from "../icons.js";
@@ -145,8 +145,8 @@ export function learnHomeBody(){
     h+=shelf(c);
   });
   return h+(area==="books"?
-    "<p class='learnnote'>Public-domain books, first published before 1931, shown in full as printed. "+
-      "Each downloads the first time you open it, then reads offline. General education, not medical advice.</p>":
+    "<p class='learnnote'>Public-domain books, first published before 1931, read as the original printed pages "+
+      "from the Internet Archive. General education, not medical advice.</p>":
     "<p class='learnnote'>Summaries written for KingsKiln; links go to the original articles and videos. "+
       "General education, not medical advice.</p>");
 }
@@ -219,7 +219,7 @@ function aboutPeople(people){
 function topicView(tp){
   const t=splitTitle(tp.title),cat=catOfTopic(tp.id);
   const nd=tp.days?tp.days.length:0,nl=(tp.links||[]).length,ne=tp.exercises?tp.exercises.length:0;
-  if(tp.book&&state.learnTab==="read"&&state.bookFor===tp.book&&state.bookCh!=null)return chapterView(tp);
+  if(tp.book&&state.learnTab==="read"&&state.bookFor===tp.book&&state.bookCh!=null)return scanView(tp);
   const tabs=[["overview","Overview"]].concat(tp.book?[["read","Read"]]:[]).concat(nd?[["workouts","Workouts"]]:[])
     .concat(nl?[["links","Links"]]:[]);
   const tab=tabs.some(x=>x[0]===state.learnTab)?state.learnTab:"overview";
@@ -227,7 +227,7 @@ function topicView(tp){
     "<button class='backbtn lheroback' id='backbtn'>"+icon("back","sm")+esc(cat?tabName(cat.cat):"Learn")+"</button>"+
     "<div class='lhe'>"+esc([cat?tabName(cat.cat):"",tp.era].filter(Boolean).join(" · "))+"</div>"+
     "<div class='lhn'>"+esc(t[0])+"</div>"+(t[1]?"<div class='lhm'>"+esc(t[1])+"</div>":"")+
-    "<div class='lhchips'>"+(tp.chapters?"<span>"+tp.chapters+" chapters</span>":"")+
+    "<div class='lhchips'>"+(tp.contents?"<span>"+tp.contents.length+" chapters</span>":"")+
       (tp.images?"<span>"+tp.images+" illustrations</span>":"")+(nl?"<span>"+nl+" link"+(nl>1?"s":"")+"</span>":"")+(nd?"<span>"+nd+" workout"+(nd>1?"s":"")+"</span>":"")+
       (ne?"<span>"+ne+" exercises</span>":"")+(tp.focus?"<span>"+esc(tp.focus)+"</span>":"")+"</div></div>"+
     "<div class='ltopic'>";
@@ -276,52 +276,32 @@ function readButton(tp){
     (pos?"Continue reading &middot; chapter "+(pos.chapter+1):"Start reading")+"</button>";
 }
 
-// Waiting on the book, or it couldn't be fetched — it downloads once, then reads offline.
-function bookWait(tp){
-  return bookFailed(tp.book)?
-    "<div class='empty-note'>This book downloads the first time you open it, then reads offline. "+
-      "Connect to the internet once and try again.<br><button class='btn ghost tiny' data-bookretry='"+esc(tp.book)+"'>Try again</button></div>":
-    "<div class='empty-note'>Opening the book&hellip;</div>";
-}
-
-// The Read tab: the edition, then every chapter with roughly how long it takes.
+// The Read tab: the edition, then the book's chapters — each opens the scan at that page.
 function contentsView(tp){
-  const b=bookText(tp.book,onBookReady);
-  if(!b)return bookWait(tp);
   const pos=bookPos(tp.book);
-  return "<div class='lbkhead'><div class='lbkht'>"+esc(b.title)+"</div><div class='lbkhm'>"+esc(b.author)+
-      (b.edition?" &middot; "+esc(b.edition):"")+"</div>"+
-      (b.source?"<a class='lbkhs' href='"+esc(b.source.u)+"' target='_blank' rel='noopener'>"+esc(b.source.t)+" &#8599;</a>":"")+
-      "<div class='lbkhpd'>Public domain &middot; reads offline once opened</div></div>"+
-    "<div class='llist lchapters'>"+b.chapters.map((c,i)=>
+  return "<div class='lbkhead'><div class='lbkht'>"+esc(splitTitle(tp.title)[1]||tp.title)+"</div><div class='lbkhm'>"+
+      esc(splitTitle(tp.title)[0])+(tp.edition?" &middot; "+esc(tp.edition):"")+"</div>"+
+      "<div class='lbkhpd'>Public domain &middot; the original printed pages, from the Internet Archive</div></div>"+
+    "<div class='llist lchapters'>"+tp.contents.map((c,i)=>
       "<button class='lrow"+(pos&&pos.chapter===i?" on":"")+"' data-bookch='"+esc(tp.book)+":"+i+"'>"+
-        "<span class='lchn mono'>"+(i+1)+"</span><span class='lt'>"+esc(c.t)+"</span>"+
-        "<span class='lpre'>"+chapterMinutes(c)+" min</span><span class='lchev'>&rsaquo;</span></button>").join("")+"</div>";
+        "<span class='lchn mono'>"+(i+1)+"</span><span class='lt'>"+esc(c.t)+"</span><span class='lchev'>&rsaquo;</span></button>").join("")+
+    "</div>";
 }
 
-// One chapter, as a page of its own: a slim bar back to the contents, the text, and
-// previous / next at the foot. Swiping sideways turns the chapter.
-function chapterView(tp){
-  const b=bookText(tp.book,onBookReady);
-  const bar=(label)=>"<div class='lreadbar'><button class='backbtn' id='bookback'>"+icon("back","sm")+"Contents</button>"+
-    "<span class='lreadpos mono'>"+label+"</span><button class='lreadsize' data-booksize='1' aria-label='Text size'>Aa</button></div>";
-  if(!b)return "<div class='wrap scroll'>"+bar("")+"<div class='ltopic'>"+bookWait(tp)+"</div></div>";
-  const i=Math.min(state.bookCh,b.chapters.length-1),ch=b.chapters[i],ref=esc(tp.book)+":";
-  if(state.bookScrollWant!=null){state.scrollTo=state.bookScrollWant;state.bookScrollWant=null;}
-  return "<div class='wrap scroll lreadwrap'>"+bar((i+1)+" / "+b.chapters.length)+
-    "<article class='lbook size"+bookSize()+"'><div class='lbookt'>"+esc(b.title)+"</div><h2>"+esc(ch.t)+"</h2>"+chapterHtml(ch)+"</article>"+
-    "<div class='lreadnav'>"+
-      (i>0?"<button class='btn ghost' data-bookch='"+ref+(i-1)+"'>&lsaquo; Previous</button>":"<span></span>")+
-      (i<b.chapters.length-1?"<button class='btn primary' data-bookch='"+ref+(i+1)+"'>Next &rsaquo;</button>":
-        "<button class='btn ghost' id='bookback'>The end &middot; Contents</button>")+
-    "</div></div>";
+// A chapter: the scan fills the screen under a slim bar — back to the contents, where you
+// are, and the same page at the Internet Archive. The scan scrolls on through the book.
+function scanView(tp){
+  const n=tp.contents.length,i=Math.max(0,Math.min(state.bookCh,n-1)),c=tp.contents[i];
+  const offline=typeof navigator!=="undefined"&&navigator.onLine===false;
+  return "<div class='wrap lscanwrap'><div class='lreadbar'><button class='backbtn' id='bookback'>"+icon("back","sm")+"Contents</button>"+
+      "<span class='lreadpos'>"+esc(c.t)+"</span>"+
+      "<a class='lreadout' href='"+esc(scanLink(tp.ia,c.page))+"' target='_blank' rel='noopener' aria-label='Open at the Internet Archive'>&#8599;</a></div>"+
+    (offline?"<div class='empty-note'>The book is read from the Internet Archive, so it needs a connection. "+
+      "Everything else in KingsKiln works offline.</div>":
+      "<iframe class='lscan' src='"+esc(scanEmbed(tp.ia,c.page))+"' title='"+esc(tp.title)+"' allowfullscreen "+
+        "referrerpolicy='no-referrer'></iframe>")+
+    "</div>";
 }
-
-// Text size for reading, one of three, kept on this device.
-export function bookSize(){try{return +localStorage.getItem("kk_booksize")||1;}catch(e){return 1;}}
-
-let onBookReady=null;
-export function setBookRepaint(fn){onBookReady=fn;}
 
 export function learnView(){
   const tp=state.learnOpen&&topicById(state.learnOpen);
