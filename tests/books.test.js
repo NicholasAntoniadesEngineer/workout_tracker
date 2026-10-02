@@ -30,3 +30,12 @@ test("book workouts use exercises in the app's list",()=>{
     (t.days||[]).forEach(d=>d.ex.forEach(n=>assert.ok(known.has(n.toLowerCase()),t.id+" / "+d.name+": "+n)));
   });
 });
+
+import {FILMS} from "../js/films.js";
+import {topicById} from "../js/library.js";
+test("every film sits on a real Learn topic and is public domain by age or US-government origin",()=>{
+  Object.entries(FILMS).forEach(([id,list])=>{
+    assert.ok(topicById(id),"film topic "+id);
+    list.forEach(f=>{assert.match(f.ia,/^[A-Za-z0-9._-]+$/,f.ia);assert.ok(f.t&&f.y&&f.d,f.ia);});
+  });
+});

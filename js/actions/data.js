@@ -55,6 +55,9 @@ export function handle(t,ctx){
     if(!state.learnSearchOpen)state.learnQuery="";else state.focusSearch="learnsearch";
     ctx.render();return true;
   }
+  // A topic's film plays in place when tapped.
+  const film=t.closest&&t.closest("[data-film]");
+  if(film){state.filmOpen=film.getAttribute("data-film");ctx.render();return true;}
   // A culture's chips narrow it to one part — athletes, methods, food or history.
   const lpart=t.closest&&t.closest("[data-learnpart]");
   if(lpart){state.learnPart=lpart.getAttribute("data-learnpart")||null;state.learnPartCat=state.learnCat;state.scrollTo=0;ctx.render();return true;}
