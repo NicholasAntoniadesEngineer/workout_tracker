@@ -4,7 +4,7 @@
 
 // The regions a culture can belong to; each culture's shelf is labelled with its region.
 export const REGIONS=["Russia & former USSR","Eastern Europe","Middle East","South Asia","East Asia",
-  "Africa","Nordic & Celtic","Ancient world","Americas & Western Europe"];
+  "Africa","Nordic & Celtic","Ancient world","Americas","Western Europe"];
 
 // A culture page's sections, A–Z like everything else in Learn.
 export const PARTS=[["people","Athletes & coaches"],["food","Food & recovery"],["history","History"],
@@ -25,6 +25,7 @@ import {INDIA} from "./world-india.js";
 import {IRAN} from "./world-iran.js";
 import {BULGARIA} from "./world-bulgaria.js";
 import {NORDIC} from "./world-nordic.js";
+import {UK} from "./world-uk.js";
 import {SOVIET} from "./soviet.js";
 import {SOVIET_HEALTH} from "./soviet-health.js";
 
@@ -36,5 +37,5 @@ function culture(cat,region,...modules){
 
 export const WORLD=[
   culture("Russia & former USSR","Russia & former USSR",SOVIET,SOVIET_HEALTH),
-  BULGARIA,INDIA,IRAN,NORDIC
+  BULGARIA,INDIA,IRAN,NORDIC,UK
 ].filter(c=>c&&c.topics&&c.topics.length);
