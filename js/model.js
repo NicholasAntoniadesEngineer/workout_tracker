@@ -43,7 +43,7 @@ export const EXERCISE_GROUPS=[
     "Indian club windmill",
     "One-hand barbell clean","One-hand barbell jerk","One-hand barbell snatch","Two-dumbbell clean and jerk",
     "One-hand dumbbell swing","Track intervals","Time trial","Rowing","Running",
-    "Partner hand balancing","Hill repeats","Sprints","Swimming","Stick fighting"]],
+    "Partner hand balancing","Hill repeats","Sprints","Swimming","Stick fighting","Board paddling","Surf ski paddling"]],
   ["Lower leg",["Calf raises","Seated calf raise","Donkey calf raise","Leg press calf raise"]],
   // Ben Patrick's Knees Over Toes / ATG work, by his names, gathered from his books and
   // programs (Knee Ability Zero and Pro, the ATG Standards, his articles). Some overlap
