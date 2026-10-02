@@ -6,7 +6,7 @@ import {state} from "./store.js";
 import {VERSES} from "./verses.js";
 
 const W=1080,H=1350,MARGIN=84;
-const INK="#ffffff",MUTED="#9a9a9a",GOLD="#ffec00",BG="#000000",PANEL="#111111";
+const INK="#ffffff",MUTED="#9a9a9a",GOLD="#f5c518",BG="#000000",PANEL="#111111";
 const FONT="ui-sans-serif,system-ui,-apple-system,sans-serif";
 
 function wrap(ctx,text,maxWidth){

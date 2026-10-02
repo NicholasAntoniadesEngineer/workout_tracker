@@ -1,11 +1,11 @@
 :root{
   color-scheme:light dark;
-  /* Crown: gold #ffec00 and black. In light the gold is a fill (it can't be read as text on
+  /* Crown: gold #f5c518 and black. In light the gold is a fill (it can't be read as text on
      white), so buttons are black with gold lettering and the active state is solid gold. */
   --bg:#ffffff; --panel:#ffffff; --panelHi:#f2f2f2; --line:#dcdcdc;
   --text:#000000; --muted:#555555;
-  --accent:#000000; --accentText:#000000; --accentDim:#ffec00; --onAccent:#ffec00;
-  --kilnBg:#ffec00; --kilnText:#000000;
+  --accent:#000000; --accentText:#000000; --accentDim:#f5c518; --onAccent:#f5c518;
+  --kilnBg:#f5c518; --kilnText:#000000;
   --danger:#b3261e;
   --shadow:rgba(16,20,28,.08);
 
@@ -39,8 +39,8 @@
   :root:not([data-theme="light"]){
     --bg:#000000; --panel:#111111; --panelHi:#1a1a1a; --line:#2a2a2a;
     --text:#ffffff; --muted:#9a9a9a;
-    --accent:#ffec00; --accentText:#ffec00; --accentDim:#2a2700; --onAccent:#000000;
-    --kilnBg:transparent; --kilnText:#ffec00;
+    --accent:#f5c518; --accentText:#f5c518; --accentDim:#2b2306; --onAccent:#000000;
+    --kilnBg:transparent; --kilnText:#f5c518;
     --danger:#ff6b6b;
     --shadow:rgba(0,0,0,.4);
   }
@@ -49,14 +49,14 @@
   color-scheme:dark;
   --bg:#000000; --panel:#111111; --panelHi:#1a1a1a; --line:#2a2a2a;
   --text:#ffffff; --muted:#9a9a9a;
-  --accent:#ffec00; --accentText:#ffec00; --accentDim:#2a2700; --onAccent:#000000;
-  --kilnBg:transparent; --kilnText:#ffec00;
+  --accent:#f5c518; --accentText:#f5c518; --accentDim:#2b2306; --onAccent:#000000;
+  --kilnBg:transparent; --kilnText:#f5c518;
   --danger:#ff6b6b;
   --shadow:rgba(0,0,0,.4);
 }
 :root[data-theme="light"]{color-scheme:light;}
 /* The magazine header colour: black on the light theme, a lifted black on dark. */
-:root{--hero:#000000;--heroText:#ffffff;--heroMuted:#c9c9c9;--heroChip:#2a2a2a;--heroAccent:#ffec00;}
+:root{--hero:#000000;--heroText:#ffffff;--heroMuted:#c9c9c9;--heroChip:#2a2a2a;--heroAccent:#f5c518;}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hero:#141414;--heroChip:#262626;}}
 :root[data-theme="dark"]{--hero:#141414;--heroChip:#262626;}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
