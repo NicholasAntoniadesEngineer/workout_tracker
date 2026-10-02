@@ -1,12 +1,12 @@
 // A finished day as one clean image for the share sheet: shield and wordmark, the day's
-// numbers, its exercises, and the verse on screen — kiln-black and amber, 4:5 portrait.
+// numbers, its exercises, and the verse on screen — black and gold, 4:5 portrait.
 // Everything is drawn on a canvas, so it costs no network and works offline.
 import {exerciseTotal,fmtClock,totals,workoutSeconds} from "./model.js";
 import {state} from "./store.js";
 import {VERSES} from "./verses.js";
 
 const W=1080,H=1350,MARGIN=84;
-const INK="#e9ebee",MUTED="#8b93a1",AMBER="#f0a500",BG="#14100c",PANEL="#1d1813";
+const INK="#ffffff",MUTED="#9a9a9a",GOLD="#ffec00",BG="#000000",PANEL="#111111";
 const FONT="ui-sans-serif,system-ui,-apple-system,sans-serif";
 
 function wrap(ctx,text,maxWidth){
@@ -24,7 +24,7 @@ function wrap(ctx,text,maxWidth){
 function shield(ctx,x,y,size){
   const k=size/100;
   ctx.save();ctx.translate(x,y);ctx.scale(k,k);
-  ctx.strokeStyle=AMBER;ctx.lineCap="round";ctx.lineJoin="round";
+  ctx.strokeStyle=GOLD;ctx.lineCap="round";ctx.lineJoin="round";
   ctx.lineWidth=8;
   ctx.stroke(new Path2D("M50 14 L78 25 V50 C78 69 65 81 50 88 C35 81 22 69 22 50 V25 Z"));
   ctx.lineWidth=7;
@@ -44,7 +44,7 @@ export function buildShareCanvas(session){
   ctx.font="800 44px "+FONT;
   ctx.fillStyle=INK;ctx.fillText("Kings",MARGIN+88,MARGIN+36);
   const kw=ctx.measureText("Kings").width;
-  ctx.fillStyle=AMBER;ctx.fillText("Kiln",MARGIN+88+kw,MARGIN+36);
+  ctx.fillStyle=GOLD;ctx.fillText("Kiln",MARGIN+88+kw,MARGIN+36);
 
   // Date + day title
   ctx.textBaseline="alphabetic";
@@ -62,7 +62,7 @@ export function buildShareCanvas(session){
   if(secs)stats.push([fmtClock(secs),"time"]);
   let sx=MARGIN;const sy=MARGIN+330;
   stats.forEach(s=>{
-    ctx.font="800 58px "+FONT;ctx.fillStyle=AMBER;
+    ctx.font="800 58px "+FONT;ctx.fillStyle=GOLD;
     ctx.fillText(s[0],sx,sy);
     const w=ctx.measureText(s[0]).width;
     ctx.font="600 30px "+FONT;ctx.fillStyle=MUTED;
@@ -104,7 +104,7 @@ export function buildShareCanvas(session){
     const vy=H-MARGIN-70-lines.length*46;
     ctx.textAlign="center";
     lines.forEach((ln,i)=>ctx.fillText(ln,W/2,vy+i*46));
-    ctx.font="700 30px "+FONT;ctx.fillStyle=AMBER;
+    ctx.font="700 30px "+FONT;ctx.fillStyle=GOLD;
     ctx.fillText(v.ref,W/2,vy+lines.length*46+14);
     ctx.textAlign="left";
   }

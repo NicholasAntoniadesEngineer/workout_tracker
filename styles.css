@@ -1,8 +1,11 @@
 :root{
   color-scheme:light dark;
-  --bg:#f4f6f9; --panel:#ffffff; --panelHi:#eceff4; --line:#d8dde5;
-  --text:#151920; --muted:#5c6472;
-  --accent:#f0a500; --accentText:#8a5300; --accentDim:#fff3d6; --onAccent:#2a1c00;
+  /* Crown: gold #ffec00 and black. In light the gold is a fill (it can't be read as text on
+     white), so buttons are black with gold lettering and the active state is solid gold. */
+  --bg:#ffffff; --panel:#ffffff; --panelHi:#f2f2f2; --line:#dcdcdc;
+  --text:#000000; --muted:#555555;
+  --accent:#000000; --accentText:#000000; --accentDim:#ffec00; --onAccent:#ffec00;
+  --kilnBg:#ffec00; --kilnText:#000000;
   --danger:#b3261e;
   --shadow:rgba(16,20,28,.08);
 
@@ -34,26 +37,28 @@
 /* Dark applies when the device asks for it, or when the setting forces it. */
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#101216; --panel:#181b21; --panelHi:#1f242c; --line:#2a2f38;
-    --text:#e9ebee; --muted:#8b93a1;
-    --accent:#ffc247; --accentText:#ffc247; --accentDim:#3a3320; --onAccent:#1a1200;
+    --bg:#000000; --panel:#111111; --panelHi:#1a1a1a; --line:#2a2a2a;
+    --text:#ffffff; --muted:#9a9a9a;
+    --accent:#ffec00; --accentText:#ffec00; --accentDim:#2a2700; --onAccent:#000000;
+    --kilnBg:transparent; --kilnText:#ffec00;
     --danger:#ff6b6b;
     --shadow:rgba(0,0,0,.4);
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#101216; --panel:#181b21; --panelHi:#1f242c; --line:#2a2f38;
-  --text:#e9ebee; --muted:#8b93a1;
-  --accent:#ffc247; --accentText:#ffc247; --accentDim:#3a3320; --onAccent:#1a1200;
+  --bg:#000000; --panel:#111111; --panelHi:#1a1a1a; --line:#2a2a2a;
+  --text:#ffffff; --muted:#9a9a9a;
+  --accent:#ffec00; --accentText:#ffec00; --accentDim:#2a2700; --onAccent:#000000;
+  --kilnBg:transparent; --kilnText:#ffec00;
   --danger:#ff6b6b;
   --shadow:rgba(0,0,0,.4);
 }
 :root[data-theme="light"]{color-scheme:light;}
-/* The magazine header colour: near-black on the light theme, a lifted slate on dark. */
-:root{--hero:#151920;--heroText:#ffffff;--heroMuted:#c9ced6;--heroChip:#2a2f38;--heroAccent:#ffc247;}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hero:#232833;--heroChip:#323844;}}
-:root[data-theme="dark"]{--hero:#232833;--heroChip:#323844;}
+/* The magazine header colour: black on the light theme, a lifted black on dark. */
+:root{--hero:#000000;--heroText:#ffffff;--heroMuted:#c9c9c9;--heroChip:#2a2a2a;--heroAccent:#ffec00;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hero:#141414;--heroChip:#262626;}}
+:root[data-theme="dark"]{--hero:#141414;--heroChip:#262626;}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 /* Hidden means hidden, even for elements that set their own display. */
 [hidden]{display:none!important;}
@@ -358,7 +363,7 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .homegear{position:absolute;top:max(16px,env(safe-area-inset-top));right:18px;z-index:2;}
 .brand{font-size:20px;font-weight:800;letter-spacing:-0.5px;margin-bottom:16px;
   display:flex;align-items:center;justify-content:center;gap:7px;}
-.brand .bk{color:var(--accent);}
+.brand .bk{color:var(--kilnText);background:var(--kilnBg);padding:0 .2em;border-radius:.22em;margin-left:.08em;}
 .brandshield{width:20px;height:20px;flex:none;}
 .homehero{margin-bottom:18px;}
 .homeday{font-size:clamp(26px,8vw,34px);font-weight:800;letter-spacing:-1px;line-height:1.1;
@@ -490,7 +495,7 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
 .wkday.now .wkinit{color:var(--accentText);font-weight:800;}
 /* Saved routines under the start button — one tap begins that day. */
 .ramp{font-size:var(--f-md);margin-bottom:6px;}
-/* Inline SVG icons: 24-grid strokes through currentColor, amber details via .acc/.accf. */
+/* Inline SVG icons: 24-grid strokes through currentColor, accent details via .acc/.accf. */
 /* Taps go to the button, never the drawing inside it, so every handler sees its button. */
 .icn{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round;vertical-align:-3.5px;flex:none;pointer-events:none;}
@@ -888,7 +893,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .lfn{font-size:clamp(24px,7.5vw,32px);font-weight:800;letter-spacing:-.6px;line-height:1.05;}
 .lfm{font-size:clamp(14px,4.2vw,17px);font-weight:700;color:var(--heroAccent);}
 .lfs{font-size:14px;color:var(--heroMuted);line-height:1.4;}
-.lfcta{margin-top:auto;padding:10px 18px;border-radius:20px;background:var(--accent);color:var(--onAccent);
+.lfcta{margin-top:auto;padding:10px 18px;border-radius:20px;background:var(--heroAccent);color:#000000;
   font-weight:800;font-size:14px;}
 .lshelfhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:4px 0 8px;}
 .lshelft{font-size:18px;font-weight:800;min-width:0;}
