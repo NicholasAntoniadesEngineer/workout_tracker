@@ -42,7 +42,7 @@ export const EXERCISE_GROUPS=[
     "One-hand barbell clean","One-hand barbell jerk","One-hand barbell snatch",
     "Two-dumbbell clean and jerk","One-hand dumbbell swing","Partner hand balancing","Front rack hold"]],
   ["Conditioning",["Track intervals","Time trial","Rowing","Running","Hill repeats","Sprints","Swimming",
-    "Board paddling","Surf ski paddling","Jump rope","Loaded march","Small-ball game"]],
+    "Board paddling","Surf ski paddling","Jump rope","Loaded march","Small-ball game","Fartlek"]],
   ["Combat & skill",["Wrestling practice","Pahlavani wrestling","Pa zadan footwork","Charkh spins","Mallakhamb",
     "Stick fighting","Oil wrestling","Peşrev","Judo randori","Jiu-jitsu drilling",
     "Jiu-jitsu rolling","Shrimping","Technical stand-up","Breakfalls","Capoeira roda","Ginga","Aú",
