@@ -1,7 +1,7 @@
 // New Zealand & the Pacific: the All Blacks and the haka, the war dances of Samoa, Tonga and Fiji,
 // Arthur Lydiard's Auckland revolution in distance running and the jogging it set loose, the va'a
 // and waka ama paddling revival; Lydiard and his runners, the rugby giants, the shot putter and
-// the lifter; Lydiard's build-up, hill circuit and track phase; and the earth oven, the island
+// the lifters; Lydiard's build-up, hill circuit and track phase; and the earth oven, the island
 // table, the kava bowl and Lydiard's own advice on food.
 // Summaries and key points are written for KingsKiln in our own words; links point to the
 // original publishers. General education only. No affiliation with or endorsement by any linked
@@ -174,6 +174,7 @@ export const PACIFIC={cat:"New Zealand & Pacific",region:"Oceania",topics:[
     {t:"Valerie: the autobiography — Goodreads",u:"https://goodreads.com/book/show/16149111-valerie",k:"article",d:"Her 2012 book with Phil Gifford"},
     {t:"Kirsten Hellier — Wikipedia",u:"https://en.wikipedia.org/wiki/Kirsten_Hellier",k:"article",d:"Her first coach, from 1998 to 2010"},
     {t:"Valerie Adams — World Athletics",u:"https://worldathletics.org/athletes/new-zealand/valerie-adams-14292861",k:"article",d:"Official results and personal bests"},
+    {t:"Valerie Adams — Wikipedia",u:"https://en.wikipedia.org/wiki/Valerie_Adams",k:"article",d:"Career, titles, coaches and honours"},
     {t:"Valerie Adams shot put — YouTube search",u:"https://www.youtube.com/results?search_query=Valerie+Adams+shot+put",k:"video",d:"Search results: her championship throws"}]},
   {id:"nz-liti",part:"people",title:"David Liti: from a garage in Auckland to Commonwealth gold",era:"2010s–2020s",focus:"Olympic weightlifting",
    people:[{name:"David Liti",born:"1996-07-11",from:"Auckland, New Zealand",known:"Commonwealth super-heavyweight champion in 2018 and 2026; two-time Olympian",
@@ -193,6 +194,33 @@ export const PACIFIC={cat:"New Zealand & Pacific",region:"Oceania",topics:[
     {t:"David Liti — High Impact Athletes",u:"https://www.highimpactathletes.org/meet-our-hia-athletes/p/david-liti",k:"article",d:"His profile and giving work"},
     {t:"David Liti — Wikipedia",u:"https://en.wikipedia.org/wiki/David_Liti",k:"article",d:"Career, results and coach"},
     {t:"David Liti weightlifting — YouTube search",u:"https://www.youtube.com/results?search_query=David+Liti+weightlifting",k:"video",d:"Search results: his competition lifts"}]},
+  {id:"nz-opeloge",part:"people",title:"Ele Opeloge and the Opeloges: Samoa's lifting family",era:"1999–2020s",focus:"Olympic weightlifting",
+   people:[
+    {name:"Ele Opeloge",born:"1985-07-11",from:"Apia, Samoa",known:"Samoa's first Olympic medallist: +75 kg silver from Beijing 2008, reallocated in 2016; 2010 Commonwealth champion",
+     works:[]},
+    {name:"Niusila Opeloge",born:"1980",from:"Samoa",known:"The family's first lifter; Commonwealth bronze in 2002 and Commonwealth champion at 105 kg in 2010",
+     works:[]},
+    {name:"Don Opeloge",born:"1999-05-13",from:"Samoa",known:"Junior world champion in 2019 and Commonwealth champion at 96 kg in 2022",
+     works:[]}],
+   summary:"The Opeloges made their living from a banana plantation and became Samoa's lifting family: the eldest brother, Niusila, began in 1999 and won Commonwealth bronze in 2002, ten of the twelve siblings have since lifted for Samoa, and their coach at home in Apia is Tuaopepe Jerry Wallwork. Ele carried Samoa's flag in Beijing in 2008 and lifted 269 kg, equal to her best, to finish fourth, one kilo off bronze; in 2016 retests of the 2008 samples disqualified the silver and bronze medallists, Ukraine's Olha Korobka and Kazakhstan's Mariya Grabovetskaya, and Ele was moved up to silver, Samoa's first Olympic medal, presented to her in Apia on 5 April 2017. Niusila was banned for two years for steroids in 2008, which he denied, and on one day at the 2010 Commonwealth Games in Delhi he won the 105 kg title with 338 kg while Ele won the +75 kg title with a Games record 285 kg; she went on to Commonwealth silver in 2014 and Pacific Games gold again in 2015, and her younger sister Mary lifted at the 2016 Olympics. The next generation is led by their nephew Don, junior world champion in 2019 and Commonwealth 96 kg champion in Birmingham in 2022, and Ele puts the family's gift down to God and to the older lifters teaching the younger ones.",
+   points:["Ten of twelve siblings have lifted for Samoa","Ele: fourth in Beijing by one kilo, moved up to silver in 2016","The 2008 silver and bronze medallists were disqualified after retests","Ele and Niusila: Commonwealth gold on the same day in 2010","Niusila: two-year steroid ban from 2008","Trained at home in Apia rather than abroad"],
+   exercises:["Snatch","Clean and jerk"],
+   links:[
+    {t:"Ele Opeloge — Olympedia",u:"https://www.olympedia.org/athletes/116297",k:"article",d:"Her family, results and the Beijing upgrade"},
+    {t:"Ele Opeloge — Wikipedia",u:"https://en.wikipedia.org/wiki/Ele_Opeloge",k:"article",d:"Career, family and medal reallocation"},
+    {t:"Opeloge finally gets recognition — Olympics.com",u:"https://www.olympics.com/en/news/only-olympic-medal-opeloge-finally-gets-recognition",k:"article",d:"Beijing, the retests and the 2017 ceremony"},
+    {t:"Bittersweet victory for Samoa's first Olympic medalist — RNZ",u:"https://www.rnz.co.nz/news/pacific/321371/bittersweet-victory-for-samoa's-first-olympic-medalist",k:"article",d:"Her coach on the upgraded silver"},
+    {t:"Low key affair at medal ceremony — Cook Islands News",u:"https://www.cookislandsnews.com/regional/low-key-affair-at-medal-ceremony/",k:"article",d:"The medal presented in Apia, 2017"},
+    {t:"The secret behind Samoa's incredible weightlifting success — Oceania NOC",u:"https://www.oceanianoc.org/videos/the-secret-behind-samoas-incredible-weightlifting-success",k:"video",d:"Ele Opeloge's story on film"},
+    {t:"Meet the Opeloges: Samoa's first family of weightlifting — RNZ",u:"https://www.rnz.co.nz/international/programmes/champions-of-the-pacific/audio/2018817082/meet-the-opeloges-samoa-s-first-family-of-weightlifting",k:"podcast",d:"The family in their own words"},
+    {t:"Double gold for Samoa — RNZ",u:"https://www.rnz.co.nz/news/sport/59170/double-gold-for-samoa",k:"article",d:"Ele and Niusila win on one day, Delhi 2010"},
+    {t:"How Samoa's homegrown weightlifting heroes are taking on the world — ABC News",u:"https://www.abc.net.au/news/2022-12-09/samoan-weightlifting-dominance/101750104",k:"article",d:"The family, Don and coach Jerry Wallwork"},
+    {t:"Top Samoa weightlifter banned for using steroids — RNZ",u:"https://www.rnz.co.nz/international/pacific-news/175847/top-samoa-weightlifter-banned-for-using-steroids",k:"article",d:"Niusila's two-year ban, March 2008"},
+    {t:"Niusila Opeloge — Wikipedia",u:"https://en.wikipedia.org/wiki/Niusila_Opeloge",k:"article",d:"The eldest brother's Commonwealth medals"},
+    {t:"Don Opeloge — Wikipedia",u:"https://en.wikipedia.org/wiki/Don_Opeloge",k:"article",d:"Junior world and Commonwealth titles"},
+    {t:"Samoan Opeloge snatches Games gold with monster lifts — RNZ",u:"https://www.rnz.co.nz/international/pacific-news/472123/samoan-opeloge-snatches-games-gold-with-monster-lifts",k:"article",d:"Don's Birmingham gold, 2022"},
+    {t:"Mary Opeloge — Olympedia",u:"https://www.olympedia.org/athletes/131648",k:"article",d:"The younger sister's 2016 Olympics"},
+    {t:"Weightlifting at the 2008 Summer Olympics, women's +75 kg — Wikipedia",u:"https://en.wikipedia.org/wiki/Weightlifting_at_the_2008_Summer_Olympics_%E2%80%93_Women%27s_%2B75_kg",k:"article",d:"The Beijing results after reallocation"}]},
 
   // ——— Methods ———
   {id:"nz-buildup",part:"method",title:"Lydiard's build-up: 100 miles a week and the Waiatarua",

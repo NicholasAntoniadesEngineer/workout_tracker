@@ -1,6 +1,6 @@
 // Mongolia: Naadam and its three games of men (bökh wrestling, horse racing and archery), the
-// wrestlers who carried bökh onto the Olympic mat, the countryside camp and the herding life that
-// build them, and the white and red foods of the ger.
+// wrestlers and judoka who carried bökh onto the Olympic mat, the countryside camp and the herding
+// life that build them, and the white and red foods of the ger.
 // Summaries and key points are written for KingsKiln in our own words; links point to the
 // original publishers. General education only. No affiliation with or endorsement by any linked
 // author, organisation or channel is implied.
@@ -136,6 +136,53 @@ export const MONGOLIA={cat:"Mongolia",region:"East Asia",topics:[
     {t:"Chamizo grabs freestyle gold for Italy at World Championships — United World Wrestling",u:"https://uww.org/article/chamizo-grabs-freestyle-gold-italy-wrestling-world-championships",k:"article",d:"Her 2015 world final, won by fall"},
     {t:"Soronzonboldyn Battsetseg — Olympedia",u:"https://www.olympedia.org/athletes/123840",k:"article",d:"Her Olympic results"},
     {t:"Soronzonboldyn Battsetseg — Wikipedia",u:"https://en.wikipedia.org/wiki/Soronzonboldyn_Battsetseg",k:"article",d:"World titles, Olympic medal and honours"}]},
+  {id:"mn-tuvshinbayar",part:"people",title:"Naidangiin Tüvshinbayar: Mongolia's first Olympic gold",era:"2000s–2010s",focus:"Judo",
+   people:[{name:"Naidangiin Tüvshinbayar",born:"1984-06-01",from:"Saikhan, Bulgan, Mongolia",known:"Mongolia's first Olympic champion: judo gold at 100 kg in Beijing (2008), then silver in London (2012)",
+     works:[]}],
+   summary:"Tüvshinbayar came to Beijing in 2008 as an Olympic debutant and, in his first bout at 100 kg, threw the reigning champion and favourite, Japan's Keiji Suzuki, for ippon in 1 minute 26 seconds. He won his semi-final against Azerbaijan's Movlud Miraliyev by a yuko in golden score and the final against Kazakhstan's Askhat Zhitkeyev with a hip throw for waza-ari, giving Mongolia its first gold after 15 Olympic medals since 1964; he credited his coach and his parents, and at 24 the state made him a Hero of Labour. Defending the title in London in 2012 he tore the anterior cruciate ligament in his left knee in the semi-final, still went out for the final against Russia's Tagir Khaibulaev, lost it by ippon and flew home in a wheelchair with silver, then won Asian Games gold in 2014, the Asian title in 2016 and, moving up to heavyweight at 33, world bronze in Budapest in 2017, while still wrestling bökh at Naadam. He led Mongolia's National Olympic Committee in 2020–21, and in June 2022 he was sentenced to 16 years in prison over the death of the judoka Erdenebilegiin Enkhbat, who died of injuries from a fight between the two in 2021.",
+   points:["Threw the reigning Olympic champion in his first Olympic bout","Beijing final won with a hip throw for waza-ari","Fought the London final on a torn knee ligament and took silver","Asian Games champion 2014; Asian champion 2016","World bronze at heavyweight in 2017, aged 33","Kept wrestling bökh at Naadam alongside judo"],
+   exercises:["Judo randori","Uchikomi","Wrestling practice"],
+   links:[
+    {t:"Naidangiin Tüvshinbayar — Olympedia",u:"https://www.olympedia.org/athletes/112764",k:"article",d:"Olympic results, titles and later life"},
+    {t:"Naidangiin Tüvshinbayar — Wikipedia",u:"https://en.wikipedia.org/wiki/Naidangiin_T%C3%BCvshinbayar",k:"article",d:"Career, medals, honours and the 2022 sentence"},
+    {t:"Tuvshinbayar Naidan — Olympics.com",u:"https://www.olympics.com/en/athletes/tuvshinbayar-naidan",k:"article",d:"His Beijing run and the London knee injury"},
+    {t:"Men's 100 kg final, Beijing 2008 — Olympics.com",u:"https://www.olympics.com/en/video/naidan-wins-first-gold-for-mongolia",k:"video",d:"The final that won Mongolia's first gold"},
+    {t:"Mongolia earns first-ever gold medal — ESPN",u:"https://www.espn.com/olympics/summer08/judo/news/story?id=3534497",k:"article",d:"Report from the Beijing judo hall, 2008"},
+    {t:"Mongolia's first Olympic champion debuts at +100 kg — JudoInside",u:"https://www.judoinside.com/news/2171/Mongolias_first_Olympic_champion_Naidan_Tuvshinbayar_debutes_100kg",k:"article",d:"His 2017 move up, training partners and Naadam"},
+    {t:"2008 Olympic champion Naidan Tüvshinbayar sentenced to 16 years — JudoInside",u:"https://www.judoinside.com/news/5501/2008_Olympic_Champion_Naidan_Tuvshinbayar_sentenced_to_16_years",k:"article",d:"The 2022 court ruling"},
+    {t:"Mongolia at the 2008 Summer Olympics — Wikipedia",u:"https://en.wikipedia.org/wiki/Mongolia_at_the_2008_Summer_Olympics",k:"article",d:"The Games of Mongolia's first two golds"},
+    {t:"Tüvshinbayar judo — YouTube search",u:"https://www.youtube.com/results?search_query=Tuvshinbayar+Naidan+judo",k:"video",d:"Search results: his Olympic and world contests"}]},
+  {id:"mn-oidov",part:"people",title:"Zevegiin Oidov: twice world champion at 62 kg",era:"1970s–1980",focus:"Freestyle wrestling",
+   people:[{name:"Zevegiin Oidov",born:"1949",from:"Kharkhorin, Övörkhangai, Mongolia",known:"World freestyle champion at 62 kg in 1974 and 1975; 1976 Olympic silver medallist",
+     works:[]}],
+   summary:"Oidov, from Kharkhorin in Övörkhangai, on the site of the old Mongol capital, is remembered as one of the finest technicians of 1970s freestyle wrestling. After sixth place at the 1973 worlds he won the 62 kg world title in Istanbul in 1974 and kept it in Minsk in 1975, with Asian Games silver in Tehran in between. He carried Mongolia's flag into the Montreal opening ceremony in 1976 and left with silver at 62 kg behind South Korea's Yang Jung-mo, then moved up to 68 kg for world bronze in 1977 and Asian Games gold in Bangkok in 1978. He wrestled at three Olympics: Munich, Montreal and Moscow.",
+   points:["World champion at 62 kg in 1974 and 1975","Flagbearer and silver medallist at Montreal 1976","Moved up to 68 kg: world bronze 1977, Asian Games gold 1978","Three Olympics, 1972 to 1980"],
+   exercises:["Wrestling practice"],
+   links:[
+    {t:"Zevegiin Oidov — Olympedia",u:"https://www.olympedia.org/athletes/59400",k:"article",d:"Olympic, world and Asian Games record"},
+    {t:"Zevegiin Oidov — Wikipedia",u:"https://en.wikipedia.org/wiki/Zevegiin_Oidov",k:"article",d:"World titles and Olympic medal"},
+    {t:"Mongolia at the 1976 Summer Olympics — Wikipedia",u:"https://en.wikipedia.org/wiki/Mongolia_at_the_1976_Summer_Olympics",k:"article",d:"Flagbearer and the team's only medal"},
+    {t:"Wrestling at the 1976 Summer Olympics, men's freestyle 62 kg — Wikipedia",u:"https://en.wikipedia.org/wiki/Wrestling_at_the_1976_Summer_Olympics_%E2%80%93_Men%27s_freestyle_62_kg",k:"article",d:"The Montreal tournament, round by round"},
+    {t:"10 famous Mongolian wrestlers across four styles — Mongolian Store",u:"https://mongolianstore.com/mongolian-top-10-wrestlers-of-all-time/",k:"article",d:"Oidov among Mongolia's greatest wrestlers"},
+    {t:"Zevegiin Oidov — YouTube search",u:"https://www.youtube.com/results?search_query=Zevegiin+Oidov+wrestling",k:"video",d:"Search results: archive bouts and tributes"}]},
+  {id:"mn-orkhon",part:"people",title:"Pürevdorjiin Orkhon: the 10–0 that ended Icho's streak",era:"2010s–2020s",focus:"Women's freestyle wrestling",
+   people:[{name:"Pürevdorjiin Orkhon",born:"1993-12-25",from:"Ulaanbaatar, Mongolia",known:"2017 world champion at 63 kg; beat Kaori Icho 10–0 in 2016; served a four-year ban, 2018–2022",
+     works:[]}],
+   summary:"Orkhon, who wrestles for the Aldar sports committee in Ulaanbaatar, made her name in January 2016 in the final of the Ivan Yarygin Grand Prix in Krasnoyarsk, beating Japan's three-time Olympic champion Kaori Icho 10–0 by technical fall and ending an unbeaten run that went back to 2003. She wrestled at the Rio Olympics that year, won the 63 kg world title in Paris in 2017 by beating Ukraine's Yuliya Tkach 6–3 in the final, and in 2018 won the Asian Championships and the 62 kg final at the Asian Games in Jakarta. Her sample from that Asian Games final tested positive for the steroid stanozolol; she said she had been sabotaged, the gold was forfeited, and United World Wrestling banned her for four years, to September 2022, time she spent raising her son. She came back to win Asian silver in 2023, place fifth at the Paris Olympics in 2024 and take world bronze at 62 kg in Zagreb in 2025, and after winning the 2025 Ulaanbaatar Open she said she won because she stayed calm.",
+   points:["2016: 10–0 over Kaori Icho, ending a 13-year unbeaten run","2017 world champion at 63 kg","2018: Asian champion; Asian Games gold later forfeited","Four-year ban for stanozolol, 2018–2022","Back on the world podium in 2025","Puts her wins down to staying calm"],
+   exercises:["Wrestling practice"],
+   links:[
+    {t:"Pürevdorjiin Orkhon — Olympedia",u:"https://www.olympedia.org/athletes/131084",k:"article",d:"Her Rio and Paris Olympic results"},
+    {t:"Pürevdorjiin Orkhon — Wikipedia",u:"https://en.wikipedia.org/wiki/P%C3%BCrevdorjiin_Orkhon",k:"article",d:"Medals, the ban and her comeback"},
+    {t:"FloWrestler of the Week: Orkhon Purevdorj — FloWrestling",u:"https://www.flowrestling.org/articles/5049181-flowrestler-of-the-week-orkhon-purevdorj-mongolia",k:"article",d:"The 10–0 win over Icho, 2016"},
+    {t:"Orkhon v Icho, Ivan Yarygin 2016 final — YouTube",u:"https://www.youtube.com/watch?v=4kXI0Ca8cbk",k:"video",d:"The bout that ended Icho's streak"},
+    {t:"P. Orkhon becomes world champion in wrestling — Montsame",u:"https://montsame.mn/en/read/131229",k:"article",d:"Her 2017 world final against Tkach"},
+    {t:"2017 World Championships, women's freestyle 63 kg — Wikipedia",u:"https://en.wikipedia.org/wiki/2017_World_Wrestling_Championships_%E2%80%93_Women%27s_freestyle_63_kg",k:"article",d:"The Paris bracket, bout by bout"},
+    {t:"Purevdorj suspended after anti-doping violation at Asian Games — United World Wrestling",u:"https://uww.org/article/purevdorj-suspended-after-anti-doping-violation-asian-games",k:"article",d:"The federation's ruling and its dates"},
+    {t:"Mongolian freestyle wrestler banned four years for doping — Xinhua",u:"http://www.xinhuanet.com/english/2019-02/21/c_137839888.htm",k:"article",d:"The 2019 report of the four-year ban"},
+    {t:"P. Orkhon banned for four years following doping case — News.MN",u:"https://news.mn/en/786602/",k:"article",d:"Mongolian report on the ruling"},
+    {t:"Purevdorj reignites Olympic quest with Ulaanbaatar Open gold — United World Wrestling",u:"https://uww.org/article/purevdorj-reignites-olympic-quest-ulaanbaatar-open-gold",k:"article",d:"Her comeback, in her own words"},
+    {t:"Orkhon Purevdorj — YouTube search",u:"https://www.youtube.com/results?search_query=Orkhon+Purevdorj+wrestling",k:"video",d:"Search results: her world and Olympic bouts"}]},
 
   // ——— Methods ———
   {id:"mn-camp",part:"method",title:"The Naadam camp: a month in the grass",
