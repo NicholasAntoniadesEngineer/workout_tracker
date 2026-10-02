@@ -1,6 +1,6 @@
 // Precache the whole app so it opens instantly and fully offline. Bump VERSION whenever
 // a listed file changes — activate drops every older cache.
-const VERSION="v89";
+const VERSION="v90";
 const CACHE="kingskiln-"+VERSION;
 const ASSETS=["./","index.html","styles.css","manifest.webmanifest",
   "js/app.js","js/store.js","js/model.js","js/views.js","js/csv.js","js/charts.js","js/verses.js","js/feasts.js","js/share.js","js/icons.js","js/feedback.js",
@@ -9,7 +9,7 @@ const ASSETS=["./","index.html","styles.css","manifest.webmanifest",
   "js/actions/data.js","js/actions/log.js",
   "js/views/common.js","js/views/log.js","js/views/home.js","js/views/history.js",
   "js/views/calendar.js","js/views/progress.js","js/views/body.js","js/views/settings.js",
-  "js/views/learn.js","js/learn.js","js/health.js","js/library.js","js/world.js","js/world-india.js","js/world-iran.js","js/world-bulgaria.js","js/world-nordic.js","js/world-uk.js","js/world-us.js","js/world-south-africa.js","js/world-australia.js","js/soviet.js","js/soviet-health.js",
+  "js/views/learn.js","js/learn.js","js/health.js","js/library.js","js/world.js","js/world-india.js","js/world-iran.js","js/world-bulgaria.js","js/world-nordic.js","js/world-uk.js","js/world-us.js","js/world-south-africa.js","js/world-australia.js","js/world-brazil.js","js/world-turkey.js","js/soviet.js","js/soviet-health.js",
   "js/stack.js","js/views/stack.js","js/actions/stack.js","js/bio.js","js/books.js","js/reader.js",
   "icons/icon-180.png","icons/icon-192.png","icons/icon-512.png","icons/icon-512-maskable.png"];
 

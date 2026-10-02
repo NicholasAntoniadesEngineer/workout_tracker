@@ -29,6 +29,8 @@ import {UK} from "./world-uk.js";
 import {USA} from "./world-us.js";
 import {SOUTH_AFRICA} from "./world-south-africa.js";
 import {AUSTRALIA} from "./world-australia.js";
+import {BRAZIL} from "./world-brazil.js";
+import {TURKEY} from "./world-turkey.js";
 import {SOVIET} from "./soviet.js";
 import {SOVIET_HEALTH} from "./soviet-health.js";
 
@@ -40,5 +42,5 @@ function culture(cat,region,...modules){
 
 export const WORLD=[
   culture("Russia & former USSR","Russia & former USSR",SOVIET,SOVIET_HEALTH),
-  AUSTRALIA,BULGARIA,INDIA,IRAN,NORDIC,SOUTH_AFRICA,UK,USA
+  AUSTRALIA,BRAZIL,BULGARIA,INDIA,IRAN,NORDIC,SOUTH_AFRICA,TURKEY,UK,USA
 ].filter(c=>c&&c.topics&&c.topics.length);
