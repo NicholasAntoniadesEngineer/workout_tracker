@@ -219,7 +219,7 @@ function aboutPeople(people){
 function topicView(tp){
   const t=splitTitle(tp.title),cat=catOfTopic(tp.id);
   const nd=tp.days?tp.days.length:0,nl=(tp.links||[]).length,ne=tp.exercises?tp.exercises.length:0;
-  if(tp.book&&state.learnTab==="read"&&state.bookFor===tp.book&&state.bookCh!=null)return scanView(tp);
+  if(tp.ia&&state.learnTab==="read"&&state.bookFor===tp.book&&state.bookCh!=null)return scanView(tp);
   const tabs=[["overview","Overview"]].concat(tp.book?[["read","Read"]]:[]).concat(nd?[["workouts","Workouts"]]:[])
     .concat(nl?[["links","Links"]]:[]);
   const tab=tabs.some(x=>x[0]===state.learnTab)?state.learnTab:"overview";
@@ -271,13 +271,23 @@ function topicView(tp){
 
 // Start, or pick up where you left off.
 function readButton(tp){
+  if(!tp.ia)return "<button class='btn primary lstart' data-learntab='read'>Read the book</button>";
   const pos=bookPos(tp.book);
   return "<button class='btn primary lstart' data-bookgo='"+esc(tp.book)+"'>"+
     (pos?"Continue reading &middot; chapter "+(pos.chapter+1):"Start reading")+"</button>";
 }
 
-// The Read tab: the edition, then the book's chapters — each opens the scan at that page.
+// The Read tab: the edition, then the book's chapters — each opens the scan at that page. A
+// scan the Internet Archive doesn't hold (Google Books) can't show inside the app, so its
+// chapters open there instead.
 function contentsView(tp){
+  if(!tp.ia)return "<div class='lbkhead'><div class='lbkht'>"+esc(splitTitle(tp.title)[1]||tp.title)+"</div><div class='lbkhm'>"+
+      esc(splitTitle(tp.title)[0])+(tp.edition?" &middot; "+esc(tp.edition):"")+"</div>"+
+      "<div class='lbkhpd'>Public domain &middot; the original printed pages &middot; each chapter opens at Google Books</div></div>"+
+    "<div class='llinks lchapters'>"+tp.contents.map((c,i)=>
+      "<a class='llink' href='"+esc(tp.scan.page.replace("{page}",encodeURIComponent(c.page)))+"' target='_blank' rel='noopener'>"+
+        "<span class='lchn mono'>"+(i+1)+"</span><span class='lbody'><span class='ll'>"+esc(c.t)+"</span></span><span class='lx'>&#8599;</span></a>").join("")+
+    "</div>";
   const pos=bookPos(tp.book);
   return "<div class='lbkhead'><div class='lbkht'>"+esc(splitTitle(tp.title)[1]||tp.title)+"</div><div class='lbkhm'>"+
       esc(splitTitle(tp.title)[0])+(tp.edition?" &middot; "+esc(tp.edition):"")+"</div>"+

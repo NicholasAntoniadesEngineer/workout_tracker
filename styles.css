@@ -973,6 +973,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .lchapters .lrow .lt{grid-column:2;font-size:14.5px;}
 .lchapters .lrow .lpre{grid-column:2;}
 .lchapters .lrow .lchev{grid-column:3;}
+.lchapters .llink{align-items:center;gap:10px;}
+.lchapters .llink .lchn{color:var(--muted);font-size:var(--f-sm);min-width:20px;}
 .lchapters .lrow.on{border-color:var(--accent);background:var(--accentDim);}
 .wrap.lscanwrap{padding-top:0;padding-bottom:0;overflow:hidden;}
 .lreadbar{flex:none;display:flex;align-items:center;gap:10px;
