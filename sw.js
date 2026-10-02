@@ -1,7 +1,10 @@
 // Precache the whole app so it opens instantly and fully offline. Bump VERSION whenever
 // a listed file changes — activate drops every older cache.
-const VERSION="v76";
+const VERSION="v77";
 const CACHE="kingskiln-"+VERSION;
+// Books (books/…) aren't precached — each is fetched the first time it's opened and kept in a
+// cache of its own that survives app updates, so a book once opened always reads offline.
+const BOOKS="kingskiln-books";
 const ASSETS=["./","index.html","styles.css","manifest.webmanifest",
   "js/app.js","js/store.js","js/model.js","js/views.js","js/csv.js","js/charts.js","js/verses.js","js/feasts.js","js/share.js","js/icons.js","js/feedback.js",
   "js/coach.js","js/cues.js","js/reminder.js",
@@ -10,7 +13,7 @@ const ASSETS=["./","index.html","styles.css","manifest.webmanifest",
   "js/views/common.js","js/views/log.js","js/views/home.js","js/views/history.js",
   "js/views/calendar.js","js/views/progress.js","js/views/body.js","js/views/settings.js",
   "js/views/learn.js","js/learn.js","js/health.js","js/library.js","js/world.js","js/world-india.js","js/world-iran.js","js/world-bulgaria.js","js/world-nordic.js","js/soviet.js","js/soviet-health.js",
-  "js/stack.js","js/views/stack.js","js/actions/stack.js","js/bio.js","js/books.js",
+  "js/stack.js","js/views/stack.js","js/actions/stack.js","js/bio.js","js/books.js","js/reader.js",
   "icons/icon-180.png","icons/icon-192.png","icons/icon-512.png","icons/icon-512-maskable.png"];
 
 // Precache with cache:"reload" so a new version always fetches fresh files, never a stale
@@ -24,7 +27,7 @@ self.addEventListener("install",e=>{
 
 self.addEventListener("activate",e=>{
   e.waitUntil(caches.keys()
-    .then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+    .then(keys=>Promise.all(keys.filter(k=>k!==CACHE&&k!==BOOKS).map(k=>caches.delete(k))))
     .then(()=>self.clients.claim()));
 });
 
@@ -32,11 +35,12 @@ self.addEventListener("activate",e=>{
 // so the next load picks up a deploy without this one ever waiting on it.
 self.addEventListener("fetch",e=>{
   if(e.request.method!=="GET")return;
+  const store=new URL(e.request.url).pathname.indexOf("/books/")>=0?BOOKS:CACHE;
   e.respondWith(caches.match(e.request).then(hit=>{
     const fresh=fetch(e.request).then(res=>{
       if(res&&res.ok){
         const copy=res.clone();
-        caches.open(CACHE).then(c=>c.put(e.request,copy));
+        caches.open(store).then(c=>c.put(e.request,copy));
       }
       return res;
     }).catch(()=>hit);
