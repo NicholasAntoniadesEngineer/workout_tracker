@@ -4,8 +4,9 @@
 // medication, have a health condition, or compete in drug-tested sport. No affiliation with or
 // endorsement by any linked author, organisation, channel or publisher is implied, and nothing here
 // recommends a product or brand.
-// Seven clear groups: the people (experts and lifters, each on their own page), then subjects —
-// food and fuel, hydration, pre-workout and caffeine, protein, sleep and recovery, supplements.
+// Six clear groups: the people (experts and lifters, each on their own page), then subjects —
+// food and fuel, hydration, protein, sleep and recovery, and supplements (pre-workout and
+// caffeine among them).
 export const HEALTH=[
   {cat:"Experts & lifters",topics:[
     {id:"h-attia",title:"Peter Attia: protein, muscle and sleep for the long game",era:"2010s–present",focus:"Longevity medicine",
@@ -380,58 +381,6 @@ export const HEALTH=[
       {t:"Pre-exercise sodium loading in women — J Appl Physiol",u:"https://pubmed.ncbi.nlm.nih.gov/17463297/",k:"study",d:"Raised plasma volume and endurance in heat"},
       {t:"Sodium loading in trained men — Med Sci Sports Exerc",u:"https://pubmed.ncbi.nlm.nih.gov/17218894/",k:"study",d:"Better fluid balance and less heat strain"},
       {t:"Glycerol for hyperhydration — Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/20092365/",k:"study",d:"Effective glycerol doses and fluid volumes"}]}]},
-  {cat:"Pre-workout & caffeine",topics:[
-    {id:"h-caffeine",title:"Caffeine",
-     summary:"Caffeine reliably improves strength, power and endurance at about 3–6 mg per kg of body weight, taken 30–60 minutes before training. Huberman starts lower, at 1–3 mg/kg, and pairs it with strict cut-offs before bed. Above roughly 6 mg/kg the side effects (tremor, racing heart, anxiety, stomach upset) climb without adding performance, and around 400 mg a day is the commonly cited ceiling for healthy adults.",
-     points:["3–6 mg/kg (≈200–400 mg at 70 kg), 30–60 min before training","Higher doses (≈9 mg/kg) add side effects, not performance","Half-life is roughly 5 hours; evening trainers can dose earlier or smaller","Theanine (100–200 mg) can take the edge off jitters","Caffeine gum absorbs fastest, within about 10–15 minutes","Never stack caffeine pills on top of a stimulant pre-workout"],
-     links:[
-      {t:"Using caffeine to optimise performance — Huberman Lab",u:"https://www.hubermanlab.com/episode/using-caffeine-to-optimize-mental-and-physical-performance",k:"podcast",d:"Doses, timing, cycling and theanine"},
-      {t:"Caffeine protocol — Huberman Lab newsletter",u:"https://www.hubermanlab.com/newsletter/use-caffeine-for-mental-physical-performance",k:"article",d:"His step-by-step caffeine rules"},
-      {t:"Caffeinated chewing gum — Mysportscience",u:"https://www.mysportscience.com/post/caffeinated-chewing-gum",k:"article",d:"Why gum gets caffeine in fastest"},
-      {t:"The lifter's guide to caffeine — Stronger By Science",u:"https://www.strongerbyscience.com/caffeine/",k:"article",d:"Caffeine for strength training in depth"},
-      {t:"Umbrella review of 21 caffeine meta-analyses — Br J Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/30926628/",k:"study",d:"Benefits across strength, power and endurance"},
-      {t:"Incremental caffeine doses: performance and side effects — Med Sci Sports Exerc",u:"https://pubmed.ncbi.nlm.nih.gov/23669879/",k:"study",d:"9 mg/kg added side effects, not strength"}]},
-    {id:"h-preworkout",title:"What's actually in a pre-workout",
-     summary:"Most pre-workouts are built on caffeine, then add some mix of citrulline, beta-alanine, betaine, creatine, electrolytes, tyrosine, theanine and 'feel' ingredients. Surveys of products find many ingredients sit below the doses used in research while stimulant loads run high. Some additives are there for sensation only: niacin causes a warm skin flush and beta-alanine a tingle, neither of which means the product is working.",
-     points:["Caffeine is the main active ingredient in most tubs","Citrulline and betaine are often underdosed versus research doses","Betaine: ~2.5 g/day studied for modest power gains","Niacin flush and beta-alanine tingle are sensations, not effects","Glycerol for hyperhydration is studied at ~1 g/kg; token label doses do little"],
-     links:[
-      {t:"Dr. Andy Galpin: nutrition and supplementation — Huberman Lab",u:"https://www.hubermanlab.com/episode/dr-andy-galpin-optimal-nutrition-and-supplementation-for-fitness",k:"podcast",d:"Includes supplement formulations and pre-training fuel"},
-      {t:"Common ingredient profiles of pre-workouts — Nutrients",u:"https://pubmed.ncbi.nlm.nih.gov/30678328/",k:"study",d:"Typical ingredients and doses in top products"},
-      {t:"Multi-ingredient pre-workouts: safety and performance — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6083567/",k:"study",d:"What the research shows for pre-workout blends"},
-      {t:"Betaine — Examine",u:"https://examine.com/supplements/betaine/",k:"article",d:"Evidence summary and dosing for betaine"},
-      {t:"Niacin (vitamin B3) — Examine",u:"https://examine.com/supplements/vitamin-b3/",k:"article",d:"Why niacin causes flushing"},
-      {t:"Betaine and performance review — Amino Acids",u:"https://pubmed.ncbi.nlm.nih.gov/24760587/",k:"study",d:"Betaine's effects on power and body composition"},
-      {t:"Glycerol for hyperhydration — Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/20092365/",k:"study",d:"Doses and fluid volumes for glycerol loading"}]},
-    {id:"h-labels",title:"Reading a pre-workout label",
-     summary:"A label tells you more by what it hides than what it shows. Proprietary blends list a total weight but not each ingredient, so you can't tell whether anything reaches an effective dose. Compare every ingredient against its research dose, check how many scoops a realistic serving really is, and watch for stimulants that are banned in tested sport.",
-     points:["Proprietary blends hide individual doses; treat them as underdosed","Compare each ingredient to its effective dose (e.g. citrulline 6–8 g)","Servings are often counted at one scoop when two is the real dose","Front-panel claims and the supplement panel can disagree","Synephrine (bitter orange): WADA-monitored, NCAA-banned, raises heart rate and blood pressure with caffeine","Single ingredients usually beat tubs on both dose and cost"],
-     links:[
-      {t:"Common ingredient profiles of pre-workouts — Nutrients",u:"https://pubmed.ncbi.nlm.nih.gov/30678328/",k:"study",d:"How often products hit research doses"},
-      {t:"Multi-ingredient pre-workouts: safety and performance — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6083567/",k:"study",d:"Proprietary blends and safety concerns"},
-      {t:"Bitter orange (synephrine) — Examine",u:"https://examine.com/supplements/bitter-orange/",k:"article",d:"Effects and cautions for synephrine"},
-      {t:"Monitoring Program — WADA",u:"https://www.wada-ama.org/en/resources/monitoring-program",k:"article",d:"Stimulants WADA monitors, including synephrine"},
-      {t:"2025–26 NCAA banned substances (PDF) — NCAA",u:"https://ncaaorg.s3.amazonaws.com/ssi/substance/2025-26/2025-26NCAA_BannedSubstances.pdf",k:"article",d:"Lists synephrine, DMAA and DMHA as banned"},
-      {t:"NCAA banned substances — NCAA",u:"https://www.ncaa.org/what-we-do/health-safety-and-performance/anti-doping-and-substance-misuse-prevention/banned-substances/",k:"article",d:"Banned drug classes for college athletes"},
-      {t:"Supplement Connect — USADA",u:"https://www.usada.org/substances/supplement-connect/",k:"article",d:"Spotting high-risk supplement labels"}]},
-    {id:"h-preworkout-diy",title:"Build your own pre-workout",
-     summary:"Buying single ingredients lets you hit research doses, skip fillers and pay less than for most tubs. Below is one illustrative stack built from the evidence, not a prescription: adjust caffeine to your body weight, tolerance and training time, and leave out anything you don't need. Check with a clinician first if you have a heart condition, high blood pressure or take medication.",
-     points:["Citrulline malate 8–10 g, ideally ~60 min before","Caffeine 200–300 mg (≈3 mg/kg), optionally with 100–200 mg theanine","500 ml+ water with ¼ tsp salt (≈0.5–0.6 g sodium), 30–45 min before","Creatine 5 g at any time of day, every day","Beta-alanine 3.2 g daily if you train 1–4 minute efforts","Optional betaine ~2.5 g daily"],
-     links:[
-      {t:"Caffeine protocol and theanine — Huberman Lab newsletter",u:"https://www.hubermanlab.com/newsletter/use-caffeine-for-mental-physical-performance",k:"article",d:"Caffeine dose, timing and theanine pairing"},
-      {t:"Dr. Andy Galpin: salt, fluids and supplements — Huberman Lab",u:"https://www.hubermanlab.com/episode/dr-andy-galpin-optimal-nutrition-and-supplementation-for-fitness",k:"podcast",d:"Sodium, hydration and pre-training fuel"},
-      {t:"Citrulline and exercise performance review — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/31977835/",k:"study",d:"Citrulline vs citrulline malate doses"},
-      {t:"Betaine — Examine",u:"https://examine.com/supplements/betaine/",k:"article",d:"Betaine dosing and evidence"},
-      {t:"Pre-exercise sodium loading — J Appl Physiol",u:"https://pubmed.ncbi.nlm.nih.gov/17463297/",k:"study",d:"Sodium preload raised plasma volume and endurance"}]},
-    {id:"h-preworkout-risks",title:"Pre-workout risks and banned stimulants",
-     summary:"The main risks of pre-workouts come from stimulants: too much caffeine, caffeine stacked with other stimulants, or illegal amphetamine-like compounds such as DMAA, DMHA and BMPEA that have turned up in products. These raise heart rate and blood pressure and have been linked to serious cardiac events. Late-day stimulants also cost sleep, which costs recovery.",
-     points:["Count all caffeine sources: tub, coffee, energy drinks, pills","Avoid DMAA, DMHA, BMPEA and products naming 'geranium extract'","Stimulants within 6–8+ hours of bed disrupt sleep","Racing heart, chest pain or dizziness: stop and seek care","Talk to a clinician if you have heart or blood-pressure issues, take medication or are pregnant"],
-     links:[
-      {t:"Using caffeine to optimise performance — Huberman Lab",u:"https://www.hubermanlab.com/episode/using-caffeine-to-optimize-mental-and-physical-performance",k:"podcast",d:"Caffeine doses and bedtime cut-offs"},
-      {t:"DMAA: a prohibited stimulant — Operation Supplement Safety",u:"https://www.opss.org/article/dmaa-prohibited-stimulant",k:"article",d:"DMAA's other names and health risks"},
-      {t:"BMPEA found in supplements — Drug Test Anal",u:"https://pubmed.ncbi.nlm.nih.gov/25847603/",k:"study",d:"An untested amphetamine isomer in products"},
-      {t:"Multi-ingredient pre-workouts: safety — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6083567/",k:"study",d:"Reported adverse effects of pre-workouts"},
-      {t:"Caffeine 0, 3 or 6 hours before bed — J Clin Sleep Med",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC3805807/",k:"study",d:"Even 6 hours before bed disrupted sleep"},
-      {t:"Substance profile: caffeine — USADA",u:"https://www.usada.org/spirit-of-sport/substance-profile-caffeine/",k:"article",d:"Caffeine's status and risks in sport"}]}]},
   {cat:"Protein",topics:[
     {id:"h-protein",title:"Protein needs for athletes",
      summary:"Athletes chasing muscle and strength do best on about 1.6–2.2 g of protein per kg of body weight a day; in pooled trials the extra muscle levelled off near 1.6 g/kg on average, so the upper end covers individual differences. Lean athletes in a calorie deficit need more, around 2.3–3.1 g per kg of lean mass. Lugavere and Attia both argue the RDA of 0.8 g/kg is far too low for people who train.",
@@ -522,6 +471,57 @@ export const HEALTH=[
       {t:"Common creatine questions and misconceptions — J Int Soc Sports Nutr",u:"https://pubmed.ncbi.nlm.nih.gov/33557850/",k:"study",d:"Kidneys, hair, water retention and more"},
       {t:"Creatine and cognitive function meta-analysis — Front Nutr",u:"https://pubmed.ncbi.nlm.nih.gov/39070254/",k:"study",d:"Effects on memory, attention and processing speed"},
       {t:"Creatine dose and stomach upset — Res Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/18373286/",k:"study",d:"Bigger single doses caused more GI distress"}]},
+    {id:"h-caffeine",title:"Caffeine",
+     summary:"Caffeine reliably improves strength, power and endurance at about 3–6 mg per kg of body weight, taken 30–60 minutes before training. Huberman starts lower, at 1–3 mg/kg, and pairs it with strict cut-offs before bed. Above roughly 6 mg/kg the side effects (tremor, racing heart, anxiety, stomach upset) climb without adding performance, and around 400 mg a day is the commonly cited ceiling for healthy adults.",
+     points:["3–6 mg/kg (≈200–400 mg at 70 kg), 30–60 min before training","Higher doses (≈9 mg/kg) add side effects, not performance","Half-life is roughly 5 hours; evening trainers can dose earlier or smaller","Theanine (100–200 mg) can take the edge off jitters","Caffeine gum absorbs fastest, within about 10–15 minutes","Never stack caffeine pills on top of a stimulant pre-workout"],
+     links:[
+      {t:"Using caffeine to optimise performance — Huberman Lab",u:"https://www.hubermanlab.com/episode/using-caffeine-to-optimize-mental-and-physical-performance",k:"podcast",d:"Doses, timing, cycling and theanine"},
+      {t:"Caffeine protocol — Huberman Lab newsletter",u:"https://www.hubermanlab.com/newsletter/use-caffeine-for-mental-physical-performance",k:"article",d:"His step-by-step caffeine rules"},
+      {t:"Caffeinated chewing gum — Mysportscience",u:"https://www.mysportscience.com/post/caffeinated-chewing-gum",k:"article",d:"Why gum gets caffeine in fastest"},
+      {t:"The lifter's guide to caffeine — Stronger By Science",u:"https://www.strongerbyscience.com/caffeine/",k:"article",d:"Caffeine for strength training in depth"},
+      {t:"Umbrella review of 21 caffeine meta-analyses — Br J Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/30926628/",k:"study",d:"Benefits across strength, power and endurance"},
+      {t:"Incremental caffeine doses: performance and side effects — Med Sci Sports Exerc",u:"https://pubmed.ncbi.nlm.nih.gov/23669879/",k:"study",d:"9 mg/kg added side effects, not strength"}]},
+    {id:"h-preworkout",title:"What's actually in a pre-workout",
+     summary:"Most pre-workouts are built on caffeine, then add some mix of citrulline, beta-alanine, betaine, creatine, electrolytes, tyrosine, theanine and 'feel' ingredients. Surveys of products find many ingredients sit below the doses used in research while stimulant loads run high. Some additives are there for sensation only: niacin causes a warm skin flush and beta-alanine a tingle, neither of which means the product is working.",
+     points:["Caffeine is the main active ingredient in most tubs","Citrulline and betaine are often underdosed versus research doses","Betaine: ~2.5 g/day studied for modest power gains","Niacin flush and beta-alanine tingle are sensations, not effects","Glycerol for hyperhydration is studied at ~1 g/kg; token label doses do little"],
+     links:[
+      {t:"Dr. Andy Galpin: nutrition and supplementation — Huberman Lab",u:"https://www.hubermanlab.com/episode/dr-andy-galpin-optimal-nutrition-and-supplementation-for-fitness",k:"podcast",d:"Includes supplement formulations and pre-training fuel"},
+      {t:"Common ingredient profiles of pre-workouts — Nutrients",u:"https://pubmed.ncbi.nlm.nih.gov/30678328/",k:"study",d:"Typical ingredients and doses in top products"},
+      {t:"Multi-ingredient pre-workouts: safety and performance — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6083567/",k:"study",d:"What the research shows for pre-workout blends"},
+      {t:"Betaine — Examine",u:"https://examine.com/supplements/betaine/",k:"article",d:"Evidence summary and dosing for betaine"},
+      {t:"Niacin (vitamin B3) — Examine",u:"https://examine.com/supplements/vitamin-b3/",k:"article",d:"Why niacin causes flushing"},
+      {t:"Betaine and performance review — Amino Acids",u:"https://pubmed.ncbi.nlm.nih.gov/24760587/",k:"study",d:"Betaine's effects on power and body composition"},
+      {t:"Glycerol for hyperhydration — Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/20092365/",k:"study",d:"Doses and fluid volumes for glycerol loading"}]},
+    {id:"h-labels",title:"Reading a pre-workout label",
+     summary:"A label tells you more by what it hides than what it shows. Proprietary blends list a total weight but not each ingredient, so you can't tell whether anything reaches an effective dose. Compare every ingredient against its research dose, check how many scoops a realistic serving really is, and watch for stimulants that are banned in tested sport.",
+     points:["Proprietary blends hide individual doses; treat them as underdosed","Compare each ingredient to its effective dose (e.g. citrulline 6–8 g)","Servings are often counted at one scoop when two is the real dose","Front-panel claims and the supplement panel can disagree","Synephrine (bitter orange): WADA-monitored, NCAA-banned, raises heart rate and blood pressure with caffeine","Single ingredients usually beat tubs on both dose and cost"],
+     links:[
+      {t:"Common ingredient profiles of pre-workouts — Nutrients",u:"https://pubmed.ncbi.nlm.nih.gov/30678328/",k:"study",d:"How often products hit research doses"},
+      {t:"Multi-ingredient pre-workouts: safety and performance — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6083567/",k:"study",d:"Proprietary blends and safety concerns"},
+      {t:"Bitter orange (synephrine) — Examine",u:"https://examine.com/supplements/bitter-orange/",k:"article",d:"Effects and cautions for synephrine"},
+      {t:"Monitoring Program — WADA",u:"https://www.wada-ama.org/en/resources/monitoring-program",k:"article",d:"Stimulants WADA monitors, including synephrine"},
+      {t:"2025–26 NCAA banned substances (PDF) — NCAA",u:"https://ncaaorg.s3.amazonaws.com/ssi/substance/2025-26/2025-26NCAA_BannedSubstances.pdf",k:"article",d:"Lists synephrine, DMAA and DMHA as banned"},
+      {t:"NCAA banned substances — NCAA",u:"https://www.ncaa.org/what-we-do/health-safety-and-performance/anti-doping-and-substance-misuse-prevention/banned-substances/",k:"article",d:"Banned drug classes for college athletes"},
+      {t:"Supplement Connect — USADA",u:"https://www.usada.org/substances/supplement-connect/",k:"article",d:"Spotting high-risk supplement labels"}]},
+    {id:"h-preworkout-diy",title:"Build your own pre-workout",
+     summary:"Buying single ingredients lets you hit research doses, skip fillers and pay less than for most tubs. Below is one illustrative stack built from the evidence, not a prescription: adjust caffeine to your body weight, tolerance and training time, and leave out anything you don't need. Check with a clinician first if you have a heart condition, high blood pressure or take medication.",
+     points:["Citrulline malate 8–10 g, ideally ~60 min before","Caffeine 200–300 mg (≈3 mg/kg), optionally with 100–200 mg theanine","500 ml+ water with ¼ tsp salt (≈0.5–0.6 g sodium), 30–45 min before","Creatine 5 g at any time of day, every day","Beta-alanine 3.2 g daily if you train 1–4 minute efforts","Optional betaine ~2.5 g daily"],
+     links:[
+      {t:"Caffeine protocol and theanine — Huberman Lab newsletter",u:"https://www.hubermanlab.com/newsletter/use-caffeine-for-mental-physical-performance",k:"article",d:"Caffeine dose, timing and theanine pairing"},
+      {t:"Dr. Andy Galpin: salt, fluids and supplements — Huberman Lab",u:"https://www.hubermanlab.com/episode/dr-andy-galpin-optimal-nutrition-and-supplementation-for-fitness",k:"podcast",d:"Sodium, hydration and pre-training fuel"},
+      {t:"Citrulline and exercise performance review — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/31977835/",k:"study",d:"Citrulline vs citrulline malate doses"},
+      {t:"Betaine — Examine",u:"https://examine.com/supplements/betaine/",k:"article",d:"Betaine dosing and evidence"},
+      {t:"Pre-exercise sodium loading — J Appl Physiol",u:"https://pubmed.ncbi.nlm.nih.gov/17463297/",k:"study",d:"Sodium preload raised plasma volume and endurance"}]},
+    {id:"h-preworkout-risks",title:"Pre-workout risks and banned stimulants",
+     summary:"The main risks of pre-workouts come from stimulants: too much caffeine, caffeine stacked with other stimulants, or illegal amphetamine-like compounds such as DMAA, DMHA and BMPEA that have turned up in products. These raise heart rate and blood pressure and have been linked to serious cardiac events. Late-day stimulants also cost sleep, which costs recovery.",
+     points:["Count all caffeine sources: tub, coffee, energy drinks, pills","Avoid DMAA, DMHA, BMPEA and products naming 'geranium extract'","Stimulants within 6–8+ hours of bed disrupt sleep","Racing heart, chest pain or dizziness: stop and seek care","Talk to a clinician if you have heart or blood-pressure issues, take medication or are pregnant"],
+     links:[
+      {t:"Using caffeine to optimise performance — Huberman Lab",u:"https://www.hubermanlab.com/episode/using-caffeine-to-optimize-mental-and-physical-performance",k:"podcast",d:"Caffeine doses and bedtime cut-offs"},
+      {t:"DMAA: a prohibited stimulant — Operation Supplement Safety",u:"https://www.opss.org/article/dmaa-prohibited-stimulant",k:"article",d:"DMAA's other names and health risks"},
+      {t:"BMPEA found in supplements — Drug Test Anal",u:"https://pubmed.ncbi.nlm.nih.gov/25847603/",k:"study",d:"An untested amphetamine isomer in products"},
+      {t:"Multi-ingredient pre-workouts: safety — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6083567/",k:"study",d:"Reported adverse effects of pre-workouts"},
+      {t:"Caffeine 0, 3 or 6 hours before bed — J Clin Sleep Med",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC3805807/",k:"study",d:"Even 6 hours before bed disrupted sleep"},
+      {t:"Substance profile: caffeine — USADA",u:"https://www.usada.org/spirit-of-sport/substance-profile-caffeine/",k:"article",d:"Caffeine's status and risks in sport"}]},
     {id:"h-beta-alanine",title:"Beta-alanine",
      summary:"Beta-alanine raises muscle carnosine, which buffers the acid that builds up in hard efforts. It works cumulatively: about four weeks of daily dosing to build meaningful levels and 10–12 weeks to approach saturation. Pooled trials show gains of roughly 2–3%, mostly in efforts lasting about one to four minutes. The tingling it causes (paraesthesia) is a harmless side effect, not a sign it's working.",
      points:["3.2–6.4 g/day, every day, taken in split doses","Takes ~4 weeks to help; 10–12 weeks to saturate","Best for efforts of ~60–240 s; little for <60 s or >10 min","Split into ≤1.6 g doses or use sustained-release to limit tingling"],

@@ -15,7 +15,7 @@ import {esc} from "./common.js";
 // Short tab names for the categories, in the order the library lists them.
 const SHORT={"Lifters & methods":"Lifters","Training principles":"Principles","Workout types":"Workouts",
   "Joints & resilience":"Joints",
-  "Experts & lifters":"People","Pre-workout & caffeine":"Pre-workout","Sleep & recovery":"Sleep","Kenya & Ethiopia":"Kenya & Ethiopia"};
+  "Experts & lifters":"People","Sleep & recovery":"Sleep","Kenya & Ethiopia":"Kenya & Ethiopia"};
 const tabName=c=>SHORT[c]||c.split(" & ")[0];
 const GROUPS=[["Read",["article"]],["Watch",["video"]],["Listen",["podcast"]],["Research",["study","guideline"]]];
 
@@ -29,7 +29,7 @@ function splitTitle(t){
 // Each category's icon on the Learn home grid.
 const CAT_ICON={"Joints & resilience":"joint","Lifters & methods":"people",
   "Training principles":"target","Workout types":"dumbbell","Experts & lifters":"people","Food & fuel":"bowl",
-  "Hydration":"drop","Pre-workout & caffeine":"bolt","Protein":"dumbbell","Sleep & recovery":"moon","Supplements":"pill"};
+  "Hydration":"drop","Protein":"dumbbell","Sleep & recovery":"moon","Supplements":"pill"};
 const isBooks=c=>c.topics.some(t=>t.book);
 
 const isPeople=c=>c.cat==="Lifters & methods"||c.topics.some(t=>(t.era||t.focus)&&!t.book);
