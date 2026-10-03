@@ -7,8 +7,9 @@ import {BOOKS} from "./books.js";
 
 // Everything reads A–Z: categories by name, topics by the title on their card.
 const az=(a,b)=>a.localeCompare(b,undefined,{sensitivity:"base",numeric:true});
+// A category may carry its own sort key — Books are authors, A–Z by surname.
 function sorted(cats){
-  return cats.slice().sort((a,b)=>az(a.cat,b.cat))
+  return cats.slice().sort((a,b)=>az(a.sort||a.cat,b.sort||b.cat))
     .map(c=>Object.assign({},c,{topics:c.topics.slice().sort((a,b)=>az(a.title,b.title))}));
 }
 

@@ -59,7 +59,7 @@ function topicRows(topics,showCat){
 function bookTile(tp){
   const t=splitTitle(tp.title);
   return "<button class='lsc lbk' data-learn='"+esc(tp.id)+"' data-find=\""+esc(searchText(tp))+"\"><span class='lbkc'><span class='lbkt'>"+esc(t[1]||t[0])+"</span>"+
-    "<span class='lbka'>"+esc(t[1]?t[0]:"")+"</span><span class='lbky mono'>"+esc(tp.era||"")+"</span></span></button>";
+    "<span class='lbka'>"+esc(tp.subject||"")+"</span><span class='lbky mono'>"+esc(tp.era||"")+"</span></span></button>";
 }
 
 // The featured story: drawn from every topic in the area — people and subjects alike — in a
@@ -119,7 +119,10 @@ export function learnHomeBody(){
         "<span class='lfeatcta'>"+(n?"Read and train":"Read")+" &rsaquo;</span></button></div>";
   }
   if(area==="books"){
-    cats.forEach(c=>{h+="<div class='llabel'>"+esc(c.cat)+"</div><div class='lbooks'>"+c.topics.map(bookTile).join("")+"</div>";});
+    // Grouped by author, A–Z by surname, each with their books in order of publication.
+    h+="<div class='llabel'>"+cats.length+" authors &middot; A&ndash;Z</div>";
+    cats.forEach(c=>{h+="<div class='lauthor'><span class='lauthn'>"+esc(c.cat)+"</span><span class='lauthc'>"+plural(c.topics.length,"book")+"</span></div>"+
+      "<div class='lbooks'>"+c.topics.slice().sort((a,b)=>String(a.era).localeCompare(String(b.era))).map(bookTile).join("")+"</div>";});
   }else{
     h+="<div class='llabel'>"+(area==="world"?cats.length+" cultures &middot; A&ndash;Z":cats.length+" categories")+"</div>"+
       "<div class='ltiles'>"+cats.map(tile).join("")+"</div>";
