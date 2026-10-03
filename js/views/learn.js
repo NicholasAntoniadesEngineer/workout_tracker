@@ -78,18 +78,28 @@ const CODE={"Ancient Greece & Rome":"GR","Australia":"AU","Brazil":"BR","Bulgari
   "Georgia & Caucasus":"GE","India":"IN","Iran":"IR","Jamaica":"JM","Japan":"JP","Kenya & Ethiopia":"KE","Korea":"KR",
   "Mexico":"MX","Mongolia":"MN","New Zealand & Pacific":"NZ","Nordic & Celtic":"NC","Russia & former USSR":"RU",
   "South Africa":"ZA","Turkey":"TR","United Kingdom":"UK","United States":"US"};
+// An author's badge: their initials, like a country's code.
+function initials(name){
+  const w=name.split(" & ")[0].replace(/[^A-Za-zÀ-ÿ ]/g," ").split(/\s+/).filter(Boolean);
+  return (w.length>1?w[0][0]+w[w.length-1][0]:w[0].slice(0,2)).toUpperCase();
+}
 function badge(c,big){
-  return "<span class='lring"+(big?" big":"")+"'>"+(c.region?esc(CODE[c.cat]||c.cat.slice(0,2).toUpperCase()):icon(CAT_ICON[c.cat]||"book","sm"))+"</span>";
+  const inner=c.region?esc(CODE[c.cat]||c.cat.slice(0,2).toUpperCase()):isBooks(c)?esc(initials(c.cat)):icon(CAT_ICON[c.cat]||"book","sm");
+  return "<span class='lring"+(big?" big":"")+"'>"+inner+"</span>";
 }
 const plural=(n,w)=>n+" "+w+(n===1?"":"s");
 function catStats(c){
+  if(isBooks(c))return plural(c.topics.length,"book")+" &middot; "+esc(subjects(c));
   const w=c.topics.reduce((a,t)=>a+(t.days?t.days.length:0),0),l=c.topics.reduce((a,t)=>a+(t.links||[]).length,0);
   return [plural(c.topics.length,"topic")].concat(w?[plural(w,"workout")]:[]).concat(l?[plural(l,"link")]:[]).join(" &middot; ");
 }
+const subjects=c=>[...new Set(c.topics.map(t=>t.subject).filter(Boolean))].join(", ");
 // A category on Learn's home: its badge, its name, and where it is or how much is in it.
 function tile(c){
+  const sub=isBooks(c)?plural(c.topics.length,"book")+" &middot; "+esc(subjects(c)):
+    (c.region?esc(c.region)+" &middot; ":"")+plural(c.topics.length,"topic");
   return "<button class='ltile' data-learncat=\""+esc(c.cat)+"\">"+badge(c)+
-    "<span class='ltilen'>"+esc(c.cat)+"</span><span class='ltiles2'>"+(c.region?esc(c.region)+" &middot; ":"")+plural(c.topics.length,"topic")+"</span></button>";
+    "<span class='ltilen'>"+esc(c.cat)+"</span><span class='ltiles2'>"+sub+"</span></button>";
 }
 
 // What sits under the search on Learn's home: search hits while something is typed, else the
@@ -119,10 +129,8 @@ export function learnHomeBody(){
         "<span class='lfeatcta'>"+(n?"Read and train":"Read")+" &rsaquo;</span></button></div>";
   }
   if(area==="books"){
-    // Grouped by author, A–Z by surname, each with their books in order of publication.
-    h+="<div class='llabel'>"+cats.length+" authors &middot; A&ndash;Z</div>";
-    cats.forEach(c=>{h+="<div class='lauthor'><span class='lauthn'>"+esc(c.cat)+"</span><span class='lauthc'>"+plural(c.topics.length,"book")+"</span></div>"+
-      "<div class='lbooks'>"+c.topics.slice().sort((a,b)=>String(a.era).localeCompare(String(b.era))).map(bookTile).join("")+"</div>";});
+    // Authors A–Z by surname, as tiles like World's cultures; an author's page holds their books.
+    h+="<div class='llabel'>"+cats.length+" authors &middot; A&ndash;Z</div><div class='ltiles'>"+cats.map(tile).join("")+"</div>";
   }else{
     h+="<div class='llabel'>"+(area==="world"?cats.length+" cultures &middot; A&ndash;Z":cats.length+" categories")+"</div>"+
       "<div class='ltiles'>"+cats.map(tile).join("")+"</div>";
@@ -186,7 +194,7 @@ function categoryView(area,cats,cur){
       const list=cur.topics.filter(tp=>partOf(tp)===key);
       h+="<div class='llabel'>"+label+"</div>"+(key==="people"?personCards(list):workRows(list));
     });
-  }else if(isBooks(cur))h+="<div class='lbooks'>"+cur.topics.map(bookTile).join("")+"</div>";
+  }else if(isBooks(cur))h+="<div class='lbooks'>"+cur.topics.slice().sort((a,b)=>String(a.era).localeCompare(String(b.era))).map(bookTile).join("")+"</div>";
   else h+=isPeople(cur)?personCards(cur.topics):workRows(cur.topics);
   return h+"</div>";
 }
