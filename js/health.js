@@ -4,9 +4,9 @@
 // medication, have a health condition, or compete in drug-tested sport. No affiliation with or
 // endorsement by any linked author, organisation, channel or publisher is implied, and nothing here
 // recommends a product or brand.
-// Six clear groups: the people (experts and lifters, each on their own page), then subjects —
-// food and fuel, hydration, protein, sleep and recovery, and supplements (pre-workout and
-// caffeine among them).
+// Five clear groups: the people (experts and lifters, each on their own page), then subjects —
+// food and fuel (protein among it), hydration, sleep and recovery, and supplements (pre-workout
+// and caffeine among them).
 export const HEALTH=[
   {cat:"Experts & lifters",topics:[
     {id:"h-attia",title:"Peter Attia: protein, muscle and sleep for the long game",era:"2010s–present",focus:"Longevity medicine",
@@ -307,6 +307,61 @@ export const HEALTH=[
       {t:"The Noakes Foundation",u:"https://thenoakesfoundation.org/",k:"article",d:"Noakes' real-food nutrition education"},
       {t:"Day ten: eat like an adult — Dan John",u:"https://coachdanjohn.substack.com/p/day-ten-eat-like-an-adult",k:"article",d:"Simple whole-food eating for lifters"},
       {t:"The Arnold diet — Arnold's Pump Club",u:"https://arnoldspumpclub.com/blogs/newsletter/the-arnold-diet",k:"article",d:"Arnold's simple, repeated meals"}]},
+    {id:"h-protein",title:"Protein needs for athletes",
+     summary:"Athletes chasing muscle and strength do best on about 1.6–2.2 g of protein per kg of body weight a day; in pooled trials the extra muscle levelled off near 1.6 g/kg on average, so the upper end covers individual differences. Lean athletes in a calorie deficit need more, around 2.3–3.1 g per kg of lean mass. Lugavere and Attia both argue the RDA of 0.8 g/kg is far too low for people who train.",
+     points:["Building: 1.6–2.2 g/kg/day","Cutting lean: 2.3–3.1 g/kg of lean mass","About 0.4 g/kg per meal over 4+ meals (≈30–40 g for 80 kg)","30–40 g of slow protein before bed adds overnight building time","Whole foods first; powders make targets easier to hit"],
+     links:[
+      {t:"Optimising protein intake with Stuart Phillips — The Genius Life (Max Lugavere)",u:"https://www.maxlugavere.com/podcast/178-stuart-phillips",k:"podcast",d:"Protein for muscle, health and ageing"},
+      {t:"Determining optimal protein intake — Peter Attia",u:"https://peterattiamd.com/determining-optimal-protein-intake/",k:"article",d:"Why 1.6–2.2 g/kg beats the RDA"},
+      {t:"Protein science updated — Stronger By Science",u:"https://www.strongerbyscience.com/protein-science/",k:"article",d:"A fresh look at the 1.6–2.2 g/kg rule"},
+      {t:"Protein supplementation meta-analysis — Br J Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/28698222/",k:"study",d:"Gains plateaued near 1.6 g/kg/day on average"},
+      {t:"Protein needs during caloric restriction — Int J Sport Nutr Exerc Metab",u:"https://pubmed.ncbi.nlm.nih.gov/24092765/",k:"study",d:"Why lean, dieting lifters need more protein"},
+      {t:"How much protein per meal — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5828430/",k:"study",d:"0.4 g/kg per meal across four or more meals"}]},
+    {id:"h-whey",title:"Whey protein",
+     summary:"Whey is the fast-digesting, leucine-rich fraction of milk protein, which makes it a convenient way to hit a per-meal protein target around training. In a head-to-head study it raised muscle protein synthesis after exercise more than casein or soy. It's a food-derived convenience, not a requirement: the same protein from whole food works.",
+     points:["A 20–40 g serving (about 0.25–0.4 g/kg) covers one meal's protein","Isolate has less lactose than concentrate","Handy within a few hours either side of training","Choose third-party-tested products if you're drug-tested"],
+     links:[
+      {t:"Is whey protein an ultra-processed food? — Max Lugavere (YouTube)",u:"https://www.youtube.com/watch?v=CppwJEeo2qE",k:"video",d:"Lugavere and Angelo Keely on whey's place in the diet"},
+      {t:"Protein deep dive — Dr. Layne Norton Podcast",u:"https://biolayne.com/podcasts/dr-layne-norton-podcast/protein-deep-dive-episode-29/",k:"podcast",d:"Protein quality, leucine and powders"},
+      {t:"Whey protein — Examine",u:"https://examine.com/supplements/whey-protein/",k:"article",d:"Evidence summary, dosing and side effects"},
+      {t:"Whey vs casein vs soy after exercise — J Appl Physiol",u:"https://pubmed.ncbi.nlm.nih.gov/19589961/",k:"study",d:"Whey drove the largest post-exercise response"}]},
+    {id:"h-casein",title:"Casein and pre-sleep protein",
+     summary:"Casein clots in the stomach and releases amino acids slowly, which suits the long overnight fast. About 40 g of casein taken before sleep raised overnight muscle protein synthesis, and over 12 weeks of training it added more muscle and strength than a placebo. Cottage cheese, Greek yoghurt or milk do a similar job.",
+     points:["30–40 g casein-rich protein 30–60 minutes before bed","Food sources: cottage cheese, Greek yoghurt, milk","Most useful for people training hard and eating fewer meals","Total daily protein still matters most"],
+     links:[
+      {t:"Casein — Examine",u:"https://examine.com/supplements/casein-protein/",k:"article",d:"Evidence summary and dosing for casein"},
+      {t:"Pre-sleep protein review — Nutrients",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5188418/",k:"study",d:"How bedtime protein supports training adaptation"},
+      {t:"Protein before sleep improves overnight recovery — Med Sci Sports Exerc",u:"https://pubmed.ncbi.nlm.nih.gov/22330017/",k:"study",d:"40 g casein raised overnight muscle building"},
+      {t:"Pre-sleep protein over 12 weeks of training — J Nutr",u:"https://pubmed.ncbi.nlm.nih.gov/25926415/",k:"study",d:"More muscle and strength gains with bedtime protein"}]},
+    {id:"h-plant-protein",title:"Plant proteins and blends",
+     summary:"Plant proteins tend to be lower in leucine and some essential amino acids and slightly less digestible, but eating a bit more or combining sources closes the gap. When vegans and omnivores ate the same high protein intake while training, they gained similar muscle and strength. Arnold Schwarzenegger now gets most of his protein from plants and says both approaches build muscle when protein is high enough.",
+     points:["Eat roughly 10–20% more protein, or blend sources","Pea + rice or soy blends round out amino acids","Aim for about 2.5 g leucine per meal","Soy matched animal protein for muscle and strength in pooled trials"],
+     links:[
+      {t:"The Arnold diet — Arnold's Pump Club",u:"https://arnoldspumpclub.com/blogs/newsletter/the-arnold-diet",k:"article",d:"Arnold on mostly plant protein and muscle"},
+      {t:"Top plant-based proteins with Joe Holder — The Genius Life (Max Lugavere)",u:"https://www.maxlugavere.com/podcast/189-joe-holder",k:"podcast",d:"Plant protein choices and getting fit cheaply"},
+      {t:"Pea protein — Examine",u:"https://examine.com/supplements/pea-protein/",k:"article",d:"Evidence summary for pea protein"},
+      {t:"Vegans vs omnivores on matched high protein — Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/33599941/",k:"study",d:"Similar muscle and strength gains"},
+      {t:"Soy vs animal protein meta-analysis — Int J Sport Nutr Exerc Metab",u:"https://pubmed.ncbi.nlm.nih.gov/29722584/",k:"study",d:"No difference in muscle or strength gains"},
+      {t:"The anabolic response to plant-based protein — Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/34515966/",k:"study",d:"How to make plant proteins work as well"},
+      {t:"Amino acid content of plant protein isolates — Amino Acids",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6245118/",k:"study",d:"Leucine and EAA levels across plant powders"}]},
+    {id:"h-protein-timing",title:"Protein timing: myths and facts",
+     summary:"The idea of a narrow 30–60 minute anabolic window after training doesn't hold up: once total daily protein is matched, timing makes little difference to muscle growth. The muscle does stay more responsive for many hours after a session, so regular protein feedings help. A large 2023 study also found the body kept using a 100 g protein dose for longer rather than wasting it, so a big meal isn't 'lost'.",
+     points:["Daily total first, distribution second, exact timing last","Eat protein within a few hours either side of training","After fasted training, eat protein soon","Large protein meals are still used, just over a longer period"],
+     links:[
+      {t:"Our meta-analysis of protein timing — Brad Schoenfeld",u:"https://www.lookgreatnaked.com/blog/our-meta-analysis-of-protein-timing-thoughts-and-perspectives/",k:"article",d:"What the timing research means in practice"},
+      {t:"Nutrient timing revisited — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC3577439/",k:"study",d:"Is there really a post-exercise window?"},
+      {t:"Protein timing meta-analysis — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC3879660/",k:"study",d:"Timing effect vanished once totals were matched"},
+      {t:"No upper limit to the anabolic response to protein — Cell Rep Med",u:"https://pubmed.ncbi.nlm.nih.gov/38118410/",k:"study",d:"100 g of protein used over a longer period"}]},
+    {id:"h-amino",title:"HMB, BCAAs and EAAs",
+     summary:"BCAAs alone can't build muscle without the other essential amino acids, so they add nothing once daily protein is adequate. EAAs contain all the building blocks and can help when a full protein meal isn't practical, but a protein shake does the same job. HMB, a leucine by-product, has its best case in untrained, older or very high-damage settings; in trained lifters the gains are small.",
+     points:["BCAAs: skip if you eat enough protein","EAAs: a fallback when a protein meal isn't practical","HMB: ~3 g/day studied; small effects in trained lifters","Spend the money on food protein or creatine first"],
+     links:[
+      {t:"Branched-chain amino acids — Examine",u:"https://examine.com/supplements/branched-chain-amino-acids/",k:"article",d:"Evidence summary for BCAAs"},
+      {t:"Essential amino acids — Examine",u:"https://examine.com/supplements/essential-amino-acids/",k:"article",d:"Evidence summary for EAAs"},
+      {t:"HMB — Examine",u:"https://examine.com/supplements/hmb/",k:"article",d:"Evidence summary for HMB"},
+      {t:"BCAAs and muscle protein synthesis: myth or reality? — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5568273/",k:"study",d:"Why BCAAs alone can't build muscle"},
+      {t:"Leucine and BCAA supplementation review — Int J Sport Nutr Exerc Metab",u:"https://pubmed.ncbi.nlm.nih.gov/33741748/",k:"study",d:"Little benefit when protein is adequate"},
+      {t:"HMB meta-analysis in young men — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/19387395/",k:"study",d:"Small effects, smaller in trained lifters"}]},
     {id:"h-pre-meal",title:"What to eat before training",
      summary:"How much you eat before training depends on how long you have. A big mixed meal needs two to three hours to settle; a moderate meal one to two hours; a small, easy snack 30–60 minutes. Fat and fibre slow stomach emptying, which is useful hours out but uncomfortable right before hard work, and a fatty meal alongside a pre-workout slows its absorption too.",
      points:["2–3 h out: full meal with protein, carbs and some fat","1–2 h out: moderate meal, lighter on fat and fibre","30–60 min out: small carb-plus-protein snack (e.g. banana and yoghurt)","Keep fat and fibre low close to hard sessions","Test new foods in training, not on competition day"],
@@ -381,62 +436,6 @@ export const HEALTH=[
       {t:"Pre-exercise sodium loading in women — J Appl Physiol",u:"https://pubmed.ncbi.nlm.nih.gov/17463297/",k:"study",d:"Raised plasma volume and endurance in heat"},
       {t:"Sodium loading in trained men — Med Sci Sports Exerc",u:"https://pubmed.ncbi.nlm.nih.gov/17218894/",k:"study",d:"Better fluid balance and less heat strain"},
       {t:"Glycerol for hyperhydration — Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/20092365/",k:"study",d:"Effective glycerol doses and fluid volumes"}]}]},
-  {cat:"Protein",topics:[
-    {id:"h-protein",title:"Protein needs for athletes",
-     summary:"Athletes chasing muscle and strength do best on about 1.6–2.2 g of protein per kg of body weight a day; in pooled trials the extra muscle levelled off near 1.6 g/kg on average, so the upper end covers individual differences. Lean athletes in a calorie deficit need more, around 2.3–3.1 g per kg of lean mass. Lugavere and Attia both argue the RDA of 0.8 g/kg is far too low for people who train.",
-     points:["Building: 1.6–2.2 g/kg/day","Cutting lean: 2.3–3.1 g/kg of lean mass","About 0.4 g/kg per meal over 4+ meals (≈30–40 g for 80 kg)","30–40 g of slow protein before bed adds overnight building time","Whole foods first; powders make targets easier to hit"],
-     links:[
-      {t:"Optimising protein intake with Stuart Phillips — The Genius Life (Max Lugavere)",u:"https://www.maxlugavere.com/podcast/178-stuart-phillips",k:"podcast",d:"Protein for muscle, health and ageing"},
-      {t:"Determining optimal protein intake — Peter Attia",u:"https://peterattiamd.com/determining-optimal-protein-intake/",k:"article",d:"Why 1.6–2.2 g/kg beats the RDA"},
-      {t:"Protein science updated — Stronger By Science",u:"https://www.strongerbyscience.com/protein-science/",k:"article",d:"A fresh look at the 1.6–2.2 g/kg rule"},
-      {t:"Protein supplementation meta-analysis — Br J Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/28698222/",k:"study",d:"Gains plateaued near 1.6 g/kg/day on average"},
-      {t:"Protein needs during caloric restriction — Int J Sport Nutr Exerc Metab",u:"https://pubmed.ncbi.nlm.nih.gov/24092765/",k:"study",d:"Why lean, dieting lifters need more protein"},
-      {t:"How much protein per meal — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5828430/",k:"study",d:"0.4 g/kg per meal across four or more meals"}]},
-    {id:"h-whey",title:"Whey protein",
-     summary:"Whey is the fast-digesting, leucine-rich fraction of milk protein, which makes it a convenient way to hit a per-meal protein target around training. In a head-to-head study it raised muscle protein synthesis after exercise more than casein or soy. It's a food-derived convenience, not a requirement: the same protein from whole food works.",
-     points:["A 20–40 g serving (about 0.25–0.4 g/kg) covers one meal's protein","Isolate has less lactose than concentrate","Handy within a few hours either side of training","Choose third-party-tested products if you're drug-tested"],
-     links:[
-      {t:"Is whey protein an ultra-processed food? — Max Lugavere (YouTube)",u:"https://www.youtube.com/watch?v=CppwJEeo2qE",k:"video",d:"Lugavere and Angelo Keely on whey's place in the diet"},
-      {t:"Protein deep dive — Dr. Layne Norton Podcast",u:"https://biolayne.com/podcasts/dr-layne-norton-podcast/protein-deep-dive-episode-29/",k:"podcast",d:"Protein quality, leucine and powders"},
-      {t:"Whey protein — Examine",u:"https://examine.com/supplements/whey-protein/",k:"article",d:"Evidence summary, dosing and side effects"},
-      {t:"Whey vs casein vs soy after exercise — J Appl Physiol",u:"https://pubmed.ncbi.nlm.nih.gov/19589961/",k:"study",d:"Whey drove the largest post-exercise response"}]},
-    {id:"h-casein",title:"Casein and pre-sleep protein",
-     summary:"Casein clots in the stomach and releases amino acids slowly, which suits the long overnight fast. About 40 g of casein taken before sleep raised overnight muscle protein synthesis, and over 12 weeks of training it added more muscle and strength than a placebo. Cottage cheese, Greek yoghurt or milk do a similar job.",
-     points:["30–40 g casein-rich protein 30–60 minutes before bed","Food sources: cottage cheese, Greek yoghurt, milk","Most useful for people training hard and eating fewer meals","Total daily protein still matters most"],
-     links:[
-      {t:"Casein — Examine",u:"https://examine.com/supplements/casein-protein/",k:"article",d:"Evidence summary and dosing for casein"},
-      {t:"Pre-sleep protein review — Nutrients",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5188418/",k:"study",d:"How bedtime protein supports training adaptation"},
-      {t:"Protein before sleep improves overnight recovery — Med Sci Sports Exerc",u:"https://pubmed.ncbi.nlm.nih.gov/22330017/",k:"study",d:"40 g casein raised overnight muscle building"},
-      {t:"Pre-sleep protein over 12 weeks of training — J Nutr",u:"https://pubmed.ncbi.nlm.nih.gov/25926415/",k:"study",d:"More muscle and strength gains with bedtime protein"}]},
-    {id:"h-plant-protein",title:"Plant proteins and blends",
-     summary:"Plant proteins tend to be lower in leucine and some essential amino acids and slightly less digestible, but eating a bit more or combining sources closes the gap. When vegans and omnivores ate the same high protein intake while training, they gained similar muscle and strength. Arnold Schwarzenegger now gets most of his protein from plants and says both approaches build muscle when protein is high enough.",
-     points:["Eat roughly 10–20% more protein, or blend sources","Pea + rice or soy blends round out amino acids","Aim for about 2.5 g leucine per meal","Soy matched animal protein for muscle and strength in pooled trials"],
-     links:[
-      {t:"The Arnold diet — Arnold's Pump Club",u:"https://arnoldspumpclub.com/blogs/newsletter/the-arnold-diet",k:"article",d:"Arnold on mostly plant protein and muscle"},
-      {t:"Top plant-based proteins with Joe Holder — The Genius Life (Max Lugavere)",u:"https://www.maxlugavere.com/podcast/189-joe-holder",k:"podcast",d:"Plant protein choices and getting fit cheaply"},
-      {t:"Pea protein — Examine",u:"https://examine.com/supplements/pea-protein/",k:"article",d:"Evidence summary for pea protein"},
-      {t:"Vegans vs omnivores on matched high protein — Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/33599941/",k:"study",d:"Similar muscle and strength gains"},
-      {t:"Soy vs animal protein meta-analysis — Int J Sport Nutr Exerc Metab",u:"https://pubmed.ncbi.nlm.nih.gov/29722584/",k:"study",d:"No difference in muscle or strength gains"},
-      {t:"The anabolic response to plant-based protein — Sports Med",u:"https://pubmed.ncbi.nlm.nih.gov/34515966/",k:"study",d:"How to make plant proteins work as well"},
-      {t:"Amino acid content of plant protein isolates — Amino Acids",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6245118/",k:"study",d:"Leucine and EAA levels across plant powders"}]},
-    {id:"h-protein-timing",title:"Protein timing: myths and facts",
-     summary:"The idea of a narrow 30–60 minute anabolic window after training doesn't hold up: once total daily protein is matched, timing makes little difference to muscle growth. The muscle does stay more responsive for many hours after a session, so regular protein feedings help. A large 2023 study also found the body kept using a 100 g protein dose for longer rather than wasting it, so a big meal isn't 'lost'.",
-     points:["Daily total first, distribution second, exact timing last","Eat protein within a few hours either side of training","After fasted training, eat protein soon","Large protein meals are still used, just over a longer period"],
-     links:[
-      {t:"Our meta-analysis of protein timing — Brad Schoenfeld",u:"https://www.lookgreatnaked.com/blog/our-meta-analysis-of-protein-timing-thoughts-and-perspectives/",k:"article",d:"What the timing research means in practice"},
-      {t:"Nutrient timing revisited — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC3577439/",k:"study",d:"Is there really a post-exercise window?"},
-      {t:"Protein timing meta-analysis — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC3879660/",k:"study",d:"Timing effect vanished once totals were matched"},
-      {t:"No upper limit to the anabolic response to protein — Cell Rep Med",u:"https://pubmed.ncbi.nlm.nih.gov/38118410/",k:"study",d:"100 g of protein used over a longer period"}]},
-    {id:"h-amino",title:"HMB, BCAAs and EAAs",
-     summary:"BCAAs alone can't build muscle without the other essential amino acids, so they add nothing once daily protein is adequate. EAAs contain all the building blocks and can help when a full protein meal isn't practical, but a protein shake does the same job. HMB, a leucine by-product, has its best case in untrained, older or very high-damage settings; in trained lifters the gains are small.",
-     points:["BCAAs: skip if you eat enough protein","EAAs: a fallback when a protein meal isn't practical","HMB: ~3 g/day studied; small effects in trained lifters","Spend the money on food protein or creatine first"],
-     links:[
-      {t:"Branched-chain amino acids — Examine",u:"https://examine.com/supplements/branched-chain-amino-acids/",k:"article",d:"Evidence summary for BCAAs"},
-      {t:"Essential amino acids — Examine",u:"https://examine.com/supplements/essential-amino-acids/",k:"article",d:"Evidence summary for EAAs"},
-      {t:"HMB — Examine",u:"https://examine.com/supplements/hmb/",k:"article",d:"Evidence summary for HMB"},
-      {t:"BCAAs and muscle protein synthesis: myth or reality? — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5568273/",k:"study",d:"Why BCAAs alone can't build muscle"},
-      {t:"Leucine and BCAA supplementation review — Int J Sport Nutr Exerc Metab",u:"https://pubmed.ncbi.nlm.nih.gov/33741748/",k:"study",d:"Little benefit when protein is adequate"},
-      {t:"HMB meta-analysis in young men — J Strength Cond Res",u:"https://pubmed.ncbi.nlm.nih.gov/19387395/",k:"study",d:"Small effects, smaller in trained lifters"}]}]},
   {cat:"Sleep & recovery",topics:[
     {id:"h-sleep",title:"Sleep for athletes",
      summary:"Sleep is when much of the repair from training happens, and athletes often need more than the general population. When college basketball players extended their sleep towards ten hours a night, sprint times, shooting accuracy and reaction times all improved. Matthew Walker and Andrew Huberman both stress regular timing, a cool dark room, and keeping caffeine and alcohol well away from bedtime.",

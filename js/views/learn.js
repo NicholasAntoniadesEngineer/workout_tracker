@@ -29,7 +29,7 @@ function splitTitle(t){
 // Each category's icon on the Learn home grid.
 const CAT_ICON={"Joints & resilience":"joint","Lifters & methods":"people",
   "Training principles":"target","Workout types":"dumbbell","Experts & lifters":"people","Food & fuel":"bowl",
-  "Hydration":"drop","Protein":"dumbbell","Sleep & recovery":"moon","Supplements":"pill"};
+  "Hydration":"drop","Sleep & recovery":"moon","Supplements":"pill"};
 const isBooks=c=>c.topics.some(t=>t.book);
 
 const isPeople=c=>c.cat==="Lifters & methods"||c.topics.some(t=>(t.era||t.focus)&&!t.book);

@@ -3,6 +3,7 @@ import {autoEndIfStale,fmtClock,isBandExercise,makeSession,parseClock,restSecond
 import {activeEx,addExerciseToDay,getSession,importBackup,lastPerformance,load,mergeSessions,
   restTargetFor,save,saveRoutine,selectSession,state} from "./store.js";
 import {parseImport} from "./csv.js";
+import {AREAS as LEARN_AREAS} from "./library.js";
 import {decodeRoutineHash} from "./share.js";
 import {learnHomeBody,paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
 import * as nav from "./actions/nav.js";
@@ -265,9 +266,10 @@ function watchDrag(){
   document.body.addEventListener("pointercancel",end);
 }
 
-// In Learn a sideways swipe, either way, steps out one level: a book's chapter → its contents,
-// a topic → its list, a list → Learn home, Learn home → the app's home. Tabs and sections are
-// tapped. Mostly-vertical drags are left to scrolling.
+// In Learn, on its home a sideways swipe moves between the areas (Training, Health, World,
+// Books); a right swipe on the first one leaves Learn. Deeper in, a swipe either way steps out
+// one level: a book's chapter → its contents, a topic → its list, a list → Learn home. Tabs and
+// sections are tapped. Mostly-vertical drags are left to scrolling.
 const reading=()=>state.view==="learn"&&state.learnOpen&&state.learnTab==="read"&&state.bookCh!=null;
 function learnBack(){
   if(reading()){state.bookCh=null;state.scrollTo=0;}
@@ -289,6 +291,12 @@ function watchLearnSwipe(){
     on=false;
     const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<Math.abs(dy)*1.5)return;
+    if(!state.learnOpen&&!state.learnCat){
+      const order=LEARN_AREAS.map(a=>a[0]),next=order.indexOf(state.learnArea||"training")+(dx<0?1:-1);
+      if(next<0){learnBack();return;}
+      if(next>=order.length)return;
+      state.learnArea=order[next];state.learnQuery="";state.learnSearchOpen=false;state.scrollTo=0;render();return;
+    }
     learnBack();
   },{passive:true});
 }
