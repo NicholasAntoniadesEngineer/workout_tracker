@@ -1356,3 +1356,58 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:20px
   .lwrow:hover .lwrt{text-decoration:underline;text-decoration-color:var(--gold);text-decoration-thickness:2px;}
   .lsegb:not(.on):hover,.lchip:not(.on):hover,.cseg button:not(.on):hover{color:var(--text);}
 }
+
+/* Log on a big screen: the day in the middle, the panel and clocks on the right, and on a
+   laptop the exercise library docked on the left. Each column scrolls on its own. */
+@media (min-width:900px){
+  .shell .wrap.logwide{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;padding:18px var(--gut) 0;overflow:hidden;}
+  .logwide>section{min-height:0;overflow-y:auto;padding-bottom:24px;display:flex;flex-direction:column;}
+  .logwide>section>*{flex:none;}
+  .lghead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px;}
+  .lght{min-width:0;}
+  .lght .h1{font-size:30px;letter-spacing:-.6px;}
+  .lgstats{display:flex;gap:18px;margin-top:6px;font-size:14px;color:var(--muted);font-weight:700;}
+  .lgstats b{color:var(--text);font-size:16px;}
+  .lghead .headbtns{display:flex;gap:8px;align-items:center;}
+  .logwide .tblwrap{flex:none;min-height:0;max-height:none;}
+  .logwide .addstrip{margin-top:10px;}
+  .lgfocus{margin-top:14px;padding:14px 16px;}
+  .lgfh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;}
+  .lgfh .llabel{margin:0;flex:1;min-width:0;}
+  .lgfrec{font-size:12.5px;font-weight:700;}
+  .lgfall{border:0;background:none;padding:0;font:inherit;font-weight:800;font-size:13px;color:var(--text);cursor:pointer;}
+  .lgfrow{display:flex;gap:18px;padding:8px 0;border-top:1px solid var(--line);font-size:14px;}
+  .lgfrow span:first-child{flex:none;width:76px;color:var(--muted);font-weight:700;}
+  .chart.sized{height:auto;}
+  .chart.line .area{fill:var(--goldWash);stroke:none;}
+  .logwide .lgr .panel{margin-top:0;}
+  .lgtimer{margin-top:12px;padding:14px 16px;display:flex;flex-direction:column;gap:3px;}
+  .lgtimer .lgbig{font-size:48px;letter-spacing:-1px;}
+  .lgtimer .tbtn kbd{margin-left:6px;background:transparent;border-color:currentColor;color:inherit;opacity:.75;}
+  .lgtsep{height:1px;background:var(--line);margin:12px 0 8px;}
+  .lgtrow{display:flex;flex-direction:column;gap:6px;}
+  .lgnext{margin-top:12px;padding:14px 16px;}
+  .lgnext .llabel{margin:0 0 6px;}
+  .lgnext .ramp{margin-bottom:12px;}
+  .lgnextb.exbtn{display:inline;width:auto;min-height:0;border:0;background:none;padding:0;font:inherit;font-size:15px;font-weight:800;color:var(--text);cursor:pointer;text-align:left;}
+  .lgnexts{font-size:14px;color:var(--muted);}
+  .addbtn kbd{margin-left:6px;}
+  .logwide .numval{font-size:38px;min-width:0;}
+  .logwide .numstep{gap:6px;}
+  .logwide .rnd{width:34px;height:34px;font-size:19px;}
+  .lgfrow span:first-child{width:110px;white-space:nowrap;}
+  .overlay.drawer{justify-content:flex-end;align-items:stretch;padding:0;}
+  .overlay.drawer .sheet{margin:0;max-width:440px;height:100%;max-height:none;border-radius:0;border-top:0;border-left:1px solid var(--line);}
+}
+@media (min-width:1200px){
+  .shell .wrap.logwide.docked{grid-template-columns:290px minmax(0,1fr) 350px;}
+  .lglib{border:1px solid var(--line);border-radius:16px;padding:14px 12px 0;margin-bottom:16px;background:var(--panel);}
+  .lglibh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;}
+  .lglibt{font-size:17px;font-weight:800;}
+  .lglibh{position:sticky;top:0;z-index:2;background:var(--panel);padding:2px 0 8px;margin-bottom:2px;}
+  .lglib .searchrow{position:sticky;top:44px;z-index:2;background:var(--panel);padding-bottom:6px;}
+  .lglib .chip.sheetitem{min-height:38px;padding:4px 6px 4px 12px;border-radius:11px;}
+  .shell .wrap.logwide.docked{grid-template-columns:290px minmax(0,1fr) 370px;}
+  .lglib .seg.picktabs{margin:0;flex:none;}
+  .lglib .sheetgrid{grid-template-columns:minmax(0,1fr);}
+}

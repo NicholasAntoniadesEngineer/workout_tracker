@@ -121,7 +121,7 @@ function render(){
   // A group just opened in the exercise picker comes up to the top of the sheet, ready to pick.
   if(state.pickFocus){
     const b=[...document.querySelectorAll("[data-pickgroup]")].find(x=>x.getAttribute("data-pickgroup")===state.pickFocus);
-    const body=b&&b.closest(".sheetbody");
+    const body=b&&b.closest(".sheetbody,.lglib");
     if(body){
       const top=body.scrollTop+b.getBoundingClientRect().top-body.getBoundingClientRect().top-4;
       const smooth=!window.matchMedia("(prefers-reduced-motion: reduce)").matches;

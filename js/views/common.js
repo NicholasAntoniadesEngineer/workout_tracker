@@ -2,6 +2,10 @@ import {icon} from "../icons.js";
 
 const ESCAPES={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"};
 
+// Big screens get their own layouts: a tablet from 900px, a laptop from 1200px. Phones never do.
+export const wide=()=>typeof matchMedia==="function"&&matchMedia("(min-width:900px)").matches;
+export const desk=()=>typeof matchMedia==="function"&&matchMedia("(min-width:1200px)").matches;
+
 export function esc(s){return String(s).replace(/[&<>"]/g,c=>ESCAPES[c]);}
 
 // Every secondary screen opens the same way: Back on the left, its name in the middle, and

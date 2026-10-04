@@ -45,7 +45,7 @@ export function handleKey(ev,render){
     if(lower==="p")return press("#sidebtn");
     if(lower==="u")return press("#warmbtn");
     if(lower==="a")return press("#opensheet")||press("#managebtn");
-    if(lower==="j"||lower==="k")return stepIn(".exbtn[data-ex]",b=>b.dataset.ex===state.exId,lower==="j"?1:-1);
+    if(lower==="j"||lower==="k")return stepIn(".tblwrap .exbtn[data-ex]",b=>b.dataset.ex===state.exId,lower==="j"?1:-1);
   }
   if(v==="learn"){
     if(k==="["||k==="]")return stepIn("[data-learntab]",b=>b.classList.contains("on"),k==="]"?1:-1);

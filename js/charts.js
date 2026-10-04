@@ -153,16 +153,19 @@ export function topExercises(sessions,n){
 
 const CHART_W=300,CHART_H=84,PAD=2;
 
-export function barChart(values){
+// Given a size, a chart is drawn at that real shape, so bars and dots keep their proportions on
+// a wide screen; without one it stretches to its box, as on the phone.
+export function barChart(values,size){
+  const W=size?size.w:CHART_W,Hh=size?size.h:CHART_H;
   const max=Math.max(1,...values);
   const n=values.length;
-  const bw=(CHART_W-PAD*2)/n;
-  let h="<svg class='chart' viewBox='0 0 "+CHART_W+" "+CHART_H+"' preserveAspectRatio='none'>";
+  const bw=(W-PAD*2)/n,barW=size?Math.min(bw*0.68,24):bw*0.68;
+  let h="<svg class='chart"+(size?" sized":"")+"' viewBox='0 0 "+W+" "+Hh+"'"+(size?"":" preserveAspectRatio='none'")+">";
   values.forEach((v,i)=>{
-    const bh=Math.max(v>0?3:0,(v/max)*(CHART_H-6));
-    h+="<rect x='"+(PAD+i*bw+bw*0.16).toFixed(1)+"' y='"+(CHART_H-bh).toFixed(1)+
-       "' width='"+(bw*0.68).toFixed(1)+"' height='"+bh.toFixed(1)+"' rx='2'"+
-       (i===n-1?" class='now'":"")+"/>";
+    const bh=Math.max(v>0?3:0,(v/max)*(Hh-6));
+    h+="<rect x='"+(PAD+i*bw+(bw-barW)/2).toFixed(1)+"' y='"+(Hh-bh).toFixed(1)+
+       "' width='"+barW.toFixed(1)+"' height='"+bh.toFixed(1)+"' rx='"+(size?4:2)+"'"+
+       (i===n-1?" class='now'":"")+">"+(size&&size.labels?"<title>"+size.labels[i]+"</title>":"")+"</rect>";
   });
   return h+"</svg>";
 }
@@ -174,16 +177,18 @@ export function withAxis(svg,hi,lo){
     svg+"</div>";
 }
 
-export function lineChart(values){
+export function lineChart(values,size){
+  const W=size?size.w:CHART_W,Hh=size?size.h:CHART_H;
   const max=Math.max(1,...values),min=Math.min(...values);
   const span=Math.max(1,max-min);
   const n=values.length;
-  const x=i=>n>1?PAD+i*(CHART_W-PAD*2)/(n-1):CHART_W/2;
-  const y=v=>CHART_H-6-((v-min)/span)*(CHART_H-16);
+  const x=i=>n>1?PAD+6+i*(W-PAD*2-12)/(n-1):W/2;
+  const y=v=>Hh-6-((v-min)/span)*(Hh-16);
   const pts=values.map((v,i)=>x(i).toFixed(1)+","+y(v).toFixed(1)).join(" ");
-  let h="<svg class='chart line' viewBox='0 0 "+CHART_W+" "+CHART_H+"' preserveAspectRatio='none'>";
+  let h="<svg class='chart line"+(size?" sized":"")+"' viewBox='0 0 "+W+" "+Hh+"'"+(size?"":" preserveAspectRatio='none'")+">";
+  if(n>1&&size)h+="<polygon class='area' points='"+x(0).toFixed(1)+","+Hh+" "+pts+" "+x(n-1).toFixed(1)+","+Hh+"'/>";
   if(n>1)h+="<polyline points='"+pts+"'/>";
-  values.forEach((v,i)=>{h+="<circle cx='"+x(i).toFixed(1)+"' cy='"+y(v).toFixed(1)+"' r='3'"+
-    (i===n-1?" class='now'":"")+"/>";});
+  values.forEach((v,i)=>{h+="<circle cx='"+x(i).toFixed(1)+"' cy='"+y(v).toFixed(1)+"' r='"+(size?4:3)+"'"+
+    (i===n-1?" class='now'":"")+">"+(size&&size.labels?"<title>"+size.labels[i]+"</title>":"")+"</circle>";});
   return h+"</svg>";
 }

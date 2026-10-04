@@ -9,9 +9,9 @@ import {progressionHint,warmupRamp} from "../coach.js";
 import {cuesFor} from "../cues.js";
 import {exAka,exMatches,exWhat,learnTopicsFor} from "../exinfo.js";
 import {position,prescription} from "../programme.js";
-import {est1RM} from "../charts.js";
+import {est1RM,exerciseRecords,exerciseTrend,lineChart,withAxis} from "../charts.js";
 import {icon} from "../icons.js";
-import {esc} from "./common.js";
+import {desk,esc,wide} from "./common.js";
 
 const MIN_SET_COLUMNS=1;
 const UNIT_LABEL={reps:"Reps",secs:"Secs",m:"Metres"};
@@ -228,15 +228,17 @@ function exerciseSheet(session){
   const picked={};
   session.ex.forEach(e=>{picked[e.name.trim().toLowerCase()]=true;});
   const rest=state.catalog.filter(n=>!picked[n.trim().toLowerCase()]);
-  // Always closable, whether or not anything has been picked — looking is allowed.
-  let h="<div class='overlay' id='sheetback'><div class='sheet'>"+
+  // Always closable, whether or not anything has been picked — looking is allowed. On a tablet
+  // it slides in from the right as a drawer, so the day stays in view while you pick.
+  return "<div class='overlay"+(wide()?" drawer":"")+"' id='sheetback'><div class='sheet'>"+
     "<div class='sheethead'><div class='plabel'>"+
       (session.ex.length?"Today's exercises":"Pick today's exercises")+"</div>"+
     "<button class='btn "+(session.ex.length?"primary":"ghost")+" tiny' id='sheetdone'>"+
       (session.ex.length?"Done":"Close")+"</button>"+
-    "</div><div class='sheetbody'>";
-
-  h+="<div class='chips'>";
+    "</div><div class='sheetbody'>"+pickerBody(session,rest)+"</div></div></div>";
+}
+function pickerBody(session,rest){
+  let h="<div class='chips'>";
   if(!session.ex.length)h+="<span class='pickmsg'>Nothing picked yet.</span>";
   session.ex.forEach(e=>{
     h+="<span class='chip on'>"+esc(e.name)+
@@ -255,7 +257,7 @@ function exerciseSheet(session){
 
   if(session.ex.length)
     h+="<div class='reset'><button id='reset'>Clear this day's sets</button></div>";
-  return h+"</div></div></div>";
+  return h;
 }
 
 // What you've trained lately, newest first — the lifts you reach for most, one tap away.
@@ -524,8 +526,93 @@ function timerBar(session){
       "</div></div></div></div>";
 }
 
+// ── Tablet and laptop ────────────────────────────────────────────────────────────────
+// The library docked on the left (laptop) or as a drawer (tablet); the day in the middle with
+// the chosen exercise's last four times and its trend; the panel and both clocks on the right.
+const nameKey=n=>String(n||"").trim().toLowerCase();
+function exerciseFocus(a,session){
+  if(!a)return "";
+  const k=nameKey(a.name),u=unitOf(a),unit=esc(state.settings.unit||"kg");
+  const past=newestFirst(state.sessions).filter(s=>s.id!==session.id)
+    .map(s=>({s,e:s.ex.find(x=>nameKey(x.name)===k&&x.sets.length)})).filter(x=>x.e).slice(0,4);
+  const rec=exerciseRecords(state.sessions).find(r=>nameKey(r.name)===k);
+  let h="<div class='card lgfocus'><div class='lgfh'><span class='llabel'>"+esc(a.name)+" &middot; last "+(past.length===1?"time":past.length+" times")+"</span>"+
+    (rec?"<span class='lgfrec mono'>"+(rec.bestW?"Best "+rec.bestW+" &times; "+rec.bestWReps+" &middot; e1RM "+rec.best1RM+" "+unit:
+      "Best "+rec.bestR+(rec.timed?" s":rec.dist?" m":" reps"))+"</span>":"")+
+    "<button class='lgfall' id='exhistbtn'>All &rsaquo;</button></div>";
+  h+=past.length?past.map(x=>"<div class='lgfrow'><span>"+esc(shortDate(x.s.created))+"</span><span class='mono'>"+setsSummary(x.e.sets,unitOf(x.e))+"</span></div>").join(""):
+    "<div class='empty-note'>First time logging "+esc(a.name)+". Its history builds here.</div>";
+  h+="</div>";
+  const tr=exerciseTrend(newestFirst(state.sessions).filter(s=>!s.running).reverse(),a.name);
+  if(tr.points.length>1){
+    const pts=tr.points.slice(-12),vs=pts.map(p=>p.v);
+    h+="<div class='card lgfocus'><div class='lgfh'><span class='llabel'>"+esc(a.name)+" &middot; "+(tr.weighted?"top set":"best "+(u==="secs"?"time":u==="m"?"distance":"reps"))+
+      ", last "+pts.length+" days</span><button class='lgfall' data-nav='progress'>Progress &rsaquo;</button></div>"+
+      withAxis(lineChart(vs,{w:560,h:150,labels:pts.map(p=>shortDate(p.at)+": "+p.v)}),Math.max(...vs),Math.min(...vs))+
+      "<div class='chartlbls'><span>"+esc(shortDate(pts[0].at))+"</span><span>now "+vs[vs.length-1]+(tr.weighted?" "+unit:"")+"</span><span>"+esc(shortDate(pts[pts.length-1].at))+"</span></div></div>";
+  }
+  return h;
+}
+// Both clocks as one card, with the same ids as the phone's bar so the ticking and the
+// buttons work unchanged.
+function timerCard(session){
+  const on=!!session.running,timing=!!state.setStart;
+  return "<div class='card lgtimer'>"+
+    "<div class='tl' id='setlbl'>"+setLabel(session)+"</div>"+
+    "<div class='tv mono lgbig"+(timing?" held":"")+"' id='settime'>"+fmtClock(setClockSeconds(session))+"</div>"+
+    "<div class='tsub' id='setsub'>"+setSub(session)+"</div>"+
+    "<div class='tbtnrow'><button class='tbtn"+(timing?" on":" go")+"' id='setstart'>"+(timing?"Cancel":"Start set")+" <kbd>Space</kbd></button>"+
+      "<button class='tbtn narrow' id='timerreset' title='Reset the rest clock'>"+icon("reset")+"</button></div>"+
+    "<div class='lgtsep'></div>"+
+    "<div class='lgtrow'><div><div class='tl'>Workout"+(session.started&&!on?" &middot; ended":"")+"</div>"+
+      "<div class='tv mono edit' id='worktime' title='Click to set the elapsed time'>"+workoutLabel(session)+"</div>"+
+      "<div class='tsub' id='worksub'>"+workoutSub(session)+"</div></div>"+
+      "<div class='tbtnrow'><button class='tbtn "+(on?"stop":"go")+"' id='wtoggle'>"+
+        (on?"End workout":(canResume(session)?"Resume workout":(session.started?"Start again":"Start workout")))+"</button>"+
+        "<button class='tbtn narrow' id='workreset' title='Reset the workout time'>"+icon("reset")+"</button></div></div></div>";
+}
+function upNext(session){
+  const a=activeEx();if(!a)return "";
+  const k=session.ex.indexOf(a),rest=session.ex.slice(k+1).concat(session.ex.slice(0,k)).filter(e=>!e.sets.length);
+  const ramp=isBarbellLift(a.name)&&state.weight?warmupRamp(state.weight,state.settings.unit||"kg"):[];
+  if(!rest.length&&!ramp.length)return "";
+  return "<div class='card lgnext'>"+
+    (ramp.length?"<div class='llabel'>Warm-up to "+state.weight+" "+esc(state.settings.unit||"kg")+"</div><div class='ramp mono'>"+ramp.map(x=>x.w+" &times; "+x.r).join(" &middot; ")+"</div>":"")+
+    (rest.length?"<div class='llabel'>Up next</div><button class='lgnextb exbtn' data-ex='"+rest[0].id+"'>"+esc(rest[0].name)+"</button>"+
+      (rest.length>1?"<span class='lgnexts'> then "+rest.slice(1,3).map(e=>esc(e.name)).join(", ")+"</span>":""):"")+"</div>";
+}
+function logWide(s){
+  const t=totals(s),dock=desk();
+  const picked={};s.ex.forEach(e=>{picked[nameKey(e.name)]=true;});
+  const rest=state.catalog.filter(n=>!picked[nameKey(n)]);
+  const started=s.started?new Date(s.started).toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}):"";
+  const tab=state.pickTab==="routines"?"routines":"ex";
+  const lib=dock?"<section class='lglib' data-keepx='lglib'><div class='lglibh'><span class='lglibt'>Exercises</span>"+
+      "<div class='seg picktabs'><button class='q"+(tab==="ex"?" on":"")+"' data-picktab='ex'>All</button>"+
+      "<button class='q"+(tab==="routines"?" on":"")+"' data-picktab='routines'>Routines</button></div></div>"+
+      "<div class='lglibb'>"+pickerBody(s,rest).replace("<div class='seg picktabs'>","<div class='seg picktabs' hidden>")+"</div></section>":"";
+  return "<div class='wrap logwide"+(dock?" docked":"")+"'>"+lib+
+    "<section class='lgc' data-keepx='lgc'>"+
+      "<div class='lghead'><div class='lght'><div class='eyebrow'>Session &middot; "+esc(shortDate(s.created))+(started?" &middot; started "+esc(started):"")+"</div>"+
+        "<div class='h1' id='daytitle'><span class='httl'>"+esc(s.title)+"</span> <span class='pen'>&#9998;</span></div>"+
+        "<div class='lgstats'><span><b class='mono'>"+t.reps+"</b> reps</span><span><b class='mono'>"+t.sets+"</b> sets</span><span><b class='mono'>"+s.ex.length+"</b> exercises</span></div></div>"+
+        "<div class='headbtns'>"+(s.ex.length?"<button class='daysbtn iconbtn' id='sharebtn' title='Share'>"+icon("share")+"</button>"+
+          "<button class='btn ghost tiny' data-saveroutine='"+s.id+"'>Save as routine</button>":"")+"</div></div>"+
+      setsTable(s)+
+      "<div class='addstrip'>"+(dock?"":"<button class='addbtn' id='opensheet'>+ Add exercise <kbd>A</kbd></button>")+
+        (activeEx()?"<button class='rmbtn' id='removesel'>&minus; Remove "+esc(activeEx().name)+"</button>":"")+"</div>"+
+      exerciseFocus(activeEx(),s)+
+    "</section>"+
+    "<section class='lgr' data-keepx='lgr'>"+logPanel()+timerCard(s)+upNext(s)+"</section>"+
+    "</div>"+
+    (state.sheet&&!dock?exerciseSheet(s):"")+
+    (state.numEdit?numEditor(activeEx()):"")+
+    (state.exInfo?exerciseHistorySheet(state.exInfo,true):state.exHist&&activeEx()?exerciseHistorySheet(activeEx().name):"");
+}
+
 export function logView(){
   const s=getSession();
+  if(wide())return logWide(s);
   return "<div class='wrap'>"+
     "<div class='head'><div>"+
     "<div class='eyebrow'>Session</div>"+

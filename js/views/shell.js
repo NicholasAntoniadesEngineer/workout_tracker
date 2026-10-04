@@ -4,11 +4,10 @@
 import {state} from "../store.js";
 import {fmtClock} from "../model.js";
 import {icon} from "../icons.js";
-import {esc} from "./common.js";
+import {desk,esc,wide} from "./common.js";
 import {setClockSeconds,workoutLabel} from "./log.js";
 
-export const wide=()=>typeof matchMedia==="function"&&matchMedia("(min-width:900px)").matches;
-export const desk=()=>typeof matchMedia==="function"&&matchMedia("(min-width:1200px)").matches;
+export {desk,wide};
 
 // Every section, in the order of the number keys.
 export const NAV=[["home","Home","home"],["log","Log","dumbbell"],["history","History","days"],["calendar","Calendar","calendar"],
