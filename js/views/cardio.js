@@ -56,7 +56,7 @@ function setupView(){
   let h="<div class='wrap scroll cscreen'>"+
     "<div class='chead'><button class='backbtn iconbtn' id='cardioback' aria-label='Back'>"+icon("back","sm")+"</button>"+
     "<span class='cheadt'>Cardio</span>"+
-    "<label class='btn ghost tiny cimport'>Import file<input type='file' id='cardiofile' accept='.gpx,.tcx,application/gpx+xml,application/xml,text/xml' hidden></label></div>"+
+    "<label class='btn ghost tiny cimport'>Import file<input type='file' id='cardiofile' accept='.fit,.gpx,.tcx,.zip,application/gpx+xml,application/xml,text/xml,application/zip,application/octet-stream' hidden></label></div>"+
     "<div class='cseg'>"+ACTIVITIES.map(([k,l])=>"<button class='"+(c.activity===k?"on":"")+"' data-cardioact='"+k+"'>"+l+"</button>").join("")+"</div>"+
     "<div class='cpresets'>"+PRESETS.map(p=>"<button class='cpreset"+(p.id===c.preset?" on":"")+"' data-cardiopreset='"+p.id+"'>"+esc(p.short)+"</button>").join("")+"</div>"+
     "<div class='cplan'><div class='cplann'><b>"+esc(preset.name)+"</b>"+(total?"<span class='mono'>"+clock(total)+"</span>":"")+"</div>"+
@@ -145,6 +145,7 @@ function liveView(){
 function summaryView(){
   const s=state.cardioDone,max=state.settings.maxHR||190;
   const st=trackStats(s.track||[],perM()),hs=hrStats(s.hr||[],max);
+  if(!st.dist&&s.distM)st.dist=s.distM;   // a treadmill or pool file: distance without a route
   const secs=s.secs||st.secs,pace=st.dist>50?secs/(st.dist/perM()):0,u=miles()?"mi":"km";
   const stat=(v,l)=>"<div class='cstat'><span class='cstatv mono'>"+v+"</span><span class='cstatl'>"+l+"</span></div>";
   const stats=[stat(clock(secs),"time")];

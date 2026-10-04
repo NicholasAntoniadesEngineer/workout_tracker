@@ -4,6 +4,7 @@
 import {state,addToCatalog} from "../store.js";
 import {makeExercise,makeSession,nowISO,normSet} from "../model.js";
 import {PRESETS,hrStats,parseWorkoutFile,phaseAt,phases,thin,trackStats} from "../cardio.js";
+import {isFit,parseFit,unzipWorkout} from "../fit.js";
 import {connectHeartRate,cue,gpsPermission,keepAwake,primeAudio,startGps,stopGps,stopWarm,warmGps} from "../sensors.js";
 import {ACTIVITIES,elapsedOf,gpsLine} from "../views/cardio.js";
 
@@ -157,6 +158,7 @@ export function handle(t,ctx){
   const d=state.cardioDone;
   if(t.closest&&t.closest("[data-cardiosave]")&&d){
     const ses=makeSession(),st=trackStats(d.track||[]),hs=hrStats(d.hr||[],state.settings.maxHR||190);
+    if(!st.dist&&d.distM)st.dist=d.distM;
     ses.created=d.created||nowISO();ses.started=ses.created;ses.ended=new Date(Date.parse(ses.created)+d.secs*1000).toISOString();
     ses.title=d.title;
     const name=exName(d.activity);addToCatalog(name);
@@ -181,20 +183,24 @@ export function handle(t,ctx){
   return false;
 }
 
-// A GPX or TCX file from a watch opens in the summary, ready to save.
+// A watch file opens in the summary, ready to save: GPX or TCX (text), FIT (binary, from Garmin,
+// Wahoo, Coros, Suunto), or the .zip Garmin Connect's "Export original" hands over.
+async function readWorkout(file){
+  const buf=await file.arrayBuffer();
+  let bytes=new Uint8Array(buf),name=file.name||"";
+  if(/\.zip$/i.test(name)||(bytes[0]===0x50&&bytes[1]===0x4B)){const z=await unzipWorkout(buf);bytes=z.bytes;name=z.name;}
+  if(isFit(bytes))return parseFit(bytes);
+  return parseWorkoutFile(new TextDecoder().decode(bytes));
+}
 export function importWorkoutFile(file,render){
   if(!file)return;
-  const r=new FileReader();
-  r.onload=()=>{
-    try{
-      const w=parseWorkoutFile(String(r.result));
-      if(!w.track.length&&!w.hr.length){alert("That file has no route or heart rate in it.");return;}
-      const sport=(w.sport||"").toLowerCase(),act=/bik|cycl|ride/.test(sport)?"ride":/walk|hik/.test(sport)?"walk":/swim/.test(sport)?"swim":/row/.test(sport)?"row":"run";
-      const st=trackStats(w.track),label=(ACTIVITIES.find(x=>x[0]===act)||ACTIVITIES[0])[1];
-      state.cardioDone={imported:true,activity:act,title:w.name||label+(st.dist>50?" · "+(st.dist/1000).toFixed(1)+" km":""),
-        secs:w.secs,track:w.track,hr:w.hr,created:w.start?new Date(w.start).toISOString():nowISO()};
-      state.cardioSetup=null;state.view="cardio";state.scrollTo=0;render();
-    }catch(e){alert("KingsKiln couldn't read that file. GPX and TCX exports work.");}
-  };
-  r.readAsText(file);
+  readWorkout(file).then(w=>{
+    if(!w.track.length&&!w.hr.length&&!w.distM){alert("That file has no route, distance or heart rate in it.");return;}
+    const sport=(w.sport||"").toLowerCase(),act=/bik|cycl|ride/.test(sport)?"ride":/walk|hik/.test(sport)?"walk":/swim/.test(sport)?"swim":/row/.test(sport)?"row":"run";
+    const st=trackStats(w.track),label=(ACTIVITIES.find(x=>x[0]===act)||ACTIVITIES[0])[1];
+    const dist=st.dist||w.distM||0;
+    state.cardioDone={imported:true,activity:act,title:w.name||label+(dist>50?" · "+(dist/1000).toFixed(1)+" km":""),
+      secs:w.secs,track:w.track,hr:w.hr,distM:w.distM||0,created:w.start?new Date(w.start).toISOString():nowISO()};
+    state.cardioSetup=null;state.cardioTab=null;state.view="cardio";state.scrollTo=0;render();
+  }).catch(()=>alert("KingsKiln couldn't read that file. FIT, GPX, TCX and Garmin's zipped exports work."));
 }
