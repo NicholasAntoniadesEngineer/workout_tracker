@@ -8,19 +8,43 @@ let watchId=null,wake=null,hrDevice=null,ctx=null;
 export const gpsSupported=()=>typeof navigator!=="undefined"&&!!navigator.geolocation;
 export const hrSupported=()=>typeof navigator!=="undefined"&&!!navigator.bluetooth;
 
-// onFix({t,lat,lon,alt,acc}) for each good fix; onError(message) if location is refused.
-export function startGps(onFix,onError){
+// Where location stands for this site: "granted", "prompt", "denied", or "unknown" where the
+// browser won't say (older iPhones).
+export async function gpsPermission(){
+  try{if(navigator.permissions&&navigator.permissions.query)return (await navigator.permissions.query({name:"geolocation"})).state;}catch(e){}
+  return "unknown";
+}
+// Why location failed, by the browser's error code: blocked for the site, off on the phone, or no fix yet.
+const WHY={1:"denied",2:"off",3:"nofix"};
+
+// onFix({t,lat,lon,alt,acc}) for each good fix; onError(message) if location is refused;
+// onSignal(accuracy in metres) for every reading, good or not, so the screen can show signal.
+export function startGps(onFix,onError,onSignal){
   if(!gpsSupported()){onError&&onError("This device can't share its location.");return;}
-  stopGps();
+  stopGps();stopWarm();
   let prev=null;
   watchId=navigator.geolocation.watchPosition(p=>{
     const fix={t:p.timestamp||Date.now(),lat:p.coords.latitude,lon:p.coords.longitude,
       alt:p.coords.altitude==null?null:p.coords.altitude,acc:p.coords.accuracy};
+    onSignal&&onSignal(fix.acc);
     if(acceptFix(prev,fix)){prev=fix;onFix(fix);}
-  },e=>onError&&onError(e.code===1?"Location is off for KingsKiln. Allow it in your browser's settings to track distance.":
+  },e=>onError&&onError(e.code===1?"Location is blocked for KingsKiln. Allow it in your phone's settings to track distance.":
+    e.code===2?"Your phone's location is off. Turn it on to track distance.":
     "No GPS fix yet. Head outside with a clear view of the sky."),{enableHighAccuracy:true,maximumAge:0,timeout:20000});
 }
 export function stopGps(){if(watchId!=null&&gpsSupported())navigator.geolocation.clearWatch(watchId);watchId=null;}
+
+// Turning GPS on before Start: this request is what brings up the phone's own location prompt
+// (and on Android, the offer to switch location on). It keeps listening while the setup screen
+// is open so the signal has settled by the time you start. onSignal(accuracy), onFail(why).
+let warmId=null;
+export function warmGps(onSignal,onFail){
+  if(!gpsSupported()){onFail("none");return;}
+  stopWarm();
+  warmId=navigator.geolocation.watchPosition(p=>onSignal(p.coords.accuracy),
+    e=>onFail(WHY[e.code]||"nofix"),{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+}
+export function stopWarm(){if(warmId!=null&&gpsSupported())navigator.geolocation.clearWatch(warmId);warmId=null;}
 
 export async function keepAwake(on){
   try{

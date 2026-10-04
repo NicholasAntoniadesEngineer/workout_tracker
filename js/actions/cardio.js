@@ -4,8 +4,8 @@
 import {state,addToCatalog} from "../store.js";
 import {makeExercise,makeSession,nowISO,normSet} from "../model.js";
 import {PRESETS,hrStats,parseWorkoutFile,phaseAt,phases,thin,trackStats} from "../cardio.js";
-import {connectHeartRate,cue,keepAwake,primeAudio,startGps,stopGps} from "../sensors.js";
-import {ACTIVITIES,elapsedOf} from "../views/cardio.js";
+import {connectHeartRate,cue,gpsPermission,keepAwake,primeAudio,startGps,stopGps,stopWarm,warmGps} from "../sensors.js";
+import {ACTIVITIES,elapsedOf,gpsLine} from "../views/cardio.js";
 
 const LIVE_KEY="kk_cardio";
 let ticker=null,repaint=()=>{};
@@ -16,8 +16,44 @@ const STEP={work:15,rest:15,rounds:1,minutes:5};
 
 export function openCardio(opts){
   const pre=PRESETS.find(p=>p.id===(opts&&opts.preset))||PRESETS.find(p=>p.id==="open");
-  state.cardioSetup={activity:(opts&&opts.activity)||"run",preset:pre.id,o:Object.assign({},pre.o),gps:!opts||opts.gps!==false};
-  state.cardioDone=null;state.view="cardio";state.scrollTo=0;
+  state.cardioSetup={activity:(opts&&opts.activity)||"run",preset:pre.id,o:Object.assign({},pre.o),gps:false,
+    wantGps:(!opts||opts.gps!==false)&&OUTDOOR.indexOf((opts&&opts.activity)||"run")>=0};
+  state.cardioDone=null;state.cardioTab=null;state.view="cardio";state.scrollTo=0;
+}
+const OUTDOOR=["run","ride","walk"];
+
+// GPS on the setup screen. Already allowed: switch it on and let the signal settle. Not yet
+// asked: leave it off, so the phone's prompt comes from a tap on the switch. Blocked: say so.
+export function checkGps(render){
+  const s=state.cardioSetup;if(!s)return;
+  gpsPermission().then(p=>{
+    if(state.cardioSetup!==s)return;
+    if(p==="granted"&&s.wantGps){s.gps=true;warm(render);}
+    else if(p==="denied")state.gpsLive={st:"denied"};
+    else state.gpsLive=null;
+    render();
+  });
+}
+// Ask for location and watch the signal until Start. Accuracy updates go straight to the
+// switch's line, so a tap on the screen is never lost to a repaint.
+function warm(render){
+  const s=state.cardioSetup;
+  state.gpsLive={st:"asking"};
+  warmGps(acc=>{
+    if(state.cardioSetup!==s)return;
+    const was=state.gpsLive||{},good=a=>a<=20;
+    state.gpsLive={st:"ok",acc};
+    const line=document.getElementById("gpsline");
+    if(line&&was.st==="ok"&&good(was.acc)===good(acc)){line.innerHTML=gpsLine(true);return;}
+    render();
+  },why=>{
+    if(state.cardioSetup!==s)return;
+    // No fix yet keeps GPS on and waiting; blocked or switched off turns it back off.
+    if(why==="nofix"&&(state.gpsLive||{}).acc)return;
+    state.gpsLive={st:why};
+    if(why!=="nofix"){s.gps=false;stopWarm();}
+    render();
+  });
 }
 
 function tick(){
@@ -36,7 +72,8 @@ function begin(render){
   repaint=render;clearInterval(ticker);ticker=setInterval(tick,1000);
   const c=state.cardio;
   if(c.gps)startGps(fix=>{if(state.cardio&&!state.cardio.pauseAt){state.cardio.track.push(fix);state.cardio.gpsMsg="";save();}},
-    msg=>{if(state.cardio){state.cardio.gpsMsg=msg;repaint();}});
+    msg=>{if(state.cardio){state.cardio.gpsMsg=msg;repaint();}},
+    acc=>{state.gpsLive={st:"ok",acc};});
   keepAwake(true);
 }
 function halt(){clearInterval(ticker);ticker=null;stopGps();keepAwake(false);}
@@ -58,11 +95,11 @@ function onBpm(bpm){
 export function handle(t,ctx){
   if(t.closest&&t.closest("#homecardio,[data-cardioopen]")){
     const o=t.closest("[data-cardioopen]");
-    openCardio(o?JSON.parse(o.getAttribute("data-cardioopen")||"{}"):null);ctx.render();return true;
+    openCardio(o?JSON.parse(o.getAttribute("data-cardioopen")||"{}"):null);checkGps(ctx.render);ctx.render();return true;
   }
   const s=state.cardioSetup;
   const act=t.closest&&t.closest("[data-cardioact]");
-  if(act&&s){s.activity=act.getAttribute("data-cardioact");if(s.activity==="swim"||s.activity==="row")s.gps=s.activity==="row"?s.gps:false;ctx.render();return true;}
+  if(act&&s){s.activity=act.getAttribute("data-cardioact");if(s.activity==="swim"&&s.gps){s.gps=false;stopWarm();state.gpsLive=null;}ctx.render();return true;}
   const pre=t.closest&&t.closest("[data-cardiopreset]");
   if(pre&&s){const p=PRESETS.find(x=>x.id===pre.getAttribute("data-cardiopreset"));s.preset=p.id;s.o=Object.assign({},p.o);ctx.render();return true;}
   const stp=t.closest&&t.closest("[data-cardiostep]");
@@ -70,7 +107,13 @@ export function handle(t,ctx){
     const [k,d]=stp.getAttribute("data-cardiostep").split(":");
     s.o[k]=Math.max(k==="rest"?0:1,(+s.o[k]||0)+STEP[k]*+d);ctx.render();return true;
   }
-  if(t.closest&&t.closest("[data-cardiogps]")&&s){s.gps=!s.gps;ctx.render();return true;}
+  if(t.closest&&t.closest("[data-cardiogps]")&&s){
+    if(s.gps){s.gps=false;stopWarm();state.gpsLive=null;}
+    else{s.gps=true;warm(ctx.render);}
+    ctx.render();return true;
+  }
+  const tab=t.closest&&t.closest("[data-cardiotab]");
+  if(tab){state.cardioTab=tab.getAttribute("data-cardiotab");ctx.render();return true;}
   const mx=t.closest&&t.closest("[data-cardiomax]");
   if(mx){state.settings.maxHR=Math.max(120,Math.min(230,(+state.settings.maxHR||190)+ +mx.getAttribute("data-cardiomax")));ctx.render();return true;}
   if(t.closest&&t.closest("[data-cardiohr]")){
@@ -85,12 +128,16 @@ export function handle(t,ctx){
     state.cardio={activity:s.activity,preset:p.id,presetName:p.id==="open"?"":p.name,mode:p.mode,o:s.o,
       phases:phases(p.mode,s.o),startedAt:Date.now(),pausedMs:0,pauseAt:null,track:[],hr:[],gps:!!s.gps,
       hrOn:!!state.hrName,lastPhase:-1,gpsMsg:s.gps?"Finding GPS…":""};
+    if(!s.gps){stopWarm();state.gpsLive=null;}
     state.cardioSetup=null;save();begin(ctx.render);cue("work");ctx.render();return true;
   }
   const c=state.cardio;
   if(t.closest&&t.closest("[data-cardiopause]")&&c){
     if(c.pauseAt){c.pausedMs+=Date.now()-c.pauseAt;c.pauseAt=null;}else c.pauseAt=Date.now();
     save();ctx.render();return true;
+  }
+  if(t.closest&&t.closest("[data-cardiolap]")&&c&&!c.pauseAt){
+    c.laps=(c.laps||[]).concat([Math.round(elapsedOf(c))]);cue("rest");save();ctx.render();return true;
   }
   if(t.closest&&t.closest("[data-cardioskip]")&&c){
     const at=phaseAt(c.phases,elapsedOf(c));
@@ -104,8 +151,8 @@ export function handle(t,ctx){
     const st=trackStats(c.track);
     const label=(ACTIVITIES.find(x=>x[0]===c.activity)||ACTIVITIES[0])[1];
     state.cardioDone={activity:c.activity,title:label+(st.dist>50?" · "+(st.dist/1000).toFixed(1)+" km":c.presetName?" · "+c.presetName:""),
-      secs,track:c.track,hr:c.hr,rounds,preset:c.presetName,created:new Date(c.startedAt).toISOString()};
-    state.cardio=null;clear();ctx.render();return true;
+      secs,track:c.track,hr:c.hr,rounds,laps:c.laps||[],preset:c.presetName,created:new Date(c.startedAt).toISOString()};
+    state.cardio=null;state.gpsLive=null;state.cardioTab=null;clear();ctx.render();return true;
   }
   const d=state.cardioDone;
   if(t.closest&&t.closest("[data-cardiosave]")&&d){
@@ -118,16 +165,17 @@ export function handle(t,ctx){
     if(st.dist>50){e.dist=true;e.timed=false;}else{e.timed=true;e.dist=false;}
     if(hs.avg)set.hr=hs.avg;
     e.sets.push(set);ses.ex.push(e);
-    ses.cardio={activity:d.activity,secs:d.secs,dist:st.dist,climb:st.climb,splits:st.splits,rounds:d.rounds||0,preset:d.preset||"",
+    ses.cardio={activity:d.activity,secs:d.secs,dist:st.dist,climb:st.climb,splits:st.splits,rounds:d.rounds||0,laps:d.laps&&d.laps.length?d.laps.map((x,i,a)=>x-(a[i-1]||0)).concat([d.secs-d.laps[d.laps.length-1]]):[],preset:d.preset||"",
       hr:hs.avg?{avg:hs.avg,max:hs.max,zones:hs.zones,maxHR:state.settings.maxHR||190}:null,track:thin(d.track||[],400).map(p=>[+p.lat.toFixed(5),+p.lon.toFixed(5)]),imported:!!d.imported};
     state.sessions.push(ses);state.cardioDone=null;state.view="history";state.scrollTo=0;ctx.render();return true;
   }
   if(t.closest&&t.closest("[data-cardiodiscard]")&&d){
-    if(confirm("Discard this session? It won't be saved.")){state.cardioDone=null;openCardio();}
+    if(confirm("Discard this session? It won't be saved.")){state.cardioDone=null;openCardio();checkGps(ctx.render);}
     ctx.render();return true;
   }
   if(t.closest&&t.closest("#cardioback")){
     if(state.cardioDone&&!confirm("Leave without saving this session?")){return true;}
+    stopWarm();state.gpsLive=null;
     state.cardioDone=null;state.cardioSetup=null;state.view="home";ctx.render();return true;
   }
   return false;

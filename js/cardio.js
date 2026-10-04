@@ -18,12 +18,12 @@ function rounds(n,work,rest,wl,rl){
   return out;
 }
 export const PRESETS=[
-  {id:"4x4",name:"4 × 4 intervals",mode:"intervals",o:{work:240,rest:240,rounds:4},note:"Attia's zone 5: four minutes hard, four easy"},
-  {id:"z2",name:"Zone 2, 45 min",mode:"steady",o:{minutes:45},note:"Easy, conversational pace"},
-  {id:"tabata",name:"Tabata",mode:"tabata",o:{},note:"8 × 20 s on, 10 s off"},
-  {id:"emom10",name:"EMOM 10",mode:"emom",o:{minutes:10},note:"A task at the top of every minute"},
-  {id:"rounds3x3",name:"3 rounds of 3 min",mode:"rounds",o:{work:180,rest:60,rounds:3},note:"Fight rounds, one minute between"},
-  {id:"open",name:"Open session",mode:"free",o:{},note:"No timer — run, ride or walk as long as you like"},
+  {id:"open",name:"Open session",short:"Open",mode:"free",o:{},note:"No timer: run, ride or walk as long as you like"},
+  {id:"z2",name:"Zone 2, 45 min",short:"Zone 2",mode:"steady",o:{minutes:45},note:"Easy, conversational pace"},
+  {id:"4x4",name:"4 × 4 intervals",short:"4 × 4",mode:"intervals",o:{work:240,rest:240,rounds:4},note:"Attia's zone 5: four minutes hard, four easy"},
+  {id:"tabata",name:"Tabata",short:"Tabata",mode:"tabata",o:{},note:"8 × 20 s on, 10 s off"},
+  {id:"emom10",name:"EMOM 10",short:"EMOM",mode:"emom",o:{minutes:10},note:"A task at the top of every minute"},
+  {id:"rounds3x3",name:"3 rounds of 3 min",short:"Rounds",mode:"rounds",o:{work:180,rest:60,rounds:3},note:"Fight rounds, one minute between"},
 ];
 export function phases(mode,o){return (MODES[mode]||MODES.free).build(o||{});}
 // Where an elapsed time (seconds, pauses excluded) falls in the phases.
