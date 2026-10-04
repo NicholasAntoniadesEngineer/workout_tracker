@@ -836,7 +836,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .exbtn:not(.active):hover{background:var(--panelHi);}
   .exhbtn:hover{border-color:var(--accent);color:var(--accentText);}
   .chip.sheetitem:hover{border-color:var(--accent);}
-  .lcard:hover,.lrow:hover,.llink:hover,.ltab:not(.on):hover,.lcat:hover,.lperson:hover{border-color:var(--accent);}
+  .llink:hover{border-color:var(--accent);}
 
   /* Selectable pills warm toward the accent. */
   .q:not(.on):hover,.setmult:hover{border-color:var(--accent);background:var(--accentDim);
@@ -1578,4 +1578,18 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:20px
 }
 @media (min-width:900px) and (hover:hover) and (pointer:fine){
   .hwday[data-resume]:hover,.hrec:hover,.hlearn:hover{box-shadow:inset 0 0 0 1.5px var(--gold);}
+}
+
+/* Live cardio on a laptop: the ring on the left, the numbers and the route beside it. */
+@media (min-width:1200px){
+  .shell .wrap.scroll.cscreen.clive{max-width:1180px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:auto auto auto minmax(0,1fr) auto;column-gap:32px;}
+  .clive>.chead,.clive>.cctl{grid-column:1/-1;}
+  .clive>.cring,.clive>.cbig{grid-column:1;grid-row:2/5;align-self:center;justify-self:center;}
+  .clive>.cring{width:min(34vw,62vh,440px);}
+  .clive>.cmarks{grid-column:2;grid-row:2;margin-top:12px;}
+  .clive>.ctiles{grid-column:2;grid-row:3;}
+  .clive>.croutebox,.clive>.cgrow{grid-column:2;grid-row:4;}
+  .clive>.cbig.solo{grid-column:1/-1;}
+  .clive .ctv{font-size:34px;}
 }
