@@ -76,6 +76,23 @@ export function weeklyVolume(sessions){
   return weeks;
 }
 
+// Cardio by calendar week, oldest first: distance (metres), time (seconds) and sessions.
+export function cardioWeekly(sessions,now){
+  const weeks=[],thisWeek=weekStart(now?new Date(now):new Date());
+  for(let i=WEEKS_SHOWN-1;i>=0;i--){
+    const start=new Date(thisWeek.getFullYear(),thisWeek.getMonth(),thisWeek.getDate()-i*7);
+    weeks.push({key:dateKey(start.toISOString()),label:start.toLocaleDateString(undefined,{day:"numeric",month:"short"}),dist:0,secs:0,n:0});
+  }
+  const byKey={};weeks.forEach(w=>{byKey[w.key]=w;});
+  sessions.forEach(s=>{
+    if(!s.cardio)return;
+    const d=new Date(s.created);if(isNaN(d))return;
+    const w=byKey[dateKey(weekStart(d).toISOString())];if(!w)return;
+    w.dist+=+s.cardio.dist||0;w.secs+=+s.cardio.secs||0;w.n++;
+  });
+  return weeks;
+}
+
 // Every exercise's records, heaviest first, weight-free movements ranked by reps after.
 // All of them — the whole history is what "records" means, not a top few.
 export function exerciseRecords(sessions){

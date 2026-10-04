@@ -68,6 +68,30 @@ export function trackStats(track,splitM){
   const secs=track.length>1?Math.round((track[track.length-1].t-track[0].t)/1000):0;
   return {dist:Math.round(dist),climb:Math.round(climb),secs,splits};
 }
+// Bests per activity from saved sessions: longest distance and time, fastest average pace over
+// a kilometre or more, and the fastest 1, 5, 10 and 21 km run inside any session, from its
+// kilometre splits. Most-done activity first.
+export const BEST_KM=[1,5,10,21];
+export function cardioBests(sessions){
+  const by={};
+  sessions.forEach(s=>{
+    const c=s.cardio;if(!c)return;
+    const a=c.activity||"other",b=by[a]||(by[a]={activity:a,n:0,dist:0,secs:0,longest:null,longestTime:null,pace:null,best:{}});
+    const dist=+c.dist||0,secs=+c.secs||0;
+    b.n++;b.dist+=dist;b.secs+=secs;
+    if(dist&&(!b.longest||dist>b.longest.v))b.longest={v:dist,at:s.created};
+    if(secs&&(!b.longestTime||secs>b.longestTime.v))b.longestTime={v:secs,at:s.created};
+    if(dist>=1000&&secs){const p=secs/(dist/1000);if(!b.pace||p<b.pace.v)b.pace={v:p,at:s.created};}
+    const sp=(c.splits||[]).map(x=>+x.secs||0);
+    BEST_KM.forEach(k=>{
+      if(sp.length<k)return;
+      let sum=0,min=Infinity;
+      for(let i=0;i<sp.length;i++){sum+=sp[i];if(i>=k)sum-=sp[i-k];if(i>=k-1&&sum<min)min=sum;}
+      if(!b.best[k]||min<b.best[k].v)b.best[k]={v:min,at:s.created};
+    });
+  });
+  return Object.values(by).sort((x,y)=>y.n-x.n);
+}
 // Pace (seconds per km or mile) over the last stretch of the track, for the live display.
 export function recentPace(track,windowS,perM){
   const w=(windowS||30)*1000,end=track[track.length-1];
