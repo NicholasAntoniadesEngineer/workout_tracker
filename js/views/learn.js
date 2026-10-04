@@ -276,6 +276,7 @@ function topicView(tp){
       h+="<div class='lday2'><div class='ldname'>"+esc(d.name)+"</div>"+
         (d.note?"<div class='ldnote'>"+esc(d.note)+"</div>":"")+
         "<div class='ldchips'>"+d.ex.map(n=>"<span>"+esc(n)+"</span>").join("")+"</div>"+
+        timerButton(d)+
         "<div class='ldacts'><button class='btn primary' data-learnday='"+ref+"'>Start workout</button>"+
         "<button class='btn ghost' data-learnsave='"+ref+"'>Save as routine</button></div></div>";
     });
@@ -291,6 +292,17 @@ function topicView(tp){
     });
   }
   return h+"</div></div>";
+}
+
+// A conditioning day (rides, runs, intervals) can run on the cardio timer, set up to match.
+const CARDIO_ACT={"Running":"run","Cycling":"ride","Walking":"walk","Rowing":"row","Swimming":"swim","Track intervals":"run",
+  "Hill repeats":"run","Sprints":"run","Fartlek":"run","Tempo runs":"run","Time trial":"run","Race walking":"walk"};
+function timerButton(d){
+  const act=d.ex.map(n=>CARDIO_ACT[n]).find(Boolean);
+  if(!act)return "";
+  const t=(d.name+" "+(d.note||"")).toLowerCase();
+  const preset=/4\s*[×x]\s*4/.test(t)?"4x4":/zone 2/.test(t)?"z2":/tabata/.test(t)?"tabata":/emom/.test(t)?"emom10":"open";
+  return "<button class='btn ghost ldtimer' data-cardioopen='"+esc(JSON.stringify({activity:act,preset}))+"'>Run it on the cardio timer &rsaquo;</button>";
 }
 
 // Public-domain film of the subject, from the Internet Archive. Nothing loads until Play.

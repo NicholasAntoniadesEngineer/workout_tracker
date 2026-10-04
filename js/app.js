@@ -12,6 +12,7 @@ import * as days from "./actions/days.js";
 import * as sharing from "./actions/share.js";
 import * as data from "./actions/data.js";
 import * as programmes from "./actions/programme.js";
+import * as cardio from "./actions/cardio.js";
 import * as logging from "./actions/log.js";
 import * as stacking from "./actions/stack.js";
 
@@ -312,6 +313,7 @@ document.body.addEventListener("change",ev=>{
   if(ev.target&&ev.target.id==="supphoto"){
     stacking.pickPhoto(ev.target.files&&ev.target.files[0],render);ev.target.value="";return;
   }
+  if(ev.target&&ev.target.id==="cardiofile"){cardio.importWorkoutFile(ev.target.files&&ev.target.files[0],render);ev.target.value="";return;}
   if(ev.target&&ev.target.id==="trendsel"){state.progressEx=ev.target.value;render();return;}
   if(ev.target&&ev.target.id==="remtime"){setSetting("remindTime",ev.target.value);render();return;}
   if(ev.target&&ev.target.id==="csvfile"){
@@ -365,7 +367,7 @@ function dismissSheet(){
 // row act on its own before the row does (delete a day before opening it).
 const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
   addExercise,showBest};
-const AREAS=[programmes,stacking,nav,routines,days,sharing,data,logging];
+const AREAS=[cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;
@@ -406,6 +408,8 @@ function tick(){
 
 watchDrag();
 watchLearnSwipe();
+cardio.resumeCardio(render);
+document.addEventListener("visibilitychange",()=>{if(state.cardio)import("./sensors.js").then(m=>m.rewake(true));});
 
 window.addEventListener("resize",()=>{markRefit();fit();});
 window.addEventListener("orientationchange",()=>{markRefit();fit();});

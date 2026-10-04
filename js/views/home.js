@@ -125,7 +125,8 @@ export function homeView(){
         "<button class='hometile' id='homedays'>"+icon("days","ht")+"History</button>"+
         "<button class='hometile' id='homeprog'>"+icon("progress","ht")+"Progress</button>"+
         "<button class='hometile' id='homebody'>"+icon("body","ht")+"Body</button>"+
-        "<button class='hometile wide' id='homelearn'>"+icon("book","ht")+"Learn</button>"+
+        "<button class='hometile' id='homecardio'>"+icon("bolt","ht")+(state.cardio?"Cardio &middot; live":"Cardio")+"</button>"+
+        "<button class='hometile' id='homelearn'>"+icon("book","ht")+"Learn</button>"+
       "</div>";
   if(backupDue()){
     h+="<div class='backupcard'><div class='bc-t'>"+icon("save","sm")+"Back up your history</div>"+

@@ -10,6 +10,7 @@ import {calendarView} from "./views/calendar.js";
 import {progressView} from "./views/progress.js";
 import {bodyView} from "./views/body.js";
 import {settingsView} from "./views/settings.js";
+import {cardioView} from "./views/cardio.js";
 import {programmeView} from "./views/programme.js";
 import {learnView} from "./views/learn.js";
 import {stackView} from "./views/stack.js";
@@ -23,7 +24,7 @@ export {learnHomeBody} from "./views/learn.js";
 export {setClockSeconds,setLabel,setSub,setsSummary,workoutLabel,
   workoutSub} from "./views/log.js";
 
-const VIEWS={prog:programmeView,home:homeView,history:historyView,calendar:calendarView,settings:settingsView,
+const VIEWS={cardio:cardioView,prog:programmeView,home:homeView,history:historyView,calendar:calendarView,settings:settingsView,
   progress:progressView,body:bodyView,learn:learnView,stack:stackView};
 
 // Destructive actions act at once and offer a few seconds of Undo, instead of a blocking

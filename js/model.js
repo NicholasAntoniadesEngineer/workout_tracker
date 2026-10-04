@@ -43,7 +43,7 @@ export const EXERCISE_GROUPS=[
     "One-hand barbell clean","One-hand barbell jerk","One-hand barbell snatch",
     "Two-dumbbell clean and jerk","One-hand dumbbell swing","Partner hand balancing","Front rack hold","Box jumps","High jump","Sledgehammer strikes","Shot put","Clean and press","Barrel lift","Long jump","Pole vault","Hammer throw",
     "Discus throw","Javelin throw"]],
-  ["Conditioning",["Track intervals","Time trial","Rowing","Running","Hill repeats","Sprints","Swimming",
+  ["Conditioning",["Walking","Track intervals","Time trial","Rowing","Running","Hill repeats","Sprints","Swimming",
     "Board paddling","Surf ski paddling","Jump rope","Loaded march","Small-ball game","Fartlek","Stride-outs","Sled sprints","High knees",
     "Straight-leg bounds","Horse riding","Uphill bounding","Race walking","Race-walk drills","Hill bounding","Hill springing",
     "Outrigger paddling","Cycling","Jumping jacks","Hurdles","Tempo runs"]],

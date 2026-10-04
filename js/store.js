@@ -9,7 +9,7 @@ const SEC_PER_MIN=60;
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
   bibleVersion:"web",feastSet:"western",restDay:0,progressRange:"10-15",remindDays:"0,1,2,3,4,5",
-  remindTime:"07:00"};
+  remindTime:"07:00",maxHR:190};
 
 // History lives only on this device, so after a few workouts — and every few weeks after —
 // home suggests saving a backup file. "Not now" quiets it for a week.
@@ -44,7 +44,7 @@ export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],b
   settings:Object.assign({},DEFAULTS),
   reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,band:"",warmup:false,setStart:null,editing:null,
   adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
-  supplements:[],stacks:[],favs:[],programme:null,progSetup:null,pickOpen:{},exInfo:null,exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
+  supplements:[],stacks:[],favs:[],programme:null,progSetup:null,cardio:null,cardioSetup:null,cardioDone:null,hrName:"",pickOpen:{},exInfo:null,exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
   backupAt:"",backupSnooze:"",focusSearch:false,origin:"home",view:"home",undo:null,progressEx:"",verseIdx:null,
   shareMenu:null,numEdit:null,feedback:null,
   calYear:new Date().getFullYear(),calMonth:new Date().getMonth(),calDay:null};

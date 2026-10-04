@@ -1,0 +1,152 @@
+// Cardio: set up a session, run it (timer, GPS, heart rate), finish, save to History or discard,
+// and open a workout recorded on a watch. A live session is kept on the device as it runs, so
+// a reload or a dropped app picks it up where it was.
+import {state,addToCatalog} from "../store.js";
+import {makeExercise,makeSession,nowISO,normSet} from "../model.js";
+import {PRESETS,hrStats,parseWorkoutFile,phaseAt,phases,thin,trackStats} from "../cardio.js";
+import {connectHeartRate,cue,keepAwake,primeAudio,startGps,stopGps} from "../sensors.js";
+import {ACTIVITIES,elapsedOf} from "../views/cardio.js";
+
+const LIVE_KEY="kk_cardio";
+let ticker=null,repaint=()=>{};
+const save=()=>{try{localStorage.setItem(LIVE_KEY,JSON.stringify(state.cardio));}catch(e){}};
+const clear=()=>{try{localStorage.removeItem(LIVE_KEY);}catch(e){}};
+const exName=a=>(ACTIVITIES.find(x=>x[0]===a)||ACTIVITIES[0])[2];
+const STEP={work:15,rest:15,rounds:1,minutes:5};
+
+export function openCardio(opts){
+  const pre=PRESETS.find(p=>p.id===(opts&&opts.preset))||PRESETS.find(p=>p.id==="open");
+  state.cardioSetup={activity:(opts&&opts.activity)||"run",preset:pre.id,o:Object.assign({},pre.o),gps:!opts||opts.gps!==false};
+  state.cardioDone=null;state.view="cardio";state.scrollTo=0;
+}
+
+function tick(){
+  const c=state.cardio;if(!c)return;
+  const list=c.phases||[];
+  if(list.length&&!c.pauseAt){
+    const at=phaseAt(list,elapsedOf(c));
+    if(at.i!==c.lastPhase){
+      if(c.lastPhase>=0||at.i>0)cue(at.done?"done":at.phase.kind);
+      c.lastPhase=at.i;save();
+    }
+  }
+  if(state.view==="cardio")repaint();
+}
+function begin(render){
+  repaint=render;clearInterval(ticker);ticker=setInterval(tick,1000);
+  const c=state.cardio;
+  if(c.gps)startGps(fix=>{if(state.cardio&&!state.cardio.pauseAt){state.cardio.track.push(fix);state.cardio.gpsMsg="";save();}},
+    msg=>{if(state.cardio){state.cardio.gpsMsg=msg;repaint();}});
+  keepAwake(true);
+}
+function halt(){clearInterval(ticker);ticker=null;stopGps();keepAwake(false);}
+
+// After a reload: carry on with a session that was running.
+export function resumeCardio(render){
+  try{
+    const c=JSON.parse(localStorage.getItem(LIVE_KEY)||"null");
+    if(c&&c.startedAt&&Date.now()-c.startedAt<12*3600*1000){state.cardio=c;begin(render);}
+    else clear();
+  }catch(e){}
+}
+function onBpm(bpm){
+  state.lastBpm=bpm;
+  const c=state.cardio;
+  if(c&&!c.pauseAt&&bpm>0){c.hr.push({t:Date.now(),bpm});if(c.hr.length%10===0)save();}
+}
+
+export function handle(t,ctx){
+  if(t.closest&&t.closest("#homecardio,[data-cardioopen]")){
+    const o=t.closest("[data-cardioopen]");
+    openCardio(o?JSON.parse(o.getAttribute("data-cardioopen")||"{}"):null);ctx.render();return true;
+  }
+  const s=state.cardioSetup;
+  const act=t.closest&&t.closest("[data-cardioact]");
+  if(act&&s){s.activity=act.getAttribute("data-cardioact");if(s.activity==="swim"||s.activity==="row")s.gps=s.activity==="row"?s.gps:false;ctx.render();return true;}
+  const pre=t.closest&&t.closest("[data-cardiopreset]");
+  if(pre&&s){const p=PRESETS.find(x=>x.id===pre.getAttribute("data-cardiopreset"));s.preset=p.id;s.o=Object.assign({},p.o);ctx.render();return true;}
+  const stp=t.closest&&t.closest("[data-cardiostep]");
+  if(stp&&s){
+    const [k,d]=stp.getAttribute("data-cardiostep").split(":");
+    s.o[k]=Math.max(k==="rest"?0:1,(+s.o[k]||0)+STEP[k]*+d);ctx.render();return true;
+  }
+  if(t.closest&&t.closest("[data-cardiogps]")&&s){s.gps=!s.gps;ctx.render();return true;}
+  const mx=t.closest&&t.closest("[data-cardiomax]");
+  if(mx){state.settings.maxHR=Math.max(120,Math.min(230,(+state.settings.maxHR||190)+ +mx.getAttribute("data-cardiomax")));ctx.render();return true;}
+  if(t.closest&&t.closest("[data-cardiohr]")){
+    connectHeartRate(onBpm,(st,name)=>{state.hrName=st==="connected"?name:"";ctx.render();})
+      .then(name=>{state.hrName=name;ctx.render();})
+      .catch(()=>{state.hrName="";ctx.render();});
+    return true;
+  }
+  if(t.closest&&t.closest("[data-cardiostart]")&&s){
+    primeAudio();
+    const p=PRESETS.find(x=>x.id===s.preset)||PRESETS[0];
+    state.cardio={activity:s.activity,preset:p.id,presetName:p.id==="open"?"":p.name,mode:p.mode,o:s.o,
+      phases:phases(p.mode,s.o),startedAt:Date.now(),pausedMs:0,pauseAt:null,track:[],hr:[],gps:!!s.gps,
+      hrOn:!!state.hrName,lastPhase:-1,gpsMsg:s.gps?"Finding GPS…":""};
+    state.cardioSetup=null;save();begin(ctx.render);cue("work");ctx.render();return true;
+  }
+  const c=state.cardio;
+  if(t.closest&&t.closest("[data-cardiopause]")&&c){
+    if(c.pauseAt){c.pausedMs+=Date.now()-c.pauseAt;c.pauseAt=null;}else c.pauseAt=Date.now();
+    save();ctx.render();return true;
+  }
+  if(t.closest&&t.closest("[data-cardioskip]")&&c){
+    const at=phaseAt(c.phases,elapsedOf(c));
+    if(!at.done){c.startedAt-=Math.ceil(at.left)*1000;}
+    save();tick();ctx.render();return true;
+  }
+  if(t.closest&&t.closest("[data-cardiofinish]")&&c){
+    halt();
+    const secs=Math.round(elapsedOf(c)),done=c.phases.length?phaseAt(c.phases,secs):null;
+    const rounds=done?c.phases.slice(0,done.i).filter(p=>p.kind==="work").length:0;
+    const st=trackStats(c.track);
+    const label=(ACTIVITIES.find(x=>x[0]===c.activity)||ACTIVITIES[0])[1];
+    state.cardioDone={activity:c.activity,title:label+(st.dist>50?" · "+(st.dist/1000).toFixed(1)+" km":c.presetName?" · "+c.presetName:""),
+      secs,track:c.track,hr:c.hr,rounds,preset:c.presetName,created:new Date(c.startedAt).toISOString()};
+    state.cardio=null;clear();ctx.render();return true;
+  }
+  const d=state.cardioDone;
+  if(t.closest&&t.closest("[data-cardiosave]")&&d){
+    const ses=makeSession(),st=trackStats(d.track||[]),hs=hrStats(d.hr||[],state.settings.maxHR||190);
+    ses.created=d.created||nowISO();ses.started=ses.created;ses.ended=new Date(Date.parse(ses.created)+d.secs*1000).toISOString();
+    ses.title=d.title;
+    const name=exName(d.activity);addToCatalog(name);
+    const e=makeExercise(name);
+    const set=normSet({r:st.dist>50?st.dist:d.secs,t:d.secs,at:ses.ended});
+    if(st.dist>50){e.dist=true;e.timed=false;}else{e.timed=true;e.dist=false;}
+    if(hs.avg)set.hr=hs.avg;
+    e.sets.push(set);ses.ex.push(e);
+    ses.cardio={activity:d.activity,secs:d.secs,dist:st.dist,climb:st.climb,splits:st.splits,rounds:d.rounds||0,preset:d.preset||"",
+      hr:hs.avg?{avg:hs.avg,max:hs.max,zones:hs.zones,maxHR:state.settings.maxHR||190}:null,track:thin(d.track||[],400).map(p=>[+p.lat.toFixed(5),+p.lon.toFixed(5)]),imported:!!d.imported};
+    state.sessions.push(ses);state.cardioDone=null;state.view="history";state.scrollTo=0;ctx.render();return true;
+  }
+  if(t.closest&&t.closest("[data-cardiodiscard]")&&d){
+    if(confirm("Discard this session? It won't be saved.")){state.cardioDone=null;openCardio();}
+    ctx.render();return true;
+  }
+  if(t.closest&&t.closest("#cardioback")){
+    if(state.cardioDone&&!confirm("Leave without saving this session?")){return true;}
+    state.cardioDone=null;state.cardioSetup=null;state.view="home";ctx.render();return true;
+  }
+  return false;
+}
+
+// A GPX or TCX file from a watch opens in the summary, ready to save.
+export function importWorkoutFile(file,render){
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const w=parseWorkoutFile(String(r.result));
+      if(!w.track.length&&!w.hr.length){alert("That file has no route or heart rate in it.");return;}
+      const sport=(w.sport||"").toLowerCase(),act=/bik|cycl|ride/.test(sport)?"ride":/walk|hik/.test(sport)?"walk":/swim/.test(sport)?"swim":/row/.test(sport)?"row":"run";
+      const st=trackStats(w.track),label=(ACTIVITIES.find(x=>x[0]===act)||ACTIVITIES[0])[1];
+      state.cardioDone={imported:true,activity:act,title:w.name||label+(st.dist>50?" · "+(st.dist/1000).toFixed(1)+" km":""),
+        secs:w.secs,track:w.track,hr:w.hr,created:w.start?new Date(w.start).toISOString():nowISO()};
+      state.cardioSetup=null;state.view="cardio";state.scrollTo=0;render();
+    }catch(e){alert("KingsKiln couldn't read that file. GPX and TCX exports work.");}
+  };
+  r.readAsText(file);
+}
