@@ -1289,3 +1289,70 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .cbdate{font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;font-weight:700;font-size:11.5px;color:var(--muted);margin-left:6px;}
 .hroute{grid-column:1/-2;width:120px;height:44px;}
 .hroute path{fill:none;stroke:var(--text);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
+
+/* ── Large screens ────────────────────────────────────────────────────────────────────
+   A shell with navigation down the left: an icon rail from 900px (tablet), a labelled
+   sidebar with number keys from 1200px (laptop). Below 900px none of this applies and the
+   shell isn't rendered at all, so the phone layout is exactly as it was. */
+.side{display:none;}
+kbd{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:5px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;}
+@media (min-width:900px){
+  :root{--sidew:80px;--gut:22px;--goldWash:rgba(245,197,24,.18);}
+  #app>.shell{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);}
+  .main{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
+  .side{display:flex;flex-direction:column;gap:6px;min-height:0;overflow-y:auto;padding:16px 8px;border-right:1px solid var(--line);background:var(--bg);}
+  .sbrand{display:flex;align-items:center;justify-content:center;padding:2px 0 14px;}
+  .sbrand .brandshield{width:32px;height:32px;color:var(--text);}
+  .sbrandt{display:none;}
+  .snav{display:flex;flex-direction:column;gap:3px;}
+  .sitem{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 2px 8px;border:0;border-radius:12px;
+    background:none;color:var(--muted);font:inherit;font-size:10.5px;font-weight:800;cursor:pointer;}
+  .sitem .sicon{position:relative;display:inline-flex;}
+  .sitem .icn{margin:0;}
+  .sitem.on{background:var(--accent);color:var(--onAccent);}
+  .sitem kbd,.slive,.sfoot{display:none;}
+  .slivedot{position:absolute;top:-3px;right:-5px;width:8px;height:8px;border-radius:4px;background:var(--gold);box-shadow:0 0 0 2px var(--bg);}
+  .sitem.on .slivedot{box-shadow:0 0 0 2px var(--accent);}
+  /* Screens without a wide layout of their own sit in a comfortable column; the spacers
+     that floated short pages down are gone, so every header starts at the same height. */
+  .shell .wrap{max-width:860px;padding-left:var(--gut);padding-right:var(--gut);}
+  .shell .wrap.scroll::before,.shell .wrap.scroll::after{display:none;}
+  .shell .wrap.scroll.home>.homeinner{justify-content:flex-start;}
+  .toast,.besttoast{left:calc(var(--sidew) + (100vw - var(--sidew)) / 2);}
+  :focus-visible{outline:2px solid var(--text);outline-offset:2px;box-shadow:0 0 0 6px var(--goldWash);border-radius:8px;}
+  .keysgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 22px;}
+  .keysgroup{margin-bottom:10px;}
+  .keysrow{display:flex;align-items:center;gap:12px;padding:5px 0;font-size:13.5px;}
+  .keysrow kbd{min-width:66px;height:24px;font-size:12px;color:var(--text);}
+}
+@media (min-width:1200px){
+  :root{--sidew:232px;--gut:30px;}
+  .side{padding:20px 14px 14px;gap:10px;}
+  .sbrand{justify-content:flex-start;gap:10px;padding:2px 10px 10px;}
+  .sbrand .brandshield{width:26px;height:26px;}
+  .sbrandt{display:inline;font-size:21px;font-weight:800;letter-spacing:-.5px;color:var(--text);}
+  .sbrandt .bk{color:var(--kilnText);background:var(--kilnBg);padding:0 .2em;border-radius:.22em;margin-left:.08em;}
+  .sitem{flex-direction:row;justify-content:flex-start;gap:12px;padding:10px 12px;font-size:15px;color:var(--text);}
+  .sitem .slabel{flex:1;text-align:left;}
+  .sitem kbd{display:inline-flex;}
+  .sitem.on kbd{background:transparent;border-color:currentColor;color:inherit;opacity:.8;}
+  .slive{display:flex;flex-direction:column;gap:4px;width:100%;padding:12px 14px;border:0;border-radius:16px;background:var(--hero);color:var(--heroText);
+    font:inherit;text-align:left;cursor:pointer;}
+  .sliveh{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:var(--heroAccent);}
+  .slivet{font-size:16px;font-weight:800;}
+  .sliver{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;font-weight:700;color:var(--heroMuted);}
+  .sliver b{font-size:15px;color:var(--heroText);}
+  .sfoot{display:flex;flex-direction:column;gap:2px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);}
+  .sfoot button{display:flex;align-items:center;gap:10px;padding:8px 10px;border:0;border-radius:10px;background:none;color:var(--muted);
+    font:inherit;font-size:14px;font-weight:700;text-align:left;cursor:pointer;}
+  .sfoot button>span:not(.skq){flex:1;}
+  .sfoot .icn{margin:0;}
+  .skq{width:18px;text-align:center;font-weight:800;}
+}
+@media (min-width:900px) and (hover:hover) and (pointer:fine){
+  .sitem:not(.on):hover,.sfoot button:hover{background:var(--panelHi);color:var(--text);}
+  .ltile:hover,.lpcard:hover,.lquickb:hover{background:var(--panelHi);box-shadow:inset 0 0 0 1.5px var(--gold);}
+  .lwrow:hover .lwrt{text-decoration:underline;text-decoration-color:var(--gold);text-decoration-thickness:2px;}
+  .lsegb:not(.on):hover,.lchip:not(.on):hover,.cseg button:not(.on):hover{color:var(--text);}
+}

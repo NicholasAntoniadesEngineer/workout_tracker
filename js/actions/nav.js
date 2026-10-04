@@ -1,10 +1,35 @@
 // Moving around: home, back, the screens off the home hub, undo, and the verse arrows.
 // Each handler returns true once it has dealt with the tap.
-import {getSession,state} from "../store.js";
+import {activeEx,getSession,selectSession,state} from "../store.js";
 import {stepVerse} from "../views.js";
+import {checkGps,openCardio} from "./cardio.js";
+
+// The sidebar (and the number keys) go straight to a section, entering it the way its home
+// tile does: Log picks up a running workout, Calendar opens on the day's month, Learn at its top.
+function goSection(k,ctx){
+  state.sheet=false;state.adding=false;state.exHist=false;state.exInfo=null;state.calDay=null;state.keysOpen=false;state.scrollTo=0;
+  if(k==="log"){
+    const live=state.sessions.find(s=>s.running);
+    if(live)selectSession(live.id);
+    ctx.recallLast(activeEx());
+    state.origin="home";state.sheet=!getSession().ex.length;ctx.markRefit();
+  }else if(k==="calendar"){
+    const c=getSession(),d=c?new Date(c.created):new Date();
+    state.calYear=d.getFullYear();state.calMonth=d.getMonth();
+  }else if(k==="learn"){
+    state.learnOpen=null;state.learnCat=null;state.learnIndex=null;state.learnQuery="";state.learnSearchOpen=false;
+  }else if(k==="cardio"&&!state.cardio&&!state.cardioDone){
+    openCardio();checkGps(ctx.render);
+  }
+  state.view=k;
+}
 
 export function handle(t,ctx){
   if(t.id==="updatebtn"){location.reload();return true;}
+  const nav=t.closest&&t.closest("[data-nav]");
+  if(nav){goSection(nav.getAttribute("data-nav"),ctx);ctx.render();return true;}
+  if(t.closest&&t.closest("#keyshelp")){state.keysOpen=true;ctx.render();return true;}
+  if(t.id==="keysback"||(t.closest&&t.closest("#keysclose"))){state.keysOpen=false;ctx.render();return true;}
   if(t.id==="undobtn"){ctx.restoreUndo();ctx.render();return true;}
 
   // Home is the hub the app opens to.

@@ -14,6 +14,7 @@ import {cardioView} from "./views/cardio.js";
 import {programmeView} from "./views/programme.js";
 import {learnLib} from "./lazy.js";
 import {stackView} from "./views/stack.js";
+import {keysSheet,shell,wide} from "./views/shell.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
 import {VERSES} from "./verses.js";
@@ -172,6 +173,7 @@ function feedbackModal(){
 }
 
 export function paint(){
+  const view=(VIEWS[state.view]||logView)();
   document.getElementById("app").innerHTML=
-    (VIEWS[state.view]||logView)()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
+    (wide()?shell(view):view)+keysSheet()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
 }

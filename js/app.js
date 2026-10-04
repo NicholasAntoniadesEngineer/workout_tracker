@@ -6,6 +6,8 @@ import {parseImport} from "./csv.js";
 import {learnLib,loadLearn,topicById} from "./lazy.js";
 import {decodeRoutineHash,learnLinkId} from "./share.js";
 import {learnHomeBody,paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
+import {tickSide,wide} from "./views/shell.js";
+import {handleKey} from "./keys.js";
 import * as nav from "./actions/nav.js";
 import * as routines from "./actions/routines.js";
 import * as days from "./actions/days.js";
@@ -43,6 +45,8 @@ function fit(){
   const set=v=>root.style.setProperty("--k",String(v));
   const chosen=state.settings.textScale||0;
   if(chosen){set(chosen);return;}
+  // A big window has room for the day at full size: panes scroll rather than type shrinking.
+  if(wide()){set(1);autoScale=1;return;}
   // Auto settles on a scale and keeps it. Adding an exercise or opening the editor
   // must not resize the type under you, so those paints reuse what was settled on.
   if(state.view!=="log"||state.sheet||state.adding||state.dragId){set(autoScale);return;}
@@ -404,7 +408,7 @@ function restAlert(s){
 
 // Both clocks derive from stored stamps, so ticking only refreshes text — never the DOM.
 function tick(){
-  if(state.view!=="log")return;
+  if(state.view!=="log"){tickSide();return;}
   const s=getSession();
   if(autoEndIfStale(s)){render();return;}
   restAlert(s);
@@ -424,16 +428,26 @@ cardio.resumeCardio(render);
 document.addEventListener("visibilitychange",()=>{if(state.cardio)import("./sensors.js").then(m=>m.rewake(true));});
 
 window.addEventListener("resize",()=>{markRefit();fit();});
+// Crossing the tablet or laptop width swaps the layout, so repaint then (not on every resize).
+if(typeof matchMedia==="function")[900,1200].forEach(w=>{
+  const mq=matchMedia("(min-width:"+w+"px)");
+  const go=()=>{markRefit();render();};
+  if(mq.addEventListener)mq.addEventListener("change",go);else if(mq.addListener)mq.addListener(go);
+});
 window.addEventListener("orientationchange",()=>{markRefit();fit();});
 
 // Esc closes whatever is open, top-most first — the picker, then a calendar day, then an
 // inline add field — so a keyboard is a first-class way to back out on a laptop.
 window.addEventListener("keydown",ev=>{
-  if(ev.key!=="Escape")return;
-  if(state.exHist){state.exHist=false;render();}
+  if(ev.key!=="Escape"){if(handleKey(ev,render))ev.preventDefault();return;}
+  if(state.keysOpen){state.keysOpen=false;render();}
+  else if(state.exInfo){state.exInfo=null;render();}
+  else if(state.exHist){state.exHist=false;render();}
   else if(state.sheet){dismissSheet();render();}
   else if(state.calDay){state.calDay=null;render();}
   else if(state.adding){state.adding=false;render();}
+  else if(state.numEdit){state.numEdit=null;render();}
+  else if(state.view==="learn"&&wide()&&!(ev.target&&/^(INPUT|TEXTAREA)$/.test(ev.target.tagName)))learnBack();
 });
 
 // The whole app is precached, so it opens with no network at all; persistent storage
