@@ -36,6 +36,7 @@ export function handle(t,ctx){
   if(grp){
     const g=grp.getAttribute("data-pickgroup");
     state.pickOpen=Object.assign({},state.pickOpen);state.pickOpen[g]=!state.pickOpen[g];
+    if(state.pickOpen[g])state.pickFocus=g;
     ctx.render();return true;
   }
   // Per-exercise rest: 0 falls back to the default from Settings.

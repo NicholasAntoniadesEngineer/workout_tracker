@@ -140,6 +140,7 @@ export function load(){
   state.hiddenRoutines=(saved&&saved.hiddenRoutines)||[];
   state.restTargets=(saved&&saved.restTargets)||{};
   state.favs=(saved&&saved.favs)||[];
+  state.pickOpen=(saved&&saved.pickOpen)||{};
   state.programme=(saved&&saved.programme)||null;
   state.backupAt=(saved&&saved.backupAt)||"";
   state.backupSnooze=(saved&&saved.backupSnooze)||"";
@@ -157,7 +158,7 @@ export function save(){
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,
-        hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,favs:state.favs,programme:state.programme,
+        hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,favs:state.favs,pickOpen:state.pickOpen,programme:state.programme,
         backupAt:state.backupAt,backupSnooze:state.backupSnooze,
         supplements:state.supplements,stacks:state.stacks}));
     state.storageFull=false;

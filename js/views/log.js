@@ -293,18 +293,18 @@ function exercisePane(rest,session){
      (q?"<button class='searchx' id='exsearchx'>&times;</button>":"")+"</div>";
   const shown=q?rest.filter(n=>exMatches(n,q)):rest;
   const recent=(q||state.editList)?[]:recentNames(rest,session);
-  if(recent.length){
-    h+="<div class='picklbl'>Recent</div><div class='sheetgrid'>";
-    recent.forEach(n=>{h+=pickChip(n);});
-    h+="</div>";
-  }
-  // Starred from an exercise's sheet: always one tap away.
+  // Recent and starred exercises fold like the groups below, opened with a tap.
+  const fold=(key,label,names)=>{
+    if(!names.length)return "";
+    const open=state.pickOpen&&state.pickOpen[key];
+    return "<button class='pickgrp"+(open?" open":"")+"' data-pickgroup=\""+esc(key)+"\"><span>"+label+"</span>"+
+      "<span class='pickgrpn'>"+names.length+" <span class='pickgrpc'>"+(open?"&#9662;":"&#9656;")+"</span></span></button>"+
+      (open?"<div class='sheetgrid'>"+names.map(pickChip).join("")+"</div>":"");
+  };
+  h+=fold("Recent","Recent",recent);
+  // Starred from an exercise's sheet.
   const favs=(q||state.editList)?[]:rest.filter(n=>(state.favs||[]).indexOf(n)>=0);
-  if(favs.length){
-    h+="<div class='picklbl'>&#9733; Favourites</div><div class='sheetgrid'>";
-    favs.forEach(n=>{h+=pickChip(n);});
-    h+="</div>";
-  }
+  h+=fold("Favourites","&#9733; Favourites",favs);
   if(q)h+="<div class='picklbl'>"+shown.length+" match"+(shown.length===1?"":"es")+"</div>";
 
   // Grouped by movement and alphabetical within each, so a long list stays readable.

@@ -114,6 +114,17 @@ function render(){
     if(el){el.focus();const v=el.value;try{el.setSelectionRange(v.length,v.length);}catch(e){}}
     state.focusSearch=false;
   }
+  // A group just opened in the exercise picker comes up to the top of the sheet, ready to pick.
+  if(state.pickFocus){
+    const b=[...document.querySelectorAll("[data-pickgroup]")].find(x=>x.getAttribute("data-pickgroup")===state.pickFocus);
+    const body=b&&b.closest(".sheetbody");
+    if(body){
+      const top=body.scrollTop+b.getBoundingClientRect().top-body.getBoundingClientRect().top-4;
+      const smooth=!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      try{body.scrollTo({top,behavior:smooth?"smooth":"auto"});}catch(e){body.scrollTop=top;}
+    }
+    state.pickFocus=null;
+  }
   save();
 }
 

@@ -1197,3 +1197,5 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .czone.z1 .csbar span{background:var(--muted);opacity:.5;}
 .czone.z2 .csbar span{background:var(--muted);}
 .ldtimer{width:100%;margin:2px 0 8px;min-height:40px;}
+.hroute{grid-column:1/-2;width:120px;height:44px;}
+.hroute path{fill:none;stroke:var(--text);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
