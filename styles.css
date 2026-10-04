@@ -1455,3 +1455,58 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:20px
 @media (min-width:900px) and (hover:hover) and (pointer:fine){
   .lreadch:not(.on):hover,.lsided:hover{background:var(--panelHi);}
 }
+
+/* History and Calendar on a big screen: the list (or month) on the left, the chosen day in
+   full on the right. */
+@media (min-width:900px){
+  .shell .wrap.hsplit,.shell .wrap.calsplit{max-width:none;display:grid;grid-template-columns:minmax(320px,400px) minmax(0,1fr);padding:0;overflow:hidden;}
+  .shell .wrap.calsplit{grid-template-columns:minmax(0,1.15fr) minmax(360px,1fr);}
+  .hmaster,.calmain{min-height:0;overflow-y:auto;padding:18px 18px 28px;border-right:1px solid var(--line);}
+  .hdetail{min-height:0;overflow-y:auto;padding:22px 28px 32px;}
+  .hfilter{margin:0 0 6px;padding:0;}
+  .hrow{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;margin:2px 0;border:0;border-radius:12px;background:none;
+    color:var(--text);font:inherit;text-align:left;cursor:pointer;}
+  .hrow.sel{background:var(--panelHi);box-shadow:inset 0 0 0 2px var(--gold);}
+  .hrowm{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .hrowt{font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hrows{font-size:12.5px;font-weight:700;color:var(--muted);}
+  .hrowv{font-weight:800;font-size:14px;white-space:nowrap;}
+  .ddhead{margin-bottom:14px;}
+  .ddtitle{font-size:30px;font-weight:800;letter-spacing:-.6px;line-height:1.1;margin:4px 0 12px;}
+  .ddacts{display:flex;flex-wrap:wrap;gap:8px;}
+  .ddacts .btn{display:inline-flex;align-items:center;gap:6px;}
+  .ddacts .btn .icn{margin:0;}
+  .ddkpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:8px;}
+  .ddkpi{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:14px;background:var(--panelHi);}
+  .ddkv{font-size:24px;font-weight:800;}
+  .ddkl{font-size:12px;font-weight:700;color:var(--muted);display:flex;gap:6px;align-items:baseline;}
+  .dddelta{font-size:11.5px;font-weight:800;color:var(--muted);}
+  .dddelta.up{color:var(--text);}
+  .dddelta.up::before{content:"";display:inline-block;width:6px;height:6px;border-radius:3px;background:var(--gold);margin-right:4px;vertical-align:1px;}
+  .ddvs{font-size:12.5px;color:var(--muted);margin:2px 0 14px;}
+  .ddtable{padding:6px 10px;overflow-x:auto;margin-bottom:14px;}
+  .ddtable table{border-collapse:collapse;width:100%;}
+  .ddtable th{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:center;padding:8px 6px;}
+  .ddtable th:first-child{text-align:left;}
+  .ddtable td{border-top:1px solid var(--line);padding:9px 6px;}
+  .ddex{font-weight:800;font-size:14px;white-space:nowrap;}
+  .ddc{text-align:center;font-size:14px;font-weight:800;white-space:nowrap;}
+  .ddc small{display:block;font-size:11px;font-weight:700;color:var(--muted);}
+  .ddc.wu{opacity:.45;}
+  .ddc.top{box-shadow:inset 0 0 0 2px var(--gold);border-radius:10px;}
+  .ddc.empty{color:var(--muted);}
+  .ddbest{padding:12px 16px;margin-bottom:14px;border:1.5px solid var(--gold);}
+  .ddbrow{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:14px;border-top:1px solid var(--line);}
+  .ddbrow:first-of-type{border-top:0;}
+  .ddroute{padding:8px;margin-bottom:14px;background:var(--panelHi);}
+  .ddroute svg{width:100%;height:auto;display:block;}
+  .ddroute path{fill:none;stroke:var(--text);stroke-width:3;stroke-linejoin:round;stroke-linecap:round;}
+  .ddsep{height:1px;background:var(--line);margin:24px 0;}
+  .calsplit .calcell{min-height:74px;align-items:flex-start;justify-content:flex-start;padding:6px 7px;}
+  .calname{display:block;font-size:11px;font-weight:800;line-height:1.2;text-align:left;margin-top:2px;overflow:hidden;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .calcell.sel{box-shadow:inset 0 0 0 2px var(--gold);}
+}
+@media (min-width:900px) and (hover:hover) and (pointer:fine){
+  .hrow:not(.sel):hover{background:var(--panelHi);}
+}

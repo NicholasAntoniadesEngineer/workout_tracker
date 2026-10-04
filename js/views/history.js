@@ -4,7 +4,8 @@ import {fmtPace,routePath} from "../cardio.js";
 import {fmtClock,shortDate,totals,workoutSeconds} from "../model.js";
 import {newestFirst,state} from "../store.js";
 import {icon} from "../icons.js";
-import {esc,pageHead} from "./common.js";
+import {esc,pageHead,wide} from "./common.js";
+import {dayDetailPane} from "./daydetail.js";
 
 const MS_PER_DAY=86400000;
 
@@ -38,7 +39,35 @@ function cardioRow(s,cur){
     "<div class='dayacts'><button class='dact del' data-delday='"+s.id+"' title='Delete this session'>&times;</button></div></div>";
 }
 
+// A big screen keeps the list on the left and shows the chosen day in full on the right;
+// a click selects a day, and Open in Log (or Enter) goes to it.
+function historyWide(){
+  const f=state.histFilter||"all";
+  const all=newestFirst(state.sessions).filter(s=>s.ex.length||s.cardio);
+  const list=all.filter(s=>f==="all"||(f==="cardio")===!!s.cardio);
+  const sel=list.find(s=>s.id===state.histSel)||list[0]||null;
+  let m=pageHead("History","<button class='backbtn iconbtn' id='calbtn' title='Calendar'>"+icon("calendar")+"</button>"+
+      "<button class='newday' id='newday'>+ New</button>")+
+    "<div class='lchips hfilter'>"+[["all","All"],["strength","Strength"],["cardio","Cardio"]].map(([k,l])=>
+      "<button class='lchip"+(f===k?" on":"")+"' data-histfilter='"+k+"'>"+l+"</button>").join("")+"</div>";
+  if(!list.length)m+="<div class='empty-note'>No days yet.</div>";
+  let week=null;
+  list.forEach(s=>{
+    const wk=weekOf(s.created);
+    if(wk!==week){week=wk;m+="<div class='setgroup'>"+esc(weekLabel(wk))+"</div>";}
+    const t=totals(s),secs=workoutSeconds(s),c=s.cardio,mi=state.settings.unit==="lb",per=mi?1609.344:1000;
+    const big=c?(c.dist>50?(c.dist/per).toFixed(1)+(mi?" mi":" km"):fmtClock(c.secs)):t.reps+" reps";
+    m+="<button class='hrow"+(sel&&s.id===sel.id?" sel":"")+"' data-histsel='"+s.id+"'><span class='hrowm'><span class='hrowt'>"+esc(s.title)+
+      (s.running?" <span class='live'>live</span>":"")+"</span><span class='hrows'>"+esc(shortDate(s.created))+
+      (secs==null?"":" &middot; "+fmtClock(secs))+(c?"":" &middot; "+s.ex.length+" exercises")+"</span></span>"+
+      "<span class='hrowv mono'>"+big+"</span></button>";
+  });
+  return "<div class='wrap hsplit'><section class='hmaster' data-keepx='hm'>"+m+"</section>"+
+    "<section class='hdetail' data-keepx='hd-"+(sel?sel.id:"")+"'>"+dayDetailPane(sel)+"</section></div>";
+}
+
 export function historyView(){
+  if(wide())return historyWide();
   let h="<div class='wrap scroll'>"+
     pageHead("History",
       "<button class='backbtn iconbtn' id='calbtn' title='Calendar'>"+icon("calendar")+"</button>"+

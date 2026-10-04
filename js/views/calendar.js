@@ -4,7 +4,8 @@ import {dateKey,fmtClock,keyOf,monthLabel,setReps,shortDate,timeLabel,totals,
   workoutSeconds} from "../model.js";
 import {state} from "../store.js";
 import {feastsForMonth} from "../feasts.js";
-import {esc,pageHead} from "./common.js";
+import {esc,pageHead,wide} from "./common.js";
+import {dayDetailPane} from "./daydetail.js";
 
 // Sessions grouped by the local calendar day they were created on. A day can hold more
 // than one, which is what makes two-a-days first-class rather than a merge conflict.
@@ -85,11 +86,13 @@ export function calendarView(){
     else{cls+=" addable"+(future?" future":"");}   // any empty day: tap to add or plan
     if(isToday)cls+=" today";
     if(hasCurrent)cls+=" cur";
+    if(k===state.calDay)cls+=" sel";
     // Worked/planned days open (pick a session); empty days create one on that date.
     const attr=worked?" data-calday='"+k+"'":" data-newday='"+k+"'";
     h+="<button class='"+cls+"'"+attr+" "+(feasts[day]?"title=\""+esc(feasts[day])+"\"":"")+">"+
        (feasts[day]?"<span class='calfeast'>&#10013;</span>":"")+
        "<span class='caldate'>"+day+"</span>"+
+       (worked&&wide()?"<span class='calname'>"+esc(list[0].title)+(list.length>1?" +"+(list.length-1):"")+"</span>":"")+
        (worked?"<span class='caldots'>"+
          list.slice(0,3).map(s=>"<span class='caldot'"+
            (s.ex.some(e=>e.sets.length)?" style='background:"+colourOf(s)+"'":"")+"></span>").join("")+
@@ -132,6 +135,13 @@ export function calendarView(){
       .join(" &middot; ")+"</div>";
   }
 
+  // A big screen shows the chosen day beside the month instead of over it.
+  if(wide()){
+    const list=state.calDay?(byDay[state.calDay]||[]).slice().sort((a,b)=>(a.created||"").localeCompare(b.created||"")):[];
+    return "<div class='wrap calsplit'><section class='calmain' data-keepx='calm'>"+h.replace(/^<div class='wrap scroll'>/,"")+"</section>"+
+      "<section class='hdetail' data-keepx='cald-"+esc(state.calDay||"")+"'>"+(list.length?list.map(dayDetailPane).join("<div class='ddsep'></div>"):
+        "<div class='empty-note'>Click a day to see what was trained.<br>Click an empty day to log or plan one.</div>")+"</section></div>";
+  }
   if(state.calDay){
     const list=(byDay[state.calDay]||[]).slice()
       .sort((a,b)=>(a.created||"").localeCompare(b.created||""));

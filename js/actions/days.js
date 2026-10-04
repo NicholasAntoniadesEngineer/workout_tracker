@@ -3,6 +3,7 @@
 // Each handler returns true once it has dealt with the tap.
 import {activeEx,getSession,selectSession,state} from "../store.js";
 import {dateKey,makeExercise,makeSession,makeSessionOn,nowISO} from "../model.js";
+import {wide} from "../views/common.js";
 
 export function handle(t,ctx){
   const delDay=t.closest&&t.closest("[data-delday]");
@@ -62,12 +63,17 @@ export function handle(t,ctx){
     state.calDay=null;ctx.render();return true;
   }
   if(t.id==="caldone"||t.id==="calback"){state.calDay=null;ctx.render();return true;}
+  const hsel=t.closest&&t.closest("[data-histsel]");
+  if(hsel){state.histSel=hsel.getAttribute("data-histsel");ctx.render();return true;}
+  const hf=t.closest&&t.closest("[data-histfilter]");
+  if(hf){state.histFilter=hf.getAttribute("data-histfilter");state.histSel=null;ctx.render();return true;}
   const calDay=t.closest&&t.closest("[data-calday]");
   if(calDay){
     const key=calDay.getAttribute("data-calday");
     const onDay=state.sessions.filter(s=>dateKey(s.created)===key);
-    // One workout opens straight away; several open a picker for that day.
-    if(onDay.length===1){
+    // One workout opens straight away; several open a picker for that day. A big screen
+    // shows the day beside the month instead.
+    if(onDay.length===1&&!wide()){
       state.origin="calendar";
       selectSession(onDay[0].id);
       ctx.recallLast(activeEx());
