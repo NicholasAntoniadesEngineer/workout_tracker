@@ -25,8 +25,11 @@ export const exAka=name=>(EXINFO[name]&&EXINFO[name].aka)||[];
 // Search that forgives hyphens, spacing and plurals, and knows the usual short names.
 const squash=s=>key(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"").replace(/s$/,"");
 export function exMatches(name,q){
-  const nq=squash(q);
+  const nq=squash(q),kq=key(q);
   if(!nq)return true;
-  if(squash(name).indexOf(nq)>=0||key(name).indexOf(key(q))>=0)return true;
-  return exAka(name).some(a=>squash(a).indexOf(nq)>=0);
+  // Plain words match the start of any word in the name; squashed spelling ("pullup", "pull-up") only once
+  // there's enough to go on; other names ("RDL", "OHP") match from their start.
+  if((" "+key(name).replace(/[^a-z0-9]+/g," ")).indexOf(" "+kq)>=0)return true;
+  if(nq.length>=4&&squash(name).indexOf(nq)>=0)return true;
+  return exAka(name).some(a=>{const sa=squash(a);return sa===nq||(nq.length>=3&&sa.indexOf(nq)===0)||(nq.length>=4&&sa.indexOf(nq)>=0);});
 }

@@ -6,6 +6,7 @@
 import {AREAS,areaCats,booksFrom,catOfTopic,relatedFor,topicById} from "../library.js";
 import {bookPos,scanEmbed,scanLink} from "../reader.js";
 import {filmEmbed,filmKey,filmPage,filmsFor} from "../films.js";
+import {followCard} from "./programme.js";
 import {PARTS,partOf} from "../world.js";
 import {state} from "../store.js";
 import {icon} from "../icons.js";
@@ -269,6 +270,7 @@ function topicView(tp){
   }else if(tab==="read"){
     h+=contentsView(tp);
   }else if(tab==="workouts"){
+    h+=followCard(tp);
     tp.days.forEach((d,i)=>{
       const ref=esc(tp.id)+":"+i;
       h+="<div class='lday2'><div class='ldname'>"+esc(d.name)+"</div>"+

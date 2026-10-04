@@ -5,6 +5,7 @@ import {backupDue,newestFirst,state} from "../store.js";
 import {VERSES} from "../verses.js";
 import {icon} from "../icons.js";
 import {esc} from "./common.js";
+import {nextCard} from "./programme.js";
 
 // A fresh verse each time the app opens — random once at load, so incidental repaints
 // (the timer ticking) never reshuffle it. The corner arrows then step through the pool.
@@ -116,6 +117,7 @@ export function homeView(){
       "<div class='homehero'>"+
         "<div class='homeday'>"+esc(dateStr)+"</div>"+
         verseCard()+
+        (running?"":nextCard())+
         homeCta(running,finished,emptyOpen,doneToday)+
       "</div>"+
       "<div class='homerow'>"+

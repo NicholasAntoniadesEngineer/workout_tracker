@@ -44,7 +44,7 @@ export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],b
   settings:Object.assign({},DEFAULTS),
   reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,band:"",warmup:false,setStart:null,editing:null,
   adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
-  supplements:[],stacks:[],favs:[],pickOpen:{},exInfo:null,exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
+  supplements:[],stacks:[],favs:[],programme:null,progSetup:null,pickOpen:{},exInfo:null,exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
   backupAt:"",backupSnooze:"",focusSearch:false,origin:"home",view:"home",undo:null,progressEx:"",verseIdx:null,
   shareMenu:null,numEdit:null,feedback:null,
   calYear:new Date().getFullYear(),calMonth:new Date().getMonth(),calDay:null};
@@ -140,6 +140,7 @@ export function load(){
   state.hiddenRoutines=(saved&&saved.hiddenRoutines)||[];
   state.restTargets=(saved&&saved.restTargets)||{};
   state.favs=(saved&&saved.favs)||[];
+  state.programme=(saved&&saved.programme)||null;
   state.backupAt=(saved&&saved.backupAt)||"";
   state.backupSnooze=(saved&&saved.backupSnooze)||"";
   state.catalog=buildCatalog(saved);
@@ -156,7 +157,7 @@ export function save(){
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,
-        hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,favs:state.favs,
+        hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,favs:state.favs,programme:state.programme,
         backupAt:state.backupAt,backupSnooze:state.backupSnooze,
         supplements:state.supplements,stacks:state.stacks}));
     state.storageFull=false;
@@ -278,6 +279,7 @@ export function importBackup(d){
   (Array.isArray(d.routines)?d.routines:[]).forEach(r=>{
     if(r&&r.name&&Array.isArray(r.ex))saveRoutine(r.name,r.ex);
   });
+  if(d.programme&&d.programme.id&&Array.isArray(d.programme.days)&&!state.programme)state.programme=d.programme;
   (Array.isArray(d.favs)?d.favs:[]).forEach(n=>{if(n&&state.favs.indexOf(n)<0)state.favs.push(String(n));});
   if(d.restTargets&&typeof d.restTargets==="object")
     state.restTargets=Object.assign({},state.restTargets,d.restTargets);

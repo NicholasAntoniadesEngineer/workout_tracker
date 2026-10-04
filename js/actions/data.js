@@ -96,7 +96,7 @@ export function handle(t,ctx){
     exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
       settings:state.settings,body:state.body,routines:state.routines,
       hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,
-      supplements:state.supplements,stacks:state.stacks,favs:state.favs});
+      supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme});
     ctx.render();return true;
   }
   if(t.id==="backupsnooze"){

@@ -8,6 +8,7 @@ import {activeEx,allRoutines,getSession,lastPerformance,newestFirst,repRange,res
 import {progressionHint,warmupRamp} from "../coach.js";
 import {cuesFor} from "../cues.js";
 import {exAka,exMatches,exWhat,learnTopicsFor} from "../exinfo.js";
+import {position,prescription} from "../programme.js";
 import {est1RM} from "../charts.js";
 import {icon} from "../icons.js";
 import {esc} from "./common.js";
@@ -136,6 +137,18 @@ function logPanel(){
   // What this exercise looked like last time it was trained — the number to beat.
   // Tapping it opens the exercise's full history and records.
   const prev=(a&&!state.editing)?lastPerformance(a.name):null;
+  // A programme's prescribed sets for this lift (5/3/1's waves), the next one ready to load.
+  const sess=getSession(),p=state.programme;
+  if(a&&!state.editing&&sess&&sess.prog&&p&&sess.prog.pid===p.id){
+    const pos=Object.assign(position(p,state.sessions.filter(x=>x.id!==sess.id)),{});
+    const rx=prescription(p,pos);
+    if(rx&&rx.sets&&rx.lift.trim().toLowerCase()===a.name.trim().toLowerCase()){
+      const doneW=a.sets.filter(x=>!x.wu).length,nx=rx.sets[Math.min(doneW,rx.sets.length-1)];
+      h+="<button class='hintline rxline' id='rxbtn' data-hw='"+nx.w+"' data-hr='"+(parseInt(nx.r,10)||"")+"'>"+
+        "<b>5/3/1 &middot; "+esc(rx.label)+"</b> "+rx.sets.map((s,i)=>"<span class='"+(i<doneW?"rxdone":i===doneW?"rxnext":"")+"'>"+esc(s.r)+" @ "+s.w+"</span>").join(" &middot; ")+
+        (doneW>=3?" &middot; last set: as many reps as you can":"")+"</button>";
+    }
+  }
   if(prev){
     h+="<button class='prevline' id='exhistbtn'><span class='prevlbl'>Last</span> "+
        esc(shortDate(prev.session.created))+" &middot; <span class='mono'>"+

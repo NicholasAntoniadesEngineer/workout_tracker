@@ -171,4 +171,10 @@ export const CUES={
   "atg dip":["Lower slowly to a deep stretch you control","Shoulders down, away from the ears","Press back to straight arms"],
   "atg chin-up":["Start each rep from a full hang","Pull the chest toward the bar","Lower all the way under control"]
 };
-export function cuesFor(name){return CUES[String(name||"").trim().toLowerCase()]||null;}
+import {EXINFO} from "./exinfo-data.js";
+export function cuesFor(name){
+  const own=CUES[String(name||"").trim().toLowerCase()];
+  if(own)return own;
+  const x=EXINFO[String(name||"").trim()];
+  return x&&x.cues&&x.cues.length?x.cues:null;
+}

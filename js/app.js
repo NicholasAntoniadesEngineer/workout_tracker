@@ -11,6 +11,7 @@ import * as routines from "./actions/routines.js";
 import * as days from "./actions/days.js";
 import * as sharing from "./actions/share.js";
 import * as data from "./actions/data.js";
+import * as programmes from "./actions/programme.js";
 import * as logging from "./actions/log.js";
 import * as stacking from "./actions/stack.js";
 
@@ -364,7 +365,7 @@ function dismissSheet(){
 // row act on its own before the row does (delete a day before opening it).
 const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
   addExercise,showBest};
-const AREAS=[stacking,nav,routines,days,sharing,data,logging];
+const AREAS=[programmes,stacking,nav,routines,days,sharing,data,logging];
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;

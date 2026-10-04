@@ -51,8 +51,9 @@ export function handle(t,ctx){
   }
   if(t.id==="sheetdone"||t.id==="sheetback"){ctx.dismissSheet();ctx.render();return true;}
   // The progression hint, applied: its suggested reps and weight go straight into the panel.
-  if(t.id==="hintbtn"){
-    const hw=t.getAttribute("data-hw"),hr=t.getAttribute("data-hr");
+  const hintB=t.closest&&t.closest("#hintbtn,#rxbtn");
+  if(hintB){
+    const hw=hintB.getAttribute("data-hw"),hr=hintB.getAttribute("data-hr");
     if(hw!==null&&hw!=="")state.weight=+hw;
     if(hr!==null&&hr!=="")state.reps=+hr;
     ctx.render();return true;
