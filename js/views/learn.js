@@ -11,7 +11,7 @@ import {PARTS,partOf} from "../world.js";
 import {state} from "../store.js";
 import {icon} from "../icons.js";
 import {ageText,fmtBioDate,workKind} from "../bio.js";
-import {esc} from "./common.js";
+import {esc,wide} from "./common.js";
 import {PATHS} from "../paths.js";
 
 // Short tab names for the categories, in the order the library lists them.
@@ -280,13 +280,31 @@ function categoryView(area,cats,cur){
     const on=state.learnPartCat===cur.cat&&parts.some(p=>p[0]===state.learnPart)?state.learnPart:null;
     h+="<div class='lchips'><button class='lchip"+(on?"":" on")+"' data-learnpart=''>All</button>"+
       parts.map(([key,label])=>"<button class='lchip"+(on===key?" on":"")+"' data-learnpart='"+key+"'>"+label+"</button>").join("")+"</div>";
-    parts.filter(([key])=>!on||on===key).forEach(([key,label])=>{
-      const list=cur.topics.filter(tp=>partOf(tp)===key);
-      h+="<div class='llabel'>"+label+"</div>"+(key==="people"?personCards(list):workRows(list));
-    });
+    const show=parts.filter(([key])=>!on||on===key);
+    const block=([key,label])=>{const list=cur.topics.filter(tp=>partOf(tp)===key);
+      return "<div class='llabel'>"+label+"</div>"+(key==="people"?personCards(list):workRows(list));};
+    if(wide()){
+      // A big screen lays the culture out at once: its people across the top, then methods,
+      // food and history side by side, then every workout it holds, ready to start.
+      show.filter(p=>p[0]==="people").forEach(p=>{h+=block(p);});
+      const rest=show.filter(p=>p[0]!=="people");
+      if(rest.length)h+="<div class='lparts'>"+rest.map(p=>"<div class='lpart'>"+block(p)+"</div>").join("")+"</div>";
+      if(!on)h+=trainLike(cur);
+    }else show.forEach(p=>{h+=block(p);});
   }else if(isBooks(cur))h+="<div class='lbooks'>"+cur.topics.slice().sort((a,b)=>String(a.era).localeCompare(String(b.era))).map(bookTile).join("")+"</div>";
   else h+=isPeople(cur)?personCards(cur.topics):workRows(cur.topics);
   return h+"</div>";
+}
+
+// Every workout a culture holds, gathered from its topics, each one a click from starting.
+function trainLike(cur){
+  const days=[];
+  cur.topics.forEach(tp=>(tp.days||[]).forEach((d,i)=>days.push({tp,d,i})));
+  if(!days.length)return "";
+  return "<div class='llabel'>Train like "+esc(cur.cat)+" &middot; "+plural(days.length,"workout")+"</div><div class='ltrain'>"+days.slice(0,12).map(x=>
+    "<div class='ltraind'><span class='ltraint'>"+esc(x.d.name)+"</span><span class='ltrainm'>"+esc(splitTitle(x.tp.title)[0])+"</span>"+
+    "<span class='ltrainx'>"+x.d.ex.slice(0,4).map(esc).join(" &middot; ")+(x.d.ex.length>4?" &hellip;":"")+"</span>"+
+    "<button class='btn ghost tiny' data-learnday='"+esc(x.tp.id)+":"+x.i+"'>Start</button></div>").join("")+"</div>";
 }
 
 function listView(){
@@ -340,7 +358,20 @@ function topicView(tp){
     "<div class='ltopic'>";
   if(tabs.length>1)
     h+="<div class='lseg'>"+tabs.map(x=>"<button class='lsegb"+(x[0]===tab?" on":"")+"' data-learntab='"+x[0]+"'>"+x[1]+"</button>").join("")+"</div>";
-  if(tab==="overview"){
+  if(tab==="overview"&&wide()){
+    // Two columns on a big screen: what it is on the left; how to train it and who it is on the right.
+    const books=booksFrom(tp.id);
+    const main="<p class='lsum'>"+esc(tp.summary)+"</p>"+(tp.book?readButton(tp):"")+
+      (tp.points&&tp.points.length?"<div class='lpoints'>"+tp.points.map(p=>"<div class='lpoint'><span class='lpdot'></span><span>"+esc(p)+"</span></div>").join("")+"</div>":"")+
+      filmsHtml(tp)+
+      (ne?"<div class='picklbl'>Signature exercises</div><div class='lexlist'>"+tp.exercises.map(n=>"<span class='lex'>"+esc(n)+"</span>").join("")+"</div>":"");
+    const train=nd&&!tp.book?followCard(tp)+"<div class='lsidecard'><div class='llabel'>Train &middot; "+plural(nd,"workout")+"</div>"+
+      tp.days.map((d,i)=>"<div class='lsided'><span class='lalso'><span class='lwrt'>"+esc(d.name)+"</span><span class='lalsow'>"+d.ex.slice(0,3).map(esc).join(" &middot; ")+
+        (d.ex.length>3?" &hellip;":"")+"</span></span><button class='btn ghost tiny' data-learnday='"+esc(tp.id)+":"+i+"'>Start</button></div>").join("")+"</div>":"";
+    const side=train+(tp.people&&tp.people.length?"<div class='lsidecard'>"+aboutPeople(tp.people)+"</div>"+alsoIn(tp):"")+relatedHtml(tp)+
+      (books.length?"<div class='picklbl'>Read the book</div>"+topicRows(books,false):"");
+    h+="<div class='lov'><div class='lovmain'>"+main+"</div>"+(side?"<div class='lovside'>"+side+"</div>":"")+"</div>";
+  }else if(tab==="overview"){
     h+="<p class='lsum'>"+esc(tp.summary)+"</p>";
     if(tp.book)h+=readButton(tp);
     h+=filmsHtml(tp);
@@ -467,16 +498,37 @@ function scanView(tp){
   return "<div class='wrap lscanwrap'><div class='lreadbar'><button class='backbtn' id='bookback'>"+icon("back","sm")+"Contents</button>"+
       "<span class='lreadpos'>"+esc(c.t)+"</span>"+
       "<a class='lreadout' href='"+esc(scanLink(tp.ia,c.page))+"' target='_blank' rel='noopener' aria-label='Open at the Internet Archive'>&#8599;</a></div>"+
+    (wide()?"<div class='lreadwide'><nav class='lreadrail' data-keepx='lrail'><div class='llabel'>"+esc(splitTitle(tp.title)[0])+"</div>"+
+      tp.contents.map((x,k)=>"<button class='lreadch"+(k===i?" on":"")+"' data-bookch='"+esc(tp.book)+":"+k+"'>"+esc(x.t)+"</button>").join("")+"</nav>":"")+
     (offline?"<div class='empty-note'>The book is read from the Internet Archive, so it needs a connection. "+
       "Everything else in KingsKiln works offline.</div>":
       "<iframe class='lscan' src='"+esc(scanEmbed(tp.ia,c.page))+"' title='"+esc(tp.title)+"' allowfullscreen "+
         "referrerpolicy='no-referrer'></iframe>")+
+    (wide()?"</div>":"")+
     "</div>";
+}
+
+// A big screen opens a topic beside the list it came from, so moving through a category or a
+// culture is a click per topic rather than in and out. The list is the same page Back returns
+// to, with the open topic marked; each pane keeps its own scroll.
+const inner=html=>html.replace(/^<div class='wrap[^']*'>/,"").replace(/<\/div>$/,"");
+function splitView(tp){
+  const cur=state.learnIndex?null:catOfTopic(tp.id);
+  const area=cur&&(AREAS.find(a=>a[2].includes(cur))||[])[0];
+  const list=state.learnIndex?indexView(state.learnIndex):cur?categoryView(area,areaCats(area),cur):homeView(state.learnArea||"training");
+  // The list loses its own Back (the topic's Back closes the topic) and marks the open topic.
+  const mark=inner(list).replace(/<button class='backbtn' id='backbtn'>.*?<\/button>/,"")
+    .split("data-learn='"+tp.id+"'").join("data-learn='"+tp.id+"' aria-current='true'");
+  const reading=tp.ia&&state.learnTab==="read"&&state.bookFor===tp.book&&state.bookCh!=null;
+  if(reading)return scanView(tp);
+  return "<div class='wrap lsplit'><section class='lmaster' data-keepx='lm-"+esc(state.learnIndex||(cur?cur.cat:"home"))+"'>"+mark+"</section>"+
+    "<section class='ldetail' data-keepx='ld-"+esc(tp.id)+"-"+esc(state.learnTab||"")+"'>"+inner(topicView(tp))+"</section></div>";
 }
 
 export function learnView(){
   const tp=state.learnOpen&&topicById(state.learnOpen);
   // Opening a topic puts it at the top of Recent (and Continue reading on Learn's home).
   if(tp&&(state.learnRecent||[])[0]!==tp.id)state.learnRecent=[tp.id].concat((state.learnRecent||[]).filter(x=>x!==tp.id)).slice(0,12);
+  if(tp&&wide())return splitView(tp);
   return tp?topicView(tp):listView();
 }
