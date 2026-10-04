@@ -1091,3 +1091,19 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .lbooks .lbky{font-size:10.5px;}
 .lalso{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
 .lalsow{font-size:12px;font-weight:700;color:var(--muted);}
+
+/* The picker: groups fold, favourites carry a gold edge, each exercise has an info button. */
+.pickgrp{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:44px;padding:0 2px;margin-top:2px;
+  background:none;border:0;border-top:1px solid var(--line);color:var(--text);font:inherit;font-size:15px;font-weight:800;cursor:pointer;}
+.pickgrp:first-of-type{border-top:0;}
+.pickgrpn{font-size:12.5px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.pickgrpc{font-size:12px;}
+.pickgrp.open{margin-bottom:6px;}
+.chip.sheetitem .x.info{font-family:Georgia,serif;font-style:italic;font-weight:700;color:var(--muted);}
+.chip.sheetitem.fav{box-shadow:inset 0 0 0 1.5px var(--gold);}
+.favbtn{margin-left:auto;margin-right:8px;width:40px;height:40px;border-radius:20px;border:1px solid var(--line);background:var(--panel);
+  color:var(--text);font-size:19px;line-height:1;cursor:pointer;}
+.favbtn.on{background:var(--gold);border-color:var(--gold);color:#000;}
+.exwhat{font-size:14.5px;line-height:1.5;margin:4px 0 6px;}
+.exaka{font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:10px;}
+.exaddbtn{width:100%;min-height:46px;margin:4px 0 10px;}

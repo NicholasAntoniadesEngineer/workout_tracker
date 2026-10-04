@@ -22,11 +22,26 @@ export function handle(t,ctx){
   }
   if(t.id==="opensheet"){state.sheet=true;state.editing=null;ctx.render();return true;}
   if(t.closest&&t.closest("#exhistbtn")){state.exHist=true;ctx.render();return true;}
-  if(t.id==="histdone"||t.id==="histback"){state.exHist=false;ctx.render();return true;}
+  if(t.id==="histdone"||t.id==="histback"){state.exHist=false;state.exInfo=null;ctx.render();return true;}
+  // From the picker: an exercise's sheet, a star for favourites, and folding groups.
+  const info=t.closest&&t.closest("[data-exinfo]");
+  if(info){state.exInfo=info.getAttribute("data-exinfo");ctx.render();return true;}
+  const fav=t.closest&&t.closest("[data-fav]");
+  if(fav){
+    const n=fav.getAttribute("data-fav"),f=(state.favs||[]).slice(),i=f.indexOf(n);
+    if(i>=0)f.splice(i,1);else f.push(n);
+    state.favs=f;ctx.render();return true;
+  }
+  const grp=t.closest&&t.closest("[data-pickgroup]");
+  if(grp){
+    const g=grp.getAttribute("data-pickgroup");
+    state.pickOpen=Object.assign({},state.pickOpen);state.pickOpen[g]=!state.pickOpen[g];
+    ctx.render();return true;
+  }
   // Per-exercise rest: 0 falls back to the default from Settings.
   const restPick=t.closest&&t.closest("[data-resttarget]");
   if(restPick){
-    const e=activeEx(),v=+restPick.getAttribute("data-resttarget");
+    const e=state.exInfo?{name:state.exInfo}:activeEx(),v=+restPick.getAttribute("data-resttarget");
     if(e){
       const k=e.name.trim().toLowerCase();
       state.restTargets=Object.assign({},state.restTargets);
@@ -196,7 +211,7 @@ export function handle(t,ctx){
   if(add){
     addExerciseToDay(add.getAttribute("data-add"));
     ctx.recallLast(activeEx());
-    state.adding=false;
+    state.adding=false;state.exInfo=null;
     state.sheet=true;
     ctx.render();return true;
   }

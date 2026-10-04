@@ -23,7 +23,7 @@ export function handle(t,ctx){
   if(jump){
     state.learnOpen=jump.getAttribute("data-learnjump");state.learnTab="overview";state.learnListY=0;state.scrollTo=0;
 
-    state.exHist=false;state.sheet=false;state.view="learn";ctx.render();return true;
+    state.exHist=false;state.exInfo=null;state.sheet=false;state.view="learn";ctx.render();return true;
   }
 
   if(t.closest&&(t.closest("#homecal")||t.closest("#calbtn"))){

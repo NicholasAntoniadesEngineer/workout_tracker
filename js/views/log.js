@@ -7,6 +7,7 @@ import {activeEx,allRoutines,getSession,lastPerformance,newestFirst,repRange,res
   state} from "../store.js";
 import {progressionHint,warmupRamp} from "../coach.js";
 import {cuesFor} from "../cues.js";
+import {exAka,exMatches,exWhat,learnTopicsFor} from "../exinfo.js";
 import {est1RM} from "../charts.js";
 import {icon} from "../icons.js";
 import {esc} from "./common.js";
@@ -262,8 +263,10 @@ function recentNames(rest,session){
 // One exercise in the list. Deleting from the list lives behind Edit list, so a stray tap
 // while picking can't drop an exercise.
 function pickChip(n){
-  return "<span class='chip sheetitem'><button class='pick' data-add=\""+esc(n)+"\">"+esc(n)+"</button>"+
-    (state.editList?"<button class='x' data-delcat=\""+esc(n)+"\" title='Remove from the list'>&times;</button>":"")+
+  const fav=(state.favs||[]).indexOf(n)>=0;
+  return "<span class='chip sheetitem"+(fav?" fav":"")+"'><button class='pick' data-add=\""+esc(n)+"\">"+esc(n)+"</button>"+
+    (state.editList?"<button class='x' data-delcat=\""+esc(n)+"\" title='Remove from the list'>&times;</button>":
+      "<button class='x info' data-exinfo=\""+esc(n)+"\" aria-label='About "+esc(n)+"'>i</button>")+
     "</span>";
 }
 
@@ -275,13 +278,21 @@ function exercisePane(rest,session){
   h+="<div class='searchrow'><input class='searchin' id='exsearch' type='search' "+
      "placeholder='Search exercises' autocomplete='off' value='"+esc(state.exSearch||"")+"'>"+
      (q?"<button class='searchx' id='exsearchx'>&times;</button>":"")+"</div>";
-  const shown=q?rest.filter(n=>n.toLowerCase().indexOf(q)>=0):rest;
+  const shown=q?rest.filter(n=>exMatches(n,q)):rest;
   const recent=(q||state.editList)?[]:recentNames(rest,session);
   if(recent.length){
     h+="<div class='picklbl'>Recent</div><div class='sheetgrid'>";
     recent.forEach(n=>{h+=pickChip(n);});
     h+="</div>";
   }
+  // Starred from an exercise's sheet: always one tap away.
+  const favs=(q||state.editList)?[]:rest.filter(n=>(state.favs||[]).indexOf(n)>=0);
+  if(favs.length){
+    h+="<div class='picklbl'>&#9733; Favourites</div><div class='sheetgrid'>";
+    favs.forEach(n=>{h+=pickChip(n);});
+    h+="</div>";
+  }
+  if(q)h+="<div class='picklbl'>"+shown.length+" match"+(shown.length===1?"":"es")+"</div>";
 
   // Grouped by movement and alphabetical within each, so a long list stays readable.
   // Empty groups are left out.
@@ -292,12 +303,15 @@ function exercisePane(rest,session){
   });
   Object.values(byGroup).forEach(names=>names.sort((a,b)=>
     a.localeCompare(b,undefined,{sensitivity:"base",numeric:true})));
+  // Groups stay folded until opened — 380-odd exercises is a lot to scroll — but a search
+  // opens every group it matches.
   EXERCISE_GROUPS.map(g=>g[0]).concat(OTHER_GROUP).forEach(g=>{
     const names=byGroup[g];
     if(!names)return;
-    h+="<div class='picklbl'>"+esc(g)+"</div><div class='sheetgrid'>";
-    names.forEach(n=>{h+=pickChip(n);});
-    h+="</div>";
+    const open=q||state.editList||(state.pickOpen&&state.pickOpen[g]);
+    h+="<button class='pickgrp"+(open?" open":"")+"' data-pickgroup=\""+esc(g)+"\"><span>"+esc(g)+"</span>"+
+      "<span class='pickgrpn'>"+names.length+" <span class='pickgrpc'>"+(open?"&#9662;":"&#9656;")+"</span></span></button>";
+    if(open){h+="<div class='sheetgrid'>";names.forEach(n=>{h+=pickChip(n);});h+="</div>";}
   });
   if(q&&!shown.length)
     h+="<div class='empty-note'>No match for &ldquo;"+esc(state.exSearch)+"&rdquo;.<br>"+
@@ -367,7 +381,7 @@ const REST_CHOICES=[["1:30",90],["2:00",120],["3:00",180],["4:00",240],["5:00",3
 
 // How to do it, then everything it has ever done — records on top, newest day first —
 // and how long to rest after it.
-function exerciseHistorySheet(name){
+function exerciseHistorySheet(name,fromPicker){
   const k=String(name).trim().toLowerCase();
   const days=[];
   let bestW=null,bestRM=null,bestR=null,setCount=0;
@@ -384,10 +398,15 @@ function exerciseHistorySheet(name){
     });
   });
   const unit=esc(state.settings.unit||"kg");
+  const fav=(state.favs||[]).indexOf(name)>=0,what=exWhat(name),aka=exAka(name);
   let h="<div class='overlay' id='histback'><div class='sheet'>"+
     "<div class='sheethead'><div class='plabel'>"+esc(name)+"</div>"+
+    "<button class='favbtn"+(fav?" on":"")+"' data-fav=\""+esc(name)+"\" aria-label='"+(fav?"Unstar":"Star")+" "+esc(name)+"'>"+(fav?"&#9733;":"&#9734;")+"</button>"+
     "<button class='btn ghost tiny' id='histdone'>Close</button></div>"+
     "<div class='sheetbody'>";
+  if(what)h+="<p class='exwhat'>"+esc(what)+"</p>";
+  if(aka.length)h+="<div class='exaka'>Also called "+aka.map(esc).join(", ")+"</div>";
+  if(fromPicker)h+="<button class='btn primary exaddbtn' data-add=\""+esc(name)+"\">Add to today</button>";
   h+="<div class='prgrid'>"+
     "<div class='stat'><div class='v mono'>"+(bestW?bestW.w+"<span class='pru'>"+unit+"</span>":"&mdash;")+
       "</div><div class='l'>Best weight"+(bestW?" &times;"+bestW.r:"")+"</div></div>"+
@@ -406,8 +425,17 @@ function exerciseHistorySheet(name){
   const ramp=isBarbellLift(name)?warmupRamp(state.weight,state.settings.unit||"kg"):[];
   if(ramp.length)h+="<div class='picklbl'>Warm-up to "+state.weight+esc(state.settings.unit||"kg")+"</div>"+
     "<div class='ramp mono'>"+ramp.map(x=>x.w+" &times; "+x.r).join(" &middot; ")+"</div>";
-  const topic=learnFor(name);
-  if(topic)h+="<button class='demolink learnjump' data-learnjump='"+topic[0]+"'>Learn: "+esc(topic[1])+" &rsaquo;</button>";
+  // Every Learn topic that uses it, the ones that programme it first.
+  const inLearn=learnTopicsFor(name);
+  if(inLearn.length){
+    h+="<div class='picklbl'>In Learn</div><div class='lwrows'>"+inLearn.slice(0,6).map(x=>
+      "<button class='lwrow' data-learnjump='"+esc(x.t.id)+"'><span class='lalso'><span class='lwrt'>"+esc(x.t.title)+"</span>"+
+      "<span class='lalsow'>"+esc(x.where)+(x.days?" &middot; "+x.days+" workout"+(x.days===1?"":"s"):"")+"</span></span>"+
+      "<span class='lchev'>&rsaquo;</span></button>").join("")+"</div>";
+  }else{
+    const topic=learnFor(name);
+    if(topic)h+="<button class='demolink learnjump' data-learnjump='"+topic[0]+"'>Learn: "+esc(topic[1])+" &rsaquo;</button>";
+  }
   // Rest after this exercise: its own target, or the default from Settings.
   const own=state.restTargets&&state.restTargets[k];
   const def=+state.settings.restTarget||0;
@@ -503,5 +531,5 @@ export function logView(){
     "</div>"+timerBar(s)+
     (state.sheet?exerciseSheet(s):"")+
     (state.numEdit?numEditor(activeEx()):"")+
-    (state.exHist&&activeEx()?exerciseHistorySheet(activeEx().name):"");
+    (state.exInfo?exerciseHistorySheet(state.exInfo,true):state.exHist&&activeEx()?exerciseHistorySheet(activeEx().name):"");
 }
