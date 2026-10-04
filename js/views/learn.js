@@ -3,7 +3,7 @@
 // links go to the original publishers, so nothing of theirs is copied into the app.
 // Calm and tiled: Learn's home is a grid of categories, a category is one page of people and
 // topics, and a topic opens as its own page, so nothing jumps in place.
-import {AREAS,areaCats,booksFrom,catOfTopic,topicById} from "../library.js";
+import {AREAS,areaCats,booksFrom,catOfTopic,relatedFor,topicById} from "../library.js";
 import {bookPos,scanEmbed,scanLink} from "../reader.js";
 import {filmEmbed,filmKey,filmPage,filmsFor} from "../films.js";
 import {PARTS,partOf} from "../world.js";
@@ -109,13 +109,21 @@ export function learnHomeBody(){
   const area=state.learnArea||"training",cats=areaCats(area);
   const q=(state.learnQuery||"").trim().toLowerCase();
   if(q){
-    const hits=[];
-    cats.forEach(c=>c.topics.forEach(tp=>{
+    // Search covers all of Learn — Training, Health, World and Books — titles first, then the rest.
+    const strip=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    const nq=strip(q),first=[],rest=[];
+    AREAS.forEach(a=>a[2].forEach(c=>c.topics.forEach(tp=>{
       const who=(tp.people||[]).map(p=>p.name+" "+(p.known||"")).join(" ");
-      const text=(tp.title+" "+tp.summary+" "+(tp.points||[]).join(" ")+" "+(tp.exercises||[]).join(" ")+" "+who).toLowerCase();
-      if(text.indexOf(q)>=0)hits.push(tp);
-    }));
-    return hits.length?topicRows(hits,true):"<div class='empty-note'>Nothing matches &ldquo;"+esc(state.learnQuery)+"&rdquo;.</div>";
+      const text=strip(tp.title+" "+tp.summary+" "+(tp.points||[]).join(" ")+" "+(tp.exercises||[]).join(" ")+" "+who);
+      const where=a[1]+" · "+c.cat;
+      if(strip(tp.title).indexOf(nq)>=0)first.push({tp,where});
+      else if(text.indexOf(nq)>=0)rest.push({tp,where});
+    })));
+    const hits=first.concat(rest);
+    return hits.length?"<div class='llabel'>"+plural(hits.length,"result")+" across Learn</div><div class='lwrows'>"+hits.slice(0,80).map(x=>
+      "<button class='lwrow' data-learn='"+esc(x.tp.id)+"'><span class='lalso'><span class='lwrt'>"+esc(x.tp.title)+"</span>"+
+      "<span class='lalsow'>"+esc(x.where)+"</span></span><span class='lchev'>&rsaquo;</span></button>").join("")+"</div>":
+      "<div class='empty-note'>Nothing matches &ldquo;"+esc(state.learnQuery)+"&rdquo;.</div>";
   }
   let h="";
   const f=featured(cats);
@@ -158,7 +166,7 @@ function homeView(area){
     "<div class='lbigtitle'>Learn</div>"+
     (AREAS.length<2?"":"<div class='lseg'>"+AREAS.map(a=>"<button class='lsegb"+(a[0]===area?" on":"")+
       "' data-learnarea='"+a[0]+"'>"+a[1]+"</button>").join("")+"</div>")+
-    (open?searchBox("learnsearch","Search "+(area==="health"?"health":area==="world"?"the world":area==="books"?"books":"training"),state.learnQuery):"")+
+    (open?searchBox("learnsearch","Search all of Learn",state.learnQuery):"")+
     "<div id='learnbody'>"+learnHomeBody()+"</div></div>";
 }
 
@@ -249,7 +257,7 @@ function topicView(tp){
     h+="<p class='lsum'>"+esc(tp.summary)+"</p>";
     if(tp.book)h+=readButton(tp);
     h+=filmsHtml(tp);
-    if(tp.people&&tp.people.length)h+=aboutPeople(tp.people);
+    if(tp.people&&tp.people.length)h+=aboutPeople(tp.people)+alsoIn(tp);
     const books=booksFrom(tp.id);
     if(books.length)h+="<div class='picklbl'>Read the book</div>"+topicRows(books,false);
     if(tp.points&&tp.points.length)
@@ -299,6 +307,15 @@ function filmsHtml(tp){
     return "<button class='lfilmb' data-film='"+esc(key)+"'><span class='lfilmp' aria-hidden='true'>&#9654;</span>"+
       "<span class='lfilmc'><span class='lfilmt'>"+esc(f.t)+"</span>"+meta+"<span class='lfilmd'>"+esc(f.d)+"</span></span></button>";
   }).join("")+"</div>";
+}
+
+// Everywhere else in Learn this person turns up: topics about them, then topics that mention them.
+function alsoIn(tp){
+  const r=relatedFor(tp);
+  const row=x=>"<button class='lwrow' data-learn='"+esc(x.t.id)+"'><span class='lalso'><span class='lwrt'>"+esc(x.t.title)+"</span>"+
+    "<span class='lalsow'>"+esc(x.where)+"</span></span><span class='lchev'>&rsaquo;</span></button>";
+  return (r.about.length?"<div class='llabel'>Also in Learn</div><div class='lwrows'>"+r.about.map(row).join("")+"</div>":"")+
+    (r.mentions.length?"<div class='llabel'>Mentioned in</div><div class='lwrows'>"+r.mentions.slice(0,8).map(row).join("")+"</div>":"");
 }
 
 // Start, or pick up where you left off.

@@ -38,3 +38,40 @@ export function booksFrom(id){
   for(const a of AREAS)for(const c of a[2])c.topics.forEach(t=>{if(t.book&&(t.from||[]).indexOf(id)>=0)out.push(t);});
   return out;
 }
+
+// People across Learn. Someone can turn up in several places — Mentzer in Training, in Health on
+// eating, in Books — so a person's page lists every other topic about them, and every topic that
+// mentions them by full name. Names are matched without accents, initials or bracketed full names.
+const norm=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\([^)]*\)/g," ")
+  .toLowerCase().replace(/[^a-z ]/g," ").replace(/\s+/g," ").trim();
+let ALL=null;
+function allTopics(){
+  if(!ALL){ALL=[];for(const a of AREAS)for(const c of a[2])for(const t of c.topics)
+    ALL.push({t,c,area:a[1],keys:(t.people||[]).map(p=>norm(p.name)),title:norm(t.title),
+      head:norm(t.title.split(": ")[0]),text:norm(t.summary+" "+(t.points||[]).join(" "))});}
+  return ALL;
+}
+export function relatedFor(tp){
+  const people=(tp.people||[]).map(p=>norm(p.name)).filter(Boolean);
+  if(!people.length)return {about:[],mentions:[]};
+  const about=[],mentions=[],seen=new Set([tp.id]);
+  const self=allTopics().find(x=>x.t===tp);
+  for(const x of allTopics()){
+    if(seen.has(x.t.id))continue;
+    const sameCat=self&&x.c===self.c;
+    const hit=people.some(k=>{
+      const w=k.split(" "),last=w[w.length-1],first=w[0];
+      if(x.keys.includes(k)||x.title.indexOf(k)>=0)return true;
+      // Within the same category, a topic named for their surname ("The Gracie diet") or their
+      // first name in the possessive ("Rickson's conditioning") is about them too.
+      if(!sameCat)return false;
+      if(last.length>3&&(" "+x.head+" ").indexOf(" "+last+" ")>=0)return true;
+      return first.length>3&&(x.head===first||x.head.indexOf(first+" s ")===0);
+    });
+    if(hit){seen.add(x.t.id);about.push({t:x.t,where:x.area+" · "+x.c.cat});continue;}
+    if(people.some(k=>k.split(" ").length>1&&(" "+x.text+" ").indexOf(" "+k+" ")>=0)){
+      seen.add(x.t.id);mentions.push({t:x.t,where:x.area+" · "+x.c.cat});
+    }
+  }
+  return {about,mentions};
+}
