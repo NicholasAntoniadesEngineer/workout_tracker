@@ -3,7 +3,7 @@
 import {RULES,doneSessions,nextDate,position,prescription} from "../programme.js";
 import {dateKey,nowISO} from "../model.js";
 import {state} from "../store.js";
-import {topicById} from "../library.js";
+import {topicById} from "../lazy.js";
 import {icon} from "../icons.js";
 import {esc} from "./common.js";
 

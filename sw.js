@@ -1,10 +1,10 @@
 // Precache the whole app so it opens instantly and fully offline. Bump VERSION whenever
 // a listed file changes — activate drops every older cache.
-const VERSION="v135";
+const VERSION="v136";
 const CACHE="kingskiln-"+VERSION;
 const ASSETS=["./","index.html","styles.css","manifest.webmanifest",
   "js/app.js","js/store.js","js/model.js","js/views.js","js/csv.js","js/charts.js","js/verses.js","js/feasts.js","js/share.js","js/icons.js","js/feedback.js",
-  "js/coach.js","js/cues.js","js/reminder.js","js/paths.js",
+  "js/coach.js","js/cues.js","js/reminder.js","js/paths.js","js/lazy.js",
   "js/actions/nav.js","js/actions/routines.js","js/actions/days.js","js/actions/share.js",
   "js/actions/data.js","js/actions/log.js",
   "js/views/common.js","js/views/log.js","js/views/home.js","js/views/history.js",

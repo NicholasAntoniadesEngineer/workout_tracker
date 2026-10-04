@@ -1,15 +1,18 @@
 // What an exercise is, where Learn uses it, and what else people call it. The descriptions and
 // other names live in exinfo-data.js; the Learn links are worked out from the library, so a new
 // programme or culture page shows up on every exercise it uses.
-import {AREAS} from "./library.js";
+import {learnLib} from "./lazy.js";
 import {EXINFO} from "./exinfo-data.js";
 
 const key=n=>String(n||"").trim().toLowerCase();
 let INDEX=null;
+// Built once the Learn library has loaded; until then no exercise lists any topics.
 function index(){
   if(INDEX)return INDEX;
+  const L=learnLib();
+  if(!L)return {};
   INDEX={};
-  for(const a of AREAS)for(const c of a[2])for(const t of c.topics){
+  for(const a of L.AREAS)for(const c of a[2])for(const t of c.topics){
     const names=new Set((t.exercises||[]).map(key));
     (t.days||[]).forEach(d=>d.ex.forEach(n=>names.add(key(n))));
     names.forEach(n=>(INDEX[n]=INDEX[n]||[]).push({t,where:a[1]+" · "+c.cat,days:(t.days||[]).filter(d=>d.ex.some(x=>key(x)===n)).length}));

@@ -1,7 +1,7 @@
 // Programmes: set one up from Learn, start its next workout, pause, stop, and open its page.
 import {addExerciseToDay,getSession,selectSession,state} from "../store.js";
 import {dateKey,makeSession,nowISO} from "../model.js";
-import {topicById} from "../library.js";
+import {topicById} from "../lazy.js";
 import {defaultWeekdays,makeProgramme,position,prescription,ruleFor,trainingMax} from "../programme.js";
 
 function nextMonday(){

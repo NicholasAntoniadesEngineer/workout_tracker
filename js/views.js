@@ -12,7 +12,7 @@ import {bodyView} from "./views/body.js";
 import {settingsView} from "./views/settings.js";
 import {cardioView} from "./views/cardio.js";
 import {programmeView} from "./views/programme.js";
-import {learnView} from "./views/learn.js";
+import {learnLib} from "./lazy.js";
 import {stackView} from "./views/stack.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
@@ -20,12 +20,17 @@ import {VERSES} from "./verses.js";
 
 export {esc} from "./views/common.js";
 export {stepVerse} from "./views/home.js";
-export {learnHomeBody} from "./views/learn.js";
+export const learnHomeBody=()=>{const L=learnLib();return L?L.learnHomeBody():"";};
 export {setClockSeconds,setLabel,setSub,setsSummary,workoutLabel,
   workoutSub} from "./views/log.js";
 
 const VIEWS={cardio:cardioView,prog:programmeView,home:homeView,history:historyView,calendar:calendarView,settings:settingsView,
-  progress:progressView,body:bodyView,learn:learnView,stack:stackView};
+  progress:progressView,body:bodyView,learn:learnPage,stack:stackView};
+// Learn, once its library is in; a quiet holding page for the moment before.
+function learnPage(){
+  const L=learnLib();
+  return L?L.learnView():"<div class='wrap scroll'><div class='empty-note'>Opening Learn&hellip;</div></div>";
+}
 
 // Destructive actions act at once and offer a few seconds of Undo, instead of a blocking
 // confirm dialog before and no way back after.

@@ -122,3 +122,16 @@ test("a shared Learn link opens only a plain topic id", async () => {
   assert.equal(learnLinkId("#r=abc"),null);
   assert.equal(learnLinkId(""),null);
 });
+
+test("Learn's library loads on demand, and lookups are safe before it does", async () => {
+  const lazy=await import("../js/lazy.js");
+  const {learnTopicsFor}=await import("../js/exinfo.js");
+  assert.equal(lazy.learnLib(),null);
+  assert.equal(lazy.topicById("wendler"),null);
+  assert.deepEqual(learnTopicsFor("Deadlift"),[]);
+  const L=await lazy.loadLearn();
+  assert.ok(L.learnView&&L.AREAS.length>=4);
+  assert.equal(lazy.topicById("wendler").id,"wendler");
+  const ex=lazy.topicById("wendler").exercises[0];
+  assert.ok(learnTopicsFor(ex).some(x=>x.t.id==="wendler"),ex);
+});

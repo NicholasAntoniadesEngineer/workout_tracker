@@ -7,7 +7,7 @@ import {deliver,exportCSV,exportJSON} from "../csv.js";
 import {reminderICS} from "../reminder.js";
 import {bookPos,saveBookPos} from "../reader.js";
 import {shareTopic} from "../share.js";
-import {topicById} from "../library.js";
+import {topicById} from "../lazy.js";
 
 export function handle(t,ctx){
   if(t.id==="bodysave"){

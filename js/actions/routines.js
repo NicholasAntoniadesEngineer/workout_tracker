@@ -4,7 +4,7 @@
 import {activeEx,addExerciseToDay,dropRoutine,findRoutine,getSession,saveRoutine,selectSession,
   state} from "../store.js";
 import {dateKey,makeSession,nowISO} from "../model.js";
-import {topicById} from "../library.js";
+import {topicById} from "../lazy.js";
 
 // A documented workout from Learn, by "topicId:index".
 function learnDay(ref){

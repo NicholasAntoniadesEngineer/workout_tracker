@@ -3,7 +3,7 @@ import {autoEndIfStale,fmtClock,isBandExercise,makeSession,parseClock,restSecond
 import {activeEx,addExerciseToDay,getSession,importBackup,lastPerformance,load,mergeSessions,
   restTargetFor,save,saveRoutine,selectSession,state} from "./store.js";
 import {parseImport} from "./csv.js";
-import {AREAS as LEARN_AREAS,topicById} from "./library.js";
+import {learnLib,loadLearn,topicById} from "./lazy.js";
 import {decodeRoutineHash,learnLinkId} from "./share.js";
 import {learnHomeBody,paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
 import * as nav from "./actions/nav.js";
@@ -306,7 +306,7 @@ function watchLearnSwipe(){
     const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<Math.abs(dy)*1.5)return;
     if(!state.learnOpen&&!state.learnCat&&!state.learnIndex){
-      const order=LEARN_AREAS.map(a=>a[0]),next=order.indexOf(state.learnArea||"training")+(dx<0?1:-1);
+      const order=(learnLib()?learnLib().AREAS:[]).map(a=>a[0]),next=order.indexOf(state.learnArea||"training")+(dx<0?1:-1);
       if(next<0){learnBack();return;}
       if(next>=order.length)return;
       state.learnArea=order[next];state.learnQuery="";state.learnSearchOpen=false;state.scrollTo=0;render();return;
@@ -464,14 +464,18 @@ if(sharedRoutine){
   state.view="home";state.sheet=false;
 }
 // Opened from a shared Learn link (kingskiln.com/#learn=<id>): straight to that topic.
-function openLearnLink(){
+async function openLearnLink(){
   const id=learnLinkId(location.hash);
-  if(!id||!topicById(id))return false;
+  if(!id)return false;
+  await loadLearn();
+  if(!topicById(id))return false;
   history.replaceState(null,"",location.pathname+location.search);
   state.view="learn";state.learnOpen=id;state.learnTab="overview";state.learnIndex=null;state.learnListY=0;state.scrollTo=0;state.sheet=false;
   return true;
 }
-openLearnLink();
-window.addEventListener("hashchange",()=>{if(openLearnLink())render();});
+window.addEventListener("hashchange",()=>{openLearnLink().then(ok=>{if(ok)render();});});
 render();
+openLearnLink().then(ok=>{if(ok)render();});
+// Learn's library comes in once the first screen is up; anything showing Learn repaints then.
+setTimeout(()=>loadLearn().then(()=>{if(state.view==="learn"||state.exInfo||state.progSetup)render();}),300);
 setInterval(tick,TICK_MS);
