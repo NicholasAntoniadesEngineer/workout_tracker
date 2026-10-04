@@ -19,7 +19,7 @@ export const EXERCISE_GROUPS=[
     "Rolling dumbbell tricep extension","Floor press","Pec deck","Cable crossover","Smith machine shoulder press",
     "Hindu push-ups","Shena push-ups","Persian meels","Kabbadeh","Sang press","Kettlebell press","Bridge press","Push press","Seated press",
     "Log press","Incline log press","Axle press","Barbell pullover","Bent press","One-hand barbell press","One-arm push","Fingertip push-ups","Handstand","Scrum machine","Self-resisted tricep extension","Handstand push-ups",
-    "Isometric rack press","Tricep kickback","Frog stand","Headstand","Forearm stand"]],
+    "Isometric rack press","Tricep kickback","Frog stand","Headstand","Forearm stand","One-arm push-up"]],
   ["Pull",["Pull ups","Chin ups","Gorilla rows","Standing kettlebell rows","Shoulder shrugs",
     "Lat pulldown","Seated cable row","Straight-arm pulldown","Bicep curls",
     "Kettlebell bicep curl","Cable bicep curl","Cable hammer curl","Cable face pull","Bar Hangs",
