@@ -2,7 +2,7 @@
 // the phase, round marks, and GPS and heart-rate tiles — and a summary with splits, zones and
 // the route, ready to save to History. Watch files (GPX, TCX) open straight into the summary.
 import {MODES,PRESETS,ZONES,fmtPace,hrStats,phaseAt,phases,recentPace,routePath,totalSecs,trackStats,zoneOf} from "../cardio.js";
-import {gpsSupported,hrSupported} from "../sensors.js";
+import {gpsSupported,hrSupported,voiceSupported} from "../sensors.js";
 import {fmtClock} from "../model.js";
 import {state} from "../store.js";
 import {icon} from "../icons.js";
@@ -77,6 +77,8 @@ function setupView(){
       "<div class='ctoggle dim'><span><b>Heart rate</b><span>Record on your watch, then Import file</span></span></div>")+
     "</div>"+
     (help?"<div class='cnote cwarn'>"+help+"</div>":"")+
+    (voiceSupported()?"<button class='cmaxhr cvoice' data-cardiovoice='1' aria-pressed='"+!!state.settings.voice+"'><span>Voice cues <span class='cmaxs'>"+
+      (state.settings.voice?"Splits and interval changes, spoken":"Off")+"</span></span><span class='cswitch"+(state.settings.voice?" on":"")+"'></span></button>":"")+
     "<div class='cmaxhr'><span>Max heart rate <span class='cmaxs'>sets your zones</span></span>"+stepper("cardiomax",state.settings.maxHR||190,"maximum heart rate").replace(/data-cardiomax=':/g,"data-cardiomax='")+"</div>"+
     "<div class='cgrow'></div>"+
     "<button class='btn primary pbig cstart' data-cardiostart='1'>Start "+esc(actName(c.activity).toLowerCase())+"</button>";

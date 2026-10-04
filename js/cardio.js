@@ -68,6 +68,19 @@ export function trackStats(track,splitM){
   const secs=track.length>1?Math.round((track[track.length-1].t-track[0].t)/1000):0;
   return {dist:Math.round(dist),climb:Math.round(climb),secs,splits};
 }
+// What the voice says: a split as it is crossed, and each phase as it starts.
+const spokenTime=s=>{s=Math.round(s);const m=Math.floor(s/60),x=s%60;
+  return (m?m+(m===1?" minute":" minutes"):"")+(x?(m?" ":"")+x+(x===1?" second":" seconds"):"")||"0 seconds";};
+export function splitSpeech(n,splitSecs,miles){
+  return (miles?"Mile ":"Kilometre ")+n+". "+spokenTime(splitSecs)+".";
+}
+export function lapSpeech(n,secs){return "Lap "+n+". "+spokenTime(secs)+".";}
+export function phaseSpeech(ph,done){
+  if(done)return "Timer done.";
+  if(!ph)return "";
+  return ph.label.replace(/ of /," of ")+". "+spokenTime(ph.secs)+".";
+}
+
 // Bests per activity from saved sessions: longest distance and time, fastest average pace over
 // a kilometre or more, and the fastest 1, 5, 10 and 21 km run inside any session, from its
 // kilometre splits. Most-done activity first.

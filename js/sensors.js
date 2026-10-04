@@ -83,5 +83,14 @@ export function cue(kind){
   }catch(e){}
   try{navigator.vibrate&&navigator.vibrate(kind==="done"?[200,100,200]:kind==="work"?250:120);}catch(e){}
 }
+// Spoken cues — split times, interval changes — over whatever else is playing.
+export const voiceSupported=()=>typeof window!=="undefined"&&"speechSynthesis" in window;
+export function say(text){
+  try{
+    if(!voiceSupported()||!text)return;
+    const u=new SpeechSynthesisUtterance(text);u.rate=1.02;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
 // iPhone only plays sound after a tap: unlock audio on the Start tap.
 export function primeAudio(){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();ctx.resume&&ctx.resume();}catch(e){}}

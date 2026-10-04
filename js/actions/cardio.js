@@ -3,9 +3,9 @@
 // a reload or a dropped app picks it up where it was.
 import {state,addToCatalog} from "../store.js";
 import {makeExercise,makeSession,nowISO,normSet} from "../model.js";
-import {PRESETS,hrStats,parseWorkoutFile,phaseAt,phases,thin,trackStats} from "../cardio.js";
+import {PRESETS,haversine,hrStats,parseWorkoutFile,lapSpeech,phaseAt,phaseSpeech,phases,splitSpeech,thin,trackStats} from "../cardio.js";
 import {isFit,parseFit,unzipWorkout} from "../fit.js";
-import {connectHeartRate,cue,gpsPermission,keepAwake,primeAudio,startGps,stopGps,stopWarm,warmGps} from "../sensors.js";
+import {connectHeartRate,cue,gpsPermission,keepAwake,primeAudio,say,startGps,stopGps,stopWarm,warmGps} from "../sensors.js";
 import {ACTIVITIES,elapsedOf,gpsLine} from "../views/cardio.js";
 
 const LIVE_KEY="kk_cardio";
@@ -22,6 +22,11 @@ export function openCardio(opts){
   state.cardioDone=null;state.cardioTab=null;state.view="cardio";state.scrollTo=0;
 }
 const OUTDOOR=["run","ride","walk"];
+// Said on Start (which also unlocks speech on iPhone): the first phase, or just "Go".
+function p0Speech(s){
+  const p=PRESETS.find(x=>x.id===s.preset)||PRESETS[0],list=phases(p.mode,s.o);
+  return list.length?phaseSpeech(list[0]):"Go.";
+}
 
 // GPS on the setup screen. Already allowed: switch it on and let the signal settle. Not yet
 // asked: leave it off, so the phone's prompt comes from a tap on the switch. Blocked: say so.
@@ -63,7 +68,7 @@ function tick(){
   if(list.length&&!c.pauseAt){
     const at=phaseAt(list,elapsedOf(c));
     if(at.i!==c.lastPhase){
-      if(c.lastPhase>=0||at.i>0)cue(at.done?"done":at.phase.kind);
+      if(c.lastPhase>=0||at.i>0){cue(at.done?"done":at.phase.kind);if(state.settings.voice)say(phaseSpeech(at.phase,at.done));}
       c.lastPhase=at.i;save();
     }
   }
@@ -72,10 +77,23 @@ function tick(){
 function begin(render){
   repaint=render;clearInterval(ticker);ticker=setInterval(tick,1000);
   const c=state.cardio;
-  if(c.gps)startGps(fix=>{if(state.cardio&&!state.cardio.pauseAt){state.cardio.track.push(fix);state.cardio.gpsMsg="";save();}},
+  if(c.gps)startGps(fix=>{if(state.cardio&&!state.cardio.pauseAt){onFix(state.cardio,fix);save();}},
     msg=>{if(state.cardio){state.cardio.gpsMsg=msg;repaint();}},
     acc=>{state.gpsLive={st:"ok",acc};});
   keepAwake(true);
+}
+// Each kept fix: add the distance, and say the split when a kilometre (or mile) is crossed.
+function onFix(c,fix){
+  const prev=c.track[c.track.length-1];
+  c.track.push(fix);c.gpsMsg="";
+  if(!prev)return;
+  c.dist=(c.dist||0)+haversine(prev,fix);
+  const miles=state.settings.unit==="lb",per=miles?1609.344:1000,n=Math.floor(c.dist/per);
+  if(n>(c.splitN||0)){
+    const now=elapsedOf(c),secs=now-(c.splitAt||0);
+    c.splitN=n;c.splitAt=now;
+    if(state.settings.voice)say(splitSpeech(n,secs,miles));
+  }
 }
 function halt(){clearInterval(ticker);ticker=null;stopGps();keepAwake(false);}
 
@@ -115,6 +133,7 @@ export function handle(t,ctx){
   }
   const tab=t.closest&&t.closest("[data-cardiotab]");
   if(tab){state.cardioTab=tab.getAttribute("data-cardiotab");ctx.render();return true;}
+  if(t.closest&&t.closest("[data-cardiovoice]")){state.settings.voice=!state.settings.voice;ctx.render();return true;}
   const mx=t.closest&&t.closest("[data-cardiomax]");
   if(mx){state.settings.maxHR=Math.max(120,Math.min(230,(+state.settings.maxHR||190)+ +mx.getAttribute("data-cardiomax")));ctx.render();return true;}
   if(t.closest&&t.closest("[data-cardiohr]")){
@@ -125,6 +144,7 @@ export function handle(t,ctx){
   }
   if(t.closest&&t.closest("[data-cardiostart]")&&s){
     primeAudio();
+    if(state.settings.voice)say(p0Speech(s));
     const p=PRESETS.find(x=>x.id===s.preset)||PRESETS[0];
     state.cardio={activity:s.activity,preset:p.id,presetName:p.id==="open"?"":p.name,mode:p.mode,o:s.o,
       phases:phases(p.mode,s.o),startedAt:Date.now(),pausedMs:0,pauseAt:null,track:[],hr:[],gps:!!s.gps,
@@ -138,7 +158,9 @@ export function handle(t,ctx){
     save();ctx.render();return true;
   }
   if(t.closest&&t.closest("[data-cardiolap]")&&c&&!c.pauseAt){
-    c.laps=(c.laps||[]).concat([Math.round(elapsedOf(c))]);cue("rest");save();ctx.render();return true;
+    const now=Math.round(elapsedOf(c)),prev=(c.laps||[]).slice(-1)[0]||0;
+    c.laps=(c.laps||[]).concat([now]);cue("rest");if(state.settings.voice)say(lapSpeech(c.laps.length,now-prev));
+    save();ctx.render();return true;
   }
   if(t.closest&&t.closest("[data-cardioskip]")&&c){
     const at=phaseAt(c.phases,elapsedOf(c));

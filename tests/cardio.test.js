@@ -69,3 +69,12 @@ test("cardio by week counts distance and time in the right week", async () => {
   assert.equal(last.dist,8000);assert.equal(last.secs,2400);assert.equal(last.n,2);
   assert.equal(w.reduce((a,x)=>a+x.n,0),3);
 });
+
+test("spoken cues read naturally", async () => {
+  const {splitSpeech,phaseSpeech,lapSpeech}=await import("../js/cardio.js");
+  assert.equal(splitSpeech(3,312,false),"Kilometre 3. 5 minutes 12 seconds.");
+  assert.equal(splitSpeech(1,480,true),"Mile 1. 8 minutes.");
+  assert.equal(phaseSpeech({label:"Hard 2 of 4",secs:240}),"Hard 2 of 4. 4 minutes.");
+  assert.equal(phaseSpeech(null,true),"Timer done.");
+  assert.equal(lapSpeech(2,61),"Lap 2. 1 minute 1 second.");
+});
