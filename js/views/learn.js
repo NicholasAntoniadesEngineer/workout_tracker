@@ -12,6 +12,7 @@ import {state} from "../store.js";
 import {icon} from "../icons.js";
 import {ageText,fmtBioDate,workKind} from "../bio.js";
 import {esc} from "./common.js";
+import {PATHS} from "../paths.js";
 
 // Short tab names for the categories, in the order the library lists them.
 const SHORT={"Lifters & methods":"Lifters","Training principles":"Principles","Workout types":"Workouts",
@@ -88,7 +89,7 @@ function badge(c,big){
   const inner=c.region?esc(CODE[c.cat]||c.cat.slice(0,2).toUpperCase()):isBooks(c)?esc(initials(c.cat)):icon(CAT_ICON[c.cat]||"book","sm");
   return "<span class='lring"+(big?" big":"")+"'>"+inner+"</span>";
 }
-const plural=(n,w)=>n+" "+w+(n===1?"":"s");
+const plural=(n,w,many)=>n+" "+(n===1?w:many||w+"s");
 function catStats(c){
   if(isBooks(c))return plural(c.topics.length,"book")+" &middot; "+esc(subjects(c));
   const w=c.topics.reduce((a,t)=>a+(t.days?t.days.length:0),0),l=c.topics.reduce((a,t)=>a+(t.links||[]).length,0);
@@ -126,7 +127,7 @@ export function learnHomeBody(){
       "<span class='lalsow'>"+esc(x.where)+"</span></span><span class='lchev'>&rsaquo;</span></button>").join("")+"</div>":
       "<div class='empty-note'>Nothing matches &ldquo;"+esc(state.learnQuery)+"&rdquo;.</div>";
   }
-  let h="";
+  let h=quickRow()+continueCard();
   const f=featured(cats);
   if(f){
     const t=splitTitle(f.title),c=catOfTopic(f.id),n=f.days?f.days.length:0;
@@ -149,6 +150,86 @@ export function learnHomeBody(){
       "from the Internet Archive. General education, not medical advice.</p>":
     "<p class='learnnote'>Summaries written for KingsKiln; links go to the original articles and videos. "+
       "General education, not medical advice.</p>");
+}
+
+// Where a topic lives, for rows that gather topics from all over Learn.
+function whereOf(tp){
+  const c=catOfTopic(tp.id),a=c&&AREAS.find(x=>x[2].includes(c));
+  return (a?a[1]+" · ":"")+(c?c.cat:"");
+}
+function whereRow(tp,lead,sub){
+  return "<button class='lwrow' data-learn='"+esc(tp.id)+"'>"+(lead||"")+"<span class='lalso'><span class='lwrt'>"+esc(tp.title)+"</span>"+
+    "<span class='lalsow'>"+esc(sub||whereOf(tp))+"</span></span><span class='lchev'>&rsaquo;</span></button>";
+}
+const liveIds=list=>(list||[]).filter(id=>topicById(id));
+const INDEX=[["paths","Start here","target"],["saved","Saved","bookmark"],["recent","Recent","days"],["people","People A–Z","people"]];
+
+// Four ways in, above the shelves: reading paths, what you saved, what you read last, everyone by name.
+function quickRow(){
+  const n=liveIds(state.learnSaved).length;
+  return "<div class='lquick'>"+INDEX.map(([k,l,ic])=>"<button class='lquickb' data-learnindex='"+k+"'><span class='lring'>"+icon(ic,"sm")+"</span>"+
+    "<span class='lquickl'>"+(k==="saved"&&n?l+" "+n:l.replace(" A–Z",""))+"</span></button>").join("")+"</div>";
+}
+function continueCard(){
+  const id=liveIds(state.learnRecent)[0];
+  if(!id)return "";
+  const tp=topicById(id);
+  return "<button class='lcont' data-learn='"+esc(id)+"'><span class='lalso'><span class='leyebrow'>Continue reading</span>"+
+    "<span class='lwrt'>"+esc(tp.title)+"</span><span class='lalsow'>"+esc(whereOf(tp))+"</span></span><span class='lchev'>&rsaquo;</span></button>";
+}
+
+// Everyone with a bio anywhere in Learn, A–Z by surname, each pointing at their own topic.
+const plain=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+export function peopleIndex(){
+  const by=new Map();
+  AREAS.forEach(a=>a[2].forEach(c=>c.topics.forEach(tp=>(tp.people||[]).forEach(p=>{
+    if(!p||!p.name)return;
+    const k=plain(p.name).toLowerCase();
+    if(!by.has(k))by.set(k,{name:p.name,known:p.known||"",ids:[]});
+    if(by.get(k).ids.indexOf(tp.id)<0)by.get(k).ids.push(tp.id);
+  }))));
+  const surname=n=>{if(/ (of|the|al|ibn) /i.test(n))return plain(n).split(/\s+/)[0].toLowerCase();const w=plain(n).replace(/\(.*?\)|,.*$/g,"").trim().split(/\s+/).filter(x=>!/^(jr\.?|sr\.?|ii|iii)$/i.test(x));return (w[w.length-1]||n).toLowerCase();};
+  // Chinese and Korean names (and these Japanese ones) put the family name first.
+  const familyFirst=x=>x.ids.some(i=>/^(cn|kr)-/.test(i))||/^(Kano Jigoro|Futabayama|Hakuho)/.test(x.name);
+  return [...by.values()].map(x=>Object.assign(x,{key:(familyFirst(x)?plain(x.name).split(/\s+/)[0].toLowerCase():surname(x.name))+" "+plain(x.name).toLowerCase()}))
+    .sort((a,b)=>a.key.localeCompare(b.key));
+}
+
+function indexView(kind){
+  const meta=INDEX.find(x=>x[0]===kind)||INDEX[0];
+  let h="<div class='wrap scroll lcatpage'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Learn</button>"+
+    "<div class='lcathead'><span class='lring big'>"+icon(meta[2],"sm")+"</span><div class='lcatt'><span class='leyebrow'>Learn</span>"+
+    "<span class='lcatn'>"+esc(meta[1])+"</span></div></div>";
+  if(kind==="paths"){
+    h+="<div class='lcatstats'>Short paths through Learn, read in order</div>";
+    PATHS.forEach(p=>{
+      const steps=liveIds(p.ids).map(topicById);
+      h+="<div class='lpath'><div class='llabel'>"+esc(p.name)+" &middot; "+plural(steps.length,"step")+"</div>"+
+        "<div class='lpathm'>"+esc(p.note)+"</div><div class='lwrows'>"+
+        steps.map((tp,i)=>whereRow(tp,"<span class='lstep mono'>"+(i+1)+"</span>")).join("")+"</div></div>";
+    });
+  }else if(kind==="saved"){
+    const ids=liveIds(state.learnSaved).slice().reverse();
+    h+=ids.length?"<div class='lcatstats'>"+plural(ids.length,"topic")+", newest first</div><div class='lwrows'>"+ids.map(id=>whereRow(topicById(id))).join("")+"</div>":
+      "<div class='empty-note'>Tap the bookmark on any topic and it lands here, ready for the gym.</div>";
+  }else if(kind==="recent"){
+    const ids=liveIds(state.learnRecent);
+    h+=ids.length?"<div class='lcatstats'>The last "+plural(ids.length,"topic")+" you opened</div><div class='lwrows'>"+ids.map(id=>whereRow(topicById(id))).join("")+"</div>"+
+      "<button class='btn ghost tiny lclear' data-learnclearrecent='1'>Clear this list</button>":
+      "<div class='empty-note'>Topics you open show up here.</div>";
+  }else{
+    const ppl=peopleIndex(),letters=[...new Set(ppl.map(p=>p.key[0].toUpperCase()))];
+    h+="<div class='lcatstats'>"+plural(ppl.length,"person","people")+" across Training, Health, World and Books</div>"+
+      "<div class='lchips lletters'>"+letters.map(L=>"<button class='lchip' data-learnletter='"+L+"'>"+L+"</button>").join("")+"</div>";
+    letters.forEach(L=>{
+      h+="<div class='llabel' id='ll-"+L+"'>"+L+"</div><div class='lwrows'>"+ppl.filter(p=>p.key[0].toUpperCase()===L).map(p=>{
+        const tp=topicById(p.ids[0]);
+        return "<button class='lwrow' data-learn='"+esc(tp.id)+"'>"+avatar(p.name)+"<span class='lalso'><span class='lwrt'>"+esc(p.name)+"</span>"+
+          "<span class='lalsow'>"+esc(p.known||whereOf(tp))+(p.ids.length>1?" &middot; in "+p.ids.length+" topics":"")+"</span></span><span class='lchev'>&rsaquo;</span></button>";
+      }).join("")+"</div>";
+    });
+  }
+  return h+"</div>";
 }
 
 function searchBox(id,placeholder,value){
@@ -211,6 +292,7 @@ function categoryView(area,cats,cur){
 function listView(){
   const area=state.learnArea||"training",cats=areaCats(area);
   const cur=cats.find(c=>c.cat===state.learnCat)||null;
+  if(state.learnIndex)return indexView(state.learnIndex);
   return cur?categoryView(area,cats,cur):homeView(area);
 }
 
@@ -244,9 +326,13 @@ function topicView(tp){
   const tab=tabs.some(x=>x[0]===state.learnTab)?state.learnTab:"overview";
   const part=cat&&cat.region?(PARTS.find(p=>p[0]===partOf(tp))||[])[1]:null;
   const eyebrow=cat&&cat.region?[cat.cat,part]:[cat?tabName(cat.cat):"",tp.era];
+  const isSaved=(state.learnSaved||[]).indexOf(tp.id)>=0;
+  const backTo=state.learnIndex?(INDEX.find(x=>x[0]===state.learnIndex)||[])[1]||"Learn":cat?tabName(cat.cat):"Learn";
   const stats=[[nd,"workout"],[ne,"exercise"],[tp.contents?tp.contents.length:0,"chapter"],[nl,"link"]].filter(x=>x[0]).slice(0,3);
   let h="<div class='wrap scroll ltopicwrap'><div class='lhead'>"+
-    "<button class='backbtn' id='backbtn'>"+icon("back","sm")+esc(cat?tabName(cat.cat):"Learn")+"</button>"+
+    "<div class='lheadbar'><button class='backbtn' id='backbtn'>"+icon("back","sm")+esc(backTo)+"</button>"+
+      "<span class='lheadacts'><button class='lheadact"+(isSaved?" on":"")+"' data-learnbookmark='"+esc(tp.id)+"' aria-pressed='"+isSaved+"' aria-label='"+(isSaved?"Saved":"Save")+"'>"+icon("bookmark","sm")+"</button>"+
+      "<button class='lheadact' data-learnshare='"+esc(tp.id)+"' aria-label='Share'>"+icon("share","sm")+"</button></span></div>"+
     "<div class='leyebrow'>"+esc(eyebrow.filter(Boolean).join(" · "))+"</div>"+
     "<div class='lheadn'>"+esc(t[0])+"</div>"+((t[1]||tp.focus)?"<div class='lheadm'>"+esc(t[1]||tp.focus)+"</div>":"")+"</div>"+
     (stats.length?"<div class='lstats'>"+stats.map(x=>"<div class='lstat'><span class='lstatv'>"+x[0]+"</span><span class='lstatl'>"+
@@ -281,7 +367,8 @@ function topicView(tp){
         "<button class='btn ghost' data-learnsave='"+ref+"'>Save as routine</button></div></div>";
     });
   }else{
-    // Links grouped by what they are, each with a line on what it covers.
+    // Links grouped by what they are, each with a line on what it covers. They open online.
+    if(typeof navigator!=="undefined"&&navigator.onLine===false)h+="<div class='empty-note'>You're offline. These open on the web, so they'll need a connection.</div>";
     GROUPS.forEach(g=>{
       const links=(tp.links||[]).filter(l=>g[1].indexOf(l.k)>=0);
       if(!links.length)return;
@@ -389,5 +476,7 @@ function scanView(tp){
 
 export function learnView(){
   const tp=state.learnOpen&&topicById(state.learnOpen);
+  // Opening a topic puts it at the top of Recent (and Continue reading on Learn's home).
+  if(tp&&(state.learnRecent||[])[0]!==tp.id)state.learnRecent=[tp.id].concat((state.learnRecent||[]).filter(x=>x!==tp.id)).slice(0,12);
   return tp?topicView(tp):listView();
 }

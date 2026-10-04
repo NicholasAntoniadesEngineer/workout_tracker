@@ -44,7 +44,7 @@ export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],b
   settings:Object.assign({},DEFAULTS),
   reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,band:"",warmup:false,setStart:null,editing:null,
   adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
-  supplements:[],stacks:[],favs:[],programme:null,progSetup:null,cardio:null,cardioSetup:null,cardioDone:null,hrName:"",pickOpen:{},exInfo:null,exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
+  supplements:[],stacks:[],favs:[],learnSaved:[],learnRecent:[],learnIndex:null,programme:null,progSetup:null,cardio:null,cardioSetup:null,cardioDone:null,hrName:"",pickOpen:{},exInfo:null,exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
   backupAt:"",backupSnooze:"",focusSearch:false,origin:"home",view:"home",undo:null,progressEx:"",verseIdx:null,
   shareMenu:null,numEdit:null,feedback:null,
   calYear:new Date().getFullYear(),calMonth:new Date().getMonth(),calDay:null};
@@ -140,6 +140,8 @@ export function load(){
   state.hiddenRoutines=(saved&&saved.hiddenRoutines)||[];
   state.restTargets=(saved&&saved.restTargets)||{};
   state.favs=(saved&&saved.favs)||[];
+  state.learnSaved=(saved&&saved.learnSaved)||[];
+  state.learnRecent=(saved&&saved.learnRecent)||[];
   state.pickOpen=(saved&&saved.pickOpen)||{};
   state.programme=(saved&&saved.programme)||null;
   state.backupAt=(saved&&saved.backupAt)||"";
@@ -159,7 +161,7 @@ export function save(){
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,
         hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,favs:state.favs,pickOpen:state.pickOpen,programme:state.programme,
-        backupAt:state.backupAt,backupSnooze:state.backupSnooze,
+        learnSaved:state.learnSaved,learnRecent:state.learnRecent,backupAt:state.backupAt,backupSnooze:state.backupSnooze,
         supplements:state.supplements,stacks:state.stacks}));
     state.storageFull=false;
   }catch(e){
@@ -282,6 +284,7 @@ export function importBackup(d){
   });
   if(d.programme&&d.programme.id&&Array.isArray(d.programme.days)&&!state.programme)state.programme=d.programme;
   (Array.isArray(d.favs)?d.favs:[]).forEach(n=>{if(n&&state.favs.indexOf(n)<0)state.favs.push(String(n));});
+  (Array.isArray(d.learnSaved)?d.learnSaved:[]).forEach(n=>{if(n&&state.learnSaved.indexOf(n)<0)state.learnSaved.push(String(n));});
   if(d.restTargets&&typeof d.restTargets==="object")
     state.restTargets=Object.assign({},state.restTargets,d.restTargets);
   (Array.isArray(d.hiddenRoutines)?d.hiddenRoutines:[]).forEach(n=>{

@@ -104,3 +104,21 @@ import {topicById as anyTopic} from "../js/library.js";
 test("every related link points to a real Learn topic",()=>{
   AREAS.forEach(a=>a[2].forEach(c=>c.topics.forEach(t=>(t.related||[]).forEach(r=>assert.ok(anyTopic(r),t.id+" → "+r)))));
 });
+
+test("every Start here step is a real topic, and paths don't repeat a step", async () => {
+  const {PATHS}=await import("../js/paths.js");
+  const {topicById}=await import("../js/library.js");
+  for(const p of PATHS){
+    assert.ok(p.ids.length>=4,p.id);
+    assert.equal(new Set(p.ids).size,p.ids.length,p.id);
+    for(const id of p.ids)assert.ok(topicById(id),p.id+" → "+id);
+  }
+});
+
+test("a shared Learn link opens only a plain topic id", async () => {
+  const {learnLink,learnLinkId}=await import("../js/share.js");
+  assert.equal(learnLinkId(new URL(learnLink("su-prilepin")).hash),"su-prilepin");
+  assert.equal(learnLinkId("#learn=bad id"),null);
+  assert.equal(learnLinkId("#r=abc"),null);
+  assert.equal(learnLinkId(""),null);
+});

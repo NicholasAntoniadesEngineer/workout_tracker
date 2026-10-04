@@ -6,6 +6,8 @@ import {dateKey,nowISO} from "../model.js";
 import {deliver,exportCSV,exportJSON} from "../csv.js";
 import {reminderICS} from "../reminder.js";
 import {bookPos,saveBookPos} from "../reader.js";
+import {shareTopic} from "../share.js";
+import {topicById} from "../library.js";
 
 export function handle(t,ctx){
   if(t.id==="bodysave"){
@@ -31,6 +33,20 @@ export function handle(t,ctx){
     state.learnOpen=learn.getAttribute("data-learn");state.learnTab="overview";state.scrollTo=0;
     ctx.render();return true;
   }
+  // Learn's ways in: Start here, Saved, Recent, People A–Z.
+  const lidx=t.closest&&t.closest("[data-learnindex]");
+  if(lidx){state.learnIndex=lidx.getAttribute("data-learnindex");state.learnCat=null;state.learnQuery="";state.learnSearchOpen=false;state.scrollTo=0;ctx.render();return true;}
+  const bmk=t.closest&&t.closest("[data-learnbookmark]");
+  if(bmk){
+    const id=bmk.getAttribute("data-learnbookmark"),l=(state.learnSaved||[]).filter(x=>x!==id);
+    if(l.length===(state.learnSaved||[]).length)l.push(id);
+    state.learnSaved=l;ctx.render();return true;
+  }
+  const lsh=t.closest&&t.closest("[data-learnshare]");
+  if(lsh){const tp=topicById(lsh.getAttribute("data-learnshare"));if(tp)shareTopic(tp.id,tp.title);return true;}
+  const letter=t.closest&&t.closest("[data-learnletter]");
+  if(letter){const el=document.getElementById("ll-"+letter.getAttribute("data-learnletter"));if(el)el.scrollIntoView({block:"start",behavior:"smooth"});return true;}
+  if(t.closest&&t.closest("[data-learnclearrecent]")){state.learnRecent=[];ctx.render();return true;}
   // Featured: Next steps to another story for now; tomorrow brings a new one anyway.
   if(t.closest&&t.closest("[data-featurenext]")){state.featureShift=(state.featureShift||0)+1;ctx.render();return true;}
   const ltab=t.closest&&t.closest("[data-learntab]");
@@ -63,7 +79,7 @@ export function handle(t,ctx){
   if(lpart){state.learnPart=lpart.getAttribute("data-learnpart")||null;state.learnPartCat=state.learnCat;state.scrollTo=0;ctx.render();return true;}
   if(t.id==="learnsearchx"){state.learnQuery="";state.focusSearch="learnsearch";ctx.render();return true;}
   const learnArea=t.closest&&t.closest("[data-learnarea]");
-  if(learnArea){state.learnArea=learnArea.getAttribute("data-learnarea");state.learnCat=null;state.learnQuery="";state.scrollTo=0;ctx.render();return true;}
+  if(learnArea){state.learnArea=learnArea.getAttribute("data-learnarea");state.learnCat=null;state.learnIndex=null;state.learnQuery="";state.scrollTo=0;ctx.render();return true;}
   const learnCat=t.closest&&t.closest("[data-learncat]");
   if(learnCat){state.learnCat=learnCat.getAttribute("data-learncat")||null;state.scrollTo=0;ctx.render();return true;}
   const bodyMet=t.closest&&t.closest("[data-bodymet]");
@@ -96,7 +112,7 @@ export function handle(t,ctx){
     exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
       settings:state.settings,body:state.body,routines:state.routines,
       hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,
-      supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme});
+      supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme,learnSaved:state.learnSaved});
     ctx.render();return true;
   }
   if(t.id==="backupsnooze"){

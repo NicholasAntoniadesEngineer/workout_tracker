@@ -3,8 +3,8 @@ import {autoEndIfStale,fmtClock,isBandExercise,makeSession,parseClock,restSecond
 import {activeEx,addExerciseToDay,getSession,importBackup,lastPerformance,load,mergeSessions,
   restTargetFor,save,saveRoutine,selectSession,state} from "./store.js";
 import {parseImport} from "./csv.js";
-import {AREAS as LEARN_AREAS} from "./library.js";
-import {decodeRoutineHash} from "./share.js";
+import {AREAS as LEARN_AREAS,topicById} from "./library.js";
+import {decodeRoutineHash,learnLinkId} from "./share.js";
 import {learnHomeBody,paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
 import * as nav from "./actions/nav.js";
 import * as routines from "./actions/routines.js";
@@ -287,6 +287,7 @@ const reading=()=>state.view==="learn"&&state.learnOpen&&state.learnTab==="read"
 function learnBack(){
   if(reading()){state.bookCh=null;state.scrollTo=0;}
   else if(state.learnOpen){state.learnOpen=null;state.scrollTo=state.learnListY||0;}
+  else if(state.learnIndex){state.learnIndex=null;state.scrollTo=0;}
   else if(state.learnCat){state.learnCat=null;state.scrollTo=0;}
   else{state.view="home";state.learnQuery="";}
   render();
@@ -304,7 +305,7 @@ function watchLearnSwipe(){
     on=false;
     const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<Math.abs(dy)*1.5)return;
-    if(!state.learnOpen&&!state.learnCat){
+    if(!state.learnOpen&&!state.learnCat&&!state.learnIndex){
       const order=LEARN_AREAS.map(a=>a[0]),next=order.indexOf(state.learnArea||"training")+(dx<0?1:-1);
       if(next<0){learnBack();return;}
       if(next>=order.length)return;
@@ -462,5 +463,15 @@ if(sharedRoutine){
   saveRoutine(sharedRoutine.name,sharedRoutine.ex);
   state.view="home";state.sheet=false;
 }
+// Opened from a shared Learn link (kingskiln.com/#learn=<id>): straight to that topic.
+function openLearnLink(){
+  const id=learnLinkId(location.hash);
+  if(!id||!topicById(id))return false;
+  history.replaceState(null,"",location.pathname+location.search);
+  state.view="learn";state.learnOpen=id;state.learnTab="overview";state.learnIndex=null;state.learnListY=0;state.scrollTo=0;state.sheet=false;
+  return true;
+}
+openLearnLink();
+window.addEventListener("hashchange",()=>{if(openLearnLink())render();});
 render();
 setInterval(tick,TICK_MS);

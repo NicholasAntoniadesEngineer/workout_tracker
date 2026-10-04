@@ -173,6 +173,22 @@ export function shareApp(){
   }catch(e){prompt("Copy this link:",APP_URL);}
 }
 
+// A Learn topic, passed along: kingskiln.com/#learn=<id> opens straight on it.
+export const learnLink=id=>APP_URL+"/#learn="+encodeURIComponent(id);
+export function learnLinkId(hash){
+  const m=/^#learn=([\w-]+)$/.exec(hash||"");
+  return m?m[1]:null;
+}
+export function shareTopic(id,title){
+  const url=learnLink(id);
+  try{
+    if(navigator.share){navigator.share({title:title,text:title+" on KingsKiln",url:url}).catch(()=>{});return;}
+  }catch(e){}
+  try{
+    navigator.clipboard.writeText(url).then(()=>alert("Link copied."),()=>prompt("Copy this link:",url));
+  }catch(e){prompt("Copy this link:",url);}
+}
+
 // Share sheet where it exists — AirDrop, Messages, Instagram — a PNG download otherwise.
 export function shareDay(session){
   const canvas=buildShareCanvas(session);
