@@ -258,6 +258,7 @@ function topicView(tp){
     if(tp.book)h+=readButton(tp);
     h+=filmsHtml(tp);
     if(tp.people&&tp.people.length)h+=aboutPeople(tp.people)+alsoIn(tp);
+    h+=relatedHtml(tp);
     const books=booksFrom(tp.id);
     if(books.length)h+="<div class='picklbl'>Read the book</div>"+topicRows(books,false);
     if(tp.points&&tp.points.length)
@@ -316,6 +317,16 @@ function alsoIn(tp){
     "<span class='lalsow'>"+esc(x.where)+"</span></span><span class='lchev'>&rsaquo;</span></button>";
   return (r.about.length?"<div class='llabel'>Also in Learn</div><div class='lwrows'>"+r.about.map(row).join("")+"</div>":"")+
     (r.mentions.length?"<div class='llabel'>Mentioned in</div><div class='lwrows'>"+r.mentions.slice(0,8).map(row).join("")+"</div>":"");
+}
+
+// A subject's own pointers to where it's covered elsewhere in Learn — World cultures, people.
+function relatedHtml(tp){
+  const list=(tp.related||[]).map(id=>{const t=topicById(id),c=t&&catOfTopic(id);
+    const a=c&&AREAS.find(x=>x[2].includes(c));return t?{t,where:(a?a[1]+" · ":"")+c.cat}:null;}).filter(Boolean);
+  if(!list.length)return "";
+  return "<div class='llabel'>Related in Learn</div><div class='lwrows'>"+list.map(x=>
+    "<button class='lwrow' data-learn='"+esc(x.t.id)+"'><span class='lalso'><span class='lwrt'>"+esc(x.t.title)+"</span>"+
+    "<span class='lalsow'>"+esc(x.where)+"</span></span><span class='lchev'>&rsaquo;</span></button>").join("")+"</div>";
 }
 
 // Start, or pick up where you left off.

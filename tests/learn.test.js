@@ -99,3 +99,8 @@ test("World cultures sit in a known region, every topic has a part, and workouts
     });
   });
 });
+
+import {topicById as anyTopic} from "../js/library.js";
+test("every related link points to a real Learn topic",()=>{
+  AREAS.forEach(a=>a[2].forEach(c=>c.topics.forEach(t=>(t.related||[]).forEach(r=>assert.ok(anyTopic(r),t.id+" → "+r)))));
+});
