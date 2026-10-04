@@ -104,6 +104,36 @@ export const VIDEOS={
    "y": 2021,
    "min": 5,
    "d": "Ben Patrick shows how to perform and progress the Nordic hamstring curl."
+  },
+  {
+   "yt": "DeQCWZyfy2g",
+   "t": "Exercise for longevity: top 4 lessons",
+   "ch": "The Kneesovertoesguy",
+   "d": "What he's learned about training for the long run"
+  },
+  {
+   "yt": "43cGzAwsvJs",
+   "t": "My mom's knee and hip strategy",
+   "ch": "The Kneesovertoesguy",
+   "d": "How his mother trains her knees and hips"
+  },
+  {
+   "yt": "56GR_KT1_Io",
+   "t": "Rebuild your Achilles from the ground up",
+   "ch": "The Kneesovertoesguy",
+   "d": "Foot, calf and Achilles progressions"
+  },
+  {
+   "yt": "7NAd90tVnT8",
+   "t": "Rebuild your elbows from the wrist up",
+   "ch": "The Kneesovertoesguy",
+   "d": "Wrist and elbow strengthening sequence"
+  },
+  {
+   "yt": "GcpTEyAQHMg",
+   "t": "3-step shoulder routine",
+   "ch": "The Kneesovertoesguy",
+   "d": "His routine for cranky shoulders"
   }
  ],
  "kot": [
@@ -124,24 +154,6 @@ export const VIDEOS={
    "y": 2023,
    "min": 20,
    "d": "Ben Patrick walks through his seven-step ATG mobility routine, plus a four-step shoulder sequence."
-  },
-  {
-   "yt": "3U22w013uQY",
-   "t": "The 10 Mobility Exercises I’ve Done Most Over The Past 10 Years",
-   "ch": "The Kneesovertoesguy",
-   "y": 2024,
-   "min": 33,
-   "d": "The ten mobility exercises Ben Patrick has done most over ten years, each demonstrated."
-  }
- ],
- "h-ben-patrick": [
-  {
-   "yt": "Xy_MF9GA9k0",
-   "t": "ATG Zero: My Fitness Formula For Life",
-   "ch": "The Kneesovertoesguy",
-   "y": 2024,
-   "min": 19,
-   "d": "Ben Patrick's ATG Zero session: the bodyweight routine he calls his fitness formula for life."
   },
   {
    "yt": "3U22w013uQY",

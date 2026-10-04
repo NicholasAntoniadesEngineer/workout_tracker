@@ -4,9 +4,9 @@
 // medication, have a health condition, or compete in drug-tested sport. No affiliation with or
 // endorsement by any linked author, organisation, channel or publisher is implied, and nothing here
 // recommends a product or brand.
-// Five clear groups: the people (experts and lifters, each on their own page), then subjects —
-// food and fuel (protein among it), hydration, sleep and recovery, and supplements (pre-workout
-// and caffeine among them).
+// Four clear groups: the people (experts and lifters, each on their own page), then subjects —
+// food and fuel (protein, carbohydrate, fat and fluids), sleep and recovery, and supplements
+// (pre-workout and caffeine among them). Joint training lives in Training.
 export const HEALTH=[
   {cat:"Experts & lifters",topics:[
     {id:"h-attia",title:"Peter Attia: protein, muscle and sleep for the long game",era:"2010s–present",focus:"Longevity medicine",
@@ -29,27 +29,6 @@ export const HEALTH=[
       {t:"Dr. Peter Attia on Huberman Lab",u:"https://www.hubermanlab.com/episode/dr-peter-attia-improve-vitality-emotional-and-physical-health-and-lifespan",k:"podcast",d:"Long interview on exercise, nutrition and lifespan"},
       {t:"Podcast archive — The Drive",u:"https://peterattiamd.com/podcast/archive/",k:"podcast",d:"Every episode of his podcast"},
       {t:"Official channel — Peter Attia MD (YouTube)",u:"https://www.youtube.com/@PeterAttiaMD",k:"video",d:"Episodes and clips from The Drive"}]},
-    {id:"h-ben-patrick",title:"Ben Patrick: joint-proofing for a long athletic life",era:"2010s–present",focus:"Joint health & athletic longevity",
-     people:[{name:"Ben Patrick",from:"USA",known:"Coach known as Kneesovertoesguy; founder of ATG",
-       works:[{y:2021,t:"Knee Ability Zero",k:"book"},{y:2023,t:"Back Ability Zero",k:"book"}]}],
-     summary:"Ben Patrick, known online as the Kneesovertoesguy, rebuilt his own knees after surgeries and years of pain and went on to dunk again. His ATG approach strengthens joints through their full range with moves like backward sled walking, tibialis raises and knees-over-toes split squats, starting at an easy regression and progressing for years. He treats health as something trained in short daily sessions, and has said his training means he doesn't rely on supplements or other therapies.",
-     points:["Start each joint at a pain-free regression, then progress patiently","Backward sled or treadmill walking to warm up and strengthen the knees","Train tibialis, calves and Achilles, not just the big lifts","Short, consistent daily sessions beat occasional long ones","Keep squat, hip-rotation and shoulder range by loading it","Training is his main recovery tool; he says he doesn't need supplements"],
-     links:[
-      {t:"ATG — Ben Patrick's official site",u:"https://www.atgonlinecoaching.com/",k:"article",d:"His ATG training system and programs"},
-      {t:"Official channel — The Kneesovertoesguy (YouTube)",u:"https://www.youtube.com/@TheKneesovertoesguy",k:"video",d:"His free joint and athletic training videos"},
-      {t:"Exercise for longevity: top 4 lessons — The Kneesovertoesguy",u:"https://www.youtube.com/watch?v=DeQCWZyfy2g",k:"video",d:"What he's learned about training for the long run"},
-      {t:"My mom's knee and hip strategy — The Kneesovertoesguy",u:"https://www.youtube.com/watch?v=43cGzAwsvJs",k:"video",d:"How his mother trains her knees and hips"},
-      {t:"Rebuild your Achilles from the ground up — The Kneesovertoesguy",u:"https://www.youtube.com/watch?v=56GR_KT1_Io",k:"video",d:"Foot, calf and Achilles progressions"},
-      {t:"Rebuild your elbows from the wrist up — The Kneesovertoesguy",u:"https://www.youtube.com/watch?v=7NAd90tVnT8",k:"video",d:"Wrist and elbow strengthening sequence"},
-      {t:"3-step shoulder routine — The Kneesovertoesguy",u:"https://www.youtube.com/watch?v=GcpTEyAQHMg",k:"video",d:"His routine for cranky shoulders"},
-      {t:"The 10 mobility exercises I've done most — The Kneesovertoesguy",u:"https://www.youtube.com/watch?v=3U22w013uQY",k:"video",d:"His staple mobility moves over ten years"},
-      {t:"Ben Patrick on The Tim Ferriss Show (#835)",u:"https://tim.blog/2025/11/11/ben-patrick-kneesovertoesguy/",k:"podcast",d:"Long interview: his story, sled work, 20-minute sessions"},
-      {t:"Episode #835 transcript — The Tim Ferriss Show",u:"https://tim.blog/2025/11/13/ben-patrick-kneesovertoesguy-transcript/",k:"article",d:"Full text of the Ferriss interview"},
-      {t:"The ATG Podcast — Spotify for Creators",u:"https://creators.spotify.com/pod/profile/painfreeabilitypodcast/",k:"podcast",d:"His own podcast on longevity and mobility"},
-      {t:"Knees over toes on The Human Upgrade — Apple Podcasts",u:"https://podcasts.apple.com/us/podcast/knees-over-toes-fix-knees-calves-shins-shoulders-ben/id451295014?i=1000642623443",k:"podcast",d:"Interview on functional training and longevity"},
-      {t:"Ben Patrick on building bulletproof knees — Just Fly Sports",u:"https://www.just-fly-sports.com/podcast-148-ben-patrick/",k:"podcast",d:"Podcast on knee resilience for athletes"},
-      {t:"Ben Patrick expert page — Bob & Brad",u:"https://www.bobandbrad.com/experts/ben-patrick",k:"article",d:"Profile and videos with two physical therapists"},
-      {t:"Meet Ben Patrick — The Physical Movement",u:"https://thephysicalmovement.substack.com/p/tpm-336-meet-ben-patrick-knees-over",k:"article",d:"Profile of his coaching and youth work"}]},
     {id:"h-galpin",title:"Andy Galpin: fuel, fluids and recovery for performance",era:"2010s–present",focus:"Exercise physiology",
      people:[{name:"Andy Galpin",from:"USA",known:"Exercise physiologist; directs Parker University's Human Performance Center",
        works:[{y:2017,t:"Unplugged",k:"book"},{y:2024,t:"Perform with Dr. Andy Galpin",k:"podcast"}]}],
@@ -413,8 +392,7 @@ export const HEALTH=[
       {t:"Build muscle and lose fat at the same time — Jeff Nippard (YouTube)",u:"https://www.youtube.com/watch?v=M4K0s792wAU",k:"video",d:"Body recomposition step by step"},
       {t:"Two weight-loss rates in elite athletes — Int J Sport Nutr Exerc Metab",u:"https://pubmed.ncbi.nlm.nih.gov/21558571/",k:"study",d:"Slower loss kept more lean mass and power"},
       {t:"Natural bodybuilding contest prep: nutrition — J Int Soc Sports Nutr",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC4033492/",k:"study",d:"Rates of loss and macros for contest prep"},
-      {t:"Nutrition for bodybuilders in the off-season — Sports",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6680710/",k:"study",d:"Surplus size and gain rate off-season"}]}]},
-  {cat:"Hydration",topics:[
+      {t:"Nutrition for bodybuilders in the off-season — Sports",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC6680710/",k:"study",d:"Surplus size and gain rate off-season"}]},
     {id:"h-hydration",title:"Hydration: drink to thirst, don't over-drink",
      summary:"Tim Noakes' research showed that over-drinking during long events can dilute blood sodium to dangerous levels, a condition called exercise-associated hyponatraemia, and his answer is simple: drink to thirst. For everyday training, Huberman and Galpin give a simple baseline and the Galpin equation as a starting estimate in the heat. Weighing yourself before and after sessions shows your real sweat losses.",
      points:["In long events, drink to thirst and never gain weight during the event","Galpin equation: body weight (kg) × 2 = ml every 15–20 min, as a starting point","Weigh before and after training to learn your sweat rate","Replace about 1.25–1.5 L per kg lost over the following hours","Headache, nausea or swelling after drinking lots in a long event: seek medical help"],
