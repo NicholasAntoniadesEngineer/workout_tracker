@@ -56,9 +56,8 @@ export function shell(view){
 // Refresh the sidebar's live clocks once a second without repainting the page.
 export function tickSide(){
   const s=runningSession();if(!s)return;
-  const r=document.getElementById("sidelive-rest"),w=document.getElementById("sidelive-work");
-  if(r)r.textContent=fmtClock(setClockSeconds(s));
-  if(w)w.innerHTML=workoutLabel(s);
+  ["sidelive-rest","hhero-rest"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=fmtClock(setClockSeconds(s));});
+  ["sidelive-work","hhero-work"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=workoutLabel(s);});
 }
 
 // The ? sheet: every shortcut, grouped by where it works.
