@@ -836,7 +836,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .exbtn:not(.active):hover{background:var(--panelHi);}
   .exhbtn:hover{border-color:var(--accent);color:var(--accentText);}
   .chip.sheetitem:hover{border-color:var(--accent);}
-  .llink:hover{border-color:var(--accent);}
+  .lrow:hover,.llink:hover{border-color:var(--accent);}
 
   /* Selectable pills warm toward the accent. */
   .q:not(.on):hover,.setmult:hover{border-color:var(--accent);background:var(--accentDim);
