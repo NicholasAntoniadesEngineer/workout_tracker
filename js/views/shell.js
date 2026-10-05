@@ -38,7 +38,9 @@ function liveCard(){
 
 function sideNav(){
   const cur=ACTIVE[state.view]||state.view;
-  return "<aside class='side' aria-label='Sections'>"+brand()+liveCard()+
+  const mac=typeof navigator!=="undefined"&&/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent);
+  return "<aside class='side' aria-label='Sections'>"+brand()+
+    "<button class='ssearch' id='palopen' title='Search'>"+icon("search","sm")+"<span>Search</span><kbd>"+(mac?"&#8984;K":"Ctrl K")+"</kbd></button>"+liveCard()+
     "<nav class='snav'>"+NAV.map(([k,l,ic,grp],i)=>{
       const live=k==="log"&&runningSession()||k==="cardio"&&state.cardio;
       return (grp!=null?"<span class='sgroup"+(grp?"":" blank")+"'>"+grp+"</span>":"")+"<button class='sitem"+(cur===k?" on":"")+"' data-nav='"+k+"'"+(cur===k?" aria-current='page'":"")+">"+
@@ -63,7 +65,7 @@ export function tickSide(){
 }
 
 // The ? sheet: every shortcut, grouped by where it works.
-const KEYS=[["Anywhere",[["1 – 9","Go to a section"],["/","Search on this page"],["?","These shortcuts"],["Esc","Close or go back"]]],
+const KEYS=[["Anywhere",[["⌘K / Ctrl K","Search and jump anywhere"],["1 – 9","Go to a section"],["/","Search on this page"],["?","These shortcuts"],["Esc","Close or go back"]]],
   ["Log",[["L","Log the set"],["Space","Start or cancel a set"],["↑ ↓","Reps up or down"],["⇧ ↑ ↓","Weight up or down"],
     ["R / W","Type reps or weight"],["P","Per side"],["U","Warm-up"],["J / K","Next or previous exercise"],["A","Add an exercise"]]],
   ["Learn",[["[ ]","Previous or next tab"],["← →","Previous or next area"]]],

@@ -9,6 +9,7 @@ import {learnHomeBody,paint,setClockSeconds,setSub,workoutLabel,workoutSub} from
 import {tickSide,wide} from "./views/shell.js";
 import {handleKey} from "./keys.js";
 import {parseRoute,routeOf,titleOf} from "./route.js";
+import {paletteList,runPalette} from "./palette.js";
 import * as nav from "./actions/nav.js";
 import * as routines from "./actions/routines.js";
 import * as days from "./actions/days.js";
@@ -394,6 +395,10 @@ document.body.addEventListener("input",ev=>{
   if(id==="editwork")state.editWork=parseClock(ev.target.value);
   else if(id==="editrest")state.editRest=parseClock(ev.target.value);
   else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
+  else if(id==="palin"&&state.palette){
+    state.palette.q=ev.target.value;state.palette.sel=0;
+    const list=document.getElementById("pallist");if(list)list.innerHTML=paletteList();
+  }
   // Learn's searches never rebuild the page while you type — only the results change — so
   // the box keeps focus and the phone keeps its keyboard.
   else if(id==="learnsearch"){
@@ -433,6 +438,11 @@ const AREAS=[importer,cardio,programmes,stacking,nav,routines,days,sharing,data,
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;
+  // ⌘K search: open from the sidebar, run a result, or close by clicking outside it.
+  if(t.closest&&t.closest("#palopen")){openPalette();return;}
+  const pi=t.closest&&t.closest("[data-palidx]");
+  if(pi&&state.palette){runPalette(+pi.getAttribute("data-palidx"),ev.shiftKey);render();return;}
+  if(t.id==="palback"){state.palette=null;render();return;}
   for(const area of AREAS)if(area.handle(t,ctx))return;
 });
 
@@ -498,7 +508,27 @@ window.addEventListener("orientationchange",()=>{markRefit();fit();});
 
 // Esc closes whatever is open, top-most first — the picker, then a calendar day, then an
 // inline add field — so a keyboard is a first-class way to back out on a laptop.
+function openPalette(){
+  state.palette={q:"",sel:0};render();
+  const el=document.getElementById("palin");if(el)el.focus();
+}
+function paletteKey(ev){
+  const p=state.palette;
+  if(ev.key==="Escape"){state.palette=null;render();return true;}
+  if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){
+    p.sel=Math.max(0,Math.min((p.count||1)-1,p.sel+(ev.key==="ArrowDown"?1:-1)));
+    const list=document.getElementById("pallist");if(list){list.innerHTML=paletteList();
+      const on=list.querySelector(".palitem.on");if(on)on.scrollIntoView({block:"nearest"});}
+    return true;
+  }
+  if(ev.key==="Enter"){runPalette(p.sel,ev.shiftKey);render();return true;}
+  return false;
+}
 window.addEventListener("keydown",ev=>{
+  if((ev.metaKey||ev.ctrlKey)&&!ev.altKey&&String(ev.key).toLowerCase()==="k"){
+    ev.preventDefault();if(state.palette){state.palette=null;render();}else openPalette();return;
+  }
+  if(state.palette){if(paletteKey(ev))ev.preventDefault();return;}
   if(ev.key!=="Escape"){if(handleKey(ev,render))ev.preventDefault();return;}
   if(state.keysOpen){state.keysOpen=false;render();}
   else if(state.exInfo){state.exInfo=null;render();}

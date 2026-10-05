@@ -16,6 +16,7 @@ import {learnLib} from "./lazy.js";
 import {stackView} from "./views/stack.js";
 import {keysSheet,shell,wide} from "./views/shell.js";
 import {importView} from "./views/importer.js";
+import {paletteView} from "./palette.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
 import {VERSES} from "./verses.js";
@@ -176,5 +177,5 @@ function feedbackModal(){
 export function paint(){
   const view=(VIEWS[state.view]||logView)();
   document.getElementById("app").innerHTML=
-    (wide()?shell(view):view)+keysSheet()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
+    (wide()?shell(view):view)+keysSheet()+paletteView()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
 }
