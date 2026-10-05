@@ -56,8 +56,8 @@ function reminderRow(){
 }
 
 export function settingsView(){
-  return "<div class='wrap scroll'>"+
-    pageHead("Settings")+
+  return "<div class='wrap scroll setwrap'>"+
+    pageHead("Settings")+"<div class='setcols'>"+
 
     "<div class='setgroup'>Display</div>"+
     choiceRow("Text size","","textScale",TEXT_SIZES,"onerow")+
@@ -121,6 +121,7 @@ export function settingsView(){
     "<div class='sethint'>KingsKiln&trade; and the shield-and-cross mark are trademarks of KingsKiln. Other product, "+
       "programme and company names are trademarks of their owners, used only to identify them.</div></div>"+
 
+    "</div>"+
     "<div class='reset'><button id='resetsettings'>Restore defaults</button></div>"+
     "</div>";
 }

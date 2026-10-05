@@ -10,8 +10,10 @@ import {setClockSeconds,workoutLabel} from "./log.js";
 export {desk,wide};
 
 // Every section, in the order of the number keys.
-export const NAV=[["home","Home","home"],["log","Log","dumbbell"],["history","History","days"],["calendar","Calendar","calendar"],
-  ["progress","Progress","progress"],["body","Body","body"],["cardio","Cardio","bolt"],["learn","Learn","book"],["settings","Settings","settings"]];
+// Grouped as you use them: training, looking back, reading; Settings last.
+export const NAV=[["home","Home","home","Train"],["log","Log","dumbbell"],["cardio","Cardio","bolt"],
+  ["history","History","days","Review"],["calendar","Calendar","calendar"],["progress","Progress","progress"],["body","Body","body"],
+  ["learn","Learn","book","Read"],["settings","Settings","settings",""]];
 const ACTIVE={prog:"learn",stack:"learn",import:"settings"};
 
 function brand(){
@@ -37,9 +39,9 @@ function liveCard(){
 function sideNav(){
   const cur=ACTIVE[state.view]||state.view;
   return "<aside class='side' aria-label='Sections'>"+brand()+liveCard()+
-    "<nav class='snav'>"+NAV.map(([k,l,ic],i)=>{
+    "<nav class='snav'>"+NAV.map(([k,l,ic,grp],i)=>{
       const live=k==="log"&&runningSession()||k==="cardio"&&state.cardio;
-      return "<button class='sitem"+(cur===k?" on":"")+"' data-nav='"+k+"'"+(cur===k?" aria-current='page'":"")+">"+
+      return (grp!=null?"<span class='sgroup"+(grp?"":" blank")+"'>"+grp+"</span>":"")+"<button class='sitem"+(cur===k?" on":"")+"' data-nav='"+k+"'"+(cur===k?" aria-current='page'":"")+">"+
         "<span class='sicon'>"+icon(ic,"sm")+(live?"<span class='slivedot'></span>":"")+"</span><span class='slabel'>"+l+"</span>"+
         "<kbd>"+(i+1)+"</kbd></button>";}).join("")+"</nav>"+
     "<div class='sfoot'><button id='feedbackbtn'>"+icon("chat","sm")+"<span>Send feedback</span></button>"+

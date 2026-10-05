@@ -61,6 +61,7 @@ export function handleKey(ev,render){
     if((k==="ArrowLeft"||k==="ArrowRight")&&!state.learnOpen&&!state.learnCat&&!state.learnIndex)
       return stepIn("[data-learnarea]",b=>b.classList.contains("on"),k==="ArrowRight"?1:-1);
   }
+  if(v==="cardio"&&!state.cardio&&!state.cardioDone&&k==="Enter")return press("[data-cardiostart]");
   if(v==="cardio"&&state.cardio){
     if(k===" ")return press("[data-cardiopause]");
     if(lower==="n")return press("[data-cardioskip]");

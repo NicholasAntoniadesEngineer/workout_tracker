@@ -54,6 +54,14 @@ export function calendarView(){
       if(s.ex.some(e=>e.sets.length)&&kinds.indexOf(kindKey(s))<0)kinds.push(kindKey(s));
     });
   }
+  // A big screen always shows a day beside the month: the one picked, else today if it was
+  // trained, else the month's latest workout.
+  const big=wide();
+  let selKey=state.calDay;
+  if(big&&!selKey){
+    const worked=Object.keys(byDay).filter(k=>k.slice(0,7)===keyOf(y,m,1).slice(0,7)&&byDay[k].length).sort();
+    selKey=byDay[todayKey]&&byDay[todayKey].length&&todayKey.slice(0,7)===keyOf(y,m,1).slice(0,7)?todayKey:worked[worked.length-1]||null;
+  }
   const colourOf=s=>KIND_COLOURS[Math.max(0,kinds.indexOf(kindKey(s)))%KIND_COLOURS.length];
 
   let h="<div class='wrap scroll'>"+
@@ -86,7 +94,7 @@ export function calendarView(){
     else{cls+=" addable"+(future?" future":"");}   // any empty day: tap to add or plan
     if(isToday)cls+=" today";
     if(hasCurrent)cls+=" cur";
-    if(k===state.calDay)cls+=" sel";
+    if(k===selKey)cls+=" sel";
     // Worked/planned days open (pick a session); empty days create one on that date.
     const attr=worked?" data-calday='"+k+"'":" data-newday='"+k+"'";
     h+="<button class='"+cls+"'"+attr+" "+(feasts[day]?"title=\""+esc(feasts[day])+"\"":"")+">"+
@@ -136,10 +144,10 @@ export function calendarView(){
   }
 
   // A big screen shows the chosen day beside the month instead of over it.
-  if(wide()){
-    const list=state.calDay?(byDay[state.calDay]||[]).slice().sort((a,b)=>(a.created||"").localeCompare(b.created||"")):[];
+  if(big){
+    const list=selKey?(byDay[selKey]||[]).slice().sort((a,b)=>(a.created||"").localeCompare(b.created||"")):[];
     return "<div class='wrap calsplit'><section class='calmain' data-keepx='calm'>"+h.replace(/^<div class='wrap scroll'>/,"")+"</section>"+
-      "<section class='hdetail' data-keepx='cald-"+esc(state.calDay||"")+"'>"+(list.length?list.map(dayDetailPane).join("<div class='ddsep'></div>"):
+      "<section class='hdetail' data-keepx='cald-"+esc(selKey||"")+"'>"+(list.length?list.map(dayDetailPane).join("<div class='ddsep'></div>"):
         "<div class='empty-note'>Click a day to see what was trained.<br>Click an empty day to log or plan one.</div>")+"</section></div>";
   }
   if(state.calDay){

@@ -3,7 +3,7 @@
 import {dateKey,nowISO,shortDate} from "../model.js";
 import {state} from "../store.js";
 import {lineChart,withAxis} from "../charts.js";
-import {esc,pageHead} from "./common.js";
+import {esc,pageHead,wide} from "./common.js";
 
 const GIRTHS=[["waist","Waist"],["chest","Chest"],["arm","Arm"]];
 
@@ -13,7 +13,9 @@ export function bodyView(){
   const list=state.body.slice().reverse();
   const today=state.body.find(b=>dateKey(b.at)===dateKey(nowISO()));
 
-  let h="<div class='wrap scroll'>"+pageHead("Body");
+  // A big screen puts logging and the trend on the left and the entries beside them.
+  const big=wide();
+  let h="<div class='wrap scroll"+(big?" bodywide":"")+"'>"+pageHead("Body")+(big?"<div class='bodygrid'><div class='bodyl'>":"");
   // What you take sits with what you weigh: products, photos and your stacks.
   h+="<button class='card supslink' id='opensupps'><span class='sl-t'>Supplements &amp; stacks</span>"+
     "<span class='sl-s'>"+state.supplements.length+" products &middot; "+state.stacks.length+" stacks</span>"+
@@ -44,13 +46,14 @@ export function bodyView(){
       h+="<div class='seg bodymet'>"+metrics.map(m=>"<button class='q"+(m===met?" on":"")+
         "' data-bodymet='"+m[0]+"'>"+m[1]+"</button>").join("")+"</div>";
     }
-    h+=withAxis(lineChart(vs),Math.max(...vs),Math.min(...vs))+
+    h+=withAxis(lineChart(vs,big?{w:640,h:200,labels:pts.map(p=>shortDate(p.at)+": "+p[met[0]])}:undefined),Math.max(...vs),Math.min(...vs))+
       "<div class='chartlbls'><span>"+esc(shortDate(pts[0].at))+"</span>"+
       "<span>"+met[1].toLowerCase()+" now "+vs[vs.length-1]+met[2]+
         (delta?" ("+(delta>0?"+":"")+delta+")":"")+"</span>"+
       "<span>"+esc(shortDate(pts[pts.length-1].at))+"</span></div></div>";
   }
 
+  if(big)h+="</div><div class='bodyr'>";
   if(list.length){
     h+="<div class='setgroup'>Entries</div><div class='card'>";
     list.forEach(b=>{
@@ -66,5 +69,6 @@ export function bodyView(){
   }else{
     h+="<div class='empty-note'>Nothing logged yet.<br>Weigh-ins build their own trend here.</div>";
   }
+  if(big)h+="</div></div>";
   return h+"</div>";
 }

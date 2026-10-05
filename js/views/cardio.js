@@ -6,7 +6,7 @@ import {gpsSupported,hrSupported,voiceSupported} from "../sensors.js";
 import {fmtClock} from "../model.js";
 import {state} from "../store.js";
 import {icon} from "../icons.js";
-import {esc} from "./common.js";
+import {esc,pageHead,wide} from "./common.js";
 
 export const ACTIVITIES=[["run","Run","Running"],["ride","Ride","Cycling"],["walk","Walk","Walking"],["row","Row","Rowing"],
   ["swim","Swim","Swimming"],["other","Other","Conditioning"]];
@@ -56,10 +56,12 @@ function setupView(){
   const preset=PRESETS.find(p=>p.id===c.preset)||PRESETS[0];
   const f=MODES[preset.mode].fields,total=totalSecs(phases(preset.mode,c.o));
   const LAB={work:"Work",rest:"Rest",rounds:"Rounds",minutes:"Minutes"};
-  let h="<div class='wrap scroll cscreen'>"+
+  const big=wide();
+  const importer="<label class='btn ghost tiny cimport'>Import file<input type='file' id='cardiofile' accept='.fit,.gpx,.tcx,.zip,.gz,.csv,.xml,application/gpx+xml,application/xml,text/xml,application/zip,text/csv,application/octet-stream' hidden></label>";
+  // A big screen: the page title on top, what to do on the left, how to track it and Start on the right.
+  let h="<div class='wrap scroll cscreen"+(big?" csetwide":"")+"'>"+(big?pageHead("Cardio",importer)+"<div class='csetgrid'><div class='csetl'><div class='llabel'>Activity and timer</div>":
     "<div class='chead'><button class='backbtn iconbtn' id='cardioback' aria-label='Back'>"+icon("back","sm")+"</button>"+
-    "<span class='cheadt'>Cardio</span>"+
-    "<label class='btn ghost tiny cimport'>Import file<input type='file' id='cardiofile' accept='.fit,.gpx,.tcx,.zip,.gz,.csv,.xml,application/gpx+xml,application/xml,text/xml,application/zip,text/csv,application/octet-stream' hidden></label></div>"+
+    "<span class='cheadt'>Cardio</span>"+importer+"</div>")+
     "<div class='cseg'>"+ACTIVITIES.map(([k,l])=>"<button class='"+(c.activity===k?"on":"")+"' data-cardioact='"+k+"'>"+l+"</button>").join("")+"</div>"+
     "<div class='cpresets'>"+PRESETS.map(p=>"<button class='cpreset"+(p.id===c.preset?" on":"")+"' data-cardiopreset='"+p.id+"'>"+esc(p.short)+"</button>").join("")+"</div>"+
     "<div class='cplan'><div class='cplann'><b>"+esc(preset.name)+"</b>"+(total?"<span class='mono'>"+clock(total)+"</span>":"")+"</div>"+
@@ -73,6 +75,7 @@ function setupView(){
   h+="</div>";
   // Sensors: GPS outdoors, a heart-rate strap or watch over Bluetooth.
   const g=state.gpsLive||{},help=g.st&&g.st!=="ok"?gpsHelp(g.st):"";
+  if(big)h+="</div><div class='csetr'><div class='llabel'>Track</div>";
   h+="<div class='ctrack'>"+
     "<button class='ctoggle"+(c.gps?" on":"")+(c.gps&&g.acc>GOOD_ACC?" weak":"")+"' data-cardiogps='1'"+(gpsSupported()?"":" disabled")+" aria-pressed='"+!!c.gps+"'>"+
       "<span><b>GPS</b><span id='gpsline'>"+gpsLine(c.gps)+"</span></span><span class='cdot'></span></button>"+
@@ -91,7 +94,8 @@ function setupView(){
       (state.settings.voice?"Splits and interval changes, spoken":"Off")+"</span></span><span class='cswitch"+(state.settings.voice?" on":"")+"'></span></button>":"")+
     "<div class='cmaxhr'><span>Max heart rate <span class='cmaxs'>sets your zones</span></span>"+stepper("cardiomax",state.settings.maxHR||190,"maximum heart rate").replace(/data-cardiomax=':/g,"data-cardiomax='")+"</div>"+
     "<div class='cgrow'></div>"+
-    "<button class='btn primary pbig cstart' data-cardiostart='1'>Start "+esc(actName(c.activity).toLowerCase())+"</button>";
+    "<button class='btn primary pbig cstart' data-cardiostart='1'>Start "+esc(actName(c.activity).toLowerCase())+(big?" <kbd>Enter</kbd>":"")+"</button>";
+  if(big)h+="</div></div>";
   return h+"</div>";
 }
 

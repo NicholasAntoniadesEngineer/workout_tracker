@@ -474,6 +474,20 @@ cardio.resumeCardio(render);
 document.addEventListener("visibilitychange",()=>{if(state.cardio)import("./sensors.js").then(m=>m.rewake(true));});
 
 window.addEventListener("resize",()=>{markRefit();fit();});
+// On a computer, a file dropped anywhere on the window goes to Import: a Strava or Garmin
+// archive, Apple Health's export, a strength app's CSV, a watch file.
+let dragDepth=0;
+const hasFiles=ev=>ev.dataTransfer&&[...(ev.dataTransfer.types||[])].indexOf("Files")>=0;
+window.addEventListener("dragenter",ev=>{if(!hasFiles(ev))return;ev.preventDefault();dragDepth++;document.body.classList.add("dropping");});
+window.addEventListener("dragover",ev=>{if(hasFiles(ev))ev.preventDefault();});
+window.addEventListener("dragleave",()=>{if(--dragDepth<=0){dragDepth=0;document.body.classList.remove("dropping");}});
+window.addEventListener("drop",ev=>{
+  if(!hasFiles(ev))return;
+  ev.preventDefault();dragDepth=0;document.body.classList.remove("dropping");
+  const f=ev.dataTransfer.files&&ev.dataTransfer.files[0];
+  if(f){if(state.view!=="import")state.importFrom=state.view;importer.importFile(f,render);}
+});
+
 // Crossing the tablet or laptop width swaps the layout, so repaint then (not on every resize).
 if(typeof matchMedia==="function")[900,1200,1360].forEach(w=>{
   const mq=matchMedia("(min-width:"+w+"px)");
