@@ -37,7 +37,7 @@ export function parseFit(buf){
   const dv=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
   const hlen=bytes[0],end=Math.min(bytes.length,hlen+dv.getUint32(4,true));
   const defs={},track=[],hr=[];
-  let at=hlen,lastTs=0,sport="",elapsed=0,distM=0,lastDist=0;
+  let at=hlen,lastTs=0,sport="",elapsed=0,distM=0,lastDist=0,fileType=null,climb=0;
   while(at<end){
     const rh=bytes[at++];
     let local,ts=null;
@@ -75,6 +75,9 @@ export function parseFit(buf){
       if(v[5]!=null&&!sport)sport=SPORT[v[5]]||"";
       if(v[7]!=null)elapsed+=v[7]/1000;
       if(v[9]!=null)distM+=v[9]/100;
+      if(v[22]!=null)climb+=v[22];
+    }else if(d.num===0&&v[0]!=null){           // file id: 4 is an activity, others are settings or wellness
+      fileType=v[0];
     }else if(d.num===12&&v[0]!=null&&!sport){  // sport message
       sport=SPORT[v[0]]||"";
     }
@@ -82,7 +85,7 @@ export function parseFit(buf){
   const first=track.length?track[0].t:hr.length?hr[0].t:null;
   const last=track.length?track[track.length-1].t:hr.length?hr[hr.length-1].t:null;
   return {track,hr,sport,name:"",start:first,
-    secs:Math.round(elapsed||(first&&last?(last-first)/1000:0)),distM:Math.round(distM||lastDist)};
+    secs:Math.round(elapsed||(first&&last?(last-first)/1000:0)),distM:Math.round(distM||lastDist),climbM:Math.round(climb),fileType};
 }
 
 // The first workout file in a .zip (Garmin Connect's "Export original"), as {name, bytes}.

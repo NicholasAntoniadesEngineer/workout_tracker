@@ -14,7 +14,8 @@ function goSection(k,ctx){
     ctx.recallLast(activeEx());
     state.origin="home";state.sheet=!getSession().ex.length;ctx.markRefit();
   }else if(k==="calendar"){
-    const c=getSession(),d=c?new Date(c.created):new Date();
+    // The calendar always opens on this month; the arrows reach any other.
+    const d=new Date();
     state.calYear=d.getFullYear();state.calMonth=d.getMonth();
   }else if(k==="learn"){
     state.learnOpen=null;state.learnCat=null;state.learnIndex=null;state.learnQuery="";state.learnSearchOpen=false;
@@ -52,8 +53,8 @@ export function handle(t,ctx){
   }
 
   if(t.closest&&(t.closest("#homecal")||t.closest("#calbtn"))){
-    const c=getSession();
-    const d=c?new Date(c.created):new Date();
+    // Always this month, whichever day was last open.
+    const d=new Date();
     state.calYear=d.getFullYear();state.calMonth=d.getMonth();state.calDay=null;
     state.view="calendar";ctx.render();return true;
   }

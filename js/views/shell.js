@@ -12,7 +12,7 @@ export {desk,wide};
 // Every section, in the order of the number keys.
 export const NAV=[["home","Home","home"],["log","Log","dumbbell"],["history","History","days"],["calendar","Calendar","calendar"],
   ["progress","Progress","progress"],["body","Body","body"],["cardio","Cardio","bolt"],["learn","Learn","book"],["settings","Settings","settings"]];
-const ACTIVE={prog:"learn",stack:"learn"};
+const ACTIVE={prog:"learn",stack:"learn",import:"settings"};
 
 function brand(){
   return "<div class='sbrand'><svg class='brandshield' viewBox='0 0 100 100' aria-hidden='true'>"+

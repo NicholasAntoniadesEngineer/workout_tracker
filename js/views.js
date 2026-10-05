@@ -15,6 +15,7 @@ import {programmeView} from "./views/programme.js";
 import {learnLib} from "./lazy.js";
 import {stackView} from "./views/stack.js";
 import {keysSheet,shell,wide} from "./views/shell.js";
+import {importView} from "./views/importer.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
 import {VERSES} from "./verses.js";
@@ -26,7 +27,7 @@ export {setClockSeconds,setLabel,setSub,setsSummary,workoutLabel,
   workoutSub} from "./views/log.js";
 
 const VIEWS={cardio:cardioView,prog:programmeView,home:homeView,history:historyView,calendar:calendarView,settings:settingsView,
-  progress:progressView,body:bodyView,learn:learnPage,stack:stackView};
+  progress:progressView,body:bodyView,learn:learnPage,stack:stackView,import:importView};
 // Learn, once its library is in; a quiet holding page for the moment before.
 function learnPage(){
   const L=learnLib();

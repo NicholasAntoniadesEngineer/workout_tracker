@@ -29,20 +29,23 @@ const GOOD_ACC=20;
 export function gpsLine(on){
   const g=state.gpsLive||{};
   if(!gpsSupported())return "Not on this device";
-  if(!on)return g.st==="denied"?"Blocked: tap for how to allow":g.st==="off"?"Phone location is off":"Off: tap and allow location";
+  if(!on)return g.st==="denied"?"Blocked":g.st==="off"?"Location is off":"Off: tap and allow location";
   if(g.acc)return (g.acc<=GOOD_ACC?"Ready":"Weak")+" &middot; &plusmn;"+Math.round(g.acc)+" m";
   return "Finding signal&hellip;";
 }
 // When location won't come, the way to switch it on for this phone.
+// When location won't come: one short line, Try again, and the path to switch it on for this
+// phone behind How. (A web page can't open the phone's Settings itself.)
 function gpsHelp(st){
-  if(st==="nofix")return "<b>No signal yet.</b> Step outside with a clear view of the sky; it usually takes under a minute.";
-  if(st==="off")return isIOS()?"<b>Location Services are off.</b> Settings &rsaquo; Privacy &amp; Security &rsaquo; Location Services: turn it on, then tap GPS again.":
-    isAndroid()?"<b>Your phone's location is off.</b> Swipe down from the top, turn on Location, then tap GPS again.":
-    "<b>This device's location is off.</b> Turn it on in its settings, then tap GPS again.";
-  if(st==="denied")return isIOS()?"<b>Location is blocked.</b> Settings &rsaquo; Privacy &amp; Security &rsaquo; Location Services: turn it on, then Safari Websites &rsaquo; While Using the App. In a Safari tab, <b>aA</b> &rsaquo; Website Settings &rsaquo; Location &rsaquo; Allow works too. Then tap GPS again.":
-    isAndroid()?"<b>Location is blocked.</b> In Chrome, tap &#8942; &rsaquo; Settings &rsaquo; Site settings &rsaquo; Location and allow kingskiln.com. Make sure Location is on in quick settings, then tap GPS again.":
-    "<b>Location is blocked.</b> Click the icon at the left of the address bar, allow Location, then tap GPS again.";
-  return "";
+  if(st==="nofix")return {t:"No signal yet",path:"Step outside with a clear view of the sky"};
+  const ios=isIOS(),and=isAndroid(),standalone=typeof matchMedia==="function"&&matchMedia("(display-mode: standalone)").matches;
+  if(st==="off")return {t:"Location is off on this "+(ios||and?"phone":"device"),
+    path:ios?"Settings › Privacy & Security › Location Services":and?"Swipe down from the top › Location":"Turn location on in the device's settings"};
+  if(st==="denied")return {t:"Location is blocked",
+    path:ios?"Settings › Privacy & Security › Location Services › Safari Websites › While Using the App":
+      and?(standalone?"Hold the KingsKiln icon › App info › Permissions › Location › Allow":"Tap the icon left of the address › Permissions › Location › Allow"):
+      "Click the icon left of the address › Location › Allow"};
+  return null;
 }
 const stepper=(attr,v,lab)=>"<span class='cstepv'><button data-"+attr+"=':-1' aria-label='Less "+lab+"'>&minus;</button>"+
   "<b class='mono'>"+v+"</b><button data-"+attr+"=':1' aria-label='More "+lab+"'>+</button></span>";
@@ -56,7 +59,7 @@ function setupView(){
   let h="<div class='wrap scroll cscreen'>"+
     "<div class='chead'><button class='backbtn iconbtn' id='cardioback' aria-label='Back'>"+icon("back","sm")+"</button>"+
     "<span class='cheadt'>Cardio</span>"+
-    "<label class='btn ghost tiny cimport'>Import file<input type='file' id='cardiofile' accept='.fit,.gpx,.tcx,.zip,application/gpx+xml,application/xml,text/xml,application/zip,application/octet-stream' hidden></label></div>"+
+    "<label class='btn ghost tiny cimport'>Import file<input type='file' id='cardiofile' accept='.fit,.gpx,.tcx,.zip,.gz,.csv,.xml,application/gpx+xml,application/xml,text/xml,application/zip,text/csv,application/octet-stream' hidden></label></div>"+
     "<div class='cseg'>"+ACTIVITIES.map(([k,l])=>"<button class='"+(c.activity===k?"on":"")+"' data-cardioact='"+k+"'>"+l+"</button>").join("")+"</div>"+
     "<div class='cpresets'>"+PRESETS.map(p=>"<button class='cpreset"+(p.id===c.preset?" on":"")+"' data-cardiopreset='"+p.id+"'>"+esc(p.short)+"</button>").join("")+"</div>"+
     "<div class='cplan'><div class='cplann'><b>"+esc(preset.name)+"</b>"+(total?"<span class='mono'>"+clock(total)+"</span>":"")+"</div>"+
@@ -76,7 +79,10 @@ function setupView(){
     (hrSupported()?"<button class='ctoggle"+(state.hrName?" on":"")+"' data-cardiohr='1' aria-pressed='"+!!state.hrName+"'><span><b>Heart rate</b><span>"+(state.hrName?esc(state.hrName):"Pair a strap or watch")+"</span></span><span class='cdot'></span></button>":
       "<div class='ctoggle dim'><span><b>Heart rate</b><span>Record on your watch, then Import file</span></span></div>")+
     "</div>"+
-    (help?"<div class='cnote cwarn'>"+help+"</div>":"")+
+    (help?"<div class='cnote cwarn cgps'><span class='cgpst'><b>"+esc(help.t)+"</b>"+
+      "<button class='cgpsb' data-gpshow='1' aria-expanded='"+!!state.gpsHowOpen+"'>How</button>"+
+      "<button class='cgpsb' data-cardiogps='1'>Try again</button></span>"+
+      (state.gpsHowOpen?"<span class='cgpsp'>"+esc(help.path)+"</span>":"")+"</div>":"")+
     (voiceSupported()?"<button class='cmaxhr cvoice' data-cardiovoice='1' aria-pressed='"+!!state.settings.voice+"'><span>Voice cues <span class='cmaxs'>"+
       (state.settings.voice?"Splits and interval changes, spoken":"Off")+"</span></span><span class='cswitch"+(state.settings.voice?" on":"")+"'></span></button>":"")+
     "<div class='cmaxhr'><span>Max heart rate <span class='cmaxs'>sets your zones</span></span>"+stepper("cardiomax",state.settings.maxHR||190,"maximum heart rate").replace(/data-cardiomax=':/g,"data-cardiomax='")+"</div>"+

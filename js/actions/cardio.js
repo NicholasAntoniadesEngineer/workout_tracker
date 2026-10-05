@@ -131,6 +131,7 @@ export function handle(t,ctx){
     else{s.gps=true;warm(ctx.render);}
     ctx.render();return true;
   }
+  if(t.closest&&t.closest("[data-gpshow]")){state.gpsHowOpen=!state.gpsHowOpen;ctx.render();return true;}
   const tab=t.closest&&t.closest("[data-cardiotab]");
   if(tab){state.cardioTab=tab.getAttribute("data-cardiotab");ctx.render();return true;}
   if(t.closest&&t.closest("[data-cardiovoice]")){state.settings.voice=!state.settings.voice;ctx.render();return true;}
@@ -179,19 +180,7 @@ export function handle(t,ctx){
   }
   const d=state.cardioDone;
   if(t.closest&&t.closest("[data-cardiosave]")&&d){
-    const ses=makeSession(),st=trackStats(d.track||[]),hs=hrStats(d.hr||[],state.settings.maxHR||190);
-    if(!st.dist&&d.distM)st.dist=d.distM;
-    ses.created=d.created||nowISO();ses.started=ses.created;ses.ended=new Date(Date.parse(ses.created)+d.secs*1000).toISOString();
-    ses.title=d.title;
-    const name=exName(d.activity);addToCatalog(name);
-    const e=makeExercise(name);
-    const set=normSet({r:st.dist>50?st.dist:d.secs,t:d.secs,at:ses.ended});
-    if(st.dist>50){e.dist=true;e.timed=false;}else{e.timed=true;e.dist=false;}
-    if(hs.avg)set.hr=hs.avg;
-    e.sets.push(set);ses.ex.push(e);
-    ses.cardio={activity:d.activity,secs:d.secs,dist:st.dist,climb:st.climb,splits:st.splits,rounds:d.rounds||0,laps:d.laps&&d.laps.length?d.laps.map((x,i,a)=>x-(a[i-1]||0)).concat([d.secs-d.laps[d.laps.length-1]]):[],preset:d.preset||"",
-      hr:hs.avg?{avg:hs.avg,max:hs.max,zones:hs.zones,maxHR:state.settings.maxHR||190}:null,track:thin(d.track||[],400).map(p=>[+p.lat.toFixed(5),+p.lon.toFixed(5)]),imported:!!d.imported};
-    state.sessions.push(ses);state.cardioDone=null;state.view="history";state.scrollTo=0;ctx.render();return true;
+    state.sessions.push(cardioSession(d));state.cardioDone=null;state.view="history";state.scrollTo=0;ctx.render();return true;
   }
   if(t.closest&&t.closest("[data-cardiodiscard]")&&d){
     if(confirm("Discard this session? It won't be saved.")){state.cardioDone=null;openCardio();checkGps(ctx.render);}
@@ -203,6 +192,31 @@ export function handle(t,ctx){
     state.cardioDone=null;state.cardioSetup=null;state.view="home";ctx.render();return true;
   }
   return false;
+}
+
+// A finished (or imported) cardio session as a History day: one exercise carrying the distance
+// or time, and the summary — splits, climb, heart rate, a thinned route — for History and
+// Progress. A bulk import passes fewer route points to keep storage small. A source that only
+// gives totals (Apple Health, a Strava row without a file) passes dist and hr instead of samples.
+export function cardioSession(d,opt){
+  const o=opt||{},max=state.settings.maxHR||190;
+  const ses=makeSession(),st=trackStats(d.track||[]),hs=d.hr&&d.hr.length?hrStats(d.hr,max):(d.hrSum||{avg:0,max:0});
+  if(!st.dist&&d.distM)st.dist=d.distM;
+  if(!st.climb&&d.climbM)st.climb=d.climbM;
+  ses.created=d.created||nowISO();ses.started=ses.created;ses.ended=new Date(Date.parse(ses.created)+d.secs*1000).toISOString();
+  ses.running=false;
+  ses.title=d.title;
+  const name=exName(d.activity);addToCatalog(name);
+  const e=makeExercise(name);
+  const set=normSet({r:st.dist>50?st.dist:d.secs,t:d.secs,at:ses.ended});
+  if(st.dist>50){e.dist=true;e.timed=false;}else{e.timed=true;e.dist=false;}
+  if(hs.avg)set.hr=hs.avg;
+  e.sets.push(set);ses.ex.push(e);
+  ses.cardio={activity:d.activity,secs:d.secs,dist:st.dist,climb:st.climb,splits:st.splits,rounds:d.rounds||0,laps:d.laps&&d.laps.length?d.laps.map((x,i,a)=>x-(a[i-1]||0)).concat([d.secs-d.laps[d.laps.length-1]]):[],preset:d.preset||"",
+    hr:hs.avg?Object.assign({avg:hs.avg,max:hs.max,maxHR:max},hs.zones?{zones:hs.zones}:{}):null,
+    track:thin(d.track||[],o.points||400).map(p=>[+p.lat.toFixed(5),+p.lon.toFixed(5)]),imported:!!d.imported};
+  if(d.source)ses.cardio.source=d.source;
+  return ses;
 }
 
 // A watch file opens in the summary, ready to save: GPX or TCX (text), FIT (binary, from Garmin,

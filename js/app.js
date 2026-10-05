@@ -15,6 +15,7 @@ import * as sharing from "./actions/share.js";
 import * as data from "./actions/data.js";
 import * as programmes from "./actions/programme.js";
 import * as cardio from "./actions/cardio.js";
+import * as importer from "./actions/importer.js";
 import * as logging from "./actions/log.js";
 import * as stacking from "./actions/stack.js";
 
@@ -329,7 +330,14 @@ document.body.addEventListener("change",ev=>{
   if(ev.target&&ev.target.id==="supphoto"){
     stacking.pickPhoto(ev.target.files&&ev.target.files[0],render);ev.target.value="";return;
   }
-  if(ev.target&&ev.target.id==="cardiofile"){cardio.importWorkoutFile(ev.target.files&&ev.target.files[0],render);ev.target.value="";return;}
+  // One watch file opens in the cardio summary; archives and other apps' exports go to Import.
+  if(ev.target&&(ev.target.id==="cardiofile"||ev.target.id==="importany")){
+    const f=ev.target.files&&ev.target.files[0];ev.target.value="";
+    if(!f)return;
+    if(ev.target.id==="cardiofile"&&/\.(fit|gpx|tcx)$/i.test(f.name))cardio.importWorkoutFile(f,render);
+    else{if(state.view!=="import")state.importFrom=state.view;importer.importFile(f,render);}
+    return;
+  }
   if(ev.target&&ev.target.id==="trendsel"){state.progressEx=ev.target.value;render();return;}
   if(ev.target&&ev.target.id==="remtime"){setSetting("remindTime",ev.target.value);render();return;}
   if(ev.target&&ev.target.id==="csvfile"){
@@ -383,7 +391,7 @@ function dismissSheet(){
 // row act on its own before the row does (delete a day before opening it).
 const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
   addExercise,showBest};
-const AREAS=[cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
+const AREAS=[importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;
