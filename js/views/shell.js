@@ -19,7 +19,7 @@ function brand(){
     "<path d='M50 14 L78 25 V50 C78 69 65 81 50 88 C35 81 22 69 22 50 V25 Z' fill='none' stroke='currentColor' stroke-width='9' stroke-linejoin='round'/>"+
     "<line x1='50' y1='33' x2='50' y2='64' stroke='var(--accent)' stroke-width='8' stroke-linecap='round'/>"+
     "<line x1='37' y1='45' x2='63' y2='45' stroke='var(--accent)' stroke-width='8' stroke-linecap='round'/>"+
-    "</svg><span class='sbrandt'>Kings<span class='bk'>Kiln</span></span></div>";
+    "</svg><span class='sbrandt'>Kings<span class='bk'>Kiln</span><sup class='tm' aria-label='trademark'>&trade;</sup></span></div>";
 }
 
 // A workout under way, wherever you are: its rest clock and elapsed time, one click back to it.

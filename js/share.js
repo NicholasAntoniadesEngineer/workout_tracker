@@ -45,6 +45,9 @@ export function buildShareCanvas(session){
   ctx.fillStyle=INK;ctx.fillText("Kings",MARGIN+88,MARGIN+36);
   const kw=ctx.measureText("Kings").width;
   ctx.fillStyle=GOLD;ctx.fillText("Kiln",MARGIN+88+kw,MARGIN+36);
+  // The trademark mark, small and raised after the name.
+  const nw=kw+ctx.measureText("Kiln").width;
+  ctx.font="700 18px "+FONT;ctx.fillStyle=INK;ctx.fillText("\u2122",MARGIN+88+nw+4,MARGIN+22);
 
   // Date + day title
   ctx.textBaseline="alphabetic";
@@ -161,7 +164,7 @@ export function shareApp(){
   try{
     if(navigator.share){
       navigator.share({title:"KingsKiln",
-        text:"KingsKiln — a quiet workout tracker. Free, offline, your data stays yours.",
+        text:"KingsKiln\u2122 — a quiet workout tracker. Free, offline, your data stays yours.",
         url:APP_URL}).catch(()=>{});
       return;
     }
@@ -200,7 +203,7 @@ export function shareDay(session){
       if(navigator.canShare&&navigator.canShare({files:[file]})){
         // The picture travels with the door in: targets that keep text show the link too.
         navigator.share({files:[file],title:"KingsKiln",
-          text:session.title+" — logged with KingsKiln · "+APP_URL}).catch(()=>{});
+          text:session.title+" — logged with KingsKiln\u2122 · "+APP_URL}).catch(()=>{});
         return;
       }
     }catch(e){}

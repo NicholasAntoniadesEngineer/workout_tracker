@@ -222,7 +222,7 @@ export function homeView(){
         " fill='none' stroke='currentColor' stroke-width='9' stroke-linejoin='round'/>"+
         "<line x1='50' y1='33' x2='50' y2='64' stroke='var(--accent)' stroke-width='8' stroke-linecap='round'/>"+
         "<line x1='37' y1='45' x2='63' y2='45' stroke='var(--accent)' stroke-width='8' stroke-linecap='round'/>"+
-        "</svg><span>Kings<span class='bk'>Kiln</span></span></div>"+
+        "</svg><span>Kings<span class='bk'>Kiln</span><sup class='tm' aria-label='trademark'>&trade;</sup></span></div>"+
       "<div class='homehero'>"+
         "<div class='homeday'>"+esc(dateStr)+"</div>"+
         verseCard()+

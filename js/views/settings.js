@@ -116,6 +116,11 @@ export function settingsView(){
       "only to describe movements. KingsKiln is independent and not affiliated with or endorsed by "+
       "anyone those names refer to. Demo links open a YouTube search.</div></div>"+
 
+    // Whose names are whose: ours marked as a trademark, everyone else's credited to them.
+    "<div class='setrow'><div class='setlbl'>Trademarks</div>"+
+    "<div class='sethint'>KingsKiln&trade; and the shield-and-cross mark are trademarks of KingsKiln. Other product, "+
+      "programme and company names are trademarks of their owners, used only to identify them.</div></div>"+
+
     "<div class='reset'><button id='resetsettings'>Restore defaults</button></div>"+
     "</div>";
 }

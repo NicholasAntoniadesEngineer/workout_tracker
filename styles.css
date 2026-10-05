@@ -1628,3 +1628,5 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:20px
 .impcard .pbig{margin-top:14px;}
 .impdone{font-size:16px;font-weight:800;margin:4px 0 12px;line-height:1.35;}
 @media (min-width:900px){.shell .wrap.impwrap{max-width:720px;}}
+/* The trademark symbol after the brand name: small, raised, never shifting the line. */
+.tm{font-size:.42em;font-weight:700;vertical-align:super;line-height:0;margin-left:.08em;letter-spacing:0;color:currentColor;}

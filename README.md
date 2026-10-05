@@ -1,4 +1,4 @@
-# Workout tracker
+# KingsKiln™
 
 An offline rep logger. Everything lives in the browser's localStorage; CSV or
 JSON export/import moves history between devices. A service worker precaches
@@ -78,3 +78,7 @@ JSON *Backup* button exports everything — days, the exercise list, settings an
 the body log — and the one *Load* button accepts either format.
 
 ES modules — serve over http(s), not `file://`.
+
+## Trademark
+
+KingsKiln™ and the shield-and-cross mark are trademarks of KingsKiln. Other product, programme and company names belong to their owners and are used only to identify them.
