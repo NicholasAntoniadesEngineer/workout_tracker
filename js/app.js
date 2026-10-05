@@ -8,6 +8,7 @@ import {decodeRoutineHash,learnLinkId} from "./share.js";
 import {learnHomeBody,paint,setClockSeconds,setSub,workoutLabel,workoutSub} from "./views.js";
 import {tickSide,wide} from "./views/shell.js";
 import {handleKey} from "./keys.js";
+import {parseRoute,routeOf,titleOf} from "./route.js";
 import * as nav from "./actions/nav.js";
 import * as routines from "./actions/routines.js";
 import * as days from "./actions/days.js";
@@ -130,8 +131,45 @@ function render(){
     }
     state.pickFocus=null;
   }
+  syncRoute();
   save();
 }
+
+// The address follows the screen: a new screen is a new history entry, so Back and Forward
+// work; a reload, a bookmark or Back lands on the screen the address names.
+let lastRoute=null,routing=false;
+function syncRoute(){
+  const tp=state.view==="learn"&&state.learnOpen?topicById(state.learnOpen):null;
+  const s=getSession();state.logTitle=s?s.title:"";
+  document.title=titleOf(state,tp?tp.title:"");
+  if(routing)return;
+  const r=routeOf(state),url=r==="#/"?location.pathname+location.search:r;
+  const now=location.hash&&location.hash!=="#"?location.hash:"#/";
+  if(r!==now){
+    try{if(lastRoute==null)history.replaceState(null,"",url);else history.pushState(null,"",url);}catch(e){}
+  }
+  lastRoute=r;
+}
+async function applyRoute(hash){
+  const r=parseRoute(hash);
+  if(!r)return false;
+  state.exInfo=null;state.exHist=false;state.numEdit=null;state.keysOpen=false;state.calDay=null;state.shareMenu=null;
+  if(r.view!=="log")state.sheet=false;
+  if(r.view==="learn"){
+    if(r.learnOpen){await loadLearn();if(!topicById(r.learnOpen))r.learnOpen=null;else if(r.learnOpen!==state.learnOpen)state.learnTab="overview";}
+    Object.assign(state,r);
+  }else{
+    if(r.view==="cardio"&&!state.cardio&&!state.cardioDone&&!state.cardioSetup){cardio.openCardio();cardio.checkGps(render);}
+    if(r.view==="prog"&&!state.programme&&!state.progSetup)r.view="home";
+    state.view=r.view;
+  }
+  state.scrollTo=0;
+  return true;
+}
+if("scrollRestoration" in history)history.scrollRestoration="manual";
+window.addEventListener("popstate",()=>{
+  applyRoute(location.hash).then(ok=>{if(!ok)return;routing=true;render();routing=false;lastRoute=routeOf(state);});
+});
 
 function addExercise(){
   const el=document.getElementById("newname");
@@ -496,6 +534,8 @@ async function openLearnLink(){
   return true;
 }
 window.addEventListener("hashchange",()=>{openLearnLink().then(ok=>{if(ok)render();});});
+// Opened at an address (a reload, a bookmark): start on that screen.
+if(/^#\//.test(location.hash))applyRoute(location.hash).then(ok=>{if(ok)render();});
 render();
 openLearnLink().then(ok=>{if(ok)render();});
 // Learn's library comes in once the first screen is up; anything showing Learn repaints then.
