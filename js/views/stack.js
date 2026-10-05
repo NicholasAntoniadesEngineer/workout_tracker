@@ -59,11 +59,11 @@ export function stackView(){
   const ed=state.stackEdit;
   if(ed){
     const isNew=!ed.id;
-    return "<div class='wrap scroll'>"+pageHead(ed.kind==="sup"?(isNew?"New supplement":"Supplement"):(isNew?"New stack":"Stack"))+
+    return "<div class='wrap scroll'>"+pageHead(ed.kind==="sup"?(isNew?"New supplement":"Supplement"):(isNew?"New stack":"Stack"),"","Supplements")+
       (ed.kind==="sup"?supplementForm(ed.draft,isNew):stackForm(ed.draft,isNew))+"</div>";
   }
   let h="<div class='wrap scroll'>"+pageHead("Supplements",
-    "<button class='newday' id='newstack'>+ Stack</button>");
+    "<button class='newday' id='newstack'>+ Stack</button>","Body");
   h+="<div class='setgroup'>My stacks</div>";
   if(!state.stacks.length)h+="<div class='empty-note'>No stacks yet. A stack is a combination you take together, with doses — like your pre-workout.</div>";
   state.stacks.forEach(s=>{

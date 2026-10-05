@@ -11,7 +11,7 @@ import {exAka,exMatches,exWhat,learnTopicsFor} from "../exinfo.js";
 import {position,prescription} from "../programme.js";
 import {est1RM,exerciseRecords,exerciseTrend,lineChart,withAxis} from "../charts.js";
 import {icon} from "../icons.js";
-import {desk,esc,wide} from "./common.js";
+import {esc,roomy,wide} from "./common.js";
 
 const MIN_SET_COLUMNS=1;
 const UNIT_LABEL={reps:"Reps",secs:"Secs",m:"Metres"};
@@ -582,7 +582,7 @@ function upNext(session){
       (rest.length>1?"<span class='lgnexts'> then "+rest.slice(1,3).map(e=>esc(e.name)).join(", ")+"</span>":""):"")+"</div>";
 }
 function logWide(s){
-  const t=totals(s),dock=desk();
+  const t=totals(s),dock=roomy();
   const picked={};s.ex.forEach(e=>{picked[nameKey(e.name)]=true;});
   const rest=state.catalog.filter(n=>!picked[nameKey(n)]);
   const started=s.started?new Date(s.started).toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}):"";

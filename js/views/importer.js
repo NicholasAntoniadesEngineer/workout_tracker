@@ -2,7 +2,7 @@
 // found (ticked by type, duplicates skipped), and what came in.
 import {state} from "../store.js";
 import {icon} from "../icons.js";
-import {esc,pageHead} from "./common.js";
+import {esc,pageHead,wide} from "./common.js";
 
 const plural=(n,w,many)=>n.toLocaleString()+" "+(n===1?w:many||w+"s");
 const SOURCES=[
@@ -69,7 +69,7 @@ function done(j){
 
 export function importView(){
   const j=state.importJob;
-  let h="<div class='wrap scroll impwrap'>"+pageHead("Import").replace("id='backbtn'","id='importback'");
+  let h="<div class='wrap scroll impwrap'>"+(wide()?pageHead("Import","","Settings","importback"):pageHead("Import").replace("id='backbtn'","id='importback'"));
   if(!j)h+=intro();
   else if(j.stage==="reading")h+=reading(j);
   else if(j.stage==="review")h+=review(j);

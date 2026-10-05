@@ -475,7 +475,7 @@ document.addEventListener("visibilitychange",()=>{if(state.cardio)import("./sens
 
 window.addEventListener("resize",()=>{markRefit();fit();});
 // Crossing the tablet or laptop width swaps the layout, so repaint then (not on every resize).
-if(typeof matchMedia==="function")[900,1200].forEach(w=>{
+if(typeof matchMedia==="function")[900,1200,1360].forEach(w=>{
   const mq=matchMedia("(min-width:"+w+"px)");
   const go=()=>{markRefit();render();};
   if(mq.addEventListener)mq.addEventListener("change",go);else if(mq.addListener)mq.addListener(go);

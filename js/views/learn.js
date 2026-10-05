@@ -197,7 +197,8 @@ export function peopleIndex(){
 
 function indexView(kind){
   const meta=INDEX.find(x=>x[0]===kind)||INDEX[0];
-  let h="<div class='wrap scroll lcatpage'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Learn</button>"+
+  let h="<div class='wrap scroll lcatpage'>"+(wide()?"<button class='dcrumb' id='backbtn'>Learn &rsaquo;</button>":
+    "<button class='backbtn' id='backbtn'>"+icon("back","sm")+"Learn</button>")+
     "<div class='lcathead'><span class='lring big'>"+icon(meta[2],"sm")+"</span><div class='lcatt'><span class='leyebrow'>Learn</span>"+
     "<span class='lcatn'>"+esc(meta[1])+"</span></div></div>";
   if(kind==="paths"){
@@ -242,6 +243,12 @@ function searchBox(id,placeholder,value){
 // today's featured story and a swipeable shelf per category.
 function homeView(area){
   const open=state.learnSearchOpen||!!state.learnQuery;
+  // A big screen puts the title, the four areas and an always-open search in one row.
+  if(wide())return "<div class='wrap scroll lhome'><div class='dhead lwhead'><h1 class='dtitle'>Learn</h1>"+
+    (AREAS.length<2?"":"<div class='lseg'>"+AREAS.map(a=>"<button class='lsegb"+(a[0]===area?" on":"")+
+      "' data-learnarea='"+a[0]+"'>"+a[1]+"</button>").join("")+"</div>")+
+    searchBox("learnsearch","Search all of Learn  /",state.learnQuery)+"</div>"+
+    "<div id='learnbody'>"+learnHomeBody()+"</div></div>";
   return "<div class='wrap scroll lhome'>"+
     "<div class='lmasthead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button>"+
       "<button class='lsearchbtn' id='learnsearchbtn' aria-label='Search'>"+icon("search","sm")+"</button></div>"+
@@ -271,7 +278,8 @@ function workRows(topics){
 }
 function categoryView(area,cats,cur){
   const areaName=(AREAS.find(a=>a[0]===area)||["","Learn"])[1];
-  let h="<div class='wrap scroll lcatpage'><button class='backbtn' id='backbtn'>"+icon("back","sm")+esc(areaName)+"</button>"+
+  let h="<div class='wrap scroll lcatpage'>"+(wide()?"<button class='dcrumb' id='backbtn'>Learn &middot; "+esc(areaName)+" &rsaquo;</button>":
+    "<button class='backbtn' id='backbtn'>"+icon("back","sm")+esc(areaName)+"</button>")+
     "<div class='lcathead'>"+badge(cur,true)+"<div class='lcatt'><span class='leyebrow'>"+esc(cur.region||areaName)+"</span>"+
       "<span class='lcatn'>"+esc(cur.cat)+"</span></div></div>"+
     "<div class='lcatstats'>"+catStats(cur)+"</div>";
@@ -517,7 +525,7 @@ function splitView(tp){
   const area=cur&&(AREAS.find(a=>a[2].includes(cur))||[])[0];
   const list=state.learnIndex?indexView(state.learnIndex):cur?categoryView(area,areaCats(area),cur):homeView(state.learnArea||"training");
   // The list loses its own Back (the topic's Back closes the topic) and marks the open topic.
-  const mark=inner(list).replace(/<button class='backbtn' id='backbtn'>.*?<\/button>/,"")
+  const mark=inner(list).replace(/<button class='(backbtn|dcrumb)' id='backbtn'>.*?<\/button>/,"")
     .split("data-learn='"+tp.id+"'").join("data-learn='"+tp.id+"' aria-current='true'");
   const reading=tp.ia&&state.learnTab==="read"&&state.bookFor===tp.book&&state.bookCh!=null;
   if(reading)return scanView(tp);
