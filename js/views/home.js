@@ -178,8 +178,7 @@ function homeWide(running,finished,emptyOpen,doneToday){
   const wk=weekCards();
   const dateStr=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
   let h="<div class='wrap scroll homewide'><div class='hwtop'><div><div class='hwdate'>"+esc(dateStr)+"</div>"+
-    "<div class='hwsub'>"+wk.trained+" trained this week"+(running?" &middot; 1 in progress":"")+"</div></div>"+
-    "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>"+icon("settings")+"</button></div>";
+    "<div class='hwsub'>"+wk.trained+" trained this week"+(running?" &middot; 1 in progress":"")+"</div></div></div>";
   if(backupDue())h+="<div class='backupcard'><div class='bc-t'>"+icon("save","sm")+"Back up your history</div>"+
       "<div class='bc-p'>It lives only on this device. Save a copy somewhere safe.</div>"+
       "<div class='bc-a'><button class='btn primary tiny' id='backupnow'>Save backup</button>"+

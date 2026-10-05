@@ -177,25 +177,35 @@ function summaryView(){
   if(laps.length){laps.push(secs-(s.laps[s.laps.length-1]||0));tabs.push(["laps","Laps"]);}
   if(hs.avg)tabs.push(["zones","Zones"]);
   const tab=tabs.find(x=>x[0]===state.cardioTab)?state.cardioTab:(tabs[0]||[])[0];
+  // The panels, each on its own, so a big screen can show them all at once.
+  const panel=k=>{
+    if(k==="route")return "<div class='croutebox'><svg viewBox='0 0 320 220' aria-label='Route'><path d='"+routePath(s.track,320,220)+"'/></svg></div>";
+    if(k==="splits"){const best=Math.min(...st.splits.map(x=>x.secs));
+      return "<div class='cpanel'><div class='csplits'>"+st.splits.map(x=>"<div class='csplit'><span class='mono'>"+x.n+"</span>"+
+        "<span class='csbar'><span style='width:"+Math.round(best/x.secs*100)+"%'></span></span><span class='mono'>"+fmtPace(x.secs)+"</span></div>").join("")+"</div></div>";}
+    if(k==="laps"){const pos=laps.filter(x=>x>0),best=pos.length?Math.min(...pos):1;
+      return "<div class='cpanel'><div class='csplits'>"+laps.map((x,i)=>"<div class='csplit'><span class='mono'>"+(i+1)+"</span>"+
+        "<span class='csbar'><span style='width:"+Math.round(best/Math.max(1,x)*100)+"%'></span></span><span class='mono'>"+clock(x)+"</span></div>").join("")+"</div></div>";}
+    if(k==="zones"){const tot=hs.zones.reduce((a,b)=>a+b,0)||1;
+      return "<div class='cpanel'><div class='cpanelk'>Max heart rate "+max+"</div><div class='czones'>"+ZONES.map(([lo,l],i)=>"<div class='czone z"+(i+1)+"'><span>"+l+"</span>"+
+        "<span class='csbar'><span style='width:"+Math.round(hs.zones[i]/tot*100)+"%'></span></span><span class='mono'>"+clock(hs.zones[i])+"</span></div>").join("")+"</div></div>";}
+    return "";
+  };
+  if(wide()){
+    // A big screen: Save on top; numbers, splits and zones on the left; the route on the right.
+    const side=tabs.filter(([k])=>k!=="route");
+    return "<div class='wrap scroll csumwide'>"+pageHead(esc(s.title),"<button class='btn ghost' data-cardiodiscard='1'>Discard</button>"+
+        "<button class='btn primary' data-cardiosave='1'>Save to History</button>","Cardio &middot; "+(s.imported?"Imported workout":"Session done"),"cardioback")+
+      "<div class='csumgrid'><div class='csuml'><div class='cstats'>"+stats.join("")+"</div>"+
+        side.map(([k,l])=>"<div class='llabel'>"+l+"</div>"+panel(k)).join("")+"</div>"+
+      (tabs.some(x=>x[0]==="route")?"<div class='csumr'><div class='llabel'>Route</div>"+panel("route")+"</div>":"")+"</div></div>";
+  }
   let h="<div class='wrap scroll cscreen'>"+
     "<div class='chead'><button class='backbtn iconbtn' id='cardioback' aria-label='Back'>"+icon("back","sm")+"</button>"+
     "<span class='cheadtt'><span class='leyebrow'>"+(s.imported?"Imported workout":"Session done")+"</span><span class='cheadt'>"+esc(s.title)+"</span></span></div>"+
     "<div class='cstats'>"+stats.join("")+"</div>";
   if(tabs.length>1)h+="<div class='cseg'>"+tabs.map(([k,l])=>"<button class='"+(k===tab?"on":"")+"' data-cardiotab='"+k+"'>"+l+"</button>").join("")+"</div>";
-  if(tab==="route")h+="<div class='croutebox'><svg viewBox='0 0 320 220' aria-label='Route'><path d='"+routePath(s.track,320,220)+"'/></svg></div>";
-  else if(tab==="splits"){
-    const best=Math.min(...st.splits.map(x=>x.secs));
-    h+="<div class='cpanel'><div class='csplits'>"+st.splits.map(x=>"<div class='csplit'><span class='mono'>"+x.n+"</span>"+
-      "<span class='csbar'><span style='width:"+Math.round(best/x.secs*100)+"%'></span></span><span class='mono'>"+fmtPace(x.secs)+"</span></div>").join("")+"</div></div>";
-  }else if(tab==="laps"){
-    const pos=laps.filter(x=>x>0),best=pos.length?Math.min(...pos):1;
-    h+="<div class='cpanel'><div class='csplits'>"+laps.map((x,i)=>"<div class='csplit'><span class='mono'>"+(i+1)+"</span>"+
-      "<span class='csbar'><span style='width:"+Math.round(best/Math.max(1,x)*100)+"%'></span></span><span class='mono'>"+clock(x)+"</span></div>").join("")+"</div></div>";
-  }else if(tab==="zones"){
-    const tot=hs.zones.reduce((a,b)=>a+b,0)||1;
-    h+="<div class='cpanel'><div class='cpanelk'>Max heart rate "+max+"</div><div class='czones'>"+ZONES.map(([lo,l],i)=>"<div class='czone z"+(i+1)+"'><span>"+l+"</span>"+
-      "<span class='csbar'><span style='width:"+Math.round(hs.zones[i]/tot*100)+"%'></span></span><span class='mono'>"+clock(hs.zones[i])+"</span></div>").join("")+"</div></div>";
-  }else h+="<div class='cgrow'></div>";
+  h+=tab?panel(tab):"<div class='cgrow'></div>";
   h+="<div class='cctl'><button class='btn ghost' data-cardiodiscard='1'>Discard</button>"+
     "<button class='btn primary wide' data-cardiosave='1'>Save to History</button></div>";
   return h+"</div>";

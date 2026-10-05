@@ -1716,3 +1716,13 @@ body.dropping::after{content:"Drop to import: Strava, Garmin, Apple Health, Stro
   .ssearch kbd{display:inline-flex;}
 }
 @media (min-width:900px) and (hover:hover) and (pointer:fine){.ssearch:hover,.palitem:not(.on):hover{background:var(--panelHi);color:var(--text);}}
+@media (min-width:900px) and (max-width:1199px){.sgroup{font-size:0;height:10px;padding:0;}}
+@media (min-width:900px){
+  .shell .wrap.scroll.csumwide{max-width:1180px;}
+  .csumgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:start;}
+  .csuml .cstats{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .csuml .llabel{margin-top:16px;}
+  .csumr .croutebox{aspect-ratio:16/11;padding:14px;}
+  .csumr .llabel{margin-top:0;}
+}
+@media (min-width:900px){.dhead .hact .btn{white-space:nowrap;}}
