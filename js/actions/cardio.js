@@ -52,11 +52,11 @@ function warm(render){
     const line=document.getElementById("gpsline");
     if(line&&was.st==="ok"&&good(was.acc)===good(acc)){line.innerHTML=gpsLine(true);return;}
     render();
-  },why=>{
+  },(why,code,msg)=>{
     if(state.cardioSetup!==s)return;
     // No fix yet keeps GPS on and waiting; blocked or switched off turns it back off.
     if(why==="nofix"&&(state.gpsLive||{}).acc)return;
-    state.gpsLive={st:why};
+    state.gpsLive={st:why,code,msg};
     if(why!=="nofix"){s.gps=false;stopWarm();}
     render();
   });
@@ -78,7 +78,7 @@ function begin(render){
   repaint=render;clearInterval(ticker);ticker=setInterval(tick,1000);
   const c=state.cardio;
   if(c.gps)startGps(fix=>{if(state.cardio&&!state.cardio.pauseAt){onFix(state.cardio,fix);save();}},
-    msg=>{if(state.cardio){state.cardio.gpsMsg=msg;repaint();}},
+    (msg,code,raw)=>{if(state.cardio){state.cardio.gpsMsg=msg+(code&&code!==3&&raw?" ("+raw+")":"");repaint();}},
     acc=>{state.gpsLive={st:"ok",acc};});
   keepAwake(true);
 }

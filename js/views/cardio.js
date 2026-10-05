@@ -2,7 +2,7 @@
 // the phase, round marks, and GPS and heart-rate tiles — and a summary with splits, zones and
 // the route, ready to save to History. Watch files (GPX, TCX) open straight into the summary.
 import {MODES,PRESETS,ZONES,fmtPace,hrStats,phaseAt,phases,recentPace,routePath,totalSecs,trackStats,zoneOf} from "../cardio.js";
-import {gpsSupported,hrSupported,voiceSupported} from "../sensors.js";
+import {gpsSupported,hrSupported,standalone,voiceSupported} from "../sensors.js";
 import {fmtClock} from "../model.js";
 import {state} from "../store.js";
 import {icon} from "../icons.js";
@@ -33,17 +33,17 @@ export function gpsLine(on){
   if(g.acc)return (g.acc<=GOOD_ACC?"Ready":"Weak")+" &middot; &plusmn;"+Math.round(g.acc)+" m";
   return "Finding signal&hellip;";
 }
-// When location won't come, the way to switch it on for this phone.
 // When location won't come: one short line, Try again, and the path to switch it on for this
-// phone behind How. (A web page can't open the phone's Settings itself.)
+// phone behind How, with the phone's own words underneath. (A web page can't open Settings.)
 function gpsHelp(st){
-  if(st==="nofix")return {t:"No signal yet",path:"Step outside with a clear view of the sky"};
-  const ios=isIOS(),and=isAndroid(),standalone=typeof matchMedia==="function"&&matchMedia("(display-mode: standalone)").matches;
+  const ios=isIOS(),and=isAndroid(),home=standalone();
+  if(st==="nofix")return {t:"No signal yet",path:"Step outside with a clear view of the sky; the first fix can take a minute"};
   if(st==="off")return {t:"Location is off on this "+(ios||and?"phone":"device"),
     path:ios?"Settings › Privacy & Security › Location Services":and?"Swipe down from the top › Location":"Turn location on in the device's settings"};
   if(st==="denied")return {t:"Location is blocked",
-    path:ios?"Settings › Privacy & Security › Location Services › Safari Websites › While Using the App":
-      and?(standalone?"Hold the KingsKiln icon › App info › Permissions › Location › Allow":"Tap the icon left of the address › Permissions › Location › Allow"):
+    path:ios?(home?"Settings › Privacy & Security › Location Services: on. Still blocked? Delete the KingsKiln icon, open kingskiln.com in Safari, allow location when asked, then Share › Add to Home Screen again":
+        "Settings › Privacy & Security › Location Services › Safari Websites › While Using the App"):
+      and?(home?"Hold the KingsKiln icon › App info › Permissions › Location › Allow":"Tap the icon left of the address › Permissions › Location › Allow"):
       "Click the icon left of the address › Location › Allow"};
   return null;
 }
@@ -84,12 +84,13 @@ function setupView(){
     "</div>"+
     // Safari on iPhone has no Bluetooth for web pages; a Bluetooth-enabled browser does.
     (!hrSupported()&&state.hrHowOpen?"<div class='cnote cwarn cgps'><span class='cgpsp' style='margin:0'>"+(isIOS()?
-      "Safari can't use Bluetooth. Open kingskiln.com in the free <b>Bluefy</b> browser and pair your strap or watch there.":
+      "Apple blocks Bluetooth for web apps on iPhone, in Safari and from the Home Screen icon alike. To pair a strap, open kingskiln.com in the free <b>Bluefy</b> browser (it keeps its own history), or record on your watch and use Import file.":
       "This browser can't use Bluetooth. Open kingskiln.com in Chrome to pair a strap or watch.")+"</span></div>":"")+
     (help?"<div class='cnote cwarn cgps'><span class='cgpst'><b>"+esc(help.t)+"</b>"+
       "<button class='cgpsb' data-gpshow='1' aria-expanded='"+!!state.gpsHowOpen+"'>How</button>"+
       "<button class='cgpsb' data-cardiogps='1'>Try again</button></span>"+
-      (state.gpsHowOpen?"<span class='cgpsp'>"+esc(help.path)+"</span>":"")+"</div>":"")+
+      (state.gpsHowOpen?"<span class='cgpsp'>"+esc(help.path)+"</span>"+
+        (g.code?"<span class='cgpsraw'>Phone says: "+esc(g.msg||"no details")+" (code "+g.code+")</span>":""):"")+"</div>":"")+
     (voiceSupported()?"<button class='cmaxhr cvoice' data-cardiovoice='1' aria-pressed='"+!!state.settings.voice+"'><span>Voice cues <span class='cmaxs'>"+
       (state.settings.voice?"Splits and interval changes, spoken":"Off")+"</span></span><span class='cswitch"+(state.settings.voice?" on":"")+"'></span></button>":"")+
     "<div class='cmaxhr'><span>Max heart rate <span class='cmaxs'>sets your zones</span></span>"+stepper("cardiomax",state.settings.maxHR||190,"maximum heart rate").replace(/data-cardiomax=':/g,"data-cardiomax='")+"</div>"+

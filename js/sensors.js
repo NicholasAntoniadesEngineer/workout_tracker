@@ -17,34 +17,51 @@ export async function gpsPermission(){
 // Why location failed, by the browser's error code: blocked for the site, off on the phone, or no fix yet.
 const WHY={1:"denied",2:"off",3:"nofix"};
 
-// onFix({t,lat,lon,alt,acc}) for each good fix; onError(message) if location is refused;
+// onFix({t,lat,lon,alt,acc}) for each good fix; onError(message, code) when location fails;
 // onSignal(accuracy in metres) for every reading, good or not, so the screen can show signal.
+// A timeout (no fix yet) re-arms the watch rather than giving up, and until a first fix is kept
+// readings up to 100 m are taken so a slow start still begins the track.
+let gpsOpts=null;
 export function startGps(onFix,onError,onSignal){
-  if(!gpsSupported()){onError&&onError("This device can't share its location.");return;}
+  if(!gpsSupported()){onError&&onError("This device can't share its location.",0);return;}
   stopGps();stopWarm();
-  let prev=null;
-  watchId=navigator.geolocation.watchPosition(p=>{
-    const fix={t:p.timestamp||Date.now(),lat:p.coords.latitude,lon:p.coords.longitude,
-      alt:p.coords.altitude==null?null:p.coords.altitude,acc:p.coords.accuracy};
-    onSignal&&onSignal(fix.acc);
-    if(acceptFix(prev,fix)){prev=fix;onFix(fix);}
-  },e=>onError&&onError(e.code===1?"Location is blocked for KingsKiln. Allow it in your phone's settings to track distance.":
-    e.code===2?"Your phone's location is off. Turn it on to track distance.":
-    "No GPS fix yet. Head outside with a clear view of the sky."),{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+  let prev=null;const began=Date.now();
+  const arm=()=>{
+    watchId=navigator.geolocation.watchPosition(p=>{
+      const fix={t:p.timestamp||Date.now(),lat:p.coords.latitude,lon:p.coords.longitude,
+        alt:p.coords.altitude==null?null:p.coords.altitude,acc:p.coords.accuracy};
+      onSignal&&onSignal(fix.acc);
+      const limit=prev?50:(Date.now()-began>20000?100:50);
+      if(acceptFix(prev,fix,limit)){prev=fix;onFix(fix);}
+    },e=>{
+      if(e.code===3){if(watchId!=null){navigator.geolocation.clearWatch(watchId);arm();}
+        onError&&onError("No GPS fix yet. Head outside with a clear view of the sky.",3);return;}
+      onError&&onError(e.code===1?"Location is blocked for KingsKiln.":e.code===2?"Your phone's location is unavailable.":"Location failed.",e.code,e.message);
+    },{enableHighAccuracy:true,maximumAge:0,timeout:30000});
+  };
+  gpsOpts=arm;arm();
 }
-export function stopGps(){if(watchId!=null&&gpsSupported())navigator.geolocation.clearWatch(watchId);watchId=null;}
+export function stopGps(){if(watchId!=null&&gpsSupported())navigator.geolocation.clearWatch(watchId);watchId=null;gpsOpts=null;}
 
 // Turning GPS on before Start: this request is what brings up the phone's own location prompt
 // (and on Android, the offer to switch location on). It keeps listening while the setup screen
-// is open so the signal has settled by the time you start. onSignal(accuracy), onFail(why).
+// is open so the signal has settled by the time you start. onSignal(accuracy), onFail(why, code,
+// the browser's own message). A timeout re-arms quietly after reporting it.
 let warmId=null;
 export function warmGps(onSignal,onFail){
-  if(!gpsSupported()){onFail("none");return;}
+  if(!gpsSupported()){onFail("none",0,"");return;}
   stopWarm();
-  warmId=navigator.geolocation.watchPosition(p=>onSignal(p.coords.accuracy),
-    e=>onFail(WHY[e.code]||"nofix"),{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+  const arm=()=>{
+    warmId=navigator.geolocation.watchPosition(p=>onSignal(p.coords.accuracy),e=>{
+      onFail(WHY[e.code]||"nofix",e.code,e.message||"");
+      if(e.code===3&&warmId!=null){navigator.geolocation.clearWatch(warmId);arm();}
+    },{enableHighAccuracy:true,maximumAge:0,timeout:30000});
+  };
+  arm();
 }
 export function stopWarm(){if(warmId!=null&&gpsSupported())navigator.geolocation.clearWatch(warmId);warmId=null;}
+// Running as an icon on the Home Screen, rather than in a browser tab.
+export const standalone=()=>typeof matchMedia==="function"&&(matchMedia("(display-mode: standalone)").matches||navigator.standalone===true);
 
 export async function keepAwake(on){
   try{

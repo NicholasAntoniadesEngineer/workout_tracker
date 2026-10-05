@@ -45,8 +45,10 @@ export function haversine(a,b){
   return 2*R*Math.asin(Math.min(1,Math.sqrt(h)));
 }
 // Should a GPS fix join the track? Poor fixes and jitter while standing still are dropped.
-export function acceptFix(prev,fix){
-  if(fix.acc!=null&&fix.acc>35)return false;
+// limit: the worst accuracy (metres) taken. Phones often report 40–65 m for the first minute or
+// under trees, so 50 m is the norm and the caller relaxes it while no fix has been kept yet.
+export function acceptFix(prev,fix,limit){
+  if(fix.acc!=null&&fix.acc>(limit||50))return false;
   if(!prev)return true;
   const d=haversine(prev,fix),dt=(fix.t-prev.t)/1000;
   if(dt<=0)return false;
