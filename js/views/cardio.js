@@ -77,8 +77,12 @@ function setupView(){
     "<button class='ctoggle"+(c.gps?" on":"")+(c.gps&&g.acc>GOOD_ACC?" weak":"")+"' data-cardiogps='1'"+(gpsSupported()?"":" disabled")+" aria-pressed='"+!!c.gps+"'>"+
       "<span><b>GPS</b><span id='gpsline'>"+gpsLine(c.gps)+"</span></span><span class='cdot'></span></button>"+
     (hrSupported()?"<button class='ctoggle"+(state.hrName?" on":"")+"' data-cardiohr='1' aria-pressed='"+!!state.hrName+"'><span><b>Heart rate</b><span>"+(state.hrName?esc(state.hrName):"Pair a strap or watch")+"</span></span><span class='cdot'></span></button>":
-      "<div class='ctoggle dim'><span><b>Heart rate</b><span>Record on your watch, then Import file</span></span></div>")+
+      "<button class='ctoggle' data-hrhow='1' aria-expanded='"+!!state.hrHowOpen+"'><span><b>Heart rate</b><span>Needs Bluetooth: tap for how</span></span><span class='cdot'></span></button>")+
     "</div>"+
+    // Safari on iPhone has no Bluetooth for web pages; a Bluetooth-enabled browser does.
+    (!hrSupported()&&state.hrHowOpen?"<div class='cnote cwarn cgps'><span class='cgpsp' style='margin:0'>"+(isIOS()?
+      "Safari can't use Bluetooth. Open kingskiln.com in the free <b>Bluefy</b> browser and pair your strap or watch there.":
+      "This browser can't use Bluetooth. Open kingskiln.com in Chrome to pair a strap or watch.")+"</span></div>":"")+
     (help?"<div class='cnote cwarn cgps'><span class='cgpst'><b>"+esc(help.t)+"</b>"+
       "<button class='cgpsb' data-gpshow='1' aria-expanded='"+!!state.gpsHowOpen+"'>How</button>"+
       "<button class='cgpsb' data-cardiogps='1'>Try again</button></span>"+

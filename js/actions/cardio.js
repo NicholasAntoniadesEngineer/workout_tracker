@@ -131,6 +131,7 @@ export function handle(t,ctx){
     else{s.gps=true;warm(ctx.render);}
     ctx.render();return true;
   }
+  if(t.closest&&t.closest("[data-hrhow]")){state.hrHowOpen=!state.hrHowOpen;ctx.render();return true;}
   if(t.closest&&t.closest("[data-gpshow]")){state.gpsHowOpen=!state.gpsHowOpen;ctx.render();return true;}
   const tab=t.closest&&t.closest("[data-cardiotab]");
   if(tab){state.cardioTab=tab.getAttribute("data-cardiotab");ctx.render();return true;}
