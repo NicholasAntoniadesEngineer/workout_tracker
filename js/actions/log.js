@@ -6,15 +6,14 @@ import {BANDS,addManualSets,addSet,dateKey,endWorkout,fmtClock,isBandExercise,no
   workoutSeconds} from "../model.js";
 import {activeEx,addExerciseToDay,getSession,removeFromCatalog,state} from "../store.js";
 import {bestsBefore,newBestLabel} from "../coach.js";
+import {ask,confirmAct} from "../dialog.js";
 
 const MIN_REPS=0;
 const SEC_PER_MIN=60;
 
 export function handle(t,ctx){
   if(t.closest&&t.closest("#daytitle")){
-    const s=getSession();
-    const name=prompt("Name this day",s.title);
-    if(name!==null&&name.trim())s.title=name.trim();
+    ask({title:"Name this day",value:getSession().title,act:"nameday"});
     ctx.render();return true;
   }
   if(t.closest&&t.closest("#managebtn")){
@@ -127,10 +126,8 @@ export function handle(t,ctx){
   if(t.id==="wtoggle"){
     const s=getSession();
     if(s.running){
-      if(!confirm("End the workout? The clock stops at "+fmtClock(workoutSeconds(s))+"."))return true;
-      endWorkout(s);
-      // A finished workout gets its moment: what it added up to, and any new bests.
-      if(s.ex.some(e=>e.sets.length))state.summary=s.id;
+      confirmAct({title:"End the workout?",text:"The clock stops at "+fmtClock(workoutSeconds(s))+".",ok:"End workout",act:"endworkout"});
+      ctx.render();return true;
     }else startWorkout(s);
     state.setStart=null;
     ctx.render();return true;
@@ -143,15 +140,11 @@ export function handle(t,ctx){
     ctx.render();return true;
   }
   if(t.id==="timerreset"){
-    if(!confirm("Reset the rest clock to zero? Logged sets are not affected."))return true;
-    resetRestTimer(getSession());
-    state.setStart=null;
+    confirmAct({title:"Reset the rest clock?",text:"Logged sets are not affected.",ok:"Reset",act:"resetrest"});
     ctx.render();return true;
   }
   if(t.id==="workreset"){
-    if(!confirm("Reset the workout time? Logged sets are not affected."))return true;
-    resetWorkout(getSession());
-    state.setStart=null;
+    confirmAct({title:"Reset the workout time?",text:"Logged sets are not affected.",ok:"Reset",act:"resetwork"});
     ctx.render();return true;
   }
   if(t.closest&&t.closest("#worktime")){
@@ -159,13 +152,7 @@ export function handle(t,ctx){
     const cur=Math.round((workoutSeconds(s)||0)/SEC_PER_MIN);
     // Today's workout counts live from now; another day's is a fixed span on that date.
     const onToday=dateKey(s.created)===dateKey(nowISO());
-    const answer=prompt(onToday?"Minutes the workout has been going:":"Minutes the workout lasted:",
-      String(cur));
-    if(answer!==null&&answer.trim()!==""){
-      const mins=parseFloat(answer);
-      if(onToday)setWorkoutMinutes(s,mins);
-      else setWorkoutSpanOn(s,mins);
-    }
+    ask({title:onToday?"Minutes the workout has been going":"Minutes the workout lasted",value:String(cur),type:"number",inputmode:"decimal",mono:true,ok:"Set",act:"workmins"});
     ctx.render();return true;
   }
   if(t.id==="logbtn"){

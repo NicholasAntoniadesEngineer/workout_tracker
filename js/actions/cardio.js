@@ -3,6 +3,7 @@
 // a reload or a dropped app picks it up where it was.
 import {state,addToCatalog} from "../store.js";
 import * as db from "../db.js";
+import {confirmAct,notice} from "../dialog.js";
 import {makeExercise,makeSession,nowISO,normSet} from "../model.js";
 import {PRESETS,haversine,hrStats,parseWorkoutFile,lapSpeech,phaseAt,phaseSpeech,phases,splitSpeech,thin,trackStats} from "../cardio.js";
 import {isFit,parseFit,unzipWorkout} from "../fit.js";
@@ -185,11 +186,11 @@ export function handle(t,ctx){
     state.sessions.push(cardioSession(d));state.cardioDone=null;state.view="history";state.scrollTo=0;ctx.render();return true;
   }
   if(t.closest&&t.closest("[data-cardiodiscard]")&&d){
-    if(confirm("Discard this session? It won't be saved.")){state.cardioDone=null;openCardio();checkGps(ctx.render);}
+    confirmAct({title:"Discard this session?",text:"It won't be saved.",ok:"Discard",danger:true,act:"cardiodiscard"});
     ctx.render();return true;
   }
   if(t.closest&&t.closest("#cardioback")){
-    if(state.cardioDone&&!confirm("Leave without saving this session?")){return true;}
+    if(state.cardioDone){confirmAct({title:"Leave without saving?",text:"This session will be lost.",ok:"Leave",danger:true,act:"cardioleave"});ctx.render();return true;}
     stopWarm();state.gpsLive=null;
     state.cardioDone=null;state.cardioSetup=null;state.view="home";ctx.render();return true;
   }
@@ -233,12 +234,12 @@ async function readWorkout(file){
 export function importWorkoutFile(file,render){
   if(!file)return;
   readWorkout(file).then(w=>{
-    if(!w.track.length&&!w.hr.length&&!w.distM){alert("That file has no route, distance or heart rate in it.");return;}
+    if(!w.track.length&&!w.hr.length&&!w.distM){notice("Nothing to import","That file has no route, distance or heart rate in it.");render();return;}
     const sport=(w.sport||"").toLowerCase(),act=/bik|cycl|ride/.test(sport)?"ride":/walk|hik/.test(sport)?"walk":/swim/.test(sport)?"swim":/row/.test(sport)?"row":"run";
     const st=trackStats(w.track),label=(ACTIVITIES.find(x=>x[0]===act)||ACTIVITIES[0])[1];
     const dist=st.dist||w.distM||0;
     state.cardioDone={imported:true,activity:act,title:w.name||label+(dist>50?" · "+(dist/1000).toFixed(1)+" km":""),
       secs:w.secs,track:w.track,hr:w.hr,distM:w.distM||0,created:w.start?new Date(w.start).toISOString():nowISO()};
     state.cardioSetup=null;state.cardioTab=null;state.view="cardio";state.scrollTo=0;render();
-  }).catch(()=>alert("KingsKiln couldn't read that file. FIT, GPX, TCX and Garmin's zipped exports work."));
+  }).catch(()=>{notice("Couldn't read that file","FIT, GPX, TCX and Garmin's zipped exports work.");render();});
 }

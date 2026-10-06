@@ -250,9 +250,8 @@ function homeView(area){
     searchBox("learnsearch","Search all of Learn  /",state.learnQuery)+"</div>"+
     "<div id='learnbody'>"+learnHomeBody()+"</div></div>";
   return "<div class='wrap scroll lhome'>"+
-    "<div class='lmasthead'><button class='backbtn' id='backbtn'>"+icon("back","sm")+"Back</button>"+
+    "<div class='lmasthead'><div class='lbigtitle'>Learn</div>"+
       "<button class='lsearchbtn' id='learnsearchbtn' aria-label='Search'>"+icon("search","sm")+"</button></div>"+
-    "<div class='lbigtitle'>Learn</div>"+
     (AREAS.length<2?"":"<div class='lseg'>"+AREAS.map(a=>"<button class='lsegb"+(a[0]===area?" on":"")+
       "' data-learnarea='"+a[0]+"'>"+a[1]+"</button>").join("")+"</div>")+
     (open?searchBox("learnsearch","Search all of Learn",state.learnQuery):"")+

@@ -4,6 +4,7 @@
 import {exerciseTotal,fmtClock,totals,workoutSeconds} from "./model.js";
 import {state} from "./store.js";
 import {VERSES} from "./verses.js";
+import {notice} from "./dialog.js";
 
 const W=1080,H=1350,MARGIN=84;
 const INK="#ffffff",MUTED="#9a9a9a",GOLD="#f5c518",BG="#000000",PANEL="#111111";
@@ -144,6 +145,12 @@ export function decodeRoutineHash(hash){
   }catch(e){return null;}
 }
 
+// Told in the app's own dialog, repainted by whoever is listening for it.
+let repaint=()=>{};
+export function onShareNotice(fn){repaint=fn;}
+const copied=text=>{notice("Link copied",text);repaint();};
+const copyBox=url=>{state.dialog={kind:"notice",title:"Copy this link",copy:url,ok:"Done"};repaint();};
+
 export function shareRoutine(name,exNames){
   const url=routineLink(name,exNames);
   const text=name+" — "+exNames.length+" exercises on KingsKiln";
@@ -151,10 +158,8 @@ export function shareRoutine(name,exNames){
     if(navigator.share){navigator.share({title:name,text:text,url:url}).catch(()=>{});return;}
   }catch(e){}
   try{
-    navigator.clipboard.writeText(url).then(
-      ()=>alert("Link copied — send it to whoever's training with you."),
-      ()=>prompt("Copy this link:",url));
-  }catch(e){prompt("Copy this link:",url);}
+    navigator.clipboard.writeText(url).then(()=>copied("Send it to whoever's training with you."),()=>copyBox(url));
+  }catch(e){copyBox(url);}
 }
 
 // The app itself, passed along — the door a friend walks in through.
@@ -170,10 +175,8 @@ export function shareApp(){
     }
   }catch(e){}
   try{
-    navigator.clipboard.writeText(APP_URL).then(
-      ()=>alert("Link copied — kingskiln.com"),
-      ()=>prompt("Copy this link:",APP_URL));
-  }catch(e){prompt("Copy this link:",APP_URL);}
+    navigator.clipboard.writeText(APP_URL).then(()=>copied("kingskiln.com"),()=>copyBox(APP_URL));
+  }catch(e){copyBox(APP_URL);}
 }
 
 // A Learn topic, passed along: kingskiln.com/#learn=<id> opens straight on it.
@@ -188,8 +191,8 @@ export function shareTopic(id,title){
     if(navigator.share){navigator.share({title:title,text:title+" on KingsKiln",url:url}).catch(()=>{});return;}
   }catch(e){}
   try{
-    navigator.clipboard.writeText(url).then(()=>alert("Link copied."),()=>prompt("Copy this link:",url));
-  }catch(e){prompt("Copy this link:",url);}
+    navigator.clipboard.writeText(url).then(()=>copied(""),()=>copyBox(url));
+  }catch(e){copyBox(url);}
 }
 
 // Share sheet where it exists — AirDrop, Messages, Instagram — a PNG download otherwise.

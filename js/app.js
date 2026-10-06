@@ -11,6 +11,9 @@ import {handleKey} from "./keys.js";
 import {parseRoute,routeOf,titleOf} from "./route.js";
 import * as db from "./db.js";
 import {paletteList,runPalette} from "./palette.js";
+import {notice} from "./dialog.js";
+import {onShareNotice} from "./share.js";
+import * as dialogs from "./actions/dialog.js";
 import * as nav from "./actions/nav.js";
 import * as routines from "./actions/routines.js";
 import * as days from "./actions/days.js";
@@ -108,6 +111,9 @@ function render(){
   const keep=grabScroll();
   paint();
   if(state.view==="settings"&&!state.storageInfo)measureStorage();
+  // A dialog's field gets the caret the moment it opens, with its text selected.
+  if(state.dialog&&!state.dialog.focused){const el=document.getElementById("dlgin")||document.getElementById("dlgcopy");
+    if(el){el.focus();try{el.select();}catch(e){}}state.dialog.focused=true;}
   // Icon-only buttons carry a title; screen readers get it as their name too.
   document.querySelectorAll("button[title]:not([aria-label])").forEach(b=>{
     if(!b.textContent.trim())b.setAttribute("aria-label",b.title);
@@ -197,19 +203,19 @@ function importText(text){
   if(trimmed[0]==="{"){
     let n;
     try{n=importBackup(JSON.parse(trimmed));}
-    catch(err){alert("That backup couldn't be read.");return;}
+    catch(err){notice("Couldn't read that backup");render();return;}
     state.view="history";
+    notice("Backup loaded",n?n+" day"+(n>1?"s":"")+" merged.":"");
     render();
-    alert("Backup loaded"+(n?" — "+n+" day"+(n>1?"s":"")+" merged":"")+".");
     return;
   }
   let imported;
   try{imported=parseImport(text);}
-  catch(err){alert(err.message);return;}
+  catch(err){notice("Couldn't load that file",err.message);render();return;}
   mergeSessions(imported);
   state.view="history";
+  notice("Loaded "+imported.length+" day"+(imported.length>1?"s":""));
   render();
-  alert("Loaded "+imported.length+" day"+(imported.length>1?"s":"")+".");
 }
 
 // Each exercise remembers how it was last done, so coming back to it picks up where you
@@ -445,7 +451,8 @@ function dismissSheet(){
 // row act on its own before the row does (delete a day before opening it).
 const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
   addExercise,showBest};
-const AREAS=[importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
+const AREAS=[dialogs,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
+onShareNotice(render);
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;
@@ -540,8 +547,10 @@ window.addEventListener("keydown",ev=>{
     ev.preventDefault();if(state.palette){state.palette=null;render();}else openPalette();return;
   }
   if(state.palette){if(paletteKey(ev))ev.preventDefault();return;}
+  if(state.dialog&&ev.key==="Enter"){const ok=document.getElementById("dlgok");if(ok){ev.preventDefault();ok.click();}return;}
   if(ev.key!=="Escape"){if(handleKey(ev,render))ev.preventDefault();return;}
-  if(state.keysOpen){state.keysOpen=false;render();}
+  if(state.dialog){state.dialog=null;render();}
+  else if(state.keysOpen){state.keysOpen=false;render();}
   else if(state.exInfo){state.exInfo=null;render();}
   else if(state.exHist){state.exHist=false;render();}
   else if(state.sheet){dismissSheet();render();}

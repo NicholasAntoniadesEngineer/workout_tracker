@@ -1745,3 +1745,11 @@ body.dropping::after{content:"Drop to import: Strava, Garmin, Apple Health, Stro
 .pgchiprow{display:flex;gap:8px;margin:0 0 12px;}
 .pgchiprow .lchip{flex:1 1 0;text-align:center;justify-content:center;}
 @media (min-width:900px){.tabbar{display:none;}}
+/* In-app dialogs: a small centred card, one question, two buttons. */
+.dlgover{align-items:center!important;padding:24px;}
+.dlg{max-width:360px!important;border-radius:18px!important;padding:18px 18px 14px!important;gap:8px;}
+.dlgtitle{font-size:17px;font-weight:800;letter-spacing:-.2px;}
+.dlgtext{font-size:14px;color:var(--muted);line-height:1.4;}
+.dlgin{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--panelHi);color:var(--text);font:inherit;font-size:16px;padding:0 12px;margin-top:4px;}
+.dlgacts{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;}
+.dlgacts .btn{min-height:42px;padding-left:18px;padding-right:18px;}

@@ -4,6 +4,7 @@
 // Each handler returns true once it has dealt with the tap.
 import {state} from "../store.js";
 import {newId,shrinkPhoto} from "../stack.js";
+import {notice} from "../dialog.js";
 
 const val=id=>{const el=document.getElementById(id);return el?el.value.trim():"";};
 
@@ -26,7 +27,7 @@ export function pickPhoto(file,render){
   if(!file||!state.stackEdit)return;
   captureDraft();
   shrinkPhoto(file).then(url=>{if(state.stackEdit){state.stackEdit.draft.photo=url;render();}})
-    .catch(()=>alert("That image couldn't be read."));
+    .catch(()=>{notice("Couldn't read that image");render();});
 }
 
 export function handle(t,ctx){

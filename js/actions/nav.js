@@ -12,7 +12,7 @@ function goSection(k,ctx){
     const live=state.sessions.find(s=>s.running);
     if(live)selectSession(live.id);
     ctx.recallLast(activeEx());
-    state.origin="home";state.sheet=!getSession().ex.length;ctx.markRefit();
+    state.origin="log";state.sheet=!getSession().ex.length;ctx.markRefit();
   }else if(k==="calendar"){
     // The calendar always opens on this month; the arrows reach any other.
     const d=new Date();

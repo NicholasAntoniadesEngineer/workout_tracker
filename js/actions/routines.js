@@ -5,6 +5,7 @@ import {activeEx,addExerciseToDay,dropRoutine,findRoutine,getSession,saveRoutine
   state} from "../store.js";
 import {dateKey,makeSession,nowISO} from "../model.js";
 import {topicById} from "../lazy.js";
+import {ask} from "../dialog.js";
 
 // A documented workout from Learn, by "topicId:index".
 function learnDay(ref){
@@ -39,12 +40,7 @@ export function handle(t,ctx){
   const saveDay=t.closest&&t.closest("[data-saveroutine]");
   if(saveDay){
     const src=state.sessions.find(s=>s.id===saveDay.getAttribute("data-saveroutine"));
-    const name=src&&src.ex.length?prompt("Name this routine",src.title):null;
-    if(name!==null&&name.trim()){
-      ctx.snapshot("Saved routine "+name.trim());
-      saveRoutine(name,src.ex.map(e=>e.name));
-      state.pickTab="routines";
-    }
+    if(src&&src.ex.length)ask({title:"Name this routine",value:src.title,act:"nameroutine",ref:src.id});
     ctx.render();return true;
   }
   const pickTab=t.closest&&t.closest("[data-picktab]");

@@ -2,6 +2,7 @@
 import {addExerciseToDay,getSession,selectSession,state} from "../store.js";
 import {dateKey,makeSession,nowISO} from "../model.js";
 import {topicById} from "../lazy.js";
+import {confirmAct} from "../dialog.js";
 import {defaultWeekdays,makeProgramme,position,prescription,ruleFor,trainingMax} from "../programme.js";
 
 function nextMonday(){
@@ -54,7 +55,7 @@ export function handle(t,ctx){
   if(t.closest&&t.closest("[data-progopen]")){state.progSetup=null;state.view="prog";state.scrollTo=0;ctx.render();return true;}
   if(t.closest&&t.closest("[data-progpause]")&&state.programme){state.programme.paused=!state.programme.paused;ctx.render();return true;}
   if(t.closest&&t.closest("[data-progstop]")&&state.programme){
-    if(confirm("Stop following "+state.programme.name+"? Your logged workouts stay in History.")){state.programme=null;state.view="home";}
+    confirmAct({title:"Stop following "+state.programme.name+"?",text:"Your logged workouts stay in History.",ok:"Stop",danger:true,act:"progstop"});
     ctx.render();return true;
   }
   if(t.closest&&t.closest("#progback")){
