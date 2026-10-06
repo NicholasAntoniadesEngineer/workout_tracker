@@ -36,7 +36,9 @@ function cardioRow(s,cur){
       (c.hr?" &middot; "+c.hr.avg+" bpm":"")+(c.rounds?" &middot; "+c.rounds+" rounds":"")+(c.imported?" &middot; from a watch":"")+"</div></div>"+
     "<div class='nums'><div class='r mono'>"+big+"</div><div class='rl'>"+bigL+"</div></div>"+
     (track.length>1?"<svg class='hroute' viewBox='0 0 120 44' aria-hidden='true'><path d='"+routePath(track,120,44,4)+"'/></svg>":"<div class='exl'>"+esc(s.ex.map(e=>e.name).join(" · "))+"</div>")+
-    "<div class='dayacts'><button class='dact del' data-delday='"+s.id+"' title='Delete this session'>&times;</button></div></div>";
+    "<div class='dayacts'>"+(track.length>1?"<button class='dact txt' data-gpx='"+s.id+"' title='Save as GPX for Strava or Garmin'>GPX</button>":"")+
+      "<button class='dact txt' data-tcx='"+s.id+"' title='Save as TCX'>TCX</button>"+
+      "<button class='dact del' data-delday='"+s.id+"' title='Delete this session'>&times;</button></div></div>";
 }
 
 // A big screen keeps the list on the left and shows the chosen day in full on the right;

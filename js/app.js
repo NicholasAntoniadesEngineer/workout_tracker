@@ -22,6 +22,7 @@ import * as data from "./actions/data.js";
 import * as programmes from "./actions/programme.js";
 import * as cardio from "./actions/cardio.js";
 import * as importer from "./actions/importer.js";
+import * as exporting from "./actions/export.js";
 import * as logging from "./actions/log.js";
 import * as stacking from "./actions/stack.js";
 
@@ -453,7 +454,7 @@ function dismissSheet(){
 // row act on its own before the row does (delete a day before opening it).
 const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
   addExercise,showBest};
-const AREAS=[dialogs,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
+const AREAS=[dialogs,exporting,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
 onShareNotice(render);
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}

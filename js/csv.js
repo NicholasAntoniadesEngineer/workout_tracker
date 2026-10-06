@@ -5,6 +5,7 @@ const MARK={wu:"warmup",drop:"drop",fail:"failure"};
 const SIDE_WORDS=["per side","side","each side","yes","y","true","1"];
 const SIDE_MARK="per side";
 const BOM="\ufeff";
+export const BOM_CSV=BOM;
 const EOL="\r\n";
 const NEEDS_QUOTES=/[",\n\r]/;
 
@@ -110,7 +111,7 @@ export function parseImport(text){
 }
 
 function download(text,fname,mime){
-  const url=URL.createObjectURL(new Blob([text],{type:mime}));
+  const url=URL.createObjectURL(text instanceof Blob?text:new Blob([text],{type:mime}));
   const a=document.createElement("a");
   a.href=url;a.download=fname;document.body.appendChild(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1500);
@@ -135,7 +136,7 @@ export function exportCSV(sessions){
 
 // A complete backup: every day, the exercise list, settings and body log — unlike the
 // CSV, this round-trips the lot with nothing left behind.
+export function backupJSON(data){return JSON.stringify(Object.assign({app:"kingskiln",exported:new Date().toISOString()},data));}
 export function exportJSON(data){
-  const json=JSON.stringify(Object.assign({app:"kingskiln",exported:new Date().toISOString()},data));
-  deliver(json,"kingskiln_backup_"+new Date().toISOString().slice(0,10)+".json","application/json");
+  deliver(backupJSON(data),"kingskiln_backup_"+new Date().toISOString().slice(0,10)+".json","application/json");
 }

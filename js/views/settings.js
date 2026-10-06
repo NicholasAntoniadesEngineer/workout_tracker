@@ -95,6 +95,10 @@ export function settingsView(){
     "</div>"+
     "<input type='file' id='csvfile' accept='.csv,.json,text/csv,application/json' style='display:none'>"+
     "</div>"+
+    "<div class='setrow'><div class='setlbl'>Export for another app</div>"+
+    "<div class='sethint'>Nothing here is locked in. A Strong-format CSV imports into Hevy, Strong and most trackers; runs and rides go out as GPX and TCX from History. Everything together as one zip.</div>"+
+    "<div class='setopts'><button class='q' id='exportstrong'>"+icon("save","sm")+"Strong-format CSV</button>"+
+      "<button class='q' id='exportall'>"+icon("save","sm")+"Everything (zip)</button></div></div>"+
     "<div class='setrow'><div class='setlbl'>Home Screen</div>"+
     "<div class='sethint'>"+(standalone()?"Installed. KingsKiln opens full screen and keeps your data safe.":
       (isIOS()?"In Safari: Share &rsaquo; Add to Home Screen &rsaquo; Add. Installed, it opens full screen, keeps the screen on during runs and keeps your data safe.":

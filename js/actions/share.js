@@ -2,6 +2,8 @@
 // the feedback window (typing isn't re-rendered, so fields are read from the DOM on send).
 // Each handler returns true once it has dealt with the tap.
 import {findRoutine,getSession,state} from "../store.js";
+import {workoutText} from "../exporters.js";
+import {notice} from "../dialog.js";
 import {shareApp,shareDay,shareRoutine} from "../share.js";
 import {feedbackContext,feedbackMailto,sendFeedback} from "../feedback.js";
 
@@ -54,6 +56,12 @@ export function handle(t,ctx){
     }else{
       const s=getSession();
       if(kind==="image")shareDay(s);
+      else if(kind==="text"){
+        // The day as plain text on the clipboard; shown to copy by hand where the clipboard is refused.
+        const txt=workoutText(s,state.settings.unit||"kg");
+        const byHand=()=>{state.dialog={kind:"notice",title:"Copy this workout",copy:txt,ok:"Done"};ctx.render();};
+        try{navigator.clipboard.writeText(txt).then(()=>{notice("Copied","The workout is on your clipboard as text.");ctx.render();},byHand);}catch(e){byHand();}
+      }
       else shareRoutine(s.title,s.ex.map(e=>e.name));
     }
     ctx.render();return true;

@@ -58,6 +58,8 @@ function shareMenu(){
       opts.push(["image",icon("photo","sm")+"Share as image","the day&rsquo;s numbers as a picture"]);
     if(s&&s.ex.length)
       opts.push(["link",icon("link","sm")+"Share workout","a link that saves this plan"]);
+    if(s&&s.ex.some(e=>e.sets.length))
+      opts.push(["text",icon("chat","sm")+"Copy as text","paste it anywhere"]);
   }else if(m.type==="routine"){
     opts.push(["link",icon("link","sm")+"Share routine","a link that saves this routine"]);
   }
