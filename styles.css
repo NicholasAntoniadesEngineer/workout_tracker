@@ -1934,3 +1934,12 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 }
 /* With the tab bar underneath, the timer bar need not clear the home indicator itself. */
 .timerbar:has(+ .tabbar){padding-bottom:calc(8px * var(--k));}
+/* Phone timers: the clock with its label and caption beside it, one clock-height tall,
+   instead of three lines stacked above the buttons. */
+@media (max-width:899px){
+  .timerbar .tcell{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"v l" "v s" "b b";column-gap:8px;}
+  .timerbar .tv{grid-area:v;align-self:center;}
+  .timerbar .tl{grid-area:l;align-self:end;line-height:1.1;}
+  .timerbar .tsub{grid-area:s;align-self:start;line-height:1.2;}
+  .timerbar .tbtnrow{grid-area:b;}
+}
