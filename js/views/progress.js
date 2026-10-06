@@ -1,6 +1,6 @@
 // Progress: honest numbers over gamification — how often, how much, and which way each
 // lift is moving. Everything derives from the logged sets; nothing extra is stored.
-import {shortDate,totals,EXERCISE_GROUPS,exerciseGroup} from "../model.js";
+import {shortDate,totals,exerciseGroup} from "../model.js";
 import {state} from "../store.js";
 import {ACTIVITIES} from "./cardio.js";
 import {BEST_KM,cardioBests,fmtPace} from "../cardio.js";
@@ -130,13 +130,13 @@ export function progressView(){
   const recs=exerciseRecords(state.sessions);
   let recsH="";
   if(recs.length){
-    // Grouped the way the exercise list is (squat, hinge, push, pull…), A–Z inside each group.
+    // Grouped by movement; the groups and the exercises inside each run A–Z.
     // Each group folds; the ones left open are remembered.
     const open=String(state.settings.recOpen||"").split("|").filter(Boolean);
     recsH+="<div class='setgroup'>Records</div><div class='card recs'>";
-    const order=EXERCISE_GROUPS.map(g=>g[0]),by={};
+    const by={};
     recs.forEach(r=>{const g=exerciseGroup(r.name);(by[g]=by[g]||[]).push(r);});
-    Object.keys(by).sort((a,b)=>{const i=order.indexOf(a),j=order.indexOf(b);return (i<0?99:i)-(j<0?99:j)||a.localeCompare(b);}).forEach(g=>{
+    Object.keys(by).sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base"})).forEach(g=>{
       const isOpen=open.indexOf(g)>=0;
       recsH+="<button class='recgroup"+(isOpen?" open":"")+"' data-recgroup='"+esc(g)+"' aria-expanded='"+isOpen+"'><span>"+esc(g)+"</span><span class='reccount'>"+by[g].length+"</span><span class='recchev'>&rsaquo;</span></button>";
       if(!isOpen)return;
