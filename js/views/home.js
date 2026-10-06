@@ -213,7 +213,6 @@ export function homeView(){
   if(wide())return homeWide(running,finished,emptyOpen,doneToday);
 
   let h="<div class='wrap scroll home'>"+
-    "<button class='daysbtn iconbtn homegear' id='settingsbtn' title='Settings'>"+icon("settings")+"</button>"+
     "<div class='homeinner'>"+
       "<div class='brand'>"+
         "<svg class='brandshield' viewBox='0 0 100 100' aria-hidden='true'>"+
@@ -228,13 +227,12 @@ export function homeView(){
         (running?"":nextCard())+
         homeCta(running,finished,emptyOpen,doneToday)+
       "</div>"+
-      "<div class='homerow'>"+
-        "<button class='hometile' id='homecal'>"+icon("calendar","ht")+"Calendar</button>"+
-        "<button class='hometile' id='homedays'>"+icon("days","ht")+"History</button>"+
-        "<button class='hometile' id='homeprog'>"+icon("progress","ht")+"Progress</button>"+
-        "<button class='hometile' id='homebody'>"+icon("body","ht")+"Body</button>"+
+      // Progress and Learn have tabs now; the tiles keep what doesn't.
+      "<div class='homerow four'>"+
         "<button class='hometile' id='homecardio'>"+icon("bolt","ht")+(state.cardio?"Cardio &middot; live":"Cardio")+"</button>"+
-        "<button class='hometile' id='homelearn'>"+icon("book","ht")+"Learn</button>"+
+        "<button class='hometile' id='homedays'>"+icon("days","ht")+"History</button>"+
+        "<button class='hometile' id='homecal'>"+icon("calendar","ht")+"Calendar</button>"+
+        "<button class='hometile' id='homebody'>"+icon("body","ht")+"Body</button>"+
       "</div>";
   if(backupDue()){
     h+="<div class='backupcard'><div class='bc-t'>"+icon("save","sm")+"Back up your history</div>"+
@@ -243,10 +241,6 @@ export function homeView(){
       "<button class='btn ghost tiny' id='backupsnooze'>Not now</button></div></div>";
   }
   if(totalDone)h+=sabbathWeek();
-  // Feedback sits where everyone passes — the foot of home — not only deep in Settings.
-  h+="<div class='homefoot'>"+
-    "<button id='feedbackbtn'>"+icon("chat","sm")+"Send feedback</button><span>&middot;</span>"+
-    "<button id='shareapp'>"+icon("share","sm")+"Share KingsKiln</button></div>";
   h+="</div>";
   return h+"</div>";
 }

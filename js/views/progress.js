@@ -133,7 +133,9 @@ export function progressView(){
     });
     recsH+="</div>";
   }
-  let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+pageHead("Progress");
+  let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress"):
+    "<div class='hhead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'></div></div>"+
+    "<div class='pgchiprow'><button class='lchip' id='homedays'>History</button><button class='lchip' id='homecal'>Calendar</button><button class='lchip' id='homebody'>Body</button></div>");
   // A big screen arranges the same sections as a dashboard; the phone reads them in a column.
   if(big)h+="<div class='pggrid'><section class='pg12'>"+kpi+"</section><section class='pg8'>"+vol+"</section><section class='pg4'>"+sets+"</section>"+
     (trendH?"<section class='pg8'>"+trendH+"</section>":"")+(recsH?"<section class='pg4 pgrecs'>"+recsH+"</section>":"")+

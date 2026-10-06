@@ -1,7 +1,7 @@
 // Settings: display, logging and workout behaviour, as rows of labelled choices.
 import {state} from "../store.js";
 import {icon} from "../icons.js";
-import {esc,pageHead} from "./common.js";
+import {esc,pageHead,wide} from "./common.js";
 import {shortDate} from "../model.js";
 import {DAY_LETTERS} from "../reminder.js";
 
@@ -57,7 +57,7 @@ function reminderRow(){
 
 export function settingsView(){
   return "<div class='wrap scroll setwrap'>"+
-    pageHead("Settings")+"<div class='setcols'>"+
+    (wide()?pageHead("Settings"):"<div class='hhead'><div></div><div class='h1 plain htitle'>You</div><div class='hact'></div></div>")+"<div class='setcols'>"+
 
     "<div class='setgroup'>Display</div>"+
     choiceRow("Text size","","textScale",TEXT_SIZES,"onerow")+

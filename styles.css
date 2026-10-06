@@ -1727,3 +1727,21 @@ body.dropping::after{content:"Drop to import: Strava, Garmin, Apple Health, Stro
 }
 @media (min-width:900px){.dhead .hact .btn{white-space:nowrap;}}
 .cgpsraw{display:block;margin-top:4px;font-size:11.5px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+
+/* The phone's tab bar: five places along the bottom, always in reach. Hidden on big screens,
+   where the sidebar does the job. */
+.tabbar{flex:none;display:flex;justify-content:space-around;align-items:stretch;background:var(--panel);border-top:1px solid var(--line);
+  padding:4px 4px calc(4px + env(safe-area-inset-bottom));}
+.tab{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:46px;padding:5px 2px 2px;border:0;border-radius:10px;
+  background:none;color:var(--muted);font:inherit;font-size:10.5px;font-weight:800;cursor:pointer;}
+.tab .tabi{position:relative;display:inline-flex;}
+.tab .icn{margin:0;}
+.tab.on{color:var(--text);}
+.tab.on .tabi::after{content:"";position:absolute;left:50%;bottom:-6px;width:18px;height:3px;border-radius:2px;background:var(--gold);transform:translateX(-50%);}
+.tab .slivedot{position:absolute;top:-3px;right:-5px;width:8px;height:8px;border-radius:4px;background:var(--gold);box-shadow:0 0 0 2px var(--panel);}
+.homerow.four{grid-template-columns:repeat(4,1fr);gap:8px;}
+.homerow.four .hometile{min-height:64px;padding:8px 2px;font-size:11.5px;}
+.homerow.four .hometile .icn.ht{width:22px;height:22px;}
+.pgchiprow{display:flex;gap:8px;margin:0 0 12px;}
+.pgchiprow .lchip{flex:1 1 0;text-align:center;justify-content:center;}
+@media (min-width:900px){.tabbar{display:none;}}

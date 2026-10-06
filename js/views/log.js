@@ -622,9 +622,6 @@ export function logView(){
       "<button class='daysbtn iconbtn' id='sharebtn' title='"+
       (s.ex.some(e=>e.sets.length)?"Share this day":"Share this workout plan")+
       "'>"+icon("share")+"</button>":"")+
-    "<button class='daysbtn iconbtn' id='homebtn' title='Home'>"+icon("home")+"</button>"+
-    "<button class='daysbtn iconbtn' id='daysbtn' title='History'>"+icon("days")+"</button>"+
-    "<button class='daysbtn iconbtn' id='settingsbtn' title='Settings'>"+icon("settings")+"</button>"+
     "</div></div>"+
     statsBar(s,totals(s))+setsTable(s)+
     exerciseStrip()+logPanel()+
