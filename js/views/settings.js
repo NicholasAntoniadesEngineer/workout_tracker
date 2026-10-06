@@ -93,6 +93,8 @@ export function settingsView(){
     "</div>"+
     "<input type='file' id='csvfile' accept='.csv,.json,text/csv,application/json' style='display:none'>"+
     "</div>"+
+    "<div class='setrow'><div class='setlbl'>Storage</div>"+
+    "<div class='sethint' id='storageline'>"+(state.storageInfo?esc(state.storageInfo):"Measuring&hellip;")+"</div></div>"+
     "<div class='setrow'><div class='setlbl'>Import from other apps</div>"+
     "<div class='sethint'>Strava, Garmin Connect, Apple Health, Strong, Hevy, Fitbod, or any FIT, GPX or TCX file. Read on this device; nothing is uploaded.</div>"+
     "<div class='setopts'><button class='q' id='openimport'>"+icon("share","sm")+"Import history</button></div></div>"+

@@ -1,6 +1,7 @@
 import {BUILTIN_ROUTINES,RETIRED,SEED_EXERCISES,lastSetExercise,convertLength,convertWeight,dateKey,makeExercise,makeSession,normSet,
   options} from "./model.js";
 
+import * as db from "./db.js";
 const KEY="workout_days_v2";
 const STORE_VERSION=6;
 const DEFAULT_REPS=10;
@@ -74,7 +75,7 @@ export function activeEx(){
 
 function readSaved(){
   try{
-    const raw=localStorage.getItem(KEY);
+    const raw=db.getItem(KEY);
     if(raw){const d=JSON.parse(raw);if(d.sessions&&d.sessions.length)return d;}
   }catch(e){}
   return null;
@@ -156,7 +157,7 @@ export function load(){
 
 export function save(){
   try{
-    localStorage.setItem(KEY,JSON.stringify(
+    db.setItem(KEY,JSON.stringify(
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,

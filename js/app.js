@@ -9,6 +9,7 @@ import {learnHomeBody,paint,setClockSeconds,setSub,workoutLabel,workoutSub} from
 import {tickSide,wide} from "./views/shell.js";
 import {handleKey} from "./keys.js";
 import {parseRoute,routeOf,titleOf} from "./route.js";
+import * as db from "./db.js";
 import {paletteList,runPalette} from "./palette.js";
 import * as nav from "./actions/nav.js";
 import * as routines from "./actions/routines.js";
@@ -94,9 +95,19 @@ function putScroll(keep){
   if(tab&&strip)strip.scrollLeft=tab.offsetLeft-(strip.clientWidth-tab.offsetWidth)/2;
 }
 
+// The Settings storage line: how much the data takes and where it lives, measured after paint.
+function measureStorage(){
+  db.usage().then(u=>{
+    const mb=n=>n>=1073741824?Math.round(n/1073741824)+" GB":n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB";
+    state.storageInfo=mb(u.used)+" of your data"+(u.quota?", "+mb(u.quota)+" available":"")+
+      (u.backend==="indexeddb"?". Stored in this browser's database; back up to keep a copy elsewhere.":". Stored in this browser; back up to keep a copy elsewhere.");
+    const el=document.getElementById("storageline");if(el)el.textContent=state.storageInfo;
+  }).catch(()=>{});
+}
 function render(){
   const keep=grabScroll();
   paint();
+  if(state.view==="settings"&&!state.storageInfo)measureStorage();
   // Icon-only buttons carry a title; screen readers get it as their name too.
   document.querySelectorAll("button[title]:not([aria-label])").forEach(b=>{
     if(!b.textContent.trim())b.setAttribute("aria-label",b.title);
@@ -553,6 +564,8 @@ if("serviceWorker" in navigator){
 }
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 
+// The saved data is read from the database before anything is drawn.
+await db.init();
 load();
 state.sessions.forEach(autoEndIfStale);
 recallLast(activeEx());

@@ -2,6 +2,7 @@
 // and open a workout recorded on a watch. A live session is kept on the device as it runs, so
 // a reload or a dropped app picks it up where it was.
 import {state,addToCatalog} from "../store.js";
+import * as db from "../db.js";
 import {makeExercise,makeSession,nowISO,normSet} from "../model.js";
 import {PRESETS,haversine,hrStats,parseWorkoutFile,lapSpeech,phaseAt,phaseSpeech,phases,splitSpeech,thin,trackStats} from "../cardio.js";
 import {isFit,parseFit,unzipWorkout} from "../fit.js";
@@ -10,8 +11,8 @@ import {ACTIVITIES,elapsedOf,gpsLine} from "../views/cardio.js";
 
 const LIVE_KEY="kk_cardio";
 let ticker=null,repaint=()=>{};
-const save=()=>{try{localStorage.setItem(LIVE_KEY,JSON.stringify(state.cardio));}catch(e){}};
-const clear=()=>{try{localStorage.removeItem(LIVE_KEY);}catch(e){}};
+const save=()=>{try{db.setItem(LIVE_KEY,JSON.stringify(state.cardio));}catch(e){}};
+const clear=()=>{try{db.removeItem(LIVE_KEY);}catch(e){}};
 const exName=a=>(ACTIVITIES.find(x=>x[0]===a)||ACTIVITIES[0])[2];
 const STEP={work:15,rest:15,rounds:1,minutes:5};
 
@@ -100,7 +101,7 @@ function halt(){clearInterval(ticker);ticker=null;stopGps();keepAwake(false);}
 // After a reload: carry on with a session that was running.
 export function resumeCardio(render){
   try{
-    const c=JSON.parse(localStorage.getItem(LIVE_KEY)||"null");
+    const c=JSON.parse(db.getItem(LIVE_KEY)||"null");
     if(c&&c.startedAt&&Date.now()-c.startedAt<12*3600*1000){state.cardio=c;begin(render);}
     else clear();
   }catch(e){}

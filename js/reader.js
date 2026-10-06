@@ -1,6 +1,7 @@
 // The book reader: each book is the original scan at the Internet Archive, shown inside the
 // app at the chapter you pick — the real printed pages, nothing retyped. Which chapter you
 // last opened in each book is remembered on this device.
+import * as db from "./db.js";
 
 const BASE="https://archive.org/details/";
 
@@ -14,8 +15,8 @@ export function scanLink(ia,page){
 }
 
 const POS_KEY="kk_bookpos";
-function readPos(){try{return JSON.parse(localStorage.getItem(POS_KEY))||{};}catch(e){return {};}}
+function readPos(){try{return JSON.parse(db.getItem(POS_KEY))||{};}catch(e){return {};}}
 export function bookPos(id){return readPos()[id]||null;}
 export function saveBookPos(id,chapter){
-  try{const all=readPos();all[id]={chapter};localStorage.setItem(POS_KEY,JSON.stringify(all));}catch(e){}
+  try{const all=readPos();all[id]={chapter};db.setItem(POS_KEY,JSON.stringify(all));}catch(e){}
 }
