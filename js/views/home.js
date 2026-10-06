@@ -1,7 +1,7 @@
 // The landing page: the app opens here, not mid-workout. Says the date, offers to start or
 // continue today, and points at the calendar, history, progress and body — no filler.
 import {dateKey,fmtClock,nowISO,shortDate,totals,workoutSeconds} from "../model.js";
-import {allRoutines,backupDue,newestFirst,state} from "../store.js";
+import {allRoutines,backupDue,newestFirst,state,todayCheckin} from "../store.js";
 import {VERSES} from "../verses.js";
 import {icon} from "../icons.js";
 import {esc,wide} from "./common.js";
@@ -10,7 +10,8 @@ import {setBars} from "./progress.js";
 import {barChart,lineChart,weeklyVolume,withAxis} from "../charts.js";
 import {setClockSeconds,workoutLabel} from "./log.js";
 import {learnLib} from "../lazy.js";
-import {readinessCard} from "./checkin.js";
+import {readinessCard,readinessNow} from "./checkin.js";
+import {BAND_LABEL,suggestion} from "../ready.js";
 import {proteinTarget,totalsOf} from "../fuel.js";
 
 // One chip per module that is on: protein so far, habits done. A tap opens the page.
@@ -188,26 +189,73 @@ function learnLine(){
     "<span class='hlearnb'><span class='leyebrow'>From Learn"+(c?" &middot; "+esc(c.cat):"")+"</span><span class='hlearnt'>"+esc(tp.title)+"</span></span>"+
     "<span class='hmore'>Read and train &rsaquo;</span></button>";
 }
+// The one hero: readiness (the ring, the reason, the day's advice) with the workout's button
+// beside it. Without a check-in yet it asks for one; with the check-ins off it is just today.
+function ringSvg(score){
+  const r=56,c=2*Math.PI*r,off=c*(1-(score==null?0:score)/100);
+  return "<svg class='hring' viewBox='0 0 128 128' aria-hidden='true'><circle cx='64' cy='64' r='"+r+"' class='hringt'/>"+
+    (score==null?"":"<circle cx='64' cy='64' r='"+r+"' class='hringv' stroke-dasharray='"+c.toFixed(1)+"' stroke-dashoffset='"+off.toFixed(1)+"'/>")+"</svg>";
+}
+function workoutCta(running,finished,emptyOpen){
+  if(running)return "<button class='btn primary' data-resume='"+running.id+"'>Continue &rarr; "+esc(running.title)+"</button>";
+  if(finished)return "<button class='btn primary' id='homestart'>Start another workout</button>";
+  if(emptyOpen)return "<button class='btn primary' data-resume='"+emptyOpen.id+"'>Continue &rarr; "+esc(emptyOpen.title)+"</button>";
+  return "<button class='btn primary' id='homestart'>Start today&rsquo;s workout</button>";
+}
+function heroWide(running,finished,emptyOpen,doneToday){
+  const ci=!!state.settings.checkin,c=ci?todayCheckin():null,r=ci?readinessNow():null;
+  let word,sub,score=null,ringWord="",second="";
+  if(!ci){
+    word=running?esc(running.title):finished?esc(finished.title)+(doneToday>1?" &middot; "+doneToday+" workouts":""):"Ready when you are";
+    sub=running?"In progress":finished?"Done today":"Nothing logged yet today";
+  }else if(!c){
+    word="Morning check-in";sub="30 seconds: sleep, soreness, energy, stress.";
+    second="<button class='btn ghost' id='cistart'>Check in</button>";
+  }else if(!r.band){
+    word="Checked in";sub="Your readiness word shows after "+Math.max(1,7-state.checkins.length)+" more mornings.";
+    second="<button class='btn ghost' id='cistart'>Edit check-in</button>";
+  }else{
+    word=esc(r.why);sub=esc(suggestion(r.band,r.planned));score=r.score;ringWord=BAND_LABEL[r.band];
+    second="<button class='btn ghost' id='cistart'>Edit check-in</button>";
+  }
+  const live=running?"<div class='hlive'><span class='lgdot'></span><b class='mono' id='hhero-work'>"+workoutLabel(running)+"</b> elapsed &middot; rest <b class='mono' id='hhero-rest'>"+
+    fmtClock(setClockSeconds(running))+"</b> &middot; "+running.ex.filter(e=>e.sets.length).length+" of "+running.ex.length+" lifts</div>":"";
+  const ringInner=ringWord?"<b>"+ringWord+"</b><span>readiness</span>":"";
+  const finishedLink=finished&&!running?"<button class='hmore' data-resume='"+finished.id+"'>Open "+esc(finished.title)+" &rsaquo;</button>":"";
+  // The ring only once there is a score to fill it; before that, a quiet disc with an icon.
+  const left=score!=null?"<div class='hringwrap "+r.band+"'>"+ringSvg(score)+"<div class='hringv2'>"+ringInner+"</div></div>":
+    "<div class='hdisc'>"+icon(ci?"target":"dumbbell","sm")+"</div>";
+  return "<div class='card hhero2'>"+left+
+    "<div class='hherob'><div class='llabel'>Today</div><div class='hheroh'>"+word+"</div><div class='hheros'>"+sub+"</div>"+live+
+    "<div class='hherobtns'>"+workoutCta(running,finished,emptyOpen)+second+finishedLink+"</div></div></div>";
+}
+function backupLine(){
+  if(!backupDue())return "";
+  return "<div class='hwnote'>"+icon("save","sm")+"<span><b>Back up your history.</b> It lives only on this device.</span>"+
+    "<button class='btn ghost tiny' id='backupnow'>Save backup</button><button class='hmore' id='backupsnooze'>Not now</button></div>";
+}
+function verseLine(){
+  if(!VERSES.length)return "";
+  const v=VERSES[state.verseIdx||0],ver=state.settings.bibleVersion==="kjv"?"kjv":"web";
+  const link="https://www.biblegateway.com/passage/?search="+encodeURIComponent(v.ref.split(":")[0])+"&version="+GATEWAY[ver];
+  return "<div class='hwverse'><span class='hwvt'>"+esc(v[ver])+"</span> <a class='homeref' href='"+link+"' target='_blank' rel='noopener'>"+esc(v.ref)+"</a>"+
+    "<button class='verstep' id='verprev' aria-label='Previous verse'>&lsaquo;</button><button class='verstep' id='vernext' aria-label='Next verse'>&rsaquo;</button></div>";
+}
 function homeWide(running,finished,emptyOpen,doneToday){
   const wk=weekCards();
   const dateStr=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
-  let h="<div class='wrap scroll homewide'><div class='hwtop'><div><div class='hwdate'>"+esc(dateStr)+"</div>"+
-    "<div class='hwsub'>"+wk.trained+" trained this week"+(running?" &middot; 1 in progress":"")+"</div></div></div>";
-  if(backupDue())h+="<div class='backupcard'><div class='bc-t'>"+icon("save","sm")+"Back up your history</div>"+
-      "<div class='bc-p'>It lives only on this device. Save a copy somewhere safe.</div>"+
-      "<div class='bc-a'><button class='btn primary tiny' id='backupnow'>Save backup</button>"+
-      "<button class='btn ghost tiny' id='backupsnooze'>Not now</button></div></div>";
-  h+="<div class='hgrid'>"+
-    "<div class='hg7'>"+verseCard()+wk.html+learnLine()+"</div>"+
-    "<div class='hg5'>"+readinessCard()+moduleChips()+heroCard(running,finished,emptyOpen,doneToday)+nextCard()+"</div>"+
-    "<div class='hg4'><div class='card hcard'><div class='hcardh'><span class='llabel'>Hard sets this week &middot; aim 10&ndash;20</span>"+
-      "<button class='hmore' data-nav='progress'>Progress &rsaquo;</button></div>"+setBars().replace("<div class='card chartcard setbars'>","<div class='setbars'>")+"</div></div>"+
-    "<div class='hg4'>"+volumeCard()+"</div>"+
-    "<div class='hg4'>"+bodyCard()+"</div>"+
-    "<div class='hg8'>"+recentCard()+"</div>"+
-    "<div class='hg4'>"+routinesCard()+"</div>"+
-    "</div>";
-  return h+"</div>";
+  return "<div class='wrap scroll homewide'><div class='hwtop'><div><div class='hwdate'>"+esc(dateStr)+"</div>"+verseLine()+"</div>"+
+    "<div class='hwsub'>"+wk.trained+" trained this week</div></div>"+
+    backupLine()+
+    "<div class='hstack'>"+
+    heroWide(running,finished,emptyOpen,doneToday)+moduleChips()+
+    "<div class='card hcard'><div class='hcardh'><span class='llabel'>This week</span><button class='hmore' data-nav='calendar'>Calendar &rsaquo;</button></div>"+wk.html+"</div>"+
+    nextCard()+
+    "<div class='hg2'><div class='card hcard'><div class='hcardh'><span class='llabel'>Hard sets this week &middot; aim 10&ndash;20</span>"+
+      "<button class='hmore' data-nav='progress'>Progress &rsaquo;</button></div>"+setBars().replace("<div class='card chartcard setbars'>","<div class='setbars'>")+"</div>"+
+      volumeCard()+"</div>"+
+    routinesCard()+recentCard()+
+    "</div></div>";
 }
 
 export function homeView(){

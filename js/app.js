@@ -121,7 +121,10 @@ function measureStorage(){
 }
 function render(){
   const keep=grabScroll();
+  // Typing in the set row and pressing Enter repaints; the caret stays where it was.
+  const act=document.activeElement,keepFocus=act&&(act.id==="rowreps"||act.id==="rowweight")?act.id:null;
   paint();
+  if(keepFocus){const el=document.getElementById(keepFocus);if(el){el.focus();try{el.select();}catch(e){}}}
   if(state.view==="settings"&&!state.storageInfo)measureStorage();
   // A dialog's field gets the caret the moment it opens, with its text selected.
   if(state.focusNote){const el=document.getElementById("setnote");if(el)el.focus();state.focusNote=false;}
@@ -437,6 +440,9 @@ document.body.addEventListener("input",ev=>{
   else if(id==="editrest")state.editRest=parseClock(ev.target.value);
   else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
   else if(id==="setnote"){state.setNote=ev.target.value;}
+  // The laptop's set row: typed numbers go straight to the pending set, no repaint.
+  else if(id==="rowreps"){const v=parseInt(ev.target.value,10);if(!isNaN(v))state.reps=Math.max(0,v);}
+  else if(id==="rowweight"){const v=parseFloat(ev.target.value);if(!isNaN(v))state.weight=Math.max(0,Math.round(v*100)/100);}
   else if(id==="heightcm"){setSetting("heightCm",Math.max(0,parseInt(ev.target.value,10)||0));}
   else if(id==="journal"){const j=Object.assign({},state.journal||{});const k=dateKey(nowISO());if(ev.target.value.trim())j[k]=ev.target.value;else delete j[k];state.journal=j;save();}
   else if((id==="cibed"||id==="ciwake")&&state.checkinDraft){state.checkinDraft[id==="cibed"?"bed":"wake"]=ev.target.value;
@@ -589,6 +595,10 @@ window.addEventListener("keydown",ev=>{
     ev.preventDefault();if(state.palette){state.palette=null;render();}else openPalette();return;
   }
   if(state.palette){if(paletteKey(ev))ev.preventDefault();return;}
+  // Enter in the laptop's set row logs (or updates) the set; Tab moves between the two numbers.
+  if(ev.key==="Enter"&&ev.target&&(ev.target.id==="rowreps"||ev.target.id==="rowweight")){
+    const b=document.getElementById(state.editing?"upd":"logbtn");if(b&&!b.disabled){ev.preventDefault();b.click();}return;
+  }
   if(state.dialog&&ev.key==="Enter"){const ok=document.getElementById("dlgok");if(ok){ev.preventDefault();ok.click();}return;}
   if(ev.key!=="Escape"){if(handleKey(ev,render))ev.preventDefault();return;}
   if(state.dialog){state.dialog=null;render();}

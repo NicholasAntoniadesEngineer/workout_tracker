@@ -11,7 +11,7 @@ import {exAka,exMatches,exWhat,learnTopicsFor} from "../exinfo.js";
 import {position,prescription} from "../programme.js";
 import {est1RM,exerciseRecords,exerciseTrend,lineChart,withAxis} from "../charts.js";
 import {icon} from "../icons.js";
-import {esc,roomy,wide} from "./common.js";
+import {esc,wide} from "./common.js";
 
 const MIN_SET_COLUMNS=1;
 const UNIT_LABEL={reps:"Reps",secs:"Secs",m:"Metres"};
@@ -139,16 +139,25 @@ function plateCaption(a,unit){
   return (p.exact?"":"&asymp; ")+"per side "+p.plates.join(" + ");
 }
 
-function logPanel(){
-  const a=activeEx();
-  // No header while logging: the Log set button already names the exercise, and the space
-  // is better given to the table. Editing keeps one, since its buttons name nothing.
-  let h="<div class='card panel'>";
-  // What this exercise looked like last time it was trained — the number to beat.
-  // Tapping it opens the exercise's full history and records.
-  const prev=(a&&!state.editing)?lastPerformance(a.name):null;
-  // A programme's prescribed sets for this lift (5/3/1's waves), the next one ready to load.
-  const sess=getSession(),p=state.programme;
+// Per side and the unit belong to the exercise; kind, RPE and a note belong to this set.
+function setOptions(a,u){
+  return "<div class='togrow'>"+
+     "<button class='q"+(state.perSide?" on":"")+"' id='sidebtn'>Per side</button>"+
+     (a?"<button class='q"+(u!=="reps"?" on":"")+"' id='timedbtn' "+
+       "title='Count this exercise in reps, seconds or metres'>"+UNIT_LABEL[u]+"</button>":"")+
+     "<button class='q"+(state.setRpe?" on":"")+"' id='rpebtn' data-rpe='"+(state.setRpe||8)+"' title='Rate the effort'>"+(state.setRpe?"RPE "+state.setRpe:"RPE")+"</button>"+
+     "<button class='q"+(state.noteOpen||state.setNote?" on":"")+"' id='notebtn' title='A note on this set'>"+(state.setNote?"Note &#10003;":"Note")+"</button>"+
+     "<button class='q"+(state.kindOpen||state.setKind?" on":"")+"' id='kindbtn' title='Warm-up, drop set or to failure'>"+(state.setKind?esc(kindLabel(state.setKind)):"Type")+"</button>"+
+     "</div>"+
+     (state.kindOpen||state.setRpe?"<div class='kindrow'>"+
+       (state.kindOpen?SET_KINDS.map(([k,l])=>"<button class='kind"+((state.setKind||"")===k?" on":"")+"' data-setkind='"+k+"'>"+l+"</button>").join(""):"")+
+       (state.setRpe?"<div class='rperow'>"+[6,7,8,9,10].map(v=>"<button class='kind rpe"+(state.setRpe===v?" on":"")+"' data-rpe='"+v+"'>"+v+"</button>").join("")+"</div>":"")+"</div>":"")+
+     (state.noteOpen?"<input class='setnote' id='setnote' placeholder='Note on this set (felt heavy, new grip…)' maxlength='200' value='"+esc(state.setNote)+"'>":"");
+}
+// A programme's or routine's prescribed sets for this lift, the next one ready to load.
+function planHints(a,sess){
+  let h="";
+  const p=state.programme;
   if(a&&!state.editing&&sess&&sess.prog&&p&&sess.prog.pid===p.id){
     const pos=Object.assign(position(p,state.sessions.filter(x=>x.id!==sess.id)),{});
     const rx=prescription(p,pos);
@@ -159,13 +168,25 @@ function logPanel(){
         (doneW>=3?" &middot; last set: as many reps as you can":"")+"</button>";
     }
   }
-  // The routine's targets for this lift, the next one ready to load with a tap.
-  const rt=a&&!state.editing&&sess.routine?findRoutine(sess.routine):null,plan=rt?planFor(rt,a.name):null;
+  const rt=a&&!state.editing&&sess&&sess.routine?findRoutine(sess.routine):null,plan=rt?planFor(rt,a.name):null;
   if(plan){
     const done=a.sets.filter(x=>!x.wu).length,nx=plan[Math.min(done,plan.length-1)];
     h+="<button class='hintline rxline' id='rxbtn' data-hw='"+(nx.w||"")+"' data-hr='"+nx.r+"'><b>Plan</b> "+
       plan.map((x,i)=>"<span class='"+(i<done?"rxdone":i===done?"rxnext":"")+"'>"+x.r+(x.w?" @ "+x.w:"")+"</span>").join(" &middot; ")+"</button>";
   }
+  return h;
+}
+
+function logPanel(){
+  const a=activeEx();
+  // No header while logging: the Log set button already names the exercise, and the space
+  // is better given to the table. Editing keeps one, since its buttons name nothing.
+  let h="<div class='card panel'>";
+  // What this exercise looked like last time it was trained — the number to beat.
+  // Tapping it opens the exercise's full history and records.
+  const prev=(a&&!state.editing)?lastPerformance(a.name):null;
+  const sess=getSession();
+  h+=planHints(a,sess);
   // The phone leaves these out for room: last time's numbers are already loaded into reps and
   // weight, and tapping the selected exercise again opens its history.
   if(wide()&&prev){
@@ -202,18 +223,7 @@ function logPanel(){
   // Per-side doubling and warm-up are per set; the unit belongs to the exercise itself, and
   // its button steps reps → seconds → metres, naming whichever is in use.
   // Per side and the unit belong to the exercise; kind, RPE and a note belong to this set.
-  h+="<div class='togrow'>"+
-     "<button class='q"+(state.perSide?" on":"")+"' id='sidebtn'>Per side</button>"+
-     (a?"<button class='q"+(u!=="reps"?" on":"")+"' id='timedbtn' "+
-       "title='Count this exercise in reps, seconds or metres'>"+UNIT_LABEL[u]+"</button>":"")+
-     "<button class='q"+(state.setRpe?" on":"")+"' id='rpebtn' data-rpe='"+(state.setRpe||8)+"' title='Rate the effort'>"+(state.setRpe?"RPE "+state.setRpe:"RPE")+"</button>"+
-     "<button class='q"+(state.noteOpen||state.setNote?" on":"")+"' id='notebtn' title='A note on this set'>"+(state.setNote?"Note &#10003;":"Note")+"</button>"+
-     "<button class='q"+(state.kindOpen||state.setKind?" on":"")+"' id='kindbtn' title='Warm-up, drop set or to failure'>"+(state.setKind?esc(kindLabel(state.setKind)):"Type")+"</button>"+
-     "</div>"+
-     (state.kindOpen||state.setRpe?"<div class='kindrow'>"+
-       (state.kindOpen?SET_KINDS.map(([k,l])=>"<button class='kind"+((state.setKind||"")===k?" on":"")+"' data-setkind='"+k+"'>"+l+"</button>").join(""):"")+
-       (state.setRpe?"<div class='rperow'>"+[6,7,8,9,10].map(v=>"<button class='kind rpe"+(state.setRpe===v?" on":"")+"' data-rpe='"+v+"'>"+v+"</button>").join("")+"</div>":"")+"</div>":"")+
-     (state.noteOpen?"<input class='setnote' id='setnote' placeholder='Note on this set (felt heavy, new grip…)' maxlength='200' value='"+esc(state.setNote)+"'>":"");
+  h+=setOptions(a,u);
   if(state.editing){
     // Every set is fully editable — reps and weight above, its recorded times here — so a
     // workout done off-app can be typed in completely.
@@ -551,32 +561,86 @@ function timerBar(session){
       "</div></div></div></div>";
 }
 
-// ── Tablet and laptop ────────────────────────────────────────────────────────────────
-// The library docked on the left (laptop) or as a drawer (tablet); the day in the middle with
-// the chosen exercise's last four times and its trend; the panel and both clocks on the right.
+// ── Laptop and tablet ─────────────────────────────────────────────────────────────────
+// The day as one sheet: each exercise a block of set rows (set, previous, weight, reps, ✓),
+// the chosen exercise's next set typed straight into its row. On the right, the clocks,
+// the exercise's last few times and what comes next. The exercise list is a drawer.
 const nameKey=n=>String(n||"").trim().toLowerCase();
-function exerciseFocus(a,session){
+function prevText(x,u){
+  if(!x)return "&mdash;";
+  return x.r+(u==="secs"?"s":u==="m"?"m":"")+(x.side?"/s":"")+(x.band?" "+esc(x.band):(x.w?" &times; "+x.w:""))+(x.wu?" w":"");
+}
+const markText=(kind,rpe,note,side)=>(side?"/s ":"")+(kind==="wu"?"w":kind==="drop"?"d":kind==="fail"?"f":"")+(rpe?" @"+rpe:"")+(note?" &#9679;":"");
+function loggedRow(e,i,x,u,prev){
+  const kind=x.wu?"wu":(x.kind||"");
+  return "<div class='lgset cell has"+(x.wu?" wu":"")+(kind==="drop"?" drop":"")+(kind==="fail"?" fail":"")+"' data-ex='"+e.id+"' data-i='"+i+"'"+
+    (x.note?" title='"+esc(x.note)+"'":" title='Click to edit this set'")+">"+
+    "<span class='lgsn'>"+(i+1)+"</span><span class='lgsp'>"+prevText(prev[i],u)+"</span>"+
+    "<span class='lgsv mono'>"+(x.band?esc(x.band):(x.w?x.w:"&mdash;"))+"</span><span class='lgsv mono'>"+x.r+"</span>"+
+    "<span class='lgsmk'>"+markText(kind,x.rpe,x.note,x.side)+"</span><span class='lgchk on'>&#10003;</span></div>";
+}
+// The row being typed into (or edited): real inputs for weight and reps, the options under it.
+function entryRow(a,u,n,prev,editing){
+  const isBand=isBandExercise(a.name),unit=state.settings.unit||"kg";
+  const secs=v=>{const s=Math.max(0,Math.round(v||0)),m=Math.floor(s/60);return m+":"+String(s%60).padStart(2,"0");};
+  return "<div class='lgset cur"+(editing?" editing":"")+"'><span class='lgsn'>"+(n+1)+"</span><span class='lgsp'>"+prevText(prev[n],u)+"</span>"+
+    (isBand?"<button class='lgin band' data-edit='band' title='Band'>"+esc(state.band||"None")+"</button>":
+      "<input class='lgin mono' id='rowweight' type='number' inputmode='decimal' step='any' min='0' value='"+(state.weight||0)+"' aria-label='Weight, "+esc(unit)+"'>")+
+    "<input class='lgin mono' id='rowreps' type='number' inputmode='numeric' step='1' min='0' value='"+state.reps+"' aria-label='"+UNIT_LABEL[u]+"'>"+
+    "<span class='lgsmk'>"+markText(state.setKind,state.setRpe,state.setNote,state.perSide)+"</span>"+
+    (editing?"<button class='lgchk go' id='upd' title='Update this set'>&#10003;</button>":
+      "<button class='lgchk go' id='logbtn' title='Log the set (Enter or L)'>&#10003;</button>")+"</div>"+
+    "<div class='lgopts'>"+(isBand?"":"<span class='lgcap'>"+plateCaption(a,unit)+"</span>")+setOptions(a,u)+
+    (editing?"<div class='timerow'><label class='timefield'><span>Rest</span><input class='timein mono' id='editrest' inputmode='numeric' value='"+secs(state.editRest)+"'></label>"+
+      "<label class='timefield'><span>Work</span><input class='timein mono' id='editwork' inputmode='numeric' value='"+secs(state.editWork)+"'></label>"+
+      "<button class='btn dang tiny' id='del'>Delete</button><button class='btn ghost tiny' id='cxl'>Cancel</button></div>":"")+"</div>";
+}
+function exerciseBlock(e,session){
+  const a=activeEx(),on=!!(a&&a.id===e.id),u=unitOf(e);
+  const last=lastPerformance(e.name),prev=last?last.ex.sets:[];
+  const ed=on&&state.editing&&state.editing.ex===e.id?state.editing.i:-1;
+  let h="<div class='lgex"+(on?" on":"")+"' data-exblock='"+e.id+"'><div class='lgexh'>"+
+    "<button class='exbtn lgexn"+(on?" active":"")+"' data-ex='"+e.id+"'"+(on?" title='Click again for its history'":"")+">"+esc(e.name)+"</button>"+
+    (last?"<span class='lgexm'>Last "+esc(shortDate(last.session.created))+" &middot; <span class='mono'>"+setsSummary(last.ex.sets,unitOf(last.ex))+"</span></span>":
+      "<span class='lgexm'>First time</span>")+"<span class='lgsp0'></span>";
+  if(on&&!state.editing){
+    if(last){
+      const rr=repRange();
+      const hint=progressionHint(last.ex.sets,{unit:u,weightUnit:state.settings.unit||"kg",low:rr.low,top:rr.top,isBand:isBandExercise(e.name)});
+      if(hint)h+="<button class='lghint' id='hintbtn'"+(hint.apply?" data-hw='"+(hint.apply.w===undefined?"":hint.apply.w)+"' data-hr='"+(hint.apply.r===undefined?"":hint.apply.r)+"'":" disabled")+">"+esc(hint.text)+"</button>";
+    }else h+="<button class='lghint' id='exhistbtn'>Tips and demo &rsaquo;</button>";
+    h+="<button class='lgrm' id='removesel' title='Remove from today'>&times;</button>";
+  }
+  h+="</div>";
+  if(on)h+=planHints(e,session);
+  h+="<div class='lgset lghd'><span class='lgsn'>Set</span><span class='lgsp'>Previous</span><span>"+(isBandExercise(e.name)?"Band":esc(state.settings.unit||"kg"))+"</span><span>"+UNIT_LABEL[u]+"</span><span></span><span></span></div>";
+  e.sets.forEach((x,i)=>{h+=ed===i?entryRow(e,u,i,prev,true):loggedRow(e,i,x,u,prev);});
+  const n=e.sets.length;
+  if(on&&ed<0)h+=entryRow(e,u,n,prev,false);
+  else if(!on)h+="<button class='lgset ghost exbtn' data-ex='"+e.id+"' title='Log the next set of "+esc(e.name)+"'><span class='lgsn'>"+(n+1)+"</span><span class='lgsp'>"+prevText(prev[n],u)+"</span>"+
+    "<span class='lgsv'>"+(prev[n]&&prev[n].w?prev[n].w:"&mdash;")+"</span><span class='lgsv'>"+(prev[n]?prev[n].r:"&mdash;")+"</span><span></span><span class='lgchk'></span></button>";
+  return h+"</div>";
+}
+// The rail's card for the chosen exercise: its last few times, a small trend, its record.
+function railFocus(a,session){
   if(!a)return "";
   const k=nameKey(a.name),u=unitOf(a),unit=esc(state.settings.unit||"kg");
   const past=newestFirst(state.sessions).filter(s=>s.id!==session.id)
     .map(s=>({s,e:s.ex.find(x=>nameKey(x.name)===k&&x.sets.length)})).filter(x=>x.e).slice(0,4);
   const rec=exerciseRecords(state.sessions).find(r=>nameKey(r.name)===k);
   let h="<div class='card lgfocus'><div class='lgfh'><span class='llabel'>"+esc(a.name)+" &middot; last "+(past.length===1?"time":past.length+" times")+"</span>"+
-    (rec?"<span class='lgfrec mono'>"+(rec.bestW?"Best "+rec.bestW+" &times; "+rec.bestWReps+" &middot; e1RM "+rec.best1RM+" "+unit:
-      "Best "+rec.bestR+(rec.timed?" s":rec.dist?" m":" reps"))+"</span>":"")+
     "<button class='lgfall' id='exhistbtn'>All &rsaquo;</button></div>";
   h+=past.length?past.map(x=>"<div class='lgfrow'><span>"+esc(shortDate(x.s.created))+"</span><span class='mono'>"+setsSummary(x.e.sets,unitOf(x.e))+"</span></div>").join(""):
     "<div class='empty-note'>First time logging "+esc(a.name)+". Its history builds here.</div>";
-  h+="</div>";
   const tr=exerciseTrend(newestFirst(state.sessions).filter(s=>!s.running).reverse(),a.name);
   if(tr.points.length>1){
-    const pts=tr.points.slice(-12),vs=pts.map(p=>p.v);
-    h+="<div class='card lgfocus'><div class='lgfh'><span class='llabel'>"+esc(a.name)+" &middot; "+(tr.weighted?"top set":"best "+(u==="secs"?"time":u==="m"?"distance":"reps"))+
-      ", last "+pts.length+" days</span><button class='lgfall' data-nav='progress'>Progress &rsaquo;</button></div>"+
-      withAxis(lineChart(vs,{w:560,h:150,labels:pts.map(p=>shortDate(p.at)+": "+p.v)}),Math.max(...vs),Math.min(...vs))+
-      "<div class='chartlbls'><span>"+esc(shortDate(pts[0].at))+"</span><span>now "+vs[vs.length-1]+(tr.weighted?" "+unit:"")+"</span><span>"+esc(shortDate(pts[pts.length-1].at))+"</span></div></div>";
+    const pts=tr.points.slice(-8),vs=pts.map(p=>p.v);
+    h+="<div class='lgspark'>"+lineChart(vs,{w:300,h:64,labels:pts.map(p=>shortDate(p.at)+": "+p.v)})+"</div>"+
+      "<div class='chartlbls'><span>"+esc(shortDate(pts[0].at))+"</span><span>"+(tr.weighted?"top set":"best")+" &middot; now "+vs[vs.length-1]+(tr.weighted?" "+unit:"")+"</span></div>";
   }
-  return h;
+  if(rec)h+="<div class='lgfrec'>"+(rec.bestW?"Best "+rec.bestW+" &times; "+rec.bestWReps+" &middot; e1RM "+rec.best1RM+" "+unit:
+      "Best "+rec.bestR+(rec.timed?" s":rec.dist?" m":" reps"))+"</div>";
+  return h+"</div>";
 }
 // Both clocks as one card, with the same ids as the phone's bar so the ticking and the
 // buttons work unchanged.
@@ -607,30 +671,23 @@ function upNext(session){
       (rest.length>1?"<span class='lgnexts'> then "+rest.slice(1,3).map(e=>esc(e.name)).join(", ")+"</span>":""):"")+"</div>";
 }
 function logWide(s){
-  const t=totals(s),dock=roomy();
-  const picked={};s.ex.forEach(e=>{picked[nameKey(e.name)]=true;});
-  const rest=state.catalog.filter(n=>!picked[nameKey(n)]);
+  const t=totals(s);
   const started=s.started?new Date(s.started).toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}):"";
-  const tab=state.pickTab==="routines"?"routines":"ex";
-  const lib=dock?"<section class='lglib' data-keepx='lglib'><div class='lglibh'><span class='lglibt'>Exercises</span>"+
-      "<div class='seg picktabs'><button class='q"+(tab==="ex"?" on":"")+"' data-picktab='ex'>All</button>"+
-      "<button class='q"+(tab==="routines"?" on":"")+"' data-picktab='routines'>Routines</button></div></div>"+
-      "<div class='lglibb'>"+pickerBody(s,rest).replace("<div class='seg picktabs'>","<div class='seg picktabs' hidden>")+"</div></section>":"";
-  return "<div class='wrap logwide"+(dock?" docked":"")+"'>"+lib+
+  return "<div class='wrap logwide'>"+
     "<section class='lgc' data-keepx='lgc'>"+
-      "<div class='lghead'><div class='lght'><div class='eyebrow'>Session &middot; "+esc(shortDate(s.created))+(started?" &middot; started "+esc(started):"")+"</div>"+
+      "<div class='lghead'><div class='lght'><div class='eyebrow'>"+(s.running?"Live":"Session")+" &middot; "+esc(shortDate(s.created))+(started?" &middot; started "+esc(started):"")+"</div>"+
         "<div class='h1' id='daytitle'><span class='httl'>"+esc(s.title)+"</span> <span class='pen'>&#9998;</span></div>"+
         "<div class='lgstats'><span><b class='mono'>"+t.reps+"</b> reps</span><span><b class='mono'>"+t.sets+"</b> sets</span><span><b class='mono'>"+s.ex.length+"</b> exercises</span></div></div>"+
-        "<div class='headbtns'>"+(s.ex.length?"<button class='daysbtn iconbtn' id='sharebtn' title='Share'>"+icon("share")+"</button>"+
-          "<button class='btn ghost tiny' data-saveroutine='"+s.id+"'>Save as routine</button>":"")+"</div></div>"+
-      setsTable(s)+
-      "<div class='addstrip'>"+(dock?"":"<button class='addbtn' id='opensheet'>+ Add exercise <kbd>A</kbd></button>")+
-        (activeEx()?"<button class='rmbtn' id='removesel'>&minus; Remove "+esc(activeEx().name)+"</button>":"")+"</div>"+
-      exerciseFocus(activeEx(),s)+
+        "<div class='headbtns'>"+(s.ex.length?"<button class='btn ghost tiny' data-saveroutine='"+s.id+"'>Save as routine</button>"+
+          "<button class='daysbtn iconbtn' id='sharebtn' title='Share'>"+icon("share")+"</button>":"")+"</div></div>"+
+      "<div class='card lgsheet' data-keepx='lgsheet'>"+
+        (s.ex.length?s.ex.map(e=>exerciseBlock(e,s)).join(""):"<div class='empty-note'>No exercises yet. Add the first to start logging.</div>")+
+        "<div class='lgadd'><button class='addbtn' id='opensheet'>+ Add exercise <kbd>A</kbd></button></div>"+
+      "</div>"+
     "</section>"+
-    "<section class='lgr' data-keepx='lgr'>"+logPanel()+timerCard(s)+upNext(s)+"</section>"+
+    "<section class='lgr' data-keepx='lgr'>"+timerCard(s)+railFocus(activeEx(),s)+upNext(s)+"</section>"+
     "</div>"+
-    (state.sheet&&!dock?exerciseSheet(s):"")+
+    (state.sheet?exerciseSheet(s):"")+
     (state.numEdit?numEditor(activeEx()):"")+
     (state.exInfo?exerciseHistorySheet(state.exInfo,true):state.exHist&&activeEx()?exerciseHistorySheet(activeEx().name):"");
 }

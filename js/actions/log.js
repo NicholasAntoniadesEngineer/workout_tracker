@@ -110,10 +110,11 @@ export function handle(t,ctx){
   if(bandPick){state.band=bandPick.getAttribute("data-band");state.numEdit=null;ctx.render();return true;}
   if(t.id==="numedcancel"||t.id==="numedclose"||t.id==="numedback"){state.numEdit=null;ctx.render();return true;}
 
-  if(t.dataset&&t.dataset.ex&&t.classList.contains("exbtn")){
+  const xb=t.closest&&t.closest(".exbtn[data-ex]");
+  if(xb&&!(t.closest&&t.closest(".cell.has"))){
     // A second tap on the exercise already selected opens its history and tips.
-    if(state.exId===t.dataset.ex&&!state.editing){state.exHist=true;ctx.render();return true;}
-    state.exId=t.dataset.ex;state.editing=null;
+    if(state.exId===xb.dataset.ex&&!state.editing&&!xb.classList.contains("ghost")){state.exHist=true;ctx.render();return true;}
+    state.exId=xb.dataset.ex;state.editing=null;
     ctx.recallLast(activeEx());
     ctx.render();return true;
   }

@@ -9,12 +9,13 @@ import {setClockSeconds,workoutLabel} from "./log.js";
 
 export {desk,wide};
 
-// Every section, in the order of the number keys.
-// Grouped as you use them: training, looking back, reading; Settings last.
-export const NAV=[["home","Home","home","Train"],["log","Log","dumbbell"],["cardio","Cardio","bolt"],
-  ["history","History","days","Review"],["calendar","Calendar","calendar"],["progress","Progress","progress"],["body","Body","body"],
-  ["learn","Learn","book","Read"],["settings","Settings","settings",""]];
-const ACTIVE={prog:"learn",stack:"body",health:"progress",import:"settings"};
+// The sidebar: the phone's five places, flat, in the order of the number keys. History,
+// Calendar and Body are tabs under Progress; Cardio is a tab under Train.
+export const NAV=[["home","Today","home"],["log","Train","dumbbell"],["progress","Progress","progress"],["learn","Learn","book"],["settings","Settings","settings"]];
+// Which place each screen belongs to, shared by the sidebar and the phone's tab bar so the
+// two always agree.
+const TAB_OF={home:"home",log:"log",cardio:"log",prog:"log",history:"progress",calendar:"progress",progress:"progress",body:"progress",
+  stack:"progress",health:"progress",learn:"learn",settings:"settings",import:"settings"};
 
 function brand(){
   return "<div class='sbrand'><svg class='brandshield' viewBox='0 0 100 100' aria-hidden='true'>"+
@@ -24,39 +25,39 @@ function brand(){
     "</svg><span class='sbrandt'>Kings<span class='bk'>Kiln</span><sup class='tm' aria-label='trademark'>&trade;</sup></span></div>";
 }
 
-// A workout under way, wherever you are: its rest clock and elapsed time, one click back to it.
 export const runningSession=()=>state.sessions.find(s=>s.running)||null;
-function liveCard(){
-  const s=runningSession();
-  if(!s||state.view==="log")return "";
-  const done=s.ex.filter(e=>e.sets.length).length;
-  return "<button class='slive' data-nav='log'><span class='sliveh'><span class='lgdot'></span>Live workout</span>"+
-    "<span class='slivet'>"+esc(s.title)+"</span>"+
-    "<span class='sliver'><span>Rest</span><b class='mono' id='sidelive-rest'>"+fmtClock(setClockSeconds(s))+"</b></span>"+
-    "<span class='sliver'><span>"+done+" of "+s.ex.length+" exercises</span><b class='mono' id='sidelive-work'>"+workoutLabel(s)+"</b></span></button>";
-}
 
 function sideNav(){
-  const cur=ACTIVE[state.view]||state.view;
+  const cur=TAB_OF[state.view]||state.view;
   const mac=typeof navigator!=="undefined"&&/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent);
   return "<aside class='side' aria-label='Sections'>"+brand()+
-    "<button class='ssearch' id='palopen' title='Search'>"+icon("search","sm")+"<span>Search</span><kbd>"+(mac?"&#8984;K":"Ctrl K")+"</kbd></button>"+liveCard()+
-    "<nav class='snav'>"+NAV.map(([k,l,ic,grp],i)=>{
-      const live=k==="log"&&runningSession()||k==="cardio"&&state.cardio;
-      return (grp!=null?"<span class='sgroup"+(grp?"":" blank")+"'>"+grp+"</span>":"")+"<button class='sitem"+(cur===k?" on":"")+"' data-nav='"+k+"'"+(cur===k?" aria-current='page'":"")+">"+
+    "<nav class='snav'>"+NAV.map(([k,l,ic],i)=>{
+      const live=k==="log"&&(runningSession()||state.cardio);
+      return "<button class='sitem"+(cur===k?" on":"")+"' data-nav='"+k+"'"+(cur===k?" aria-current='page'":"")+">"+
         "<span class='sicon'>"+icon(ic,"sm")+(live?"<span class='slivedot'></span>":"")+"</span><span class='slabel'>"+l+"</span>"+
         "<kbd>"+(i+1)+"</kbd></button>";}).join("")+"</nav>"+
-    "<div class='sfoot'><button id='feedbackbtn'>"+icon("chat","sm")+"<span>Send feedback</span></button>"+
+    "<div class='sfoot'><button id='palopen' title='Search'>"+icon("search","sm")+"<span>Search</span><kbd>"+(mac?"&#8984;K":"Ctrl K")+"</kbd></button>"+
       "<button id='shareapp'>"+icon("share","sm")+"<span>Share KingsKiln</span></button>"+
+      "<button id='feedbackbtn'>"+icon("chat","sm")+"<span>Send feedback</span></button>"+
       "<button id='keyshelp'><span class='skq'>?</span><span>Shortcuts</span><kbd>?</kbd></button></div>"+
     "</aside>";
 }
 
+// Under Train and Progress, the screens the sidebar no longer lists, as one row of tabs.
+const TABSETS={log:[["log","Lifting"],["cardio","Cardio"]],progress:[["progress","Charts"],["history","History"],["calendar","Calendar"],["body","Body"]]};
+export function sectionTabs(){
+  if(state.view==="learn"&&state.reading)return "";
+  const sec=TAB_OF[state.view],set=TABSETS[sec];
+  if(!set)return "";
+  const tabs=set.map(([k,l])=>"<button class='sectab"+(state.view===k?" on":"")+"' data-nav='"+k+"'>"+l+"</button>");
+  if(sec==="progress")[["modFuel","fuel","Fuel"],["modMarkers","markers","Markers"],["modMind","mind","Mind"]].forEach(([flag,part,l])=>{
+    if(state.settings[flag])tabs.push("<button class='sectab"+(state.view==="health"&&state.healthPart===part?" on":"")+"' data-openhealth='"+part+"'>"+l+"</button>");});
+  return "<div class='sectabwrap'><nav class='sectabs' aria-label='"+(sec==="log"?"Train":"Progress")+"'>"+tabs.join("")+"</nav></div>";
+}
+
 // The phone's tab bar: five places, always in reach. Hidden while a run or a book takes the
 // full height, and while a sheet is open over the Log.
-export const TABS=[["home","Today","home"],["log","Train","dumbbell"],["progress","Progress","progress"],["learn","Learn","book"],["settings","Settings","settings"]];
-const TAB_OF={home:"home",log:"log",cardio:"log",prog:"log",history:"progress",calendar:"progress",progress:"progress",body:"progress",
-  stack:"progress",health:"progress",learn:"learn",settings:"settings",import:"settings"};
+export const TABS=NAV;
 export function tabBar(){
   if(state.cardio&&state.view==="cardio")return "";
   if(state.view==="learn"&&state.reading)return "";
@@ -69,18 +70,18 @@ export function tabBar(){
 
 export function shell(view){
   return "<div class='shell"+(state.view==="learn"&&state.reading?" reading":"")+"'>"+sideNav()+
-    "<main class='main' data-view='"+esc(state.view)+"'>"+view+"</main></div>";
+    "<main class='main' data-view='"+esc(state.view)+"'>"+sectionTabs()+view+"</main></div>";
 }
 
 // Refresh the sidebar's live clocks once a second without repainting the page.
 export function tickSide(){
   const s=runningSession();if(!s)return;
-  ["sidelive-rest","hhero-rest"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=fmtClock(setClockSeconds(s));});
-  ["sidelive-work","hhero-work"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=workoutLabel(s);});
+  ["hhero-rest"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=fmtClock(setClockSeconds(s));});
+  ["hhero-work"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=workoutLabel(s);});
 }
 
 // The ? sheet: every shortcut, grouped by where it works.
-const KEYS=[["Anywhere",[["⌘K / Ctrl K","Search and jump anywhere"],["1 – 9","Go to a section"],["/","Search on this page"],["?","These shortcuts"],["Esc","Close or go back"]]],
+const KEYS=[["Anywhere",[["⌘K / Ctrl K","Search and jump anywhere"],["1 – 5","Today, Train, Progress, Learn, Settings"],["/","Search on this page"],["?","These shortcuts"],["Esc","Close or go back"]]],
   ["Log",[["L","Log the set"],["Space","Start or cancel a set"],["↑ ↓","Reps up or down"],["⇧ ↑ ↓","Weight up or down"],
     ["R / W","Type reps or weight"],["P","Per side"],["U","Warm-up"],["J / K","Next or previous exercise"],["A","Add an exercise"]]],
   ["Learn",[["[ ]","Previous or next tab"],["← →","Previous or next area"]]],

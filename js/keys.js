@@ -30,7 +30,7 @@ export function handleKey(ev,render){
     return false;
   }
   if(k==="?"){state.keysOpen=!state.keysOpen;render();return true;}
-  if(/^[1-9]$/.test(k))return press(".side [data-nav='"+NAV[+k-1][0]+"']");
+  if(/^[1-5]$/.test(k))return press(".side [data-nav='"+NAV[+k-1][0]+"']");
   if(k==="/")return focusSearch();
   const v=state.view,lower=k.length===1?k.toLowerCase():k;
   if(v==="log"&&!state.sheet&&!state.exHist&&!state.exInfo){
@@ -45,7 +45,7 @@ export function handleKey(ev,render){
     if(lower==="p")return press("#sidebtn");
     if(lower==="u")return press("#warmbtn");
     if(lower==="a")return press("#opensheet")||press("#managebtn");
-    if(lower==="j"||lower==="k")return stepIn(".tblwrap .exbtn[data-ex]",b=>b.dataset.ex===state.exId,lower==="j"?1:-1);
+    if(lower==="j"||lower==="k")return stepIn(".lgsheet .lgexn[data-ex], .tblwrap .exbtn[data-ex]",b=>b.dataset.ex===state.exId,lower==="j"?1:-1);
   }
   if(v==="history"){
     if(lower==="j"||lower==="k")return stepIn(".hmaster [data-histsel]",b=>b.classList.contains("sel"),lower==="j"?1:-1);
