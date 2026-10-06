@@ -8,6 +8,8 @@ import {checkinICS,reminderICS} from "../reminder.js";
 import {bookPos,saveBookPos} from "../reader.js";
 import {shareTopic} from "../share.js";
 import {topicById} from "../lazy.js";
+import {checkForUpdate,freshReload} from "../update.js";
+import {notice} from "../dialog.js";
 
 export function handle(t,ctx){
   if(t.id==="bodysave"){
@@ -95,6 +97,17 @@ export function handle(t,ctx){
   if(learnCat){state.learnCat=learnCat.getAttribute("data-learncat")||null;state.scrollTo=0;ctx.render();return true;}
   const bodyMet=t.closest&&t.closest("[data-bodymet]");
   if(bodyMet){state.bodyMetric=bodyMet.getAttribute("data-bodymet");ctx.render();return true;}
+  if(t.id==="checkupdate"){
+    state.updating=true;ctx.render();
+    checkForUpdate().then(r=>{
+      if(r==="found")return;   // the new version takes over and the page reloads itself
+      state.updating=false;
+      notice(r==="offline"?"Couldn't check":"You're up to date",r==="offline"?"No connection. Try again when you're online.":"This is the newest version. If something still looks old, use Reload app.");
+      ctx.render();
+    });
+    return true;
+  }
+  if(t.id==="freshreload"){state.updating=true;ctx.render();freshReload();return true;}
   const rg=t.closest&&t.closest("[data-recgroup]");
   if(rg){const g=rg.getAttribute("data-recgroup"),open=String(state.settings.recOpen||"").split("|").filter(Boolean);
     const i=open.indexOf(g);if(i>=0)open.splice(i,1);else open.push(g);setSetting("recOpen",open.join("|"));ctx.render();return true;}

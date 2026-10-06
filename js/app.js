@@ -27,6 +27,7 @@ import * as importer from "./actions/importer.js";
 import * as exporting from "./actions/export.js";
 import * as checkin from "./actions/checkin.js";
 import * as health from "./actions/health.js";
+import {currentVersion,watchForUpdates} from "./update.js";
 import {breathTick} from "./views/health.js";
 import * as logging from "./actions/log.js";
 import * as stacking from "./actions/stack.js";
@@ -600,8 +601,12 @@ if("serviceWorker" in navigator){
   // old code running until the next cold start. Not on first install — nothing to update.
   const hadController=!!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    // Asked for from Settings: go straight to it. Otherwise offer it.
+    if(state.updating){db.flush().catch(()=>{}).then(()=>location.reload());return;}
     if(hadController){state.updateReady=true;render();}
   });
+  watchForUpdates();
+  currentVersion().then(v=>{state.appVersion=v;});
 }
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 

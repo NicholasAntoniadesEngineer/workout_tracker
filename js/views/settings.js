@@ -132,6 +132,10 @@ export function settingsView(){
     reminderRow()+
 
     "<div class='setgroup'>About</div>"+
+    "<div class='setrow'><div class='setlbl'>App version</div>"+
+    "<div class='sethint'>"+(state.appVersion?"This device is running "+esc(state.appVersion)+". ":"")+(state.updating?"Updating&hellip;":"Your history stays as it is either way.")+"</div>"+
+    "<div class='setopts'><button class='q' id='checkupdate'"+(state.updating?" disabled":"")+">"+icon("reset","sm")+"Check for updates</button>"+
+    "<button class='q' id='freshreload'>Reload app</button></div></div>"+
     "<div class='setrow'><div class='setlbl'>Share KingsKiln</div>"+
     "<div class='setopts'><button class='q' id='shareapp'>&#8679; Send the app to a friend</button>"+
     "</div></div>"+
