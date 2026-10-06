@@ -81,6 +81,11 @@ export function settingsView(){
     toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
     choiceRow("Weight unit","","unit",[["kg","kg"],["lb","lb"]])+
 
+    "<div class='setgroup'>Body</div>"+
+    "<div class='setrow'><div class='setlbl'>Height and sex</div><div class='sethint'>Only for the body-fat estimate from your tape measurements.</div>"+
+    "<div class='setopts'><input class='timein mono setin' id='heightcm' inputmode='numeric' placeholder='Height, cm' value='"+(state.settings.heightCm||"")+"'>"+
+      [["","Not set"],["m","Male"],["f","Female"]].map(([v,l])=>"<button class='q"+((state.settings.sex||"")===v?" on":"")+"' data-set='sex' data-val='"+v+"'>"+l+"</button>").join("")+"</div></div>"+
+
     "<div class='setgroup'>Recovery</div>"+
     toggleRow("Morning check-in","Four quick ratings and your sleep each morning. After a week, Today shows a readiness word and why.","checkin")+
     choiceRow("Sleep you aim for","","sleepNeed",[["7 h",7],["7.5 h",7.5],["8 h",8],["8.5 h",8.5],["9 h",9]])+

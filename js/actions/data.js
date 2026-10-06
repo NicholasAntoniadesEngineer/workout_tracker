@@ -13,11 +13,22 @@ export function handle(t,ctx){
   if(t.id==="bodysave"){
     const num=id=>{const el=document.getElementById(id);
       const v=el?parseFloat(el.value):NaN;return isNaN(v)||v<=0?0:Math.round(v*10)/10;};
-    const entry={at:nowISO(),w:num("bodyw"),waist:num("body_waist"),
-      chest:num("body_chest"),arm:num("body_arm")};
-    if(entry.w||entry.waist||entry.chest||entry.arm)upsertBodyEntry(entry);
+    // The chosen day, at noon, so the entry sits on that date in every time zone it is read in.
+    const day=state.bodyDate||dateKey(nowISO()),at=day===dateKey(nowISO())?nowISO():new Date(day+"T12:00:00").toISOString();
+    const prev=state.body.find(b=>dateKey(b.at)===day)||{};
+    const entry=Object.assign({},prev,{at,w:num("bodyw"),waist:num("body_waist"),chest:num("body_chest"),arm:num("body_arm")});
+    ["neck","hip","thigh","sys","dia","pulse"].forEach(k=>{const el=document.getElementById("body_"+k);if(el)entry[k]=num("body_"+k);});
+    if(Object.keys(entry).some(k=>k!=="at"&&entry[k]))upsertBodyEntry(entry);
     ctx.render();return true;
   }
+  if(t.id==="bodymore"){state.bodyMore=!state.bodyMore;ctx.render();return true;}
+  const ph=t.closest&&t.closest("[data-photo]");
+  if(ph&&!(t.closest&&t.closest("[data-delphoto]"))){
+    const id=ph.getAttribute("data-photo"),c=(state.photoCompare||[]).filter(x=>x!==id);
+    state.photoCompare=c.length===(state.photoCompare||[]).length?c.concat([id]).slice(-2):c;ctx.render();return true;
+  }
+  const dp=t.closest&&t.closest("[data-delphoto]");
+  if(dp){ctx.snapshot("Photo deleted");const id=dp.getAttribute("data-delphoto");state.photos=state.photos.filter(p=>p.id!==id);state.photoCompare=(state.photoCompare||[]).filter(x=>x!==id);ctx.render();return true;}
   const delBody=t.closest&&t.closest("[data-delbody]");
   if(delBody){
     ctx.snapshot("Entry deleted");

@@ -1,4 +1,4 @@
-import {autoEndIfStale,fmtClock,isBandExercise,makeSession,parseClock,restSeconds,
+import {autoEndIfStale,nowISO,fmtClock,isBandExercise,makeSession,parseClock,restSeconds,
   setAnchor} from "./model.js";
 import {activeEx,addExerciseToDay,getSession,importBackup,lastPerformance,load,mergeSessions,
   restTargetFor,save,saveRoutine,selectSession,state} from "./store.js";
@@ -13,6 +13,7 @@ import * as db from "./db.js";
 import {paletteList,runPalette} from "./palette.js";
 import {notice} from "./dialog.js";
 import {sleepHours} from "./ready.js";
+import {shrinkPhoto} from "./stack.js";
 import {onShareNotice} from "./share.js";
 import * as dialogs from "./actions/dialog.js";
 import * as nav from "./actions/nav.js";
@@ -254,7 +255,7 @@ function snapshot(label){
   state.undo={label,data:JSON.parse(JSON.stringify({sessions:state.sessions,
     sessionId:state.sessionId,exId:state.exId,catalog:state.catalog,removed:state.removed,
     body:state.body,routines:state.routines,hiddenRoutines:state.hiddenRoutines,
-    supplements:state.supplements,stacks:state.stacks}))};
+    supplements:state.supplements,stacks:state.stacks,photos:state.photos}))};
   if(undoTimer)clearTimeout(undoTimer);
   undoTimer=setTimeout(()=>{state.undo=null;render();},UNDO_MS);
 }
@@ -387,6 +388,15 @@ function deleteDay(id){
 }
 
 document.body.addEventListener("change",ev=>{
+  if(ev.target&&ev.target.id==="bodyphoto"){
+    // Copy the bytes before the input is cleared, or the file is gone by the time it decodes.
+    const f=ev.target.files&&ev.target.files[0];
+    if(f)f.arrayBuffer().then(buf=>shrinkPhoto(new Blob([buf],{type:f.type||"image/jpeg"}),900))
+      .then(data=>{state.photos.push({id:"p"+Date.now().toString(36),at:nowISO(),data});render();})
+      .catch(()=>{notice("Couldn't read that image");render();});
+    ev.target.value="";return;
+  }
+  if(ev.target&&ev.target.id==="bodydate"){state.bodyDate=ev.target.value||null;render();return;}
   if(ev.target&&ev.target.id==="supphoto"){
     stacking.pickPhoto(ev.target.files&&ev.target.files[0],render);ev.target.value="";return;
   }
@@ -417,6 +427,7 @@ document.body.addEventListener("input",ev=>{
   else if(id==="editrest")state.editRest=parseClock(ev.target.value);
   else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
   else if(id==="setnote"){state.setNote=ev.target.value;}
+  else if(id==="heightcm"){setSetting("heightCm",Math.max(0,parseInt(ev.target.value,10)||0));}
   else if((id==="cibed"||id==="ciwake")&&state.checkinDraft){state.checkinDraft[id==="cibed"?"bed":"wake"]=ev.target.value;
     const h=document.getElementById("cihrs");if(h){const v=sleepHours(state.checkinDraft.bed,state.checkinDraft.wake);h.textContent=v?v+" h":"";}}
   else if(id==="palin"&&state.palette){

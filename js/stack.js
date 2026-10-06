@@ -26,11 +26,11 @@ export function newId(prefix){
 
 // Shrink a photo to a small JPEG data URL so a shelf of products fits in local storage.
 export const PHOTO_EDGE=240;
-export function shrinkPhoto(file){
+export function shrinkPhoto(file,edge){
   return new Promise((resolve,reject)=>{
     const img=new Image(),url=URL.createObjectURL(file);
     img.onload=()=>{
-      const k=Math.min(1,PHOTO_EDGE/Math.max(img.width,img.height));
+      const k=Math.min(1,(edge||PHOTO_EDGE)/Math.max(img.width,img.height));
       const c=document.createElement("canvas");
       c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
       c.getContext("2d").drawImage(img,0,0,c.width,c.height);
