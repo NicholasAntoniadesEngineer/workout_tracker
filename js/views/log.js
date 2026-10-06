@@ -3,7 +3,7 @@
 import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,SET_KINDS,canResume,exerciseGroup,isBarbellLift,platesPerSide,
   exerciseTotal,fmtClock,isBandExercise,lastSet,restSeconds,secondsSince,
   shortDate,totals,unitOf,workoutOffset,workoutSeconds} from "../model.js";
-import {activeEx,allRoutines,getSession,lastPerformance,newestFirst,repRange,restTargetFor,
+import {activeEx,allRoutines,findRoutine,getSession,lastPerformance,newestFirst,planFor,planLine,repRange,restTargetFor,
   state} from "../store.js";
 import {progressionHint,warmupRamp} from "../coach.js";
 import {cuesFor} from "../cues.js";
@@ -150,6 +150,13 @@ function logPanel(){
         "<b>5/3/1 &middot; "+esc(rx.label)+"</b> "+rx.sets.map((s,i)=>"<span class='"+(i<doneW?"rxdone":i===doneW?"rxnext":"")+"'>"+esc(s.r)+" @ "+s.w+"</span>").join(" &middot; ")+
         (doneW>=3?" &middot; last set: as many reps as you can":"")+"</button>";
     }
+  }
+  // The routine's targets for this lift, the next one ready to load with a tap.
+  const rt=a&&!state.editing&&sess.routine?findRoutine(sess.routine):null,plan=rt?planFor(rt,a.name):null;
+  if(plan){
+    const done=a.sets.filter(x=>!x.wu).length,nx=plan[Math.min(done,plan.length-1)];
+    h+="<button class='hintline rxline' id='rxbtn' data-hw='"+(nx.w||"")+"' data-hr='"+nx.r+"'><b>Plan</b> "+
+      plan.map((x,i)=>"<span class='"+(i<done?"rxdone":i===done?"rxnext":"")+"'>"+x.r+(x.w?" @ "+x.w:"")+"</span>").join(" &middot; ")+"</button>";
   }
   if(prev){
     h+="<button class='prevline' id='exhistbtn'><span class='prevlbl'>Last</span> "+
@@ -357,7 +364,7 @@ function routinePane(session){
     routines.forEach(r=>{
       h+="<div class='rrow'><button class='rpick' data-applyroutine='"+r.id+"'>"+
          "<span class='rt'>"+esc(r.name)+" <span class='rn'>"+r.ex.length+"</span></span>"+
-         "<span class='rs'>"+esc(r.ex.join(" · "))+"</span></button>"+
+         "<span class='rs'>"+esc(r.plan&&r.plan.length?r.plan.map(p=>p.name+(planFor(r,p.name)?" "+planLine(planFor(r,p.name),""):"")).join(" · "):r.ex.join(" · "))+"</span></button>"+
          "<button class='x share' data-shareroutine='"+r.id+"' title='Share this routine'>"+icon("share","sm")+"</button>"+
          "<button class='x' data-delroutine='"+r.id+"'>&times;</button></div>";
     });

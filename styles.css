@@ -1788,3 +1788,6 @@ body.dropping::after{content:"Drop to import: Strava, Garmin, Apple Health, Stro
 .rpemk{font-size:.7em;color:var(--muted);margin-left:2px;}
 .notemk{font-size:.5em;color:var(--gold);vertical-align:top;margin-left:2px;}
 .dact.txt{width:auto;padding:0 8px;border-radius:12px;font-size:11px;font-weight:800;letter-spacing:.5px;}
+.pgspan,.pgmeas{margin:0 0 10px;padding:0;flex-wrap:wrap;overflow:visible;}
+.pgmeas .lchip,.pgspan .lchip{min-height:32px;font-size:12.5px;}
+@media (min-width:900px){.dhead .pgspan{margin:0;}}

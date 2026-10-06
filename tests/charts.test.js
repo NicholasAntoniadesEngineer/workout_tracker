@@ -70,7 +70,7 @@ describe("exerciseTrend",()=>{
       day(2026,0,5,[ex("Squats",[set(5,100),set(5,110)])]),
       day(2026,0,8,[ex("Squats",[set(5,115)])]),
       day(2026,0,12,[ex("Squats",[set(20)])])
-    ],"Squats");
+    ],"Squats",{measure:"top"});
     assert.equal(trend.weighted,true);
     assert.deepEqual(trend.points.map(p=>p.v),[110,115]);
   });
@@ -97,26 +97,26 @@ describe("exerciseTrend",()=>{
     const trend=exerciseTrend([
       day(2026,0,12,[ex("Squats",[set(5,120)])]),
       day(2026,0,5,[ex("Squats",[set(5,100)])])
-    ],"squats");
+    ],"squats",{measure:"top"});
     assert.deepEqual(trend.points.map(p=>p.v),[100,120]);
   });
 
   test("ignores warm-ups when picking the day's top set",()=>{
-    const trend=exerciseTrend([day(2026,0,5,[ex("Squats",[set(5,140,{wu:true}),set(5,100)])])],"Squats");
+    const trend=exerciseTrend([day(2026,0,5,[ex("Squats",[set(5,140,{wu:true}),set(5,100)])])],"Squats",{measure:"top"});
     assert.deepEqual(trend.points.map(p=>p.v),[100]);
   });
 
   test("keeps only the latest 12 points",()=>{
     const sessions=[];
     for(let i=1;i<=15;i++)sessions.push(day(2026,0,i,[ex("Squats",[set(5,100+i)])]));
-    const trend=exerciseTrend(sessions,"Squats");
+    const trend=exerciseTrend(sessions,"Squats",{measure:"top"});
     assert.equal(trend.points.length,12);
     assert.equal(trend.points[0].v,104);
     assert.equal(trend.points[11].v,115);
   });
 
   test("is an empty unweighted trend for an exercise never trained",()=>{
-    assert.deepEqual(exerciseTrend([],"Squats"),{weighted:false,points:[]});
+    assert.deepEqual(exerciseTrend([],"Squats",{measure:"top"}),{weighted:false,measure:"top",points:[]});
   });
 });
 
@@ -182,4 +182,19 @@ test("weeklySetsByGroup counts this week's working sets by movement, always list
   assert.equal(by["Squat & lunge"],0);
   assert.equal(by["Pull"],0);
   assert.ok(g.find(x=>x.group==="Push").target);
+});
+
+describe("exerciseTrend measures",()=>{
+  test("the default for a weighted lift is estimated 1RM, so more reps at the same weight shows as a rise",()=>{
+    const t=exerciseTrend([day(2026,0,5,[ex("Bench",[set(10,60)])]),day(2026,0,8,[ex("Bench",[set(15,60)])])],"Bench");
+    assert.equal(t.measure,"e1rm");
+    assert.ok(t.points[1].v>t.points[0].v);
+    const v=exerciseTrend([day(2026,0,5,[ex("Bench",[set(10,60),set(10,60)])])],"Bench",{measure:"volume"});
+    assert.deepEqual(v.points.map(p=>p.v),[1200]);
+  });
+  test("a span widens the window past 12 points",()=>{
+    const many=Array.from({length:20},(_,i)=>day(2026,0,1+i,[ex("Bench",[set(5,100+i)])]));
+    assert.equal(exerciseTrend(many,"Bench",{measure:"top"}).points.length,12);
+    assert.equal(exerciseTrend(many,"Bench",{measure:"top",span:"all"}).points.length,20);
+  });
 });

@@ -81,6 +81,8 @@ export function settingsView(){
     "<div class='setgroup'>Workout</div>"+
     choiceRow("Rest target","","restTarget",
       [["Off",0],["1:30",90],["2:00",120],["3:00",180],["4:00",240],["5:00",300]])+
+    choiceRow("Rest clock","Count down to the target, or up from the last set.","restDown",[["Count up",false],["Count down",true]])+
+    toggleRow("Rest alarm","A beep and a buzz when the target passes. Keep the app open on iPhone; the beep is best effort with the screen locked.","restSound")+
     choiceRow("End an idle workout after","","idleEndMinutes",IDLE_ENDS)+
 
     // Files in and out: a spreadsheet of every set, a full backup, and loading either back.

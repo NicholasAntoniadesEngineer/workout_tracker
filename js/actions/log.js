@@ -7,6 +7,7 @@ import {BANDS,addManualSets,addSet,dateKey,endWorkout,fmtClock,isBandExercise,no
 import {activeEx,addExerciseToDay,getSession,removeFromCatalog,state} from "../store.js";
 import {bestsBefore,newBestLabel} from "../coach.js";
 import {ask,confirmAct} from "../dialog.js";
+import {keepAlive,primeAudio} from "../sensors.js";
 
 const MIN_REPS=0;
 const SEC_PER_MIN=60;
@@ -135,7 +136,7 @@ export function handle(t,ctx){
     if(s.running){
       confirmAct({title:"End the workout?",text:"The clock stops at "+fmtClock(workoutSeconds(s))+".",ok:"End workout",act:"endworkout"});
       ctx.render();return true;
-    }else startWorkout(s);
+    }else{startWorkout(s);if(state.settings.restSound){primeAudio();keepAlive(true);}}
     state.setStart=null;
     ctx.render();return true;
   }

@@ -4,7 +4,7 @@ import {shortDate,totals} from "../model.js";
 import {state} from "../store.js";
 import {ACTIVITIES} from "./cardio.js";
 import {BEST_KM,cardioBests,fmtPace} from "../cardio.js";
-import {SET_TARGET,barChart,cardioWeekly,exerciseRecords,exerciseTrend,lineChart,topExercises,
+import {SET_TARGET,SPANS,barChart,cardioWeekly,exerciseRecords,exerciseTrend,lineChart,topExercises,
   weeklySetsByGroup,weeklyVolume,withAxis} from "../charts.js";
 import {esc,pageHead,wide} from "./common.js";
 
@@ -35,7 +35,7 @@ function cardioSection(){
   const ses=state.sessions.filter(s=>s.cardio);
   if(!ses.length)return "";
   const mi=state.settings.unit==="lb",per=mi?1609.344:1000,u=mi?"mi":"km";
-  const weeks=cardioWeekly(ses),byDist=weeks.some(w=>w.dist),now=weeks[weeks.length-1];
+  const weeks=cardioWeekly(ses,undefined,state.progressSpan||"8w"),byDist=weeks.some(w=>w.dist),now=weeks[weeks.length-1];
   const vals=weeks.map(w=>byDist?w.dist/per:w.secs/60);
   const fmtV=v=>byDist?(Math.round(v*10)/10)+" "+u:Math.round(v)+" min";
   let h="<div class='setgroup'>Cardio &middot; weekly "+(byDist?"distance":"time")+"</div>"+
@@ -62,7 +62,8 @@ function cardioSection(){
 }
 
 export function progressView(){
-  const weeks=weeklyVolume(state.sessions);
+  const span=state.progressSpan||"8w";
+  const weeks=weeklyVolume(state.sessions,span);
   const thisWeek=weeks[weeks.length-1];
   const last4=weeks.slice(-4).reduce((n,w)=>n+w.trained,0);
   const workouts=state.sessions.filter(s=>s.ex.some(e=>e.sets.length)).length;
@@ -97,7 +98,9 @@ export function progressView(){
   let trendH="";
   if(names.length){
     const cur=names.indexOf(state.progressEx)>=0?state.progressEx:names[0];
-    const trend=exerciseTrend(done,cur);
+    const measure=state.progressMeasure||"";
+    const trend=exerciseTrend(done,cur,{span,measure:measure||undefined});
+    const MEAS=[["e1rm","Est. 1RM"],["top","Top set"],["volume","Volume"],["reps","Reps"]];
     // A dropdown, not a wall of buttons: the chart stays in view however many lifts there are.
     // A big screen has room for the lifts as chips.
     trendH+="<div class='setgroup'>Exercise trend</div><div class='card chartcard'>"+
@@ -105,13 +108,15 @@ export function progressView(){
       "<select class='trendsel' id='trendsel'>");
     if(!big){names.forEach(n=>{trendH+="<option"+(n===cur?" selected":"")+" value=\""+esc(n)+"\">"+esc(n)+"</option>";});
       trendH+="</select>";}
+    if(trend.weighted)trendH+="<div class='lchips pgmeas'>"+MEAS.map(([k,l])=>"<button class='lchip"+((measure||"e1rm")===k?" on":"")+"' data-measure='"+k+"'>"+l+"</button>").join("")+"</div>";
     if(trend.points.length>1){
       const latest=trend.points[trend.points.length-1],first=trend.points[0];
       const delta=Math.round((latest.v-first.v)*10)/10;
       const vs=trend.points.map(p=>p.v);
+      const what={e1rm:"est. 1RM, "+unit,top:"top set, "+unit,volume:"volume, "+unit,reps:"best reps"}[trend.measure];
       trendH+=withAxis(lineChart(vs,big?{w:640,h:190,labels:trend.points.map(p=>shortDate(p.at)+": "+p.v)}:undefined),Math.max(...vs),Math.min(...vs))+
         "<div class='chartlbls'><span>"+esc(shortDate(first.at))+"</span>"+
-        "<span>"+(trend.weighted?"top set, "+unit:"best reps")+" &middot; now "+latest.v+
+        "<span>"+what+" &middot; now "+latest.v+
         (delta?" ("+(delta>0?"+":"")+delta+")":"")+"</span>"+
         "<span>"+esc(shortDate(latest.at))+"</span></div>";
     }else{
@@ -133,9 +138,10 @@ export function progressView(){
     });
     recsH+="</div>";
   }
-  let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress"):
+  const spanRow="<div class='lchips pgspan'>"+SPANS.map(([k,l])=>"<button class='lchip"+(span===k?" on":"")+"' data-span='"+k+"'>"+l+"</button>").join("")+"</div>";
+  let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress",spanRow):
     "<div class='hhead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'></div></div>"+
-    "<div class='pgchiprow'><button class='lchip' id='homedays'>History</button><button class='lchip' id='homecal'>Calendar</button><button class='lchip' id='homebody'>Body</button></div>");
+    "<div class='pgchiprow'><button class='lchip' id='homedays'>History</button><button class='lchip' id='homecal'>Calendar</button><button class='lchip' id='homebody'>Body</button></div>"+spanRow);
   // A big screen arranges the same sections as a dashboard; the phone reads them in a column.
   if(big)h+="<div class='pggrid'><section class='pg12'>"+kpi+"</section><section class='pg8'>"+vol+"</section><section class='pg4'>"+sets+"</section>"+
     (trendH?"<section class='pg8'>"+trendH+"</section>":"")+(recsH?"<section class='pg4 pgrecs'>"+recsH+"</section>":"")+

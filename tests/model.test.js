@@ -95,8 +95,8 @@ describe("fmtClock",()=>{
     assert.equal(fmtClock(59.6),"1:00");
   });
 
-  test("clamps negatives and treats missing values as zero",()=>{
-    assert.equal(fmtClock(-30),"0:00");
+  test("shows a negative as an overrun and treats missing values as zero",()=>{
+    assert.equal(fmtClock(-30),"-0:30");
     assert.equal(fmtClock(null),"0:00");
     assert.equal(fmtClock(undefined),"0:00");
   });

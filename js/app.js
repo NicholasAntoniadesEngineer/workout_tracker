@@ -470,6 +470,13 @@ document.body.addEventListener("click",ev=>{
 // Rest target: once the gap since the last set passes it, the clock turns amber and the
 // phone buzzes — once per rest, keyed on the anchor so a new set re-arms it.
 let restAlerted="";
+// What the rest clock shows: the time since the last set, or, counting down, the time left to
+// the target (then the overrun as a negative).
+function shownClock(s){
+  const secs=setClockSeconds(s),target=restTargetFor(s);
+  if(!state.settings.restDown||!target||state.setStart||!s.running)return secs;
+  return target-secs;
+}
 function restAlert(s){
   const el=document.getElementById("settime");
   const target=restTargetFor(s);
@@ -481,6 +488,7 @@ function restAlert(s){
   if(restAlerted===anchor)return;
   restAlerted=anchor;
   if(navigator.vibrate)navigator.vibrate([200,90,200]);
+  if(state.settings.restSound)import("./sensors.js").then(m=>m.cue("done"));
 }
 
 // Both clocks derive from stored stamps, so ticking only refreshes text — never the DOM.
@@ -490,7 +498,7 @@ function tick(){
   if(autoEndIfStale(s)){render();return;}
   restAlert(s);
   const set=document.getElementById("settime");
-  if(set)set.textContent=fmtClock(setClockSeconds(s));
+  if(set)set.textContent=fmtClock(shownClock(s));
   const setl=document.getElementById("setsub");
   if(setl)setl.innerHTML=setSub(s);
   const work=document.getElementById("worktime");

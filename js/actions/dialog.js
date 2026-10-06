@@ -1,8 +1,8 @@
 // What a dialog's OK does, by the act its opener named. Cancel, the backdrop and Esc close it.
-import {getSession,saveRoutine,state} from "../store.js";
+import {getSession,planOf,saveRoutine,state} from "../store.js";
 import {dateKey,endWorkout,nowISO,resetRestTimer,resetWorkout,setWorkoutMinutes,setWorkoutSpanOn} from "../model.js";
 import {openCardio,checkGps} from "./cardio.js";
-import {stopWarm} from "../sensors.js";
+import {keepAlive,stopWarm} from "../sensors.js";
 
 export function handle(t,ctx){
   const d=state.dialog;
@@ -15,8 +15,8 @@ export function handle(t,ctx){
   switch(d.act){
     case "nameday":if(val.trim())s.title=val.trim();break;
     case "nameroutine":{const src=state.sessions.find(x=>x.id===d.ref);
-      if(src&&val.trim()){ctx.snapshot("Saved routine "+val.trim());saveRoutine(val,src.ex.map(e=>e.name));state.pickTab="routines";}break;}
-    case "endworkout":endWorkout(s);if(s.ex.some(e=>e.sets.length))state.summary=s.id;state.setStart=null;break;
+      if(src&&val.trim()){ctx.snapshot("Saved routine "+val.trim());saveRoutine(val,src.ex.map(e=>e.name),planOf(src));state.pickTab="routines";}break;}
+    case "endworkout":endWorkout(s);keepAlive(false);if(s.ex.some(e=>e.sets.length))state.summary=s.id;state.setStart=null;break;
     case "resetrest":resetRestTimer(s);state.setStart=null;break;
     case "resetwork":resetWorkout(s);state.setStart=null;break;
     case "workmins":if(val.trim()!==""){const mins=parseFloat(val);if(dateKey(s.created)===dateKey(nowISO()))setWorkoutMinutes(s,mins);else setWorkoutSpanOn(s,mins);}break;

@@ -4,6 +4,11 @@ import {EXERCISE_GROUPS,OTHER_GROUP,dateKey,exerciseGroup,setReps} from "./model
 
 const WEEKS_SHOWN=8;
 const TREND_POINTS=12;
+// How far back a chart looks. Weeks of volume are capped so the bars stay readable; a trend
+// just takes every day in the span.
+export const SPANS=[["8w","8 weeks",8],["3m","3 months",13],["6m","6 months",26],["1y","A year",52],["all","All time",0]];
+const spanWeeks=span=>(SPANS.find(x=>x[0]===span)||SPANS[0])[2];
+const spanStart=(span,now)=>{const w=spanWeeks(span);if(!w)return 0;const d=new Date(now||Date.now());d.setDate(d.getDate()-w*7);return d.getTime();};
 
 export function est1RM(w,r){return Math.round(w*(1+r/30)*10)/10;}
 
@@ -49,10 +54,12 @@ export function weeklySetsByGroup(sessions,now){
 }
 
 // The last N calendar weeks, oldest first, each with the reps and tonnage trained in it.
-export function weeklyVolume(sessions){
+export function weeklyVolume(sessions,span){
   const weeks=[];
   const thisWeek=weekStart(new Date());
-  for(let i=WEEKS_SHOWN-1;i>=0;i--){
+  let n=spanWeeks(span||"8w");
+  if(!n){const first=sessions.map(s=>Date.parse(s.created)).filter(t=>t>0);n=first.length?Math.min(520,Math.ceil((thisWeek.getTime()-Math.min(...first))/(7*86400000))+1):WEEKS_SHOWN;}
+  for(let i=n-1;i>=0;i--){
     // Step back by calendar days, not 24-hour blocks, so a daylight-saving change never
     // lands a week on Sunday 23:00 and loses the sessions in it.
     const start=new Date(thisWeek.getFullYear(),thisWeek.getMonth(),thisWeek.getDate()-i*7);
@@ -77,9 +84,11 @@ export function weeklyVolume(sessions){
 }
 
 // Cardio by calendar week, oldest first: distance (metres), time (seconds) and sessions.
-export function cardioWeekly(sessions,now){
+export function cardioWeekly(sessions,now,span){
   const weeks=[],thisWeek=weekStart(now?new Date(now):new Date());
-  for(let i=WEEKS_SHOWN-1;i>=0;i--){
+  let n=spanWeeks(span||"8w");
+  if(!n){const first=sessions.map(s=>Date.parse(s.created)).filter(t=>t>0);n=first.length?Math.min(520,Math.ceil((thisWeek.getTime()-Math.min(...first))/(7*86400000))+1):WEEKS_SHOWN;}
+  for(let i=n-1;i>=0;i--){
     const start=new Date(thisWeek.getFullYear(),thisWeek.getMonth(),thisWeek.getDate()-i*7);
     weeks.push({key:dateKey(start.toISOString()),label:start.toLocaleDateString(undefined,{day:"numeric",month:"short"}),dist:0,secs:0,n:0});
   }
@@ -121,22 +130,29 @@ export function exerciseRecords(sessions){
 // movement is mostly unweighted. Every training day counts — the line is decided by which
 // unit most days used, not by discarding the days that used the other, so an exercise you
 // once added weight to still shows all the days you did it plain.
-export function exerciseTrend(sessions,name){
-  const k=String(name).trim().toLowerCase();
+// A lift's line over time. measure: "e1rm" (default for weighted lifts: the best estimated
+// one-rep max that day, so adding reps at the same weight shows as a rise), "top" (heaviest
+// set), "volume" (weight × reps, warm-ups out), or "reps" (best reps, the default for
+// bodyweight work). span limits how far back; no span means the last 12 days, as before.
+export function exerciseTrend(sessions,name,opts){
+  const o=opts||{},k=String(name).trim().toLowerCase(),from=o.span?spanStart(o.span):0;
   const days=[];
   sessions.slice().sort((a,b)=>(a.created||"").localeCompare(b.created||"")).forEach(s=>{
+    if(from&&Date.parse(s.created)<from)return;
     const e=s.ex.find(x=>x.name.trim().toLowerCase()===k&&x.sets.length);
     if(!e)return;
-    let w=0,r=0;
-    e.sets.forEach(x=>{if(x.wu)return;if(+x.w>w)w=+x.w;if(x.r>r)r=x.r;});
-    days.push({at:s.created,w:w,r:r});
+    let w=0,r=0,rm=0,vol=0;
+    e.sets.forEach(x=>{if(x.wu)return;if(+x.w>w)w=+x.w;if(x.r>r)r=x.r;if(+x.w)rm=Math.max(rm,est1RM(+x.w,x.r));vol+=(+x.w||0)*x.r;});
+    days.push({at:s.created,w,r,rm,vol});
   });
   const weightedDays=days.filter(d=>d.w>0).length;
   // Weighted only when most days carried a weight — a lone weighted day never hides the rest.
   const weighted=weightedDays>0&&weightedDays*2>=days.length;
-  const points=(weighted?days.filter(d=>d.w>0).map(d=>({at:d.at,v:d.w}))
-                        :days.map(d=>({at:d.at,v:d.r}))).slice(-TREND_POINTS);
-  return {weighted,points};
+  const measure=o.measure||(weighted?"e1rm":"reps");
+  const pick=d=>measure==="e1rm"?d.rm:measure==="top"?d.w:measure==="volume"?d.vol:d.r;
+  let points=(weighted&&measure!=="reps"?days.filter(d=>d.w>0):days).map(d=>({at:d.at,v:Math.round(pick(d)*10)/10}));
+  if(!o.span)points=points.slice(-TREND_POINTS);
+  return {weighted,measure,points};
 }
 
 // The exercises worth a trend line, most-trained first. Every one by default; pass n to cap.

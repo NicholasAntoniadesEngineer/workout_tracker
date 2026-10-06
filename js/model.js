@@ -123,7 +123,9 @@ export function exerciseGroup(name){
 // Lifts done on a standard Olympic bar, where the plates per side are worth working out.
 const BARBELL_LIFTS=["deadlift","romanian deadlift","sumo deadlift","rack pull","squats","front squat",
   "box squat","bench press","inclined bench press","decline bench press","good mornings","hip thrust",
-  "barbell row","barbell curl","trap bar deadlift"];
+  "barbell row","barbell curl","trap bar deadlift","shoulder press","overhead press","push press","pendlay row",
+  "power clean","clean and jerk","snatch","clean","jerk","overhead squat","zercher squat","safety bar squat",
+  "pause squat","close-grip bench press","floor press","deficit deadlift","paused deadlift","barbell shrug","barbell lunge"];
 export function isBarbellLift(name){return BARBELL_LIFTS.indexOf(String(name||"").trim().toLowerCase())>=0;}
 
 // Plates per side for a total weight on a standard bar (20kg / 45lb), largest first.
@@ -156,7 +158,10 @@ const SEC_PER_MIN=60;
 const SEC_PER_HOUR=3600;
 const RESUME_SECONDS=1800;
 
+// fmtClock takes a negative as an overrun: "-0:12".
 export function fmtClock(totalSec){
+  const neg=Math.round(totalSec||0)<0;
+  if(neg)return "-"+fmtClock(-totalSec);
   const s=Math.max(0,Math.round(totalSec||0));
   const h=Math.floor(s/SEC_PER_HOUR);
   const m=Math.floor((s%SEC_PER_HOUR)/SEC_PER_MIN);

@@ -10,7 +10,7 @@ const SEC_PER_MIN=60;
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
   bibleVersion:"web",feastSet:"western",restDay:0,progressRange:"10-15",remindDays:"0,1,2,3,4,5",
-  remindTime:"07:00",maxHR:190,voice:true};
+  remindTime:"07:00",maxHR:190,voice:true,restSound:true,restDown:false};
 
 // History lives only on this device, so after a few workouts — and every few weeks after —
 // home suggests saving a backup file. "Not now" quiets it for a week.
@@ -218,15 +218,35 @@ export function dropRoutine(r){
 }
 
 // One routine per name: saving again under the same name replaces its exercise list.
-export function saveRoutine(name,exNames){
+// plan, optional: one entry per exercise, in the same order as the names, each with the
+// target sets [{r, w, rest}] so a routine can hold a workout rather than only a list.
+export function saveRoutine(name,exNames,plan){
   const n=String(name||"").trim();
   if(!n||!exNames.length)return null;
   state.routines=state.routines.filter(r=>key(r.name)!==key(n));
   // Time plus a random tail: two routines saved in the same millisecond (a backup being
   // loaded) still get different ids.
   const r={id:"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,8),name:n,ex:exNames.slice()};
+  if(plan&&plan.length)r.plan=plan.map(p=>({name:p.name,sets:(p.sets||[]).map(x=>({r:+x.r||0,w:+x.w||0,rest:+x.rest||0}))}));
   state.routines.push(r);
   return r;
+}
+// A day's working sets as a plan: what a routine saved from it should ask for next time.
+export function planOf(session){
+  return session.ex.map(e=>({name:e.name,sets:e.sets.filter(x=>!x.wu).map(x=>({r:x.r,w:+x.w||0,rest:+x.rest||0}))}));
+}
+// The targets a routine holds for an exercise, if any.
+export function planFor(routine,name){
+  const p=routine&&routine.plan&&routine.plan.find(x=>key(x.name)===key(name));
+  return p&&p.sets.length?p.sets:null;
+}
+// A short line of targets: "3 × 5 @ 100", or "8, 8, 6 @ 60" when they differ.
+export function planLine(sets,unit){
+  if(!sets||!sets.length)return "";
+  const same=sets.every(x=>x.r===sets[0].r&&x.w===sets[0].w);
+  const reps=same?sets.length+" × "+sets[0].r:sets.map(x=>x.r).join(", ");
+  const w=sets[0].w?" @ "+(same?sets[0].w:[...new Set(sets.map(x=>x.w))].join("/"))+" "+unit:"";
+  return reps+w;
 }
 
 // One body entry per calendar day: logging again the same day corrects it, not doubles it.
@@ -282,7 +302,7 @@ export function importBackup(d){
     });
   });
   (Array.isArray(d.routines)?d.routines:[]).forEach(r=>{
-    if(r&&r.name&&Array.isArray(r.ex))saveRoutine(r.name,r.ex);
+    if(r&&r.name&&Array.isArray(r.ex))saveRoutine(r.name,r.ex,r.plan);
   });
   if(d.programme&&d.programme.id&&Array.isArray(d.programme.days)&&!state.programme)state.programme=d.programme;
   (Array.isArray(d.favs)?d.favs:[]).forEach(n=>{if(n&&state.favs.indexOf(n)<0)state.favs.push(String(n));});

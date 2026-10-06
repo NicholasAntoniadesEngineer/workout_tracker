@@ -109,5 +109,17 @@ export function say(text){
     window.speechSynthesis.speak(u);
   }catch(e){}
 }
+// Keeping the page awake under a locked iPhone: a silent, looping audio element started from a
+// tap. Community practice rather than anything Apple promises, so everything that relies on it
+// is labelled best effort. Stopped when the workout ends.
+let keep=null;
+export function keepAlive(on){
+  try{
+    if(on&&!keep){
+      keep=new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=");
+      keep.loop=true;keep.volume=0.01;keep.play().catch(()=>{keep=null;});
+    }else if(!on&&keep){keep.pause();keep=null;}
+  }catch(e){keep=null;}
+}
 // iPhone only plays sound after a tap: unlock audio on the Start tap.
 export function primeAudio(){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();ctx.resume&&ctx.resume();}catch(e){}}

@@ -281,3 +281,16 @@ describe("restTargetFor and repRange",()=>{
     assert.deepEqual(store.repRange(),{low:10,top:14});
   });
 });
+
+describe("routines with a plan",()=>{
+  test("saving a day keeps its working sets as targets, and a routine without a plan still works",()=>{
+    loadWith({});
+    const d=day("p","2026-02-01T10:00:00.000Z",[ex("Squats",[set(8,60),set(5,100),set(5,100)])]);
+    d.ex[0].sets[0].wu=true;
+    const r=store.saveRoutine("Legs",["Squats"],store.planOf(d));
+    assert.deepEqual(store.planFor(r,"squats"),[{r:5,w:100,rest:0},{r:5,w:100,rest:0}]);
+    assert.equal(store.planLine(store.planFor(r,"Squats"),"kg"),"2 × 5 @ 100 kg");
+    assert.equal(store.planLine([{r:8,w:60},{r:8,w:60},{r:6,w:60}],"kg"),"8, 8, 6 @ 60 kg");
+    assert.equal(store.planFor(store.saveRoutine("Plain",["Dips"]),"Dips"),null);
+  });
+});

@@ -56,6 +56,7 @@ export function handle(t,ctx){
       let ns=state.sessions.find(s=>dateKey(s.created)===today&&!s.ex.length&&!s.running);
       if(!ns){ns=makeSession();state.sessions.push(ns);}
       ns.title=r.name;selectSession(ns.id);
+      ns.routine=r.id;
       r.ex.forEach(addExerciseToDay);
       state.exId=getSession().ex[0]?getSession().ex[0].id:null;
       ctx.recallLast(activeEx());
@@ -67,7 +68,7 @@ export function handle(t,ctx){
   const applyRoutine=t.closest&&t.closest("[data-applyroutine]");
   if(applyRoutine){
     const r=findRoutine(applyRoutine.getAttribute("data-applyroutine"));
-    if(r){r.ex.forEach(addExerciseToDay);ctx.recallLast(activeEx());}
+    if(r){r.ex.forEach(addExerciseToDay);getSession().routine=r.id;ctx.recallLast(activeEx());}
     ctx.render();return true;
   }
   const delRoutine=t.closest&&t.closest("[data-delroutine]");
