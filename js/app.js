@@ -36,7 +36,7 @@ const TICK_MS=1000;
 // Auto never shrinks type below this — past it the table scrolls instead, so a long day
 // stays readable rather than shrinking to fit.
 const FIT_MIN=0.84;
-const FIT_STEP=0.04;
+const FIT_STEP=0.02;
 const LONG_PRESS_MS=450;
 const MOVE_SLOP=8;
 
@@ -45,11 +45,13 @@ function overflows(el){
   return !!el&&el.scrollHeight>el.clientHeight+1;
 }
 
+
 // A chosen text size is honoured exactly — if the day no longer fits, the table scrolls
 // rather than the type being quietly overruled. Auto (0) is the fit-to-window default,
 // which shrinks the scale until the whole day is on screen.
 let autoScale=1;
 let refit=true;
+let fittedFor="";
 
 // Re-measure from full size on the next paint: the window changed, or the day did.
 function markRefit(){refit=true;}
@@ -64,6 +66,9 @@ function fit(){
   // Auto settles on a scale and keeps it. Adding an exercise or opening the editor
   // must not resize the type under you, so those paints reuse what was settled on.
   if(state.view!=="log"||state.sheet||state.adding||state.dragId){set(autoScale);return;}
+  // A different number of exercises (once the picker has closed) is a different day to fit.
+  const n=getSession().ex.length+":"+getSession().id;
+  if(n!==fittedFor){fittedFor=n;refit=true;}
   let k=refit?1:autoScale;
   refit=false;
   set(k);
@@ -556,6 +561,10 @@ if(typeof matchMedia==="function")[900,1200,1360].forEach(w=>{
   if(mq.addEventListener)mq.addEventListener("change",go);else if(mq.addListener)mq.addListener(go);
 });
 window.addEventListener("orientationchange",()=>{markRefit();fit();});
+// The first paint can measure before the layout has settled; fit again once it has.
+const settle=()=>{markRefit();fit();};
+setTimeout(settle,400);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(settle);
 
 // Esc closes whatever is open, top-most first — the picker, then a calendar day, then an
 // inline add field — so a keyboard is a first-class way to back out on a laptop.

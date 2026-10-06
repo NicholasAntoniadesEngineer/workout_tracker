@@ -1914,8 +1914,7 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 /* The phone's Train screen: the table is as tall as the day, the controls sit at the bottom
    by the thumb, and whatever room is left sits between them rather than inside the table. */
 @media (max-width:899px){
-  .wrap>.tblwrap{flex:0 1 auto;}
-  .wrap>.panel{margin-top:auto;}
+  .wrap>.tblwrap{flex:1 1 auto;}
   .head .daysum{margin:2px 0 6px;}
   /* Denser rows so a long day shows more exercises before the table scrolls. */
   .wrap>.head .eyebrow{display:none;}
@@ -1923,11 +1922,16 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
   .wrap>.tblwrap{padding:4px 6px;}
   .wrap>.tblwrap table{border-spacing:4px 3px;}
   .wrap>.tblwrap th{padding:2px 0 0;}
-  .wrap>.tblwrap .exhbtn{padding:3px 6px;}
-  .wrap>.tblwrap .exbtn{padding:3px 6px;font-size:calc(14.5px * var(--k));line-height:1.15;}
-  .wrap>.tblwrap td.cell{height:calc(34px * var(--k));}
+  /* Rows are one fixed size: fitting the screen shrinks the controls below, never the rows. */
+  .wrap>.tblwrap .exhbtn{padding:3px 6px;font-size:11px;}
+  .wrap>.tblwrap th{font-size:11px;}
+  .wrap>.tblwrap .exhbtn .pen{font-size:11px;}
+  .wrap>.tblwrap .exbtn{padding:2px 6px;font-size:14px;line-height:1.1;}
+  .wrap>.tblwrap td.cell{height:33px;font-size:15px;}
+  .wrap>.tblwrap .wt{font-size:11px;}
+  .wrap>.tblwrap .sd{font-size:11px;}
   .wrap>.tblwrap .ct{font-size:10px;margin-top:1px;}
-  .wrap>.tblwrap td.sum{font-size:var(--f-md);}
+  .wrap>.tblwrap td.sum{font-size:15px;}
   /* Add and Remove as a slim line under the table. */
   .wrap>.addstrip{margin:6px 0 8px;}
   .wrap>.addstrip .addbtn,.wrap>.addstrip .rmbtn{min-height:34px;padding:4px 14px;}
