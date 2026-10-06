@@ -1916,6 +1916,21 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 @media (max-width:899px){
   .wrap>.tblwrap{flex:0 1 auto;}
   .wrap>.panel{margin-top:auto;}
-  .wrap>.addstrip{margin-bottom:calc(var(--sp) * 1.6);}
-  .head .daysum{margin:4px 0 calc(var(--sp) * .6);}
+  .head .daysum{margin:2px 0 6px;}
+  /* Denser rows so a long day shows more exercises before the table scrolls. */
+  .wrap>.head .eyebrow{display:none;}
+  .wrap>.head .daysbtn.iconbtn{min-height:38px;min-width:38px;padding:6px;}
+  .wrap>.tblwrap{padding:4px 6px;}
+  .wrap>.tblwrap table{border-spacing:4px 3px;}
+  .wrap>.tblwrap th{padding:2px 0 0;}
+  .wrap>.tblwrap .exhbtn{padding:3px 6px;}
+  .wrap>.tblwrap .exbtn{padding:3px 6px;font-size:calc(14.5px * var(--k));line-height:1.15;}
+  .wrap>.tblwrap td.cell{height:calc(34px * var(--k));}
+  .wrap>.tblwrap .ct{font-size:10px;margin-top:1px;}
+  .wrap>.tblwrap td.sum{font-size:var(--f-md);}
+  /* Add and Remove as a slim line under the table. */
+  .wrap>.addstrip{margin:6px 0 8px;}
+  .wrap>.addstrip .addbtn,.wrap>.addstrip .rmbtn{min-height:34px;padding:4px 14px;}
 }
+/* With the tab bar underneath, the timer bar need not clear the home indicator itself. */
+.timerbar:has(+ .tabbar){padding-bottom:calc(8px * var(--k));}

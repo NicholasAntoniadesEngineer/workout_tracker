@@ -111,6 +111,8 @@ export function handle(t,ctx){
   if(t.id==="numedcancel"||t.id==="numedclose"||t.id==="numedback"){state.numEdit=null;ctx.render();return true;}
 
   if(t.dataset&&t.dataset.ex&&t.classList.contains("exbtn")){
+    // A second tap on the exercise already selected opens its history and tips.
+    if(state.exId===t.dataset.ex&&!state.editing){state.exHist=true;ctx.render();return true;}
     state.exId=t.dataset.ex;state.editing=null;
     ctx.recallLast(activeEx());
     ctx.render();return true;

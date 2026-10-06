@@ -51,7 +51,7 @@ function setsTable(session){
     const held=state.dragId===e.id;
     h+="<tr"+(held?" class='held'":"")+"><td>"+
        "<button class='exbtn"+(e.id===state.exId?" active":"")+(held?" held":"")+
-       "' data-ex='"+e.id+"'>"+esc(e.name)+"</button></td>";
+       "' data-ex='"+e.id+"'"+(e.id===state.exId?" title='Tap again for its history'":"")+">"+esc(e.name)+"</button></td>";
     for(let i=0;i<cols;i++){
       const x=e.sets[i];
       if(x===undefined){h+="<td class='cell empty mono'>&middot;</td>";continue;}
@@ -166,7 +166,9 @@ function logPanel(){
     h+="<button class='hintline rxline' id='rxbtn' data-hw='"+(nx.w||"")+"' data-hr='"+nx.r+"'><b>Plan</b> "+
       plan.map((x,i)=>"<span class='"+(i<done?"rxdone":i===done?"rxnext":"")+"'>"+x.r+(x.w?" @ "+x.w:"")+"</span>").join(" &middot; ")+"</button>";
   }
-  if(prev){
+  // The phone leaves these out for room: last time's numbers are already loaded into reps and
+  // weight, and tapping the selected exercise again opens its history.
+  if(wide()&&prev){
     h+="<button class='prevline' id='exhistbtn'><span class='prevlbl'>Last</span> "+
        esc(shortDate(prev.session.created))+" &middot; <span class='mono'>"+
        setsSummary(prev.ex.sets,unitOf(prev.ex))+"</span> <span class='prevmore'>&rsaquo;</span></button>";
@@ -177,7 +179,7 @@ function logPanel(){
       low:rr.low,top:rr.top,isBand:isBandExercise(a.name)});
     if(hint)h+="<button class='hintline' id='hintbtn'"+(hint.apply?" data-hw='"+(hint.apply.w===undefined?"":hint.apply.w)+
        "' data-hr='"+(hint.apply.r===undefined?"":hint.apply.r)+"'":" disabled")+">&rarr; "+esc(hint.text)+"</button>";
-  }else if(a&&!state.editing){
+  }else if(wide()&&a&&!state.editing){
     // Never done before: the same line opens the exercise's tips and a demo instead.
     h+="<button class='prevline' id='exhistbtn'><span class='prevlbl'>New</span> First time &middot; tips and demo "+
        "<span class='prevmore'>&rsaquo;</span></button>";
