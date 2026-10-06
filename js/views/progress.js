@@ -131,11 +131,15 @@ export function progressView(){
   let recsH="";
   if(recs.length){
     // Grouped the way the exercise list is (squat, hinge, push, pull…), A–Z inside each group.
+    // Each group folds; the ones left open are remembered.
+    const open=String(state.settings.recOpen||"").split("|").filter(Boolean);
     recsH+="<div class='setgroup'>Records</div><div class='card recs'>";
     const order=EXERCISE_GROUPS.map(g=>g[0]),by={};
     recs.forEach(r=>{const g=exerciseGroup(r.name);(by[g]=by[g]||[]).push(r);});
     Object.keys(by).sort((a,b)=>{const i=order.indexOf(a),j=order.indexOf(b);return (i<0?99:i)-(j<0?99:j)||a.localeCompare(b);}).forEach(g=>{
-      recsH+="<div class='recgroup'>"+esc(g)+"</div>";
+      const isOpen=open.indexOf(g)>=0;
+      recsH+="<button class='recgroup"+(isOpen?" open":"")+"' data-recgroup='"+esc(g)+"' aria-expanded='"+isOpen+"'><span>"+esc(g)+"</span><span class='reccount'>"+by[g].length+"</span><span class='recchev'>&rsaquo;</span></button>";
+      if(!isOpen)return;
       by[g].sort((a,b)=>a.name.localeCompare(b.name,undefined,{sensitivity:"base"})).forEach(r=>{
         recsH+="<div class='histrow'><span class='histdate'>"+esc(r.name)+"</span>"+
           "<span class='histsets mono'>"+

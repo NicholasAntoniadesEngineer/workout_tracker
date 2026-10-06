@@ -1894,9 +1894,13 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .addstrip{margin:calc(var(--sp) * 1.2) 0;}
 .addstrip .rmbtn{border-color:transparent;}
 /* Records, grouped by movement. */
-.recs .recgroup{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:12px 0 4px;}
-.recs .recgroup:first-child{padding-top:2px;}
-.recs .recgroup+.histrow{border-top:0;}
+.recs .recgroup{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:4px 2px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--text);font:inherit;font-size:12px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;text-align:left;cursor:pointer;}
+.recs .recgroup:last-child{border-bottom:0;}
+.recs .recgroup span:first-child{flex:1;}
+.recs .reccount{color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:0;}
+.recs .recchev{color:var(--muted);font-size:20px;line-height:1;transition:transform .15s;}
+.recs .recgroup.open .recchev{transform:rotate(90deg);}
+.recs .recgroup.open{border-bottom:0;}
 /* Today's check-in once done: one slim line. */
 .rslim{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 12px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);font:inherit;font-size:14px;text-align:left;cursor:pointer;}
 .rslimt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);}

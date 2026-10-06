@@ -42,7 +42,7 @@ export function readinessCard(){
   const r=readinessNow(),c=todayCheckin();
   if(!c)return "<button class='card rcard ask' id='cistart'><span class='rband'>"+icon("target","sm")+"</span><span class='rbody'><b>Morning check-in</b><span>30 seconds: sleep, soreness, energy, stress</span></span><span class='lchev'>&rsaquo;</span></button>";
   // Once today's is in, it shrinks to one line; a tap opens it again to change.
-  if(!r.band)return "<button class='rslim' id='cistart'><span class='rtick'>&#10003;</span><span class='rslimt'><b>Checked in</b> &middot; "+state.checkins.length+" of 7 for readiness</span><span class='rslime'>Edit</span></button>";
+  if(!r.band)return "<button class='rslim' id='cistart'><span class='rtick'>&#10003;</span><span class='rslimt'><b>Checked in</b> &middot; your readiness shows after "+Math.max(1,7-state.checkins.length)+" more</span><span class='rslime'>Edit</span></button>";
   return "<button class='rslim "+r.band+"' id='cistart' title='"+esc(r.why+". "+suggestion(r.band,r.planned))+"'><span class='rdot'></span><span class='rslimt'><b>"+BAND_LABEL[r.band]+"</b> &middot; "+esc(suggestion(r.band,r.planned))+"</span><span class='rslime'>Edit</span></button>";
 }
 
@@ -55,6 +55,6 @@ export function recoverSection(){
     "<div class='recrow'><span class='recl'>This week's load</span><span class='recv mono'>"+a.acute+"</span><span class='recs'>vs "+a.chronic+" a week lately &middot; "+ratioWord+"</span></div>"+
     (s.nights?"<div class='recrow'><span class='recl'>Sleep, 14 nights</span><span class='recv mono'>"+s.avg+" h</span><span class='recs'>"+(s.debt?s.debt+" h short of "+(state.settings.sleepNeed||8)+" h":"no debt")+
       (s.regularMin!=null?" &middot; bedtime varies "+(s.regularMin<30?"little":s.regularMin<60?"by about an hour":"a lot"):"")+"</span></div>":"")+
-    "<div class='recrow'><span class='recl'>Check-ins</span><span class='recv mono'>"+state.checkins.length+"</span><span class='recs'>"+(state.checkins.length<7?"readiness shows after 7":"readiness on")+"</span></div>"+
+    "<div class='recrow'><span class='recl'>Check-ins</span><span class='recv mono'>"+state.checkins.length+"</span><span class='recs'>"+(state.checkins.length<7?"readiness shows after "+(7-state.checkins.length)+" more":"readiness on")+"</span></div>"+
     "<p class='pnote'>Load is session RPE × minutes (reps × RPE for lifting), compared week to month. The formulas are in Learn.</p></div>";
 }

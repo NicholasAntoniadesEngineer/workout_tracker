@@ -95,6 +95,9 @@ export function handle(t,ctx){
   if(learnCat){state.learnCat=learnCat.getAttribute("data-learncat")||null;state.scrollTo=0;ctx.render();return true;}
   const bodyMet=t.closest&&t.closest("[data-bodymet]");
   if(bodyMet){state.bodyMetric=bodyMet.getAttribute("data-bodymet");ctx.render();return true;}
+  const rg=t.closest&&t.closest("[data-recgroup]");
+  if(rg){const g=rg.getAttribute("data-recgroup"),open=String(state.settings.recOpen||"").split("|").filter(Boolean);
+    const i=open.indexOf(g);if(i>=0)open.splice(i,1);else open.push(g);setSetting("recOpen",open.join("|"));ctx.render();return true;}
   const spanB=t.closest&&t.closest("[data-span]");
   if(spanB){state.progressSpan=spanB.getAttribute("data-span");ctx.render();return true;}
   const measB=t.closest&&t.closest("[data-measure]");
