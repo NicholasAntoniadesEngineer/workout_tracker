@@ -11,6 +11,19 @@ import {barChart,lineChart,weeklyVolume,withAxis} from "../charts.js";
 import {setClockSeconds,workoutLabel} from "./log.js";
 import {learnLib} from "../lazy.js";
 import {readinessCard} from "./checkin.js";
+import {proteinTarget,totalsOf} from "../fuel.js";
+
+// One chip per module that is on: protein so far, habits done. A tap opens the page.
+function moduleChips(){
+  const k=dateKey(nowISO()),chips=[];
+  if(state.settings.modFuel){const t=totalsOf((state.fuel||[]).filter(e=>dateKey(e.at)===k));const b=state.body.filter(x=>x.w);const w=b.length?b[b.length-1].w:0;
+    const target=proteinTarget(state.settings.unit==="lb"?w*0.45359237:w,state.settings.goal||"lift");
+    chips.push("<button class='mchip' data-openhealth='fuel'><b class='mono'>"+t.p+(target?"<small>/"+target+"</small>":"")+"</b><span>g protein</span></button>");}
+  if(state.settings.modMind&&(state.habits||[]).length){const d=((state.habitDone||{})[k]||[]).length;
+    chips.push("<button class='mchip' data-openhealth='mind'><b class='mono'>"+d+"<small>/"+state.habits.length+"</small></b><span>habits</span></button>");}
+  if(state.settings.modMarkers&&(state.markers||[]).length)chips.push("<button class='mchip' data-openhealth='markers'><b class='mono'>"+new Set(state.markers.map(m=>m.id)).size+"</b><span>markers</span></button>");
+  return chips.length?"<div class='mchips'>"+chips.join("")+"</div>":"";
+}
 
 // A fresh verse each time the app opens — random once at load, so incidental repaints
 // (the timer ticking) never reshuffle it. The corner arrows then step through the pool.
@@ -186,7 +199,7 @@ function homeWide(running,finished,emptyOpen,doneToday){
       "<button class='btn ghost tiny' id='backupsnooze'>Not now</button></div></div>";
   h+="<div class='hgrid'>"+
     "<div class='hg7'>"+verseCard()+wk.html+learnLine()+"</div>"+
-    "<div class='hg5'>"+readinessCard()+heroCard(running,finished,emptyOpen,doneToday)+nextCard()+"</div>"+
+    "<div class='hg5'>"+readinessCard()+moduleChips()+heroCard(running,finished,emptyOpen,doneToday)+nextCard()+"</div>"+
     "<div class='hg4'><div class='card hcard'><div class='hcardh'><span class='llabel'>Hard sets this week &middot; aim 10&ndash;20</span>"+
       "<button class='hmore' data-nav='progress'>Progress &rsaquo;</button></div>"+setBars().replace("<div class='card chartcard setbars'>","<div class='setbars'>")+"</div></div>"+
     "<div class='hg4'>"+volumeCard()+"</div>"+
@@ -224,7 +237,7 @@ export function homeView(){
         "</svg><span>Kings<span class='bk'>Kiln</span><sup class='tm' aria-label='trademark'>&trade;</sup></span></div>"+
       "<div class='homehero'>"+
         "<div class='homeday'>"+esc(dateStr)+"</div>"+
-        readinessCard()+
+        readinessCard()+moduleChips()+
         verseCard()+
         (running?"":nextCard())+
         homeCta(running,finished,emptyOpen,doneToday)+

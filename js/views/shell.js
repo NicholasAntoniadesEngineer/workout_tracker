@@ -14,7 +14,7 @@ export {desk,wide};
 export const NAV=[["home","Home","home","Train"],["log","Log","dumbbell"],["cardio","Cardio","bolt"],
   ["history","History","days","Review"],["calendar","Calendar","calendar"],["progress","Progress","progress"],["body","Body","body"],
   ["learn","Learn","book","Read"],["settings","Settings","settings",""]];
-const ACTIVE={prog:"learn",stack:"learn",import:"settings"};
+const ACTIVE={prog:"learn",stack:"body",health:"progress",import:"settings"};
 
 function brand(){
   return "<div class='sbrand'><svg class='brandshield' viewBox='0 0 100 100' aria-hidden='true'>"+
@@ -56,7 +56,7 @@ function sideNav(){
 // full height, and while a sheet is open over the Log.
 export const TABS=[["home","Today","home"],["log","Train","dumbbell"],["progress","Progress","progress"],["learn","Learn","book"],["settings","You","settings"]];
 const TAB_OF={home:"home",log:"log",cardio:"log",prog:"log",history:"progress",calendar:"progress",progress:"progress",body:"progress",
-  stack:"progress",learn:"learn",settings:"settings",import:"settings"};
+  stack:"progress",health:"progress",learn:"learn",settings:"settings",import:"settings"};
 export function tabBar(){
   if(state.cardio&&state.view==="cardio")return "";
   if(state.view==="learn"&&state.reading)return "";

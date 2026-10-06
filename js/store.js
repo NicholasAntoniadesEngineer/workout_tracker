@@ -10,7 +10,7 @@ const SEC_PER_MIN=60;
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
   bibleVersion:"web",feastSet:"western",restDay:0,progressRange:"10-15",remindDays:"0,1,2,3,4,5",
-  remindTime:"07:00",maxHR:190,voice:true,restSound:true,restDown:false,checkin:true,sleepNeed:8,heightCm:0,sex:""};
+  remindTime:"07:00",maxHR:190,voice:true,restSound:true,restDown:false,checkin:true,sleepNeed:8,heightCm:0,sex:"",goal:"lift",fastHours:0,fuelMacros:false,modFuel:false,modMarkers:false,modMind:false};
 
 // History lives only on this device, so after a few workouts — and every few weeks after —
 // home suggests saving a backup file. "Not now" quiets it for a week.
@@ -149,6 +149,8 @@ export function load(){
   state.welcomed=!!(saved&&saved.welcomed);
   state.checkins=(saved&&saved.checkins)||[];
   state.photos=(saved&&saved.photos)||[];
+  state.fuel=(saved&&saved.fuel)||[];state.markers=(saved&&saved.markers)||[];
+  state.habits=(saved&&saved.habits)||[];state.habitDone=(saved&&saved.habitDone)||{};state.journal=(saved&&saved.journal)||{};
   state.vitals=(saved&&saved.vitals)||[];
   state.backupSnooze=(saved&&saved.backupSnooze)||"";
   state.catalog=buildCatalog(saved);
@@ -166,7 +168,7 @@ export function save(){
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,
         hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,favs:state.favs,pickOpen:state.pickOpen,programme:state.programme,
-        learnSaved:state.learnSaved,learnRecent:state.learnRecent,backupAt:state.backupAt,backupSnooze:state.backupSnooze,welcomed:state.welcomed,checkins:state.checkins,vitals:state.vitals,photos:state.photos,
+        learnSaved:state.learnSaved,learnRecent:state.learnRecent,backupAt:state.backupAt,backupSnooze:state.backupSnooze,welcomed:state.welcomed,checkins:state.checkins,vitals:state.vitals,photos:state.photos,fuel:state.fuel,markers:state.markers,habits:state.habits,habitDone:state.habitDone,journal:state.journal,
         supplements:state.supplements,stacks:state.stacks}));
     state.storageFull=false;
   }catch(e){
@@ -322,6 +324,11 @@ export function importBackup(d){
   (Array.isArray(d.learnSaved)?d.learnSaved:[]).forEach(n=>{if(n&&state.learnSaved.indexOf(n)<0)state.learnSaved.push(String(n));});
   (Array.isArray(d.checkins)?d.checkins:[]).forEach(c=>{if(c&&c.at)upsertCheckin(c);});
   (Array.isArray(d.vitals)?d.vitals:[]).forEach(v=>{if(v&&v.at)upsertVital(v);});
+  (Array.isArray(d.markers)?d.markers:[]).forEach(m=>{if(m&&m.id&&m.at&&!state.markers.some(x=>x.id===m.id&&x.at===m.at))state.markers.push(m);});
+  (Array.isArray(d.habits)?d.habits:[]).forEach(h=>{if(h&&state.habits.indexOf(h)<0&&state.habits.length<8)state.habits.push(h);});
+  if(d.journal&&typeof d.journal==="object")state.journal=Object.assign({},d.journal,state.journal);
+  if(d.habitDone&&typeof d.habitDone==="object")state.habitDone=Object.assign({},d.habitDone,state.habitDone);
+  (Array.isArray(d.fuel)?d.fuel:[]).forEach(e=>{if(e&&e.id&&!state.fuel.some(x=>x.id===e.id))state.fuel.push(e);});
   if(d.restTargets&&typeof d.restTargets==="object")
     state.restTargets=Object.assign({},state.restTargets,d.restTargets);
   (Array.isArray(d.hiddenRoutines)?d.hiddenRoutines:[]).forEach(n=>{

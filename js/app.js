@@ -1,4 +1,4 @@
-import {autoEndIfStale,nowISO,fmtClock,isBandExercise,makeSession,parseClock,restSeconds,
+import {autoEndIfStale,nowISO,dateKey,fmtClock,isBandExercise,makeSession,parseClock,restSeconds,
   setAnchor} from "./model.js";
 import {activeEx,addExerciseToDay,getSession,importBackup,lastPerformance,load,mergeSessions,
   restTargetFor,save,saveRoutine,selectSession,state} from "./store.js";
@@ -26,6 +26,8 @@ import * as cardio from "./actions/cardio.js";
 import * as importer from "./actions/importer.js";
 import * as exporting from "./actions/export.js";
 import * as checkin from "./actions/checkin.js";
+import * as health from "./actions/health.js";
+import {breathTick} from "./views/health.js";
 import * as logging from "./actions/log.js";
 import * as stacking from "./actions/stack.js";
 
@@ -138,6 +140,8 @@ function render(){
     }
   }
   // Filtering the list rebuilds the sheet each keystroke — keep the caret in the search box.
+  // A field that just opened gets the caret.
+  if(state.focusId){const el=document.getElementById(state.focusId);if(el)el.focus();state.focusId=null;}
   if(state.focusSearch){
     const el=document.getElementById(state.focusSearch==="learnsearch"?"learnsearch":"exsearch");
     if(el){el.focus();const v=el.value;try{el.setSelectionRange(v.length,v.length);}catch(e){}}
@@ -428,6 +432,7 @@ document.body.addEventListener("input",ev=>{
   else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
   else if(id==="setnote"){state.setNote=ev.target.value;}
   else if(id==="heightcm"){setSetting("heightCm",Math.max(0,parseInt(ev.target.value,10)||0));}
+  else if(id==="journal"){const j=Object.assign({},state.journal||{});const k=dateKey(nowISO());if(ev.target.value.trim())j[k]=ev.target.value;else delete j[k];state.journal=j;save();}
   else if((id==="cibed"||id==="ciwake")&&state.checkinDraft){state.checkinDraft[id==="cibed"?"bed":"wake"]=ev.target.value;
     const h=document.getElementById("cihrs");if(h){const v=sleepHours(state.checkinDraft.bed,state.checkinDraft.wake);h.textContent=v?v+" h":"";}}
   else if(id==="palin"&&state.palette){
@@ -469,7 +474,7 @@ function dismissSheet(){
 // row act on its own before the row does (delete a day before opening it).
 const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
   addExercise,showBest};
-const AREAS=[dialogs,checkin,exporting,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
+const AREAS=[dialogs,checkin,health,exporting,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
 onShareNotice(render);
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
@@ -508,6 +513,7 @@ function restAlert(s){
 
 // Both clocks derive from stored stamps, so ticking only refreshes text — never the DOM.
 function tick(){
+  breathTick();
   if(state.view!=="log"){tickSide();return;}
   const s=getSession();
   if(autoEndIfStale(s)){render();return;}

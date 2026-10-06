@@ -81,6 +81,12 @@ export function settingsView(){
     toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
     choiceRow("Weight unit","","unit",[["kg","kg"],["lb","lb"]])+
 
+    "<div class='setgroup'>More to track</div>"+
+    "<div class='setrow'><div class='setlbl'>Modules</div><div class='sethint'>Off until you want them. Each adds one chip to Today and a page under Progress.</div>"+
+    "<div class='setopts'>"+[["modFuel","Fuel"],["modMarkers","Markers"],["modMind","Mind"]].map(([k,l])=>"<button class='q"+(state.settings[k]?" on":"")+"' data-set='"+k+"' data-val='"+(state.settings[k]?"0":"1")+"'>"+l+(state.settings[k]?" &#10003;":"")+"</button>").join("")+"</div></div>"+
+    (state.settings.modFuel?choiceRow("Protein goal","Sets your daily target from your weight.","goal",[["Building","lift"],["Cutting","cut"],["Endurance","endure"],["General","general"]])+
+      toggleRow("Track calories and macros too","Protein alone is enough for most lifters; switch this on for the full picture.","fuelMacros"):"")+
+
     "<div class='setgroup'>Body</div>"+
     "<div class='setrow'><div class='setlbl'>Height and sex</div><div class='sethint'>Only for the body-fat estimate from your tape measurements.</div>"+
     "<div class='setopts'><input class='timein mono setin' id='heightcm' inputmode='numeric' placeholder='Height, cm' value='"+(state.settings.heightCm||"")+"'>"+

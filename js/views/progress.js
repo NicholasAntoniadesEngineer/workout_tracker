@@ -142,7 +142,8 @@ export function progressView(){
   const spanRow="<div class='lchips pgspan'>"+SPANS.map(([k,l])=>"<button class='lchip"+(span===k?" on":"")+"' data-span='"+k+"'>"+l+"</button>").join("")+"</div>";
   let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress",spanRow):
     "<div class='hhead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'></div></div>"+
-    "<div class='pgchiprow'><button class='lchip' id='homedays'>History</button><button class='lchip' id='homecal'>Calendar</button><button class='lchip' id='homebody'>Body</button></div>"+spanRow);
+    "<div class='pgchiprow'><button class='lchip' id='homedays'>History</button><button class='lchip' id='homecal'>Calendar</button><button class='lchip' id='homebody'>Body</button>"+
+      (state.settings.modFuel?"<button class='lchip' data-openhealth='fuel'>Fuel</button>":"")+(state.settings.modMarkers?"<button class='lchip' data-openhealth='markers'>Markers</button>":"")+(state.settings.modMind?"<button class='lchip' data-openhealth='mind'>Mind</button>":"")+"</div>"+spanRow);
   // A big screen arranges the same sections as a dashboard; the phone reads them in a column.
   if(big)h+="<div class='pggrid'><section class='pg12'>"+kpi+"</section><section class='pg8'>"+vol+"</section><section class='pg4'>"+sets+"</section>"+
     (trendH?"<section class='pg8'>"+trendH+"</section>":"")+(recsH?"<section class='pg4 pgrecs'>"+recsH+"</section>":"")+
