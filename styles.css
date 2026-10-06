@@ -1791,3 +1791,32 @@ body.dropping::after{content:"Drop to import: Strava, Garmin, Apple Health, Stro
 .pgspan,.pgmeas{margin:0 0 10px;padding:0;flex-wrap:wrap;overflow:visible;}
 .pgmeas .lchip,.pgspan .lchip{min-height:32px;font-size:12.5px;}
 @media (min-width:900px){.dhead .pgspan{margin:0;}}
+/* The readiness card on Home and the check-in sheet. */
+.rcard{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;margin:0 0 12px;text-align:left;border-radius:14px;}
+button.rcard{font:inherit;color:var(--text);cursor:pointer;}
+.rband{flex:none;min-width:44px;height:44px;padding:0 10px;border-radius:22px;background:var(--panelHi);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;}
+.rband .icn{margin:0;}
+.rcard.recover .rband{background:var(--text);color:var(--bg);}
+.rcard.easy .rband{background:var(--panelHi);}
+.rcard.ready .rband{background:var(--gold);color:#000;}
+.rcard.push .rband{background:var(--gold);color:#000;box-shadow:0 0 0 2px var(--text) inset;}
+.rbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.rbody b{font-size:15px;}
+.rbody span{font-size:12.5px;color:var(--muted);line-height:1.35;}
+.cisheet{max-width:420px!important;}
+.cirow{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.cilbl{font-size:11.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);}
+.ciopts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;}
+.ciopt{min-height:40px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;padding:0 2px;}
+.ciopt.on{background:var(--gold);border-color:var(--gold);color:#000;}
+.cisleep{flex-direction:row;align-items:center;flex-wrap:wrap;gap:10px;}
+.cisleep .cilbl{width:100%;}
+.cisleep label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;}
+.cisleep input{min-height:38px;border:1px solid var(--line);border-radius:9px;background:var(--panelHi);color:var(--text);font:inherit;padding:0 8px;}
+.cihrs{margin-left:auto;font-weight:800;font-size:15px;}
+.recov{padding:12px 14px;}
+.recrow{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:8px 0;border-top:1px solid var(--line);}
+.recrow:first-child{border-top:0;padding-top:0;}
+.recl{font-weight:800;font-size:14px;}
+.recv{font-size:18px;font-weight:800;grid-row:span 2;align-self:center;}
+.recs{font-size:12.5px;color:var(--muted);}

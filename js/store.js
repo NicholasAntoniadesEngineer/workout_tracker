@@ -1,4 +1,4 @@
-import {BUILTIN_ROUTINES,RETIRED,SEED_EXERCISES,lastSetExercise,convertLength,convertWeight,dateKey,makeExercise,makeSession,normSet,
+import {BUILTIN_ROUTINES,RETIRED,SEED_EXERCISES,lastSetExercise,convertLength,convertWeight,dateKey,makeExercise,makeSession,normSet,nowISO,
   options} from "./model.js";
 
 import * as db from "./db.js";
@@ -10,7 +10,7 @@ const SEC_PER_MIN=60;
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
   bibleVersion:"web",feastSet:"western",restDay:0,progressRange:"10-15",remindDays:"0,1,2,3,4,5",
-  remindTime:"07:00",maxHR:190,voice:true,restSound:true,restDown:false};
+  remindTime:"07:00",maxHR:190,voice:true,restSound:true,restDown:false,checkin:true,sleepNeed:8};
 
 // History lives only on this device, so after a few workouts — and every few weeks after —
 // home suggests saving a backup file. "Not now" quiets it for a week.
@@ -147,6 +147,8 @@ export function load(){
   state.programme=(saved&&saved.programme)||null;
   state.backupAt=(saved&&saved.backupAt)||"";
   state.welcomed=!!(saved&&saved.welcomed);
+  state.checkins=(saved&&saved.checkins)||[];
+  state.vitals=(saved&&saved.vitals)||[];
   state.backupSnooze=(saved&&saved.backupSnooze)||"";
   state.catalog=buildCatalog(saved);
   state.settings=Object.assign({},DEFAULTS,(saved&&saved.settings)||{});
@@ -163,7 +165,7 @@ export function save(){
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,
         hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,favs:state.favs,pickOpen:state.pickOpen,programme:state.programme,
-        learnSaved:state.learnSaved,learnRecent:state.learnRecent,backupAt:state.backupAt,backupSnooze:state.backupSnooze,welcomed:state.welcomed,
+        learnSaved:state.learnSaved,learnRecent:state.learnRecent,backupAt:state.backupAt,backupSnooze:state.backupSnooze,welcomed:state.welcomed,checkins:state.checkins,vitals:state.vitals,
         supplements:state.supplements,stacks:state.stacks}));
     state.storageFull=false;
   }catch(e){
@@ -249,6 +251,16 @@ export function planLine(sets,unit){
   return reps+w;
 }
 
+// One check-in and one vitals entry per calendar day, newest last.
+export function upsertCheckin(c){
+  const day=dateKey(c.at);
+  state.checkins=state.checkins.filter(x=>dateKey(x.at)!==day).concat([c]).sort((a,b)=>(a.at||"").localeCompare(b.at||""));
+}
+export function upsertVital(v){
+  const day=dateKey(v.at);
+  state.vitals=state.vitals.filter(x=>dateKey(x.at)!==day).concat([v]).sort((a,b)=>(a.at||"").localeCompare(b.at||""));
+}
+export const todayCheckin=()=>state.checkins.find(c=>dateKey(c.at)===dateKey(nowISO()))||null;
 // One body entry per calendar day: logging again the same day corrects it, not doubles it.
 export function upsertBodyEntry(entry){
   const day=dateKey(entry.at);
@@ -307,6 +319,8 @@ export function importBackup(d){
   if(d.programme&&d.programme.id&&Array.isArray(d.programme.days)&&!state.programme)state.programme=d.programme;
   (Array.isArray(d.favs)?d.favs:[]).forEach(n=>{if(n&&state.favs.indexOf(n)<0)state.favs.push(String(n));});
   (Array.isArray(d.learnSaved)?d.learnSaved:[]).forEach(n=>{if(n&&state.learnSaved.indexOf(n)<0)state.learnSaved.push(String(n));});
+  (Array.isArray(d.checkins)?d.checkins:[]).forEach(c=>{if(c&&c.at)upsertCheckin(c);});
+  (Array.isArray(d.vitals)?d.vitals:[]).forEach(v=>{if(v&&v.at)upsertVital(v);});
   if(d.restTargets&&typeof d.restTargets==="object")
     state.restTargets=Object.assign({},state.restTargets,d.restTargets);
   (Array.isArray(d.hiddenRoutines)?d.hiddenRoutines:[]).forEach(n=>{

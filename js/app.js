@@ -12,6 +12,7 @@ import {parseRoute,routeOf,titleOf} from "./route.js";
 import * as db from "./db.js";
 import {paletteList,runPalette} from "./palette.js";
 import {notice} from "./dialog.js";
+import {sleepHours} from "./ready.js";
 import {onShareNotice} from "./share.js";
 import * as dialogs from "./actions/dialog.js";
 import * as nav from "./actions/nav.js";
@@ -23,6 +24,7 @@ import * as programmes from "./actions/programme.js";
 import * as cardio from "./actions/cardio.js";
 import * as importer from "./actions/importer.js";
 import * as exporting from "./actions/export.js";
+import * as checkin from "./actions/checkin.js";
 import * as logging from "./actions/log.js";
 import * as stacking from "./actions/stack.js";
 
@@ -415,6 +417,8 @@ document.body.addEventListener("input",ev=>{
   else if(id==="editrest")state.editRest=parseClock(ev.target.value);
   else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
   else if(id==="setnote"){state.setNote=ev.target.value;}
+  else if((id==="cibed"||id==="ciwake")&&state.checkinDraft){state.checkinDraft[id==="cibed"?"bed":"wake"]=ev.target.value;
+    const h=document.getElementById("cihrs");if(h){const v=sleepHours(state.checkinDraft.bed,state.checkinDraft.wake);h.textContent=v?v+" h":"";}}
   else if(id==="palin"&&state.palette){
     state.palette.q=ev.target.value;state.palette.sel=0;
     const list=document.getElementById("pallist");if(list)list.innerHTML=paletteList();
@@ -454,7 +458,7 @@ function dismissSheet(){
 // row act on its own before the row does (delete a day before opening it).
 const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
   addExercise,showBest};
-const AREAS=[dialogs,exporting,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
+const AREAS=[dialogs,checkin,exporting,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
 onShareNotice(render);
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}

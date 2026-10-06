@@ -78,6 +78,10 @@ export function settingsView(){
     toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
     choiceRow("Weight unit","","unit",[["kg","kg"],["lb","lb"]])+
 
+    "<div class='setgroup'>Recovery</div>"+
+    toggleRow("Morning check-in","Four quick ratings and your sleep each morning. After a week, Today shows a readiness word and why.","checkin")+
+    choiceRow("Sleep you aim for","","sleepNeed",[["7 h",7],["7.5 h",7.5],["8 h",8],["8.5 h",8.5],["9 h",9]])+
+
     "<div class='setgroup'>Workout</div>"+
     choiceRow("Rest target","","restTarget",
       [["Off",0],["1:30",90],["2:00",120],["3:00",180],["4:00",240],["5:00",300]])+

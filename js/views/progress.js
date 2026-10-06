@@ -7,6 +7,7 @@ import {BEST_KM,cardioBests,fmtPace} from "../cardio.js";
 import {SET_TARGET,SPANS,barChart,cardioWeekly,exerciseRecords,exerciseTrend,lineChart,topExercises,
   weeklySetsByGroup,weeklyVolume,withAxis} from "../charts.js";
 import {esc,pageHead,wide} from "./common.js";
+import {recoverSection} from "./checkin.js";
 
 const fmtNum=v=>Math.round(v).toLocaleString();
 const clk=s=>{s=Math.round(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
@@ -125,7 +126,7 @@ export function progressView(){
     trendH+="</div>";
   }
 
-  const cardio=cardioSection();
+  const cardio=cardioSection()+recoverSection();
   const recs=exerciseRecords(state.sessions);
   let recsH="";
   if(recs.length){

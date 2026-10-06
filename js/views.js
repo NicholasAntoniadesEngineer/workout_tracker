@@ -19,6 +19,7 @@ import {importView} from "./views/importer.js";
 import {paletteView} from "./palette.js";
 import {dialogView} from "./dialog.js";
 import {welcomeNeeded,welcomeView} from "./views/welcome.js";
+import {checkinSheet} from "./views/checkin.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
 import {VERSES} from "./verses.js";
@@ -183,5 +184,5 @@ export function paint(){
   if(welcomeNeeded()&&!state.importJob&&state.view!=="import"){document.getElementById("app").innerHTML=welcomeView()+dialogView();return;}
   const view=(VIEWS[state.view]||logView)();
   document.getElementById("app").innerHTML=
-    (wide()?shell(view):view+tabBar())+keysSheet()+paletteView()+dialogView()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
+    (wide()?shell(view):view+tabBar())+keysSheet()+paletteView()+checkinSheet()+dialogView()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
 }

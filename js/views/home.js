@@ -10,6 +10,7 @@ import {setBars} from "./progress.js";
 import {barChart,lineChart,weeklyVolume,withAxis} from "../charts.js";
 import {setClockSeconds,workoutLabel} from "./log.js";
 import {learnLib} from "../lazy.js";
+import {readinessCard} from "./checkin.js";
 
 // A fresh verse each time the app opens — random once at load, so incidental repaints
 // (the timer ticking) never reshuffle it. The corner arrows then step through the pool.
@@ -185,7 +186,7 @@ function homeWide(running,finished,emptyOpen,doneToday){
       "<button class='btn ghost tiny' id='backupsnooze'>Not now</button></div></div>";
   h+="<div class='hgrid'>"+
     "<div class='hg7'>"+verseCard()+wk.html+learnLine()+"</div>"+
-    "<div class='hg5'>"+heroCard(running,finished,emptyOpen,doneToday)+nextCard()+"</div>"+
+    "<div class='hg5'>"+readinessCard()+heroCard(running,finished,emptyOpen,doneToday)+nextCard()+"</div>"+
     "<div class='hg4'><div class='card hcard'><div class='hcardh'><span class='llabel'>Hard sets this week &middot; aim 10&ndash;20</span>"+
       "<button class='hmore' data-nav='progress'>Progress &rsaquo;</button></div>"+setBars().replace("<div class='card chartcard setbars'>","<div class='setbars'>")+"</div></div>"+
     "<div class='hg4'>"+volumeCard()+"</div>"+
@@ -223,6 +224,7 @@ export function homeView(){
         "</svg><span>Kings<span class='bk'>Kiln</span><sup class='tm' aria-label='trademark'>&trade;</sup></span></div>"+
       "<div class='homehero'>"+
         "<div class='homeday'>"+esc(dateStr)+"</div>"+
+        readinessCard()+
         verseCard()+
         (running?"":nextCard())+
         homeCta(running,finished,emptyOpen,doneToday)+
