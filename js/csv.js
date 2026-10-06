@@ -1,6 +1,7 @@
-import {uid,workoutEnd} from "./model.js";
+import {normSet,uid,workoutEnd} from "./model.js";
 
-const HEADER=["Date","Day","Started","Ended","Exercise","Set","Reps","Side","Weight","Band","Rest","Work","At","Mark","Mode"];
+const HEADER=["Date","Day","Started","Ended","Exercise","Set","Reps","Side","Weight","Band","Rest","Work","At","Mark","Mode","RPE","Note"];
+const MARK={wu:"warmup",drop:"drop",fail:"failure"};
 const SIDE_WORDS=["per side","side","each side","yes","y","true","1"];
 const SIDE_MARK="per side";
 const BOM="\ufeff";
@@ -20,8 +21,8 @@ export function buildCSV(sessions){
     const mode=e.timed?"sec":(e.dist?"m":"");
     if(e.sets.length)e.sets.forEach((x,i)=>
       rows.push(day.concat([e.name,i+1,x.r,x.side?SIDE_MARK:"",x.w||"",x.band||"",x.rest||"",x.t||"",x.at||"",
-        x.wu?"warmup":"",mode])));
-    else rows.push(day.concat([e.name,"","","","","","","","","",mode]));
+        MARK[x.wu?"wu":(x.kind||"")]||"",mode,x.rpe||"",x.note||""])));
+    else rows.push(day.concat([e.name,"","","","","","","","","",mode,"",""]));
   }));
   return rows.map(r=>r.map(csvField).join(",")).join(EOL);
 }
@@ -56,7 +57,7 @@ export function parseImport(text){
   const col={date:head.indexOf("date"),day:head.indexOf("day"),ex:head.indexOf("exercise"),
     set:head.indexOf("set"),reps:head.indexOf("reps"),side:head.indexOf("side"),
     started:head.indexOf("started"),ended:head.indexOf("ended"),work:head.indexOf("work"),rest:head.indexOf("rest"),weight:head.indexOf("weight"),band:head.indexOf("band"),
-    at:head.indexOf("at"),mark:head.indexOf("mark"),mode:head.indexOf("mode")};
+    at:head.indexOf("at"),mark:head.indexOf("mark"),mode:head.indexOf("mode"),rpe:head.indexOf("rpe"),note:head.indexOf("note")};
   if(col.date<0||col.ex<0||col.reps<0)
     throw new Error("Couldn't find the expected columns. Keep the header row: Date, Day, Exercise, Set, Reps, Side.");
 
@@ -90,7 +91,8 @@ export function parseImport(text){
       r:reps,side:col.side>=0&&isSide(row[col.side]),w:col.weight>=0?(parseFloat((row[col.weight]||"").trim())||0):0,
       band:col.band>=0?(row[col.band]||"").trim():"",t:num(col.work),rest:num(col.rest),
       at:col.at>=0?(row[col.at]||"").trim():"",
-      wu:col.mark>=0&&(row[col.mark]||"").trim().toLowerCase()==="warmup"});
+      kind:{warmup:"wu",drop:"drop",failure:"fail"}[col.mark>=0?(row[col.mark]||"").trim().toLowerCase():""]||"",
+      rpe:col.rpe>=0?parseFloat(row[col.rpe])||0:0,note:col.note>=0?(row[col.note]||"").trim():""});
   }
 
   const imported=order.map(k=>{
@@ -100,7 +102,7 @@ export function parseImport(text){
     return Object.assign(day,{
       ex:g.ex.map(e=>{
         e.tmp.sort((a,b)=>a.i-b.i);
-        return {id:uid(),name:e.name,timed:!!e.timed,dist:!!e.dist,sets:e.tmp.map(o=>({r:o.r,side:o.side,w:o.w,band:o.band||"",t:o.t,rest:o.rest,at:o.at,wu:o.wu}))};
+        return {id:uid(),name:e.name,timed:!!e.timed,dist:!!e.dist,sets:e.tmp.map(o=>normSet({r:o.r,side:o.side,w:o.w,band:o.band||"",t:o.t,rest:o.rest,at:o.at,kind:o.kind,rpe:o.rpe,note:o.note}))};
       })});
   });
   if(!imported.length)throw new Error("No workout rows found in that file.");

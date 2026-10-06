@@ -1776,3 +1776,14 @@ body.dropping::after{content:"Drop to import: Strava, Garmin, Apple Health, Stro
 .wdots{display:flex;gap:6px;margin-bottom:8px;}
 .wdots span{width:8px;height:8px;border-radius:4px;background:var(--line);}
 .wdots span.on{background:var(--gold);width:20px;}
+/* Set kind chips under the panel's toggles, the RPE row, and the note field. */
+.kindrow{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:-2px 0 calc(8px * var(--k));}
+.kind{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:14px;min-height:30px;padding:0 11px;font:inherit;font-size:var(--f-sm);font-weight:700;cursor:pointer;}
+.kind.on{background:var(--accentDim);border-color:var(--accent);color:var(--accentText);}
+.rperow{display:flex;gap:4px;width:100%;justify-content:center;}
+.kind.rpe{min-width:38px;padding:0;}
+.setnote{width:100%;min-height:38px;border:1px solid var(--line);border-radius:10px;background:var(--panelHi);color:var(--text);font:inherit;font-size:var(--f-md);padding:0 12px;margin:0 0 calc(8px * var(--k));}
+.cell.drop .cr{color:var(--accentText);}
+.cell.fail .cr{text-decoration:underline;text-decoration-color:var(--danger);text-decoration-thickness:2px;}
+.rpemk{font-size:.7em;color:var(--muted);margin-left:2px;}
+.notemk{font-size:.5em;color:var(--gold);vertical-align:top;margin-left:2px;}

@@ -3,7 +3,7 @@
 // become cardio summaries; Apple's weigh-ins become Body entries. Pure functions, no DOM, so
 // each format is tested on its own; js/actions/importer.js does the reading and saving.
 import {parseCSV} from "./csv.js";
-import {uid} from "./model.js";
+import {normSet,uid} from "./model.js";
 import {EXINFO} from "./exinfo-data.js";
 
 // ── Activity types ────────────────────────────────────────────────────────────────────
@@ -122,7 +122,7 @@ function buildDays(sets,toUnit){
     else if(!r&&x.time){r=Math.round(x.time);e.timed=true;}
     if(!r)return;
     if(w&&toUnit)w=Math.round(toUnit(w)*10)/10;
-    e.sets.push({r,side:false,w:w||0,band:"",t:x.time&&x.reps?Math.round(x.time):0,rest:0,at:"",wu:!!x.wu});
+    e.sets.push(normSet({r,side:false,w:w||0,band:"",t:x.time&&x.reps?Math.round(x.time):0,rest:0,at:"",kind:x.kind||(x.wu?"wu":""),rpe:x.rpe||0}));
   });
   return order.map(k=>{const d=days[k];delete d.by;d.ex=d.ex.filter(e=>e.sets.length);return d;}).filter(d=>d.ex.length);
 }
@@ -135,7 +135,7 @@ export function parseStrong(text,appUnit,assumeUnit){
   const rows=rowsOf(text),h=rows[0].map(x=>x.trim().toLowerCase());
   const c={date:findCol(h,"date"),title:findCol(h,"workout name"),dur:findCol(h,"duration (sec)","duration"),
     ex:findCol(h,"exercise name"),set:findCol(h,"set order"),w:findCol(h,"weight (kg)","weight (lbs)","weight"),
-    reps:findCol(h,"reps"),dist:findCol(h,"distance (meters)","distance (m)","distance (km)","distance"),secs:findCol(h,"seconds")};
+    reps:findCol(h,"reps"),dist:findCol(h,"distance (meters)","distance (m)","distance (km)","distance"),secs:findCol(h,"seconds"),rpe:findCol(h,"rpe")};
   const wh=c.w>=0?h[c.w]:"",fileUnit=/kg/.test(wh)?"kg":/lb/.test(wh)?"lb":(assumeUnit||null);
   const distK=c.dist>=0&&/km/.test(h[c.dist])?1000:c.dist>=0&&/mi/.test(h[c.dist])?1609.344:1;
   const sets=[];
@@ -143,7 +143,8 @@ export function parseStrong(text,appUnit,assumeUnit){
     const so=String(r[c.set]||"").trim();
     if(!/^(\d+|W|D|F)$/i.test(so))return;
     sets.push({when:parseWhen(r[c.date]),title:(r[c.title]||"").trim(),secs:seconds(r[c.dur]),name:(r[c.ex]||"").trim(),
-      reps:Math.round(num(r[c.reps])),w:num(r[c.w]),dist:num(r[c.dist])*distK,time:num(r[c.secs]),wu:/^W$/i.test(so)});
+      reps:Math.round(num(r[c.reps])),w:num(r[c.w]),dist:num(r[c.dist])*distK,time:num(r[c.secs]),
+      kind:/^W$/i.test(so)?"wu":/^D$/i.test(so)?"drop":/^F$/i.test(so)?"fail":"",rpe:c.rpe>=0?num(r[c.rpe]):0});
   });
   return {days:buildDays(sets,converter(fileUnit,appUnit)),unit:fileUnit,source:"Strong"};
 }
@@ -154,14 +155,14 @@ export function parseHevy(text,appUnit){
   const rows=rowsOf(text),h=rows[0].map(x=>x.trim().toLowerCase());
   const c={title:findCol(h,"title"),start:findCol(h,"start_time"),end:findCol(h,"end_time"),ex:findCol(h,"exercise_title"),
     type:findCol(h,"set_type"),w:findCol(h,"weight_kg","weight_lbs"),reps:findCol(h,"reps"),
-    dist:findCol(h,"distance_km","distance_miles","distance_meters"),time:findCol(h,"duration_seconds")};
+    dist:findCol(h,"distance_km","distance_miles","distance_meters"),time:findCol(h,"duration_seconds"),rpe:findCol(h,"rpe")};
   const fileUnit=c.w>=0&&/lbs/.test(h[c.w])?"lb":"kg";
   const distK=c.dist>=0?(/miles/.test(h[c.dist])?1609.344:/km/.test(h[c.dist])?1000:1):1;
   const sets=rows.slice(1).map(r=>{
     const when=parseWhen(r[c.start]),end=parseWhen(r[c.end]);
     return {when,title:(r[c.title]||"").trim(),secs:when&&end?Math.max(0,(Date.parse(end)-Date.parse(when))/1000):0,
       name:(r[c.ex]||"").trim(),reps:Math.round(num(r[c.reps])),w:num(r[c.w]),dist:num(r[c.dist])*distK,time:num(r[c.time]),
-      wu:String(r[c.type]||"").trim().toLowerCase()==="warmup"};
+      kind:{warmup:"wu",dropset:"drop",failure:"fail"}[String(r[c.type]||"").trim().toLowerCase()]||"",rpe:c.rpe>=0?num(r[c.rpe]):0};
   });
   return {days:buildDays(sets,converter(fileUnit,appUnit)),unit:fileUnit,source:"Hevy"};
 }

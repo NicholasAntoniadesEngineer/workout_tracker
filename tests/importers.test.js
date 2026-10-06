@@ -135,3 +135,16 @@ test("archives open entry by entry, nested zips and .gz files included", async (
   assert.deepEqual([...seen["a.fit"]],[1,2,3]);
   assert.equal(new TextDecoder().decode(seen["activities/9.gpx.gz"]),"hello");
 });
+
+test("Strong's W/D/F set order and Hevy's set types and RPE come through", () => {
+  const strong='"Workout #";"Date";"Workout Name";"Duration (sec)";"Exercise Name";"Set Order";"Weight (kg)";"Reps";"RPE";"Distance (meters)";"Seconds";"Notes";"Workout Notes"\n'+
+    '"1";"2024-03-05 07:30:00";"Legs";"3600";"Squat (Barbell)";"1";"100";"5";"8";"0";"0";"";""\n'+
+    '"1";"2024-03-05 07:30:00";"Legs";"3600";"Squat (Barbell)";"D";"80";"8";"";"0";"0";"";""\n'+
+    '"1";"2024-03-05 07:30:00";"Legs";"3600";"Squat (Barbell)";"F";"90";"6";"10";"0";"0";"";""\n';
+  const r=parseStrong(strong,"kg").days[0].ex[0].sets;
+  assert.equal(r[0].rpe,8);assert.equal(r[1].kind,"drop");assert.equal(r[2].kind,"fail");assert.equal(r[2].rpe,10);
+  const hevy='"title","start_time","end_time","description","exercise_title","superset_id","exercise_notes","set_index","set_type","weight_kg","reps","distance_km","duration_seconds","rpe"\n'+
+    '"Upper","5 Jan 2026, 17:00","5 Jan 2026, 18:05","","Bench Press (Barbell)","","","0","dropset","60","12","","","7"\n';
+  const h=parseHevy(hevy,"kg").days[0].ex[0].sets[0];
+  assert.equal(h.kind,"drop");assert.equal(h.rpe,7);
+});

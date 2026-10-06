@@ -1,6 +1,6 @@
 // The logging screen: the day's table of sets, the panel that logs them, the exercise
 // strip and picker sheet, and the two-clock timer bar.
-import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,canResume,exerciseGroup,isBarbellLift,platesPerSide,
+import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,SET_KINDS,canResume,exerciseGroup,isBarbellLift,platesPerSide,
   exerciseTotal,fmtClock,isBandExercise,lastSet,restSeconds,secondsSince,
   shortDate,totals,unitOf,workoutOffset,workoutSeconds} from "../model.js";
 import {activeEx,allRoutines,getSession,lastPerformance,newestFirst,repRange,restTargetFor,
@@ -48,12 +48,14 @@ function setsTable(session){
       const x=e.sets[i];
       if(x===undefined){h+="<td class='cell empty mono'>&middot;</td>";continue;}
       const editing=state.editing&&state.editing.ex===e.id&&state.editing.i===i;
-      h+="<td class='cell has mono"+(editing?" editing":"")+(x.wu?" wu":"")+
-         "' data-ex='"+e.id+"' data-i='"+i+"'>"+
+      const kind=x.wu?"wu":(x.kind||"");
+      h+="<td class='cell has mono"+(editing?" editing":"")+(x.wu?" wu":"")+(kind==="drop"?" drop":"")+(kind==="fail"?" fail":"")+
+         "' data-ex='"+e.id+"' data-i='"+i+"'"+(x.note?" title='"+esc(x.note)+"'":"")+">"+
          "<span class='cr'>"+x.r+(e.timed?"<span class='sd'>s</span>":(e.dist?"<span class='sd'>m</span>":""))+
          (x.side?"<span class='sd'>/s</span>":"")+
          (x.band?"<span class='wt band'>"+esc(x.band)+"</span>":(x.w?"<span class='wt'>"+x.w+"</span>":""))+
-         (x.wu?"<span class='wt wumk'>w</span>":"")+"</span>"+
+         (x.wu?"<span class='wt wumk'>w</span>":kind==="drop"?"<span class='wt wumk'>d</span>":kind==="fail"?"<span class='wt wumk'>f</span>":"")+
+         (x.rpe?"<span class='wt rpemk'>@"+x.rpe+"</span>":"")+(x.note?"<span class='notemk'>&#9679;</span>":"")+"</span>"+
          // When in the workout the set was logged — its own clock, not the time of day.
          ((x.at&&state.settings.showSetTimes)?"<span class='ct'>"+
            fmtClock(workoutOffset(session,x.at))+"</span>":"")+"</td>";
@@ -182,13 +184,17 @@ function logPanel(){
      "</div>";
   // Per-side doubling and warm-up are per set; the unit belongs to the exercise itself, and
   // its button steps reps → seconds → metres, naming whichever is in use.
+  // Per side and the unit belong to the exercise; kind, RPE and a note belong to this set.
   h+="<div class='togrow'>"+
      "<button class='q"+(state.perSide?" on":"")+"' id='sidebtn'>Per side</button>"+
-     "<button class='q"+(state.warmup?" on":"")+"' id='warmbtn' "+
-       "title='Warm-up sets stay out of totals and records'>Warm-up</button>"+
      (a?"<button class='q"+(u!=="reps"?" on":"")+"' id='timedbtn' "+
        "title='Count this exercise in reps, seconds or metres'>"+UNIT_LABEL[u]+"</button>":"")+
-     "</div>";
+     "<button class='q"+(state.setRpe?" on":"")+"' id='rpebtn' data-rpe='"+(state.setRpe||8)+"' title='Rate the effort'>"+(state.setRpe?"RPE "+state.setRpe:"RPE")+"</button>"+
+     "<button class='q"+(state.noteOpen||state.setNote?" on":"")+"' id='notebtn' title='A note on this set'>"+(state.setNote?"Note &#10003;":"Note")+"</button>"+
+     "</div>"+
+     "<div class='kindrow'>"+SET_KINDS.map(([k,l])=>k===""?"":"<button class='kind"+(state.setKind===k?" on":"")+"' data-setkind='"+k+"'>"+l+"</button>").join("")+
+     (state.setRpe?"<div class='rperow'>"+[6,7,8,9,10].map(v=>"<button class='kind rpe"+(state.setRpe===v?" on":"")+"' data-rpe='"+v+"'>"+v+"</button>").join("")+"</div>":"")+"</div>"+
+     (state.noteOpen?"<input class='setnote' id='setnote' placeholder='Note on this set (felt heavy, new grip…)' maxlength='200' value='"+esc(state.setNote)+"'>":"");
   if(state.editing){
     // Every set is fully editable — reps and weight above, its recorded times here — so a
     // workout done off-app can be typed in completely.

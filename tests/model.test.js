@@ -350,3 +350,18 @@ describe("convertWeight",()=>{
     assert.equal(convertWeight(0,"kg","lb"),0);
   });
 });
+
+test("sets carry a kind, an RPE and a note, and warm-ups still read as warm-ups", async () => {
+  const {normSet,setKind,addManualSets,makeSession,makeExercise}=await import("../js/model.js");
+  assert.deepEqual(normSet({r:5,w:100}),{r:5,side:false,w:100,t:0,rest:0,at:"",wu:false,band:""});
+  const d=normSet({r:8,w:80,kind:"drop",rpe:9.4,note:"  last one hurt  "});
+  assert.equal(d.kind,"drop");assert.equal(d.rpe,9.5);assert.equal(d.note,"last one hurt");assert.equal(d.wu,false);
+  const w=normSet({r:8,w:40,kind:"wu"});assert.equal(w.wu,true);assert.equal(w.kind,undefined);assert.equal(setKind(w),"wu");
+  const old=normSet({r:8,w:40,wu:true});assert.equal(setKind(old),"wu");
+  assert.equal(normSet({r:5,rpe:3}).rpe,5);assert.equal(normSet({r:5,rpe:12}).rpe,10);
+  const s=makeSession(),e=makeExercise("Squats");
+  addManualSets(s,e,5,false,100,2,{kind:"fail",rpe:10},"");
+  assert.equal(e.sets.length,2);assert.equal(e.sets[1].kind,"fail");assert.equal(e.sets[1].rpe,10);
+  addManualSets(s,e,10,false,60,1,true,"");
+  assert.equal(e.sets[2].wu,true);
+});

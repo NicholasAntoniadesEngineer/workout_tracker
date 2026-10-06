@@ -210,10 +210,20 @@ export function monthLabel(y,m){
 // t is time spent working the set, rest is the gap that preceded it, at is when it ended.
 // w is the weight carried — 0 is bodyweight, so no separate weighted flag is needed.
 // wu marks a warm-up: logged and shown, but kept out of totals, records and trends.
+// A set's kind: "" for a working set, "wu" warm-up (also kept as the wu flag everything else
+// reads), "drop" for a drop set straight after a working set, "fail" for a set taken to failure.
+// RPE is 0 when not rated, 5–10 (halves allowed) when it is. Notes are short and optional.
+export const SET_KINDS=[["","Working"],["wu","Warm-up"],["drop","Drop set"],["fail","To failure"]];
 export function normSet(v){
-  return {r:+v.r||0,side:!!v.side,w:+v.w||0,t:+v.t||0,rest:+v.rest||0,at:v.at||"",wu:!!v.wu,
+  const kind=v.kind||(v.wu?"wu":"");
+  const out={r:+v.r||0,side:!!v.side,w:+v.w||0,t:+v.t||0,rest:+v.rest||0,at:v.at||"",wu:kind==="wu",
     band:v.band||""};
+  if(kind&&kind!=="wu")out.kind=kind;
+  if(+v.rpe)out.rpe=Math.min(10,Math.max(5,Math.round(+v.rpe*2)/2));
+  if(v.note&&String(v.note).trim())out.note=String(v.note).trim().slice(0,200);
+  return out;
 }
+export const setKind=x=>x.wu?"wu":(x.kind||"");
 
 export function setReps(x){return (x.side&&options.perSideDouble)?x.r*SIDES_PER_SET:x.r;}
 
@@ -357,16 +367,17 @@ export function convertWeight(v,from,to){return convert(v,from,to,KG_PER_LB);}
 // Girths ride along with the weight unit: centimetres beside kg, inches beside lb.
 export function convertLength(v,from,to){return convert(v,from,to,CM_PER_IN);}
 
-export function addSet(session,ex,reps,perSide,startedAt,weight,warm,band){
+// extra: {kind, rpe, note} for the set, or the old boolean warm-up flag.
+const extraOf=x=>typeof x==="object"&&x?x:{kind:x?"wu":""};
+export function addSet(session,ex,reps,perSide,startedAt,weight,extra,band){
   if(!session.running)startWorkout(session);
   const anchor=setAnchor(session);
   const end=nowISO();
   const begun=startedAt||end;
   const work=(Date.parse(end)-Date.parse(begun))/MS_PER_SEC;
   const rest=anchor?(Date.parse(begun)-Date.parse(anchor))/MS_PER_SEC:0;
-  ex.sets.push({r:reps,side:perSide,w:Math.max(0,+weight||0),
-    t:Math.max(0,Math.round(work)),rest:Math.max(0,Math.round(rest)),at:end,wu:!!warm,
-    band:band||""});
+  ex.sets.push(normSet(Object.assign({r:reps,side:perSide,w:Math.max(0,+weight||0),
+    t:Math.max(0,Math.round(work)),rest:Math.max(0,Math.round(rest)),at:end,band:band||""},extraOf(extra))));
   session.timerFrom="";
 }
 
@@ -405,11 +416,11 @@ export function parseClock(str){
 
 // Transcribing a workout done off-app: add one or more identical sets without starting a
 // live timer, stamped to the session's own day and with unknown (0) work/rest until edited.
-export function addManualSets(session,ex,reps,perSide,weight,count,warm,band){
+export function addManualSets(session,ex,reps,perSide,weight,count,extra,band){
   const n=Math.max(1,Math.round(+count||1));
   for(let i=0;i<n;i++){
-    ex.sets.push({r:reps,side:perSide,w:Math.max(0,+weight||0),t:0,rest:0,at:session.created,
-      wu:!!warm,band:band||""});
+    ex.sets.push(normSet(Object.assign({r:reps,side:perSide,w:Math.max(0,+weight||0),t:0,rest:0,at:session.created,
+      band:band||""},extraOf(extra))));
   }
 }
 

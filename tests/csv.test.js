@@ -103,3 +103,13 @@ describe("parseImport",()=>{
     assert.throws(()=>parseImport("Date,Exercise,Reps\n"),/No workout rows/);
   });
 });
+
+test("the CSV round-trips set kinds, RPE and notes", async () => {
+  const {buildCSV,parseImport}=await import("../js/csv.js");
+  const {normSet}=await import("../js/model.js");
+  const s={id:"d",title:"Push",created:"2026-03-01T10:00:00.000Z",started:"",ended:"",running:false,ex:[{id:"e",name:"Bench press",sets:[
+    normSet({r:10,w:60,kind:"wu"}),normSet({r:5,w:100,rpe:8.5,note:"paused, \"clean\""}),normSet({r:8,w:80,kind:"drop"}),normSet({r:6,w:90,kind:"fail"})]}]};
+  const back=parseImport(buildCSV([s]))[0].ex[0].sets;
+  assert.equal(back[0].wu,true);assert.equal(back[1].rpe,8.5);assert.equal(back[1].note,'paused, "clean"');
+  assert.equal(back[2].kind,"drop");assert.equal(back[3].kind,"fail");
+});

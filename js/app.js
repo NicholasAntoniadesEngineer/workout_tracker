@@ -112,6 +112,7 @@ function render(){
   paint();
   if(state.view==="settings"&&!state.storageInfo)measureStorage();
   // A dialog's field gets the caret the moment it opens, with its text selected.
+  if(state.focusNote){const el=document.getElementById("setnote");if(el)el.focus();state.focusNote=false;}
   if(state.dialog&&!state.dialog.focused){const el=document.getElementById("dlgin")||document.getElementById("dlgcopy");
     if(el){el.focus();try{el.select();}catch(e){}}state.dialog.focused=true;}
   // Icon-only buttons carry a title; screen readers get it as their name too.
@@ -412,6 +413,7 @@ document.body.addEventListener("input",ev=>{
   if(id==="editwork")state.editWork=parseClock(ev.target.value);
   else if(id==="editrest")state.editRest=parseClock(ev.target.value);
   else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
+  else if(id==="setnote"){state.setNote=ev.target.value;}
   else if(id==="palin"&&state.palette){
     state.palette.q=ev.target.value;state.palette.sel=0;
     const list=document.getElementById("pallist");if(list)list.innerHTML=paletteList();

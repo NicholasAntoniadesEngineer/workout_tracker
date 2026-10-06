@@ -1,7 +1,7 @@
 // The logging screen: the day's name, the picker sheet, the panel (reps, weight, unit,
 // keypad, hint), editing a set, both clocks, logging, and adding or removing exercises.
 // Each handler returns true once it has dealt with the tap.
-import {BANDS,addManualSets,addSet,dateKey,endWorkout,fmtClock,isBandExercise,nowISO,
+import {BANDS,addManualSets,addSet,dateKey,endWorkout,fmtClock,isBandExercise,normSet,nowISO,
   resetRestTimer,resetWorkout,setWorkoutMinutes,setWorkoutSpanOn,startWorkout,unitOf,
   workoutSeconds} from "../model.js";
 import {activeEx,addExerciseToDay,getSession,removeFromCatalog,state} from "../store.js";
@@ -59,7 +59,12 @@ export function handle(t,ctx){
     ctx.render();return true;
   }
   if(t.id==="sidebtn"){state.perSide=!state.perSide;ctx.render();return true;}
-  if(t.id==="warmbtn"){state.warmup=!state.warmup;ctx.render();return true;}
+  // One kind per set: tapping the chip that is on returns to a working set.
+  const kindB=t.closest&&t.closest("[data-setkind]");
+  if(kindB){const k=kindB.getAttribute("data-setkind");state.setKind=state.setKind===k?"":k;state.warmup=state.setKind==="wu";ctx.render();return true;}
+  const rpeB=t.closest&&t.closest("[data-rpe]");
+  if(rpeB){const v=+rpeB.getAttribute("data-rpe");state.setRpe=state.setRpe===v?0:v;ctx.render();return true;}
+  if(t.id==="notebtn"){state.noteOpen=!state.noteOpen;state.focusNote=state.noteOpen;ctx.render();return true;}
   // The unit belongs to the exercise, not the set — a plank is timed every day. One button
   // steps through reps, seconds and metres.
   if(t.id==="timedbtn"){
@@ -118,6 +123,8 @@ export function handle(t,ctx){
     state.weight=+e.sets[i].w||0;
     state.band=e.sets[i].band||"";
     state.warmup=!!e.sets[i].wu;
+    state.setKind=e.sets[i].wu?"wu":(e.sets[i].kind||"");
+    state.setRpe=+e.sets[i].rpe||0;state.setNote=e.sets[i].note||"";state.noteOpen=!!e.sets[i].note;
     state.editWork=+e.sets[i].t||0;
     state.editRest=+e.sets[i].rest||0;
     state.editing={ex:cell.dataset.ex,i};
@@ -162,16 +169,17 @@ export function handle(t,ctx){
       const isB=isBandExercise(e.name),w=isB?0:state.weight,bd=isB?state.band:"";
       // A live set on today counts with the timer; a past day is manual transcription.
       const live=dateKey(s.created)===dateKey(nowISO());
-      if(live)addSet(s,e,state.reps,state.perSide,state.setStart,w,state.warmup,bd);
-      else addManualSets(s,e,state.reps,state.perSide,w,1,state.warmup,bd);
+      const extra={kind:state.setKind,rpe:state.setRpe,note:state.setNote};
+      if(live)addSet(s,e,state.reps,state.perSide,state.setStart,w,extra,bd);
+      else addManualSets(s,e,state.reps,state.perSide,w,1,extra,bd);
       // Beat everything before it? Say so, briefly, right as it happens.
       const i=e.sets.length-1;
       const label=newBestLabel(bestsBefore(state.sessions,s,e.name,i),e.sets[i],unitOf(e),
         state.settings.unit||"kg");
       if(label)ctx.showBest(e.name,label);
     }
-    // Warm-up is per set, not sticky: the set after a warm-up is working weight again.
-    state.setStart=null;state.warmup=false;
+    // Kind, RPE and note are per set, not sticky: the next set starts clean.
+    state.setStart=null;state.warmup=false;state.setKind="";state.setRpe=0;state.setNote="";state.noteOpen=false;
     ctx.render();return true;
   }
   if(t.id==="upd"){
@@ -179,18 +187,18 @@ export function handle(t,ctx){
     if(e){
       const old=e.sets[state.editing.i];
       const isB=isBandExercise(e.name);
-      e.sets[state.editing.i]={r:state.reps,side:state.perSide,w:isB?0:state.weight,
-        t:state.editWork||0,rest:state.editRest||0,at:old.at||"",wu:state.warmup,
-        band:isB?state.band:""};
+      e.sets[state.editing.i]=normSet({r:state.reps,side:state.perSide,w:isB?0:state.weight,
+        t:state.editWork||0,rest:state.editRest||0,at:old.at||"",kind:state.setKind,rpe:state.setRpe,note:state.setNote,
+        band:isB?state.band:""});
     }
-    state.editing=null;state.warmup=false;ctx.render();return true;
+    state.editing=null;state.warmup=false;state.setKind="";state.setRpe=0;state.setNote="";state.noteOpen=false;ctx.render();return true;
   }
   if(t.id==="del"){
     const e=getSession().ex.find(x=>x.id===state.editing.ex);
     if(e){ctx.snapshot("Set deleted");e.sets.splice(state.editing.i,1);}
     state.editing=null;ctx.render();return true;
   }
-  if(t.id==="cxl"){state.editing=null;state.warmup=false;ctx.render();return true;}
+  if(t.id==="cxl"){state.editing=null;state.warmup=false;state.setKind="";state.setRpe=0;state.setNote="";state.noteOpen=false;ctx.render();return true;}
   // Picking a listed name closes the new-exercise box, rather than leaving it open to
   // grab focus — and the keyboard with it — on every later repaint.
   // Adding only happens from the sheet, and picking one name should not close it —

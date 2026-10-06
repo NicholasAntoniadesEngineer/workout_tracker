@@ -43,7 +43,7 @@ export function repRange(){
 
 export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],body:[],routines:[],hiddenRoutines:[],
   settings:Object.assign({},DEFAULTS),
-  reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,band:"",warmup:false,setStart:null,editing:null,
+  reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,band:"",warmup:false,setKind:"",setRpe:0,setNote:"",setStart:null,editing:null,
   adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
   supplements:[],stacks:[],favs:[],learnSaved:[],learnRecent:[],learnIndex:null,programme:null,progSetup:null,cardio:null,cardioSetup:null,cardioDone:null,hrName:"",pickOpen:{},exInfo:null,exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
   backupAt:"",backupSnooze:"",focusSearch:false,origin:"home",view:"home",undo:null,progressEx:"",verseIdx:null,
