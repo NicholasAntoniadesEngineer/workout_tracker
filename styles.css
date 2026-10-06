@@ -1885,3 +1885,33 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .journal{width:100%;min-height:42px;margin-top:4px;}
 .healthwrap .cseg{margin-bottom:12px;}
 @media (min-width:900px){.shell .wrap.scroll.healthwrap{max-width:760px;}}
+/* Train on the phone: the day's totals as one line under the title, set options in one row. */
+.daysum{font-size:var(--f-sm);color:var(--muted);font-weight:600;margin-top:2px;}
+.daysum b{color:var(--text);font-weight:800;}
+.togrow{gap:6px;flex-wrap:nowrap;}
+.togrow .q{padding:calc(7px * var(--k)) calc(11px * var(--k));}
+.kindrow{margin-top:-2px;}
+.addstrip{margin:calc(var(--sp) * 1.2) 0;}
+.addstrip .rmbtn{border-color:transparent;}
+/* Records, grouped by movement. */
+.recs .recgroup{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:12px 0 4px;}
+.recs .recgroup:first-child{padding-top:2px;}
+.recs .recgroup+.histrow{border-top:0;}
+/* Today's check-in once done: one slim line. */
+.rslim{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 12px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);font:inherit;font-size:14px;text-align:left;cursor:pointer;}
+.rslimt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);}
+.rslimt b{color:var(--text);}
+.rslime{font-size:13px;font-weight:800;color:var(--muted);}
+.rtick{width:22px;height:22px;border-radius:11px;background:var(--panelHi);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none;}
+.rdot{width:12px;height:12px;border-radius:6px;flex:none;background:var(--panelHi);}
+.rslim.recover .rdot{background:var(--text);}
+.rslim.ready .rdot,.rslim.push .rdot{background:var(--gold);}
+.rslim.push .rdot{box-shadow:0 0 0 2px var(--text);}
+/* The phone's Train screen: the table is as tall as the day, the controls sit at the bottom
+   by the thumb, and whatever room is left sits between them rather than inside the table. */
+@media (max-width:899px){
+  .wrap>.tblwrap{flex:0 1 auto;}
+  .wrap>.panel{margin-top:auto;}
+  .wrap>.addstrip{margin-bottom:calc(var(--sp) * 1.6);}
+  .head .daysum{margin:4px 0 calc(var(--sp) * .6);}
+}

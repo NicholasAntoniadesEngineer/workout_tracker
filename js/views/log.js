@@ -18,6 +18,8 @@ const UNIT_LABEL={reps:"Reps",secs:"Secs",m:"Metres"};
 // Past days offered for saving as a routine — the recent ones; History reaches the rest.
 const PAST_DAYS_SHOWN=8;
 
+const kindLabel=k=>(SET_KINDS.find(x=>x[0]===k)||[k,k])[1];
+
 function setColumns(session){
   return session.ex.reduce((most,e)=>Math.max(most,e.sets.length),MIN_SET_COLUMNS);
 }
@@ -27,6 +29,12 @@ function statsBar(session,t){
     "<div class='stat big'><div class='v mono'>"+t.reps+"</div><div class='l'>Total reps</div></div>"+
     "<div class='stat'><div class='v mono'>"+t.sets+"</div><div class='l'>Sets</div></div>"+
     "<div class='stat'><div class='v mono'>"+session.ex.length+"</div><div class='l'>Exercises</div></div></div>";
+}
+// The phone's version: the same three numbers as one quiet line under the title.
+function statsLine(session,t){
+  if(!session.ex.length)return "";
+  const n=(v,one,many)=>v+" "+(v===1?one:many);
+  return "<div class='daysum'><b class='mono'>"+t.reps+"</b> reps &middot; <b class='mono'>"+t.sets+"</b> "+(t.sets===1?"set":"sets")+" &middot; "+n(session.ex.length,"exercise","exercises")+"</div>";
 }
 
 function setsTable(session){
@@ -198,9 +206,11 @@ function logPanel(){
        "title='Count this exercise in reps, seconds or metres'>"+UNIT_LABEL[u]+"</button>":"")+
      "<button class='q"+(state.setRpe?" on":"")+"' id='rpebtn' data-rpe='"+(state.setRpe||8)+"' title='Rate the effort'>"+(state.setRpe?"RPE "+state.setRpe:"RPE")+"</button>"+
      "<button class='q"+(state.noteOpen||state.setNote?" on":"")+"' id='notebtn' title='A note on this set'>"+(state.setNote?"Note &#10003;":"Note")+"</button>"+
+     "<button class='q"+(state.kindOpen||state.setKind?" on":"")+"' id='kindbtn' title='Warm-up, drop set or to failure'>"+(state.setKind?esc(kindLabel(state.setKind)):"Type")+"</button>"+
      "</div>"+
-     "<div class='kindrow'>"+SET_KINDS.map(([k,l])=>k===""?"":"<button class='kind"+(state.setKind===k?" on":"")+"' data-setkind='"+k+"'>"+l+"</button>").join("")+
-     (state.setRpe?"<div class='rperow'>"+[6,7,8,9,10].map(v=>"<button class='kind rpe"+(state.setRpe===v?" on":"")+"' data-rpe='"+v+"'>"+v+"</button>").join("")+"</div>":"")+"</div>"+
+     (state.kindOpen||state.setRpe?"<div class='kindrow'>"+
+       (state.kindOpen?SET_KINDS.map(([k,l])=>"<button class='kind"+((state.setKind||"")===k?" on":"")+"' data-setkind='"+k+"'>"+l+"</button>").join(""):"")+
+       (state.setRpe?"<div class='rperow'>"+[6,7,8,9,10].map(v=>"<button class='kind rpe"+(state.setRpe===v?" on":"")+"' data-rpe='"+v+"'>"+v+"</button>").join("")+"</div>":"")+"</div>":"")+
      (state.noteOpen?"<input class='setnote' id='setnote' placeholder='Note on this set (felt heavy, new grip…)' maxlength='200' value='"+esc(state.setNote)+"'>":"");
   if(state.editing){
     // Every set is fully editable — reps and weight above, its recorded times here — so a
@@ -630,13 +640,14 @@ export function logView(){
     "<div class='head'><div>"+
     "<div class='eyebrow'>Session</div>"+
     "<div class='h1' id='daytitle'><span class='httl'>"+esc(s.title)+"</span> <span class='pen'>&#9998;</span></div>"+
+    statsLine(s,totals(s))+
     "</div><div class='headbtns'>"+
     (s.ex.length?
       "<button class='daysbtn iconbtn' id='sharebtn' title='"+
       (s.ex.some(e=>e.sets.length)?"Share this day":"Share this workout plan")+
       "'>"+icon("share")+"</button>":"")+
     "</div></div>"+
-    statsBar(s,totals(s))+setsTable(s)+
+    setsTable(s)+
     exerciseStrip()+logPanel()+
     "</div>"+timerBar(s)+
     (state.sheet?exerciseSheet(s):"")+

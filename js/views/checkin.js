@@ -41,10 +41,9 @@ export function readinessCard(){
   if(!state.settings.checkin)return "";
   const r=readinessNow(),c=todayCheckin();
   if(!c)return "<button class='card rcard ask' id='cistart'><span class='rband'>"+icon("target","sm")+"</span><span class='rbody'><b>Morning check-in</b><span>30 seconds: sleep, soreness, energy, stress</span></span><span class='lchev'>&rsaquo;</span></button>";
-  if(!r.band)return "<div class='card rcard'><span class='rband'>"+icon("target","sm")+"</span><span class='rbody'><b>Checked in</b><span>"+esc(r.why)+" &middot; "+state.checkins.length+" of 7</span></span>"+
-    "<button class='hmore' id='cistart'>Edit</button></div>";
-  return "<div class='card rcard "+r.band+"'><span class='rband'><b>"+BAND_LABEL[r.band]+"</b></span><span class='rbody'><b>"+esc(r.why)+"</b>"+
-    "<span>"+esc(suggestion(r.band,r.planned))+"</span></span><button class='hmore' id='cistart'>Edit</button></div>";
+  // Once today's is in, it shrinks to one line; a tap opens it again to change.
+  if(!r.band)return "<button class='rslim' id='cistart'><span class='rtick'>&#10003;</span><span class='rslimt'><b>Checked in</b> &middot; "+state.checkins.length+" of 7 for readiness</span><span class='rslime'>Edit</span></button>";
+  return "<button class='rslim "+r.band+"' id='cistart' title='"+esc(r.why+". "+suggestion(r.band,r.planned))+"'><span class='rdot'></span><span class='rslimt'><b>"+BAND_LABEL[r.band]+"</b> &middot; "+esc(suggestion(r.band,r.planned))+"</span><span class='rslime'>Edit</span></button>";
 }
 
 // Progress: sleep and load, in two small cards with plain labels.

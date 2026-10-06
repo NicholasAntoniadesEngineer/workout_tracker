@@ -110,7 +110,7 @@ export function healthView(){
   const cur=parts.some(p=>p[0]===part)?part:(parts[0]||["fuel"])[0];
   let h="<div class='wrap scroll healthwrap'>"+pageHead({fuel:"Fuel",markers:"Markers",mind:"Mind"}[cur],"",wide()?"Progress":"");
   if(parts.length>1)h+="<div class='cseg'>"+parts.map(([k,l])=>"<button class='"+(k===cur?"on":"")+"' data-health='"+k+"'>"+l+"</button>").join("")+"</div>";
-  if(!parts.length)return h+"<div class='empty-note'>Switch Fuel, Markers or Mind on in You to use them here.</div></div>";
+  if(!parts.length)return h+"<div class='empty-note'>Switch Fuel, Markers or Mind on in Settings to use them here.</div></div>";
   h+=cur==="fuel"?fuelSection():cur==="markers"?markersSection():mindSection();
   return h+"</div>";
 }

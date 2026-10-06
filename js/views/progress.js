@@ -1,6 +1,6 @@
 // Progress: honest numbers over gamification — how often, how much, and which way each
 // lift is moving. Everything derives from the logged sets; nothing extra is stored.
-import {shortDate,totals} from "../model.js";
+import {shortDate,totals,EXERCISE_GROUPS,exerciseGroup} from "../model.js";
 import {state} from "../store.js";
 import {ACTIVITIES} from "./cardio.js";
 import {BEST_KM,cardioBests,fmtPace} from "../cardio.js";
@@ -130,12 +130,18 @@ export function progressView(){
   const recs=exerciseRecords(state.sessions);
   let recsH="";
   if(recs.length){
-    recsH+="<div class='setgroup'>Records</div><div class='card'>";
-    recs.forEach(r=>{
-      recsH+="<div class='histrow'><span class='histdate'>"+esc(r.name)+"</span>"+
-        "<span class='histsets mono'>"+
-        (r.bestW?r.bestW+unit+" &times;"+r.bestWReps+" &middot; e1RM "+r.best1RM+unit
-          :r.bestR+(r.timed?"s best":(r.dist?" m best":" reps")))+"</span></div>";
+    // Grouped the way the exercise list is (squat, hinge, push, pull…), A–Z inside each group.
+    recsH+="<div class='setgroup'>Records</div><div class='card recs'>";
+    const order=EXERCISE_GROUPS.map(g=>g[0]),by={};
+    recs.forEach(r=>{const g=exerciseGroup(r.name);(by[g]=by[g]||[]).push(r);});
+    Object.keys(by).sort((a,b)=>{const i=order.indexOf(a),j=order.indexOf(b);return (i<0?99:i)-(j<0?99:j)||a.localeCompare(b);}).forEach(g=>{
+      recsH+="<div class='recgroup'>"+esc(g)+"</div>";
+      by[g].sort((a,b)=>a.name.localeCompare(b.name,undefined,{sensitivity:"base"})).forEach(r=>{
+        recsH+="<div class='histrow'><span class='histdate'>"+esc(r.name)+"</span>"+
+          "<span class='histsets mono'>"+
+          (r.bestW?r.bestW+unit+" &times;"+r.bestWReps+(r.best1RM>r.bestW?" &middot; e1RM "+r.best1RM+unit:"")
+            :r.bestR+(r.timed?"s best":(r.dist?" m best":" reps")))+"</span></div>";
+      });
     });
     recsH+="</div>";
   }

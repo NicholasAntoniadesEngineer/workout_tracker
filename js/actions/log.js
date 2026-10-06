@@ -62,7 +62,8 @@ export function handle(t,ctx){
   if(t.id==="sidebtn"){state.perSide=!state.perSide;ctx.render();return true;}
   // One kind per set: tapping the chip that is on returns to a working set.
   const kindB=t.closest&&t.closest("[data-setkind]");
-  if(kindB){const k=kindB.getAttribute("data-setkind");state.setKind=state.setKind===k?"":k;state.warmup=state.setKind==="wu";ctx.render();return true;}
+  if(kindB){const k=kindB.getAttribute("data-setkind");state.setKind=state.setKind===k?"":k;state.warmup=state.setKind==="wu";state.kindOpen=false;ctx.render();return true;}
+  if(t.id==="kindbtn"){state.kindOpen=!state.kindOpen;ctx.render();return true;}
   const rpeB=t.closest&&t.closest("[data-rpe]");
   if(rpeB){const v=+rpeB.getAttribute("data-rpe");state.setRpe=state.setRpe===v?0:v;ctx.render();return true;}
   if(t.id==="notebtn"){state.noteOpen=!state.noteOpen;state.focusNote=state.noteOpen;ctx.render();return true;}

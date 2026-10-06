@@ -62,7 +62,7 @@ function reminderRow(){
 
 export function settingsView(){
   return "<div class='wrap scroll setwrap'>"+
-    (wide()?pageHead("Settings"):"<div class='hhead'><div></div><div class='h1 plain htitle'>You</div><div class='hact'></div></div>")+"<div class='setcols'>"+
+    (wide()?pageHead("Settings"):"<div class='hhead'><div></div><div class='h1 plain htitle'>Settings</div><div class='hact'></div></div>")+"<div class='setcols'>"+
 
     "<div class='setgroup'>Display</div>"+
     choiceRow("Text size","","textScale",TEXT_SIZES,"onerow")+

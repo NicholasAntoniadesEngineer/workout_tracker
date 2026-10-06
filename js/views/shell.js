@@ -54,7 +54,7 @@ function sideNav(){
 
 // The phone's tab bar: five places, always in reach. Hidden while a run or a book takes the
 // full height, and while a sheet is open over the Log.
-export const TABS=[["home","Today","home"],["log","Train","dumbbell"],["progress","Progress","progress"],["learn","Learn","book"],["settings","You","settings"]];
+export const TABS=[["home","Today","home"],["log","Train","dumbbell"],["progress","Progress","progress"],["learn","Learn","book"],["settings","Settings","settings"]];
 const TAB_OF={home:"home",log:"log",cardio:"log",prog:"log",history:"progress",calendar:"progress",progress:"progress",body:"progress",
   stack:"progress",health:"progress",learn:"learn",settings:"settings",import:"settings"};
 export function tabBar(){
