@@ -2,6 +2,8 @@
 import {state} from "../store.js";
 import {icon} from "../icons.js";
 import {esc,pageHead,wide} from "./common.js";
+import {standalone} from "../sensors.js";
+const isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 import {shortDate} from "../model.js";
 import {DAY_LETTERS} from "../reminder.js";
 
@@ -93,6 +95,10 @@ export function settingsView(){
     "</div>"+
     "<input type='file' id='csvfile' accept='.csv,.json,text/csv,application/json' style='display:none'>"+
     "</div>"+
+    "<div class='setrow'><div class='setlbl'>Home Screen</div>"+
+    "<div class='sethint'>"+(standalone()?"Installed. KingsKiln opens full screen and keeps your data safe.":
+      (isIOS()?"In Safari: Share &rsaquo; Add to Home Screen &rsaquo; Add. Installed, it opens full screen, keeps the screen on during runs and keeps your data safe.":
+       "In the browser menu: Add to Home screen or Install app. Installed, it opens full screen and keeps your data safe."))+"</div></div>"+
     "<div class='setrow'><div class='setlbl'>Storage</div>"+
     "<div class='sethint' id='storageline'>"+(state.storageInfo?esc(state.storageInfo):"Measuring&hellip;")+"</div></div>"+
     "<div class='setrow'><div class='setlbl'>Import from other apps</div>"+

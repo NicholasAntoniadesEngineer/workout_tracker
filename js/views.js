@@ -18,6 +18,7 @@ import {keysSheet,shell,tabBar,wide} from "./views/shell.js";
 import {importView} from "./views/importer.js";
 import {paletteView} from "./palette.js";
 import {dialogView} from "./dialog.js";
+import {welcomeNeeded,welcomeView} from "./views/welcome.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
 import {VERSES} from "./verses.js";
@@ -176,6 +177,8 @@ function feedbackModal(){
 }
 
 export function paint(){
+  // A fresh install sees the welcome screens first, on their own, with no tab bar or sidebar.
+  if(welcomeNeeded()&&!state.importJob&&state.view!=="import"){document.getElementById("app").innerHTML=welcomeView()+dialogView();return;}
   const view=(VIEWS[state.view]||logView)();
   document.getElementById("app").innerHTML=
     (wide()?shell(view):view+tabBar())+keysSheet()+paletteView()+dialogView()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();

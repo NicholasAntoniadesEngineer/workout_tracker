@@ -146,6 +146,7 @@ export function load(){
   state.pickOpen=(saved&&saved.pickOpen)||{};
   state.programme=(saved&&saved.programme)||null;
   state.backupAt=(saved&&saved.backupAt)||"";
+  state.welcomed=!!(saved&&saved.welcomed);
   state.backupSnooze=(saved&&saved.backupSnooze)||"";
   state.catalog=buildCatalog(saved);
   state.settings=Object.assign({},DEFAULTS,(saved&&saved.settings)||{});
@@ -162,7 +163,7 @@ export function save(){
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,
         hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,favs:state.favs,pickOpen:state.pickOpen,programme:state.programme,
-        learnSaved:state.learnSaved,learnRecent:state.learnRecent,backupAt:state.backupAt,backupSnooze:state.backupSnooze,
+        learnSaved:state.learnSaved,learnRecent:state.learnRecent,backupAt:state.backupAt,backupSnooze:state.backupSnooze,welcomed:state.welcomed,
         supplements:state.supplements,stacks:state.stacks}));
     state.storageFull=false;
   }catch(e){

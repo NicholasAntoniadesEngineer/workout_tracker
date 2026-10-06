@@ -1753,3 +1753,26 @@ body.dropping::after{content:"Drop to import: Strava, Garmin, Apple Health, Stro
 .dlgin{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--panelHi);color:var(--text);font:inherit;font-size:16px;padding:0 12px;margin-top:4px;}
 .dlgacts{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;}
 .dlgacts .btn{min-height:42px;padding-left:18px;padding-right:18px;}
+/* The first-run screens: one idea each, a dot row and one button. */
+.wrap.scroll.welcome{justify-content:space-between;padding-top:max(40px,env(safe-area-inset-top));}
+.winner{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;gap:12px;max-width:420px;margin:0 auto;width:100%;}
+.wbrand{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;}
+.wbrand .bk{color:var(--kilnText);background:var(--kilnBg);padding:0 .2em;border-radius:.22em;margin-left:.08em;}
+.brandshield.big{width:34px;height:34px;}
+.wicon{width:52px;height:52px;border-radius:26px;border:1.5px solid var(--gold);display:inline-flex;align-items:center;justify-content:center;}
+.wicon .icn{margin:0;}
+.wtitle{font-size:clamp(26px,7.5vw,32px);font-weight:800;letter-spacing:-.7px;line-height:1.1;margin:0;}
+.wtext{font-size:16px;line-height:1.45;color:var(--muted);margin:0;}
+.wlist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:15px;font-weight:700;}
+.wlist li{display:flex;align-items:center;gap:10px;}
+.wlist .icn{margin:0;color:var(--text);}
+.wsteps{margin:4px 0 0;padding-left:20px;font-size:15px;line-height:1.5;display:flex;flex-direction:column;gap:6px;}
+.wsteps .icn{margin:0 2px;vertical-align:-3px;}
+.wsmall{font-size:13px;color:var(--muted);margin:0;}
+.wapps{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px;}
+.wapps span{font-size:12.5px;font-weight:800;padding:6px 11px;border-radius:16px;background:var(--panelHi);}
+.wfoot{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;max-width:420px;margin:0 auto;width:100%;padding-bottom:8px;}
+.wfoot .pbig{margin:0;}
+.wdots{display:flex;gap:6px;margin-bottom:8px;}
+.wdots span{width:8px;height:8px;border-radius:4px;background:var(--line);}
+.wdots span.on{background:var(--gold);width:20px;}

@@ -27,6 +27,15 @@ function goSection(k,ctx){
 
 export function handle(t,ctx){
   if(t.id==="updatebtn"){location.reload();return true;}
+  // The welcome screens: Next, Skip, Start logging, or straight to Import.
+  const w=t.closest&&t.closest("[data-welcome]");
+  if(w){
+    const k=w.getAttribute("data-welcome");
+    if(k==="next"){state.welcomeStep=(state.welcomeStep||0)+1;}
+    else if(k==="import"){state.welcomed=true;state.importFrom="home";state.importJob=null;state.view="import";}
+    else{state.welcomed=true;state.welcomeStep=0;goSection("log",ctx);}
+    state.scrollTo=0;ctx.render();return true;
+  }
   const nav=t.closest&&t.closest("[data-nav]");
   if(nav){goSection(nav.getAttribute("data-nav"),ctx);ctx.render();return true;}
   if(t.closest&&t.closest("#keyshelp")){state.keysOpen=true;ctx.render();return true;}
