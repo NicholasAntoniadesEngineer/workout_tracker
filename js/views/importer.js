@@ -10,7 +10,7 @@ const SOURCES=[
     "On strava.com: Settings › My Account › Download or Delete Your Account › Get Started › Request Your Archive. Strava emails a link; choose the zip it sends."],
   ["Garmin Connect","Every activity your watch recorded.",
     "At garmin.com, sign in: Account › Data Management › Export Your Data › Request Data Export. Garmin emails a link; choose the zip it sends."],
-  ["Apple Health","Workouts, routes, heart rate, weigh-ins.",
+  ["Apple Health","Workouts, routes, heart rate, sleep, HRV, weigh-ins.",
     "On iPhone: Health app › your picture (top right) › Export All Health Data › Export, then Save to Files. Choose export.zip here."],
   ["Strong, Hevy, Fitbod","Every exercise, set and weight.",
     "In the app's settings, export your workouts as a CSV file, then choose it here."],
@@ -50,8 +50,13 @@ function review(j){
     "<span>Every exercise and set"+(dupDays?" &middot; "+dupDays+" already here":"")+"</span></span><span class='cdot'></span></button>";
   if(j.weights.length)h+="<button class='impopt"+(j.pickWeights?" on":"")+"' data-importweights='1'><span><b>"+plural(j.weights.length,"weigh-in")+"</b>"+
     "<span>To Body</span></span><span class='cdot'></span></button>";
+  if(j.nights&&j.nights.length)h+="<button class='impopt"+(j.pickNights?" on":"")+"' data-importnights='1'><span><b>"+plural(j.nights.length,"night","nights")+" of sleep</b>"+
+    "<span>Bedtime, wake time and hours, into your check-ins</span></span><span class='cdot'></span></button>";
+  if(j.vitals&&j.vitals.length)h+="<button class='impopt"+(j.pickVitals?" on":"")+"' data-importvitals='1'><span><b>"+plural(j.vitals.length,"day","days")+" of HRV and resting pulse</b>"+
+    "<span>Feeds your readiness against a 30-day baseline</span></span><span class='cdot'></span></button>";
   const n=picked+(j.pickDays?days.length:0);
-  h+="<button class='btn primary pbig' data-importgo='1'"+(n||(j.pickWeights&&j.weights.length)?"":" disabled")+">Import "+
+  const extra=(j.pickNights&&j.nights&&j.nights.length)||(j.pickVitals&&j.vitals&&j.vitals.length);
+  h+="<button class='btn primary pbig' data-importgo='1'"+(n||(j.pickWeights&&j.weights.length)||extra?"":" disabled")+">Import "+
     (n?plural(n,"workout"):"")+(n&&j.pickWeights&&j.weights.length?" and ":"")+(j.pickWeights&&j.weights.length?plural(j.weights.length,"weigh-in"):"")+"</button></div>";
   return h;
 }
@@ -61,6 +66,8 @@ function done(j){
   if(s.acts)parts.push(plural(s.acts,"workout"));
   if(s.days)parts.push(plural(s.days,"strength day"));
   if(s.weights)parts.push(plural(s.weights,"weigh-in"));
+  if(s.nights)parts.push(plural(s.nights,"night of sleep","nights of sleep"));
+  if(s.vitals)parts.push(plural(s.vitals,"day of vitals","days of vitals"));
   return "<div class='card impcard'><div class='llabel'>Done</div><div class='impdone'>"+(parts.length?esc(parts.join(", "))+" brought in from "+esc(j.source):"Nothing new to bring in")+".</div>"+
     "<div class='pacts'><button class='btn primary' data-importview='history'>See History</button>"+
     (s.acts?"<button class='btn ghost' data-importview='progress'>Progress</button>":"")+

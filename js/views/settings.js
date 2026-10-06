@@ -54,7 +54,10 @@ function reminderRow(){
     "<div class='setopts'><select class='trendsel' id='remtime'>"+REMIND_TIMES.map(t=>
       "<option"+(t===time?" selected":"")+">"+t+"</option>").join("")+"</select></div>"+
     "<div class='setopts'><button class='q' id='addreminder'"+(days.length?"":" disabled")+">"+
-      icon("calendar","sm")+"Add to calendar</button></div></div>";
+      icon("calendar","sm")+"Add to calendar</button></div></div>"+
+    (state.settings.checkin?"<div class='setrow'><div class='setlbl'>Check-in reminder</div>"+
+    "<div class='sethint'>A daily calendar event at the same time, so the morning check-in isn't forgotten. The app can't send notifications on its own yet.</div>"+
+    "<div class='setopts'><button class='q' id='addcheckinrem'>"+icon("calendar","sm")+"Add to calendar</button></div></div>":"");
 }
 
 export function settingsView(){

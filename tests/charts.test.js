@@ -198,3 +198,9 @@ describe("exerciseTrend measures",()=>{
     assert.equal(exerciseTrend(many,"Bench",{measure:"top",span:"all"}).points.length,20);
   });
 });
+
+test("the check-in reminder is a daily event with an alarm",async()=>{
+  const {checkinICS}=await import("../js/reminder.js");
+  const ics=checkinICS("07:00",new Date(2026,9,6,9,0));
+  assert.match(ics,/RRULE:FREQ=DAILY/);assert.match(ics,/DTSTART:20261007T070000/);assert.match(ics,/VALARM/);
+});

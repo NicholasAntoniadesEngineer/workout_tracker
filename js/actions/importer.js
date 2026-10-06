@@ -3,12 +3,12 @@
 // file — works out what it is, reads it on the device, and shows what it found before
 // anything is saved. Every source becomes the same activity shape, so a later server sync
 // (Strava, Garmin) can feed the same review and save.
-import {state,addToCatalog,mergeSessions,upsertBodyEntry} from "../store.js";
+import {state,addToCatalog,mergeSessions,upsertBodyEntry,upsertCheckin,upsertVital} from "../store.js";
 import {dateKey} from "../model.js";
 import {hrStats,parseWorkoutFile,thin,trackStats} from "../cardio.js";
 import {isFit,parseFit} from "../fit.js";
 import {gunzip,isGzip,isZip,walkZip} from "../archive.js";
-import {actOf,appleName,detectCsv,exerciseMatcher,parseFitbod,parseHevy,parseStravaCsv,parseStrong,scanAppleXml} from "../importers.js";
+import {actOf,appleName,detectCsv,exerciseMatcher,nightsFrom,parseFitbod,parseHevy,parseStravaCsv,parseStrong,scanAppleXml} from "../importers.js";
 import {cardioSession} from "./cardio.js";
 import {ACTIVITIES} from "../views/cardio.js";
 
@@ -80,14 +80,22 @@ async function readStrava(file,job){
 
 async function readApple(file,job,xmlOnly){
   job.source="Apple Health";
-  const workouts=[],routes={};
+  const workouts=[],routes={},spans=[],hrv=[],rhr=[];
   const scan=async(stream,size)=>scanAppleXml(stream,w=>{if(w.when)workouts.push(w);},x=>{if(x.at&&x.w)job.weights.push(x);},
-    n=>{job.pct=size?Math.min(99,Math.round(n/size*100)):0;job.found=workouts.length;tick();});
+    n=>{job.pct=size?Math.min(99,Math.round(n/size*100)):0;job.found=workouts.length;tick();},
+    (k,v)=>{if(k==="sleep")spans.push(v);else if(k==="hrv")hrv.push(v);else rhr.push(v);});
   if(xmlOnly)await scan(file.stream(),file.size);
   else await walkZip(file,async en=>{
     if(/(^|\/)export\.xml$/.test(en.name))await scan(await en.stream(),en.size);
     else if(/workout-routes\/.+\.gpx$/i.test(en.name))routes[en.name.replace(/^.*workout-routes\//,"")]=en;
   });
+  // Nights and vitals, one per day: the median HRV and the lowest resting pulse of the day.
+  job.nights=nightsFrom(spans);
+  const byDay={};
+  hrv.forEach(x=>{const d=dateKey(x.at);(byDay[d]=byDay[d]||{at:x.at,hrvs:[],rhrs:[]}).hrvs.push(x.ms);});
+  rhr.forEach(x=>{const d=dateKey(x.at);(byDay[d]=byDay[d]||{at:x.at,hrvs:[],rhrs:[]}).rhrs.push(x.bpm);});
+  job.vitals=Object.values(byDay).map(v=>{const h=v.hrvs.sort((a,b)=>a-b);return {at:v.at,hrv:h.length?Math.round(h[Math.floor(h.length/2)]):0,rhr:v.rhrs.length?Math.round(Math.min(...v.rhrs)):0};})
+    .filter(v=>v.hrv||v.rhr).sort((a,b)=>a.at.localeCompare(b.at));
   job.total=workouts.length;let k=0;
   for(const w of workouts){
     const meta={when:w.when,type:appleName(w.type),name:appleName(w.type),secs:w.secs,dist:w.dist,climb:w.climb,hr:w.hr};
@@ -127,14 +135,14 @@ function finishReview(job){
   const have2=new Set(state.sessions.map(s=>s.created));
   if(job.days)job.days.forEach(d=>{d.dup=have2.has(d.created);});
   const byDay={};job.weights.forEach(x=>{byDay[dateKey(x.at)]=x;});job.weights=Object.values(byDay);
-  job.pickDays=true;job.pickWeights=true;
+  job.pickDays=true;job.pickWeights=true;job.pickNights=true;job.pickVitals=true;
   job.stage="review";
 }
 
 export async function importFile(file,render){
   if(!file)return;
   paint=render;
-  const job={stage:"reading",name:file.name||"",source:"",acts:[],days:null,weights:[],done:0,total:0,pct:0,found:0};
+  const job={stage:"reading",name:file.name||"",source:"",acts:[],days:null,weights:[],nights:[],vitals:[],done:0,total:0,pct:0,found:0};
   state.importJob=job;state.view="import";state.scrollTo=0;tick(true);
   try{
     const head=new Uint8Array(await file.slice(0,4096).arrayBuffer());
@@ -155,7 +163,7 @@ export async function importFile(file,render){
           "Strong, Hevy and Fitbod CSVs, and FIT, GPX and TCX files.");
       }
     }
-    if(!job.acts.length&&!(job.days&&job.days.length)&&!job.weights.length)throw new Error("No workouts were found in that file.");
+    if(!job.acts.length&&!(job.days&&job.days.length)&&!job.weights.length&&!job.nights.length&&!job.vitals.length)throw new Error("No workouts were found in that file.");
     finishReview(job);
   }catch(e){job.stage="error";job.error=e&&e.message||"That file couldn't be read.";}
   tick(true);
@@ -185,7 +193,12 @@ function save(job){
       const prev=state.body.find(b=>dateKey(b.at)===dateKey(x.at));
       upsertBodyEntry(Object.assign({},prev||{},{at:x.at,w:Math.round(w*10)/10}));nw++;});
   }
-  job.saved={acts:acts.length,days:nd,weights:nw};
+  // Nights fill the sleep side of the check-in without touching ratings already given.
+  let nn=0,nv=0;
+  if(job.pickNights)job.nights.forEach(n=>{const prev=state.checkins.find(c=>dateKey(c.at)===dateKey(n.at));
+    upsertCheckin(Object.assign({sleep:0,soreness:0,fatigue:0,stress:0},prev||{},{at:prev?prev.at:n.at,bed:n.bed,wake:n.wake,hours:n.hours,imported:true}));nn++;});
+  if(job.pickVitals)job.vitals.forEach(v=>{upsertVital(v);nv++;});
+  job.saved={acts:acts.length,days:nd,weights:nw,nights:nn,vitals:nv};
   job.stage="done";
 }
 
@@ -201,6 +214,8 @@ export function handle(t,ctx){
   if(g){const k=g.getAttribute("data-importgroup");job.pick[k]=!job.pick[k];ctx.render();return true;}
   if(t.closest&&t.closest("[data-importdays]")){job.pickDays=!job.pickDays;ctx.render();return true;}
   if(t.closest&&t.closest("[data-importweights]")){job.pickWeights=!job.pickWeights;ctx.render();return true;}
+  if(t.closest&&t.closest("[data-importnights]")){job.pickNights=!job.pickNights;ctx.render();return true;}
+  if(t.closest&&t.closest("[data-importvitals]")){job.pickVitals=!job.pickVitals;ctx.render();return true;}
   if(t.closest&&t.closest("[data-importgo]")){save(job);ctx.render();return true;}
   if(t.closest&&t.closest("[data-importview]")){const v=t.closest("[data-importview]").getAttribute("data-importview");
     state.importJob=null;state.view=v;state.scrollTo=0;ctx.render();return true;}

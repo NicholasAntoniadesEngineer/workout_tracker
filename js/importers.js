@@ -193,6 +193,24 @@ export function parseStravaCsv(text){
     climb:Math.round(num(r[c.climb])),file:(r[c.file]||"").trim()})).filter(a=>a.id||a.when);
 }
 
+// ── Nights from sleep spans (any source): grouped by the morning each ends on, asleep time
+// summed, bed the earliest start and wake the latest end. Phone-only "asleep" spans with no
+// stages count the same. Returns [{at, bed, wake, hours, stages}] oldest first.
+export function nightsFrom(spans){
+  const by={};
+  spans.forEach(s=>{
+    if(!s.at||!s.end)return;
+    const end=new Date(s.end),key=new Date(end.getTime()-12*3600000);     // noon-to-noon day
+    const k=key.getFullYear()+"-"+String(key.getMonth()+1).padStart(2,"0")+"-"+String(key.getDate()).padStart(2,"0");
+    const n=by[k]=by[k]||{key:k,first:s.at,last:s.end,mins:0,stages:{}};
+    if(s.at<n.first)n.first=s.at;if(s.end>n.last)n.last=s.end;
+    const m=(Date.parse(s.end)-Date.parse(s.at))/60000;n.mins+=m;n.stages[s.stage||"asleep"]=(n.stages[s.stage||"asleep"]||0)+m;
+  });
+  const hm=iso=>{const d=new Date(iso);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
+  return Object.values(by).filter(n=>n.mins>=60).sort((a,b)=>a.key.localeCompare(b.key))
+    .map(n=>({at:n.last,bed:hm(n.first),wake:hm(n.last),hours:Math.round(n.mins/6)/10,stages:n.stages}));
+}
+
 // ── Apple Health ──────────────────────────────────────────────────────────────────────
 const attrs=tag=>{const o={};tag.replace(/([\w:]+)="([^"]*)"/g,(_,k,v)=>{o[k]=v;return "";});return o;};
 const toM={km:1000,mi:1609.344,m:1,yd:0.9144,ft:0.3048};
@@ -215,10 +233,15 @@ function appleWorkout(block){
 }
 // Reads export.xml as it streams in: each <Workout> as it closes, and every body-mass record.
 // Everything else (millions of step and heart-rate samples) is passed over without being kept.
-export async function scanAppleXml(stream,onWorkout,onWeight,onChars){
+// onHealth(kind, {at, …}) gets each sleep span (kind "sleep": {at, end, stage}), overnight HRV
+// ("hrv": {at, ms}) and resting heart rate ("rhr": {at, bpm}); everything else is passed over.
+export async function scanAppleXml(stream,onWorkout,onWeight,onChars,onHealth){
   const reader=stream.pipeThrough(new TextDecoderStream()).getReader();
   let buf="",inW=-1,seen=0;
   const W="<Workout ",R='<Record type="HKQuantityTypeIdentifierBodyMass"';
+  const KINDS=onHealth?[['<Record type="HKCategoryTypeIdentifierSleepAnalysis"',"sleep"],['<Record type="HKQuantityTypeIdentifierHeartRateVariabilitySDNN"',"hrv"],
+    ['<Record type="HKQuantityTypeIdentifierRestingHeartRate"',"rhr"]]:[];
+  const firstOf=()=>{let best=-1,kind="";KINDS.forEach(([tag,k])=>{const i=buf.indexOf(tag);if(i>=0&&(best<0||i<best)){best=i;kind=k;}});return [best,kind];};
   for(;;){
     const {value,done}=await reader.read();
     if(value){buf+=value;seen+=value.length;}
@@ -228,8 +251,18 @@ export async function scanAppleXml(stream,onWorkout,onWeight,onChars){
         if(e<0)break;
         onWorkout(appleWorkout(buf.slice(inW,e)));buf=buf.slice(e+10);inW=-1;continue;
       }
-      const wi=buf.indexOf(W),ri=buf.indexOf(R);
-      if(wi<0&&ri<0){buf=buf.slice(-120);break;}
+      const wi=buf.indexOf(W),ri=buf.indexOf(R),[hi,hk]=firstOf();
+      if(wi<0&&ri<0&&hi<0){buf=buf.slice(-120);break;}
+      if(hi>=0&&(wi<0||hi<wi)&&(ri<0||hi<ri)){
+        const e=buf.indexOf(">",hi);
+        if(e<0){buf=buf.slice(hi);break;}
+        const a=attrs(buf.slice(hi,e));
+        if(hk==="sleep"){const st=String(a.value||"").replace("HKCategoryValueSleepAnalysis","");
+          if(/^Asleep/.test(st))onHealth("sleep",{at:parseWhen(a.startDate),end:parseWhen(a.endDate),stage:st.replace("Asleep","").toLowerCase()||"asleep",src:a.sourceName||""});}
+        else if(hk==="hrv"&&a.value)onHealth("hrv",{at:parseWhen(a.startDate),ms:num(a.value)});
+        else if(hk==="rhr"&&a.value)onHealth("rhr",{at:parseWhen(a.startDate),bpm:num(a.value)});
+        buf=buf.slice(e+1);continue;
+      }
       if(ri>=0&&(wi<0||ri<wi)){
         // Only the record's own tag: a weigh-in can carry metadata children with values of their own.
         const e=buf.indexOf(">",ri);

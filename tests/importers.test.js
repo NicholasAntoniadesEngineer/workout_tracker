@@ -148,3 +148,26 @@ test("Strong's W/D/F set order and Hevy's set types and RPE come through", () =>
   const h=parseHevy(hevy,"kg").days[0].ex[0].sets[0];
   assert.equal(h.kind,"drop");assert.equal(h.rpe,7);
 });
+
+test("Apple Health sleep spans become nights, and HRV and resting pulse come through", async () => {
+  const {nightsFrom,scanAppleXml}=await import("../js/importers.js");
+  const xml='<HealthData>\n'+
+    '<Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Watch" startDate="2026-03-04 23:10:00 +0000" endDate="2026-03-05 01:00:00 +0000" value="HKCategoryValueSleepAnalysisAsleepCore"/>\n'+
+    '<Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Watch" startDate="2026-03-05 01:00:00 +0000" endDate="2026-03-05 02:30:00 +0000" value="HKCategoryValueSleepAnalysisAsleepDeep"/>\n'+
+    '<Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Watch" startDate="2026-03-05 02:30:00 +0000" endDate="2026-03-05 02:40:00 +0000" value="HKCategoryValueSleepAnalysisAwake"/>\n'+
+    '<Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Watch" startDate="2026-03-05 02:40:00 +0000" endDate="2026-03-05 06:40:00 +0000" value="HKCategoryValueSleepAnalysisAsleepREM"/>\n'+
+    '<Record type="HKQuantityTypeIdentifierHeartRateVariabilitySDNN" unit="ms" startDate="2026-03-05 03:00:00 +0000" value="48.5"/>\n'+
+    '<Record type="HKQuantityTypeIdentifierHeartRateVariabilitySDNN" unit="ms" startDate="2026-03-05 05:00:00 +0000" value="62"/>\n'+
+    '<Record type="HKQuantityTypeIdentifierRestingHeartRate" unit="count/min" startDate="2026-03-05 08:00:00 +0000" value="54"/>\n'+
+    '<Record type="HKQuantityTypeIdentifierStepCount" unit="count" startDate="2026-03-05 08:00:00 +0000" value="12"/>\n</HealthData>';
+  const enc=new TextEncoder().encode(xml);
+  const stream=new ReadableStream({start(c){for(let i=0;i<enc.length;i+=41)c.enqueue(enc.slice(i,i+41));c.close();}});
+  const spans=[],hrv=[],rhr=[];
+  await scanAppleXml(stream,()=>{},()=>{},null,(k,v)=>{if(k==="sleep")spans.push(v);else if(k==="hrv")hrv.push(v);else rhr.push(v);});
+  assert.equal(spans.length,3,"awake spans are left out");
+  assert.deepEqual(spans.map(s=>s.stage),["core","deep","rem"]);
+  const nights=nightsFrom(spans);
+  assert.equal(nights.length,1);
+  assert.equal(nights[0].hours,7.3);
+  assert.deepEqual(hrv.map(x=>x.ms),[48.5,62]);assert.equal(rhr[0].bpm,54);
+});

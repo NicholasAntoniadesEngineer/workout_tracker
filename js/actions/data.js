@@ -4,7 +4,7 @@
 import {DEFAULTS,convertAllWeights,setSetting,state,upsertBodyEntry} from "../store.js";
 import {dateKey,nowISO} from "../model.js";
 import {deliver,exportCSV,exportJSON} from "../csv.js";
-import {reminderICS} from "../reminder.js";
+import {checkinICS,reminderICS} from "../reminder.js";
 import {bookPos,saveBookPos} from "../reader.js";
 import {shareTopic} from "../share.js";
 import {topicById} from "../lazy.js";
@@ -129,6 +129,7 @@ export function handle(t,ctx){
     days=days.indexOf(i)>=0?days.filter(d=>d!==i):days.concat([i]).sort((a,b)=>a-b);
     setSetting("remindDays",days.join(","));ctx.render();return true;
   }
+  if(t.closest&&t.closest("#addcheckinrem")){deliver(checkinICS(state.settings.remindTime),"kingskiln_checkin.ics","text/calendar");return true;}
   if(t.closest&&t.closest("#addreminder")){
     const days=String(state.settings.remindDays||"").split(",").filter(x=>x!=="").map(Number);
     const ics=reminderICS(days,state.settings.remindTime);

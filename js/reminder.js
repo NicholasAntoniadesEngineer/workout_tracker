@@ -11,6 +11,19 @@ function localStamp(d){
 function utcStamp(d){return d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");}
 
 // days are indexes into DAY_CODES (0 = Monday); time is "HH:MM".
+// A daily morning check-in, every day at the chosen time, as a calendar event with an alarm.
+export function checkinICS(time,now){
+  const t=String(time||"07:00").split(":").map(Number);
+  const today=now?new Date(now):new Date();
+  let first=new Date(today.getFullYear(),today.getMonth(),today.getDate(),t[0]||0,t[1]||0);
+  if(first<=today)first=new Date(first.getTime()+86400000);
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//KingsKiln//Check-in//EN","CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT","UID:"+utcStamp(today)+"-checkin@kingskiln.com","DTSTAMP:"+utcStamp(today),
+    "DTSTART:"+localStamp(first),"DTEND:"+localStamp(new Date(first.getTime()+5*60000)),"RRULE:FREQ=DAILY",
+    "SUMMARY:Check in — KingsKiln","DESCRIPTION:Thirty seconds: sleep, soreness, energy, stress. Open KingsKiln.",
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Check in","TRIGGER:PT0M","END:VALARM",
+    "END:VEVENT","END:VCALENDAR"].join("\r\n");
+}
 export function reminderICS(days,time,now){
   const t=String(time||"07:00").split(":").map(Number);
   const today=now?new Date(now):new Date();
