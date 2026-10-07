@@ -8,6 +8,7 @@ import {SET_TARGET,SPANS,barChart,cardioWeekly,exerciseRecords,exerciseTrend,lin
   weeklySetsByGroup,weeklyVolume,withAxis} from "../charts.js";
 import {esc,pageHead,wide} from "./common.js";
 import {recoverMini} from "./checkin.js";
+import {bodyMapCard} from "./bodymap.js";
 
 const fmtNum=v=>Math.round(v).toLocaleString();
 const clk=s=>{s=Math.round(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
@@ -102,8 +103,8 @@ export function progressView(){
   const week=thisWeekCard(thisWeek,useTon,unit);
   // This week's hard sets per movement against the 10–20 that drives growth: a bar per group,
   // the target band shaded, so an under-trained pattern shows before the week is out.
-  const sets="<div class='card hcard'><div class='hcardh'><span class='llabel'>Hard sets &middot; aim "+SET_TARGET.low+"&ndash;"+SET_TARGET.high+"</span></div>"+
-    setBars().replace("<div class='card chartcard setbars'>","<div class='setbars'>")+"</div>";
+  // Hard sets by muscle on a figure, with recovery: the four movement groups are on Today.
+  const sets=bodyMapCard();
   // Volume is weight × reps added up: the total load moved, in plain words.
   const vol="<div class='card hcard'><div class='hcardh'><span class='llabel'>Weekly "+(useTon?"volume &middot; "+unit:"reps")+"</span></div>"+
     withAxis(barChart(vals,big?{w:640,h:170,labels:weeks.map(w=>w.label+": "+fmtNum(useTon?w.ton:w.reps))}:undefined),fmtNum(Math.max(0,...vals)),0)+
@@ -177,9 +178,9 @@ export function progressView(){
   // The year so far, one tap away.
   const yearLink=workouts?"<button class='card hcard revlink' data-review='year:"+new Date().getFullYear()+"'><span class='llabel'>Year in review</span><b>Your "+new Date().getFullYear()+" so far</b><span class='lchev'>&rsaquo;</span></button>":"";
   // A big screen arranges the same cards as a dashboard; the phone reads them in a column.
-  if(big)h+="<div class='pggrid'><section class='pg8'>"+vol+"</section><section class='pg4'>"+week+sets+"</section>"+
-    (trendH?"<section class='pg8'>"+trendH+"</section>":"")+(mini?"<section class='pg4'>"+mini+"</section>":"")+
-    (recsH?"<section class='pg8'>"+recsH+"</section>":"")+(yearLink?"<section class='pg4'>"+yearLink+"</section>":"")+
+  // A big screen: the charts down the left, the week, muscles and recovery down the right; each
+  // column stacks on its own, so a tall card never leaves a gap beside a short one.
+  if(big)h+="<div class='pggrid'><section class='pg8'>"+vol+trendH+recsH+"</section><section class='pg4'>"+week+sets+(mini||"")+yearLink+"</section>"+
     (cardio?"<section class='pg12 pgcardio'>"+cardio+"</section>":"")+"</div>";
   else h+="<div class='pgstack'>"+week+vol+sets+trendH+mini+cardio+recsH+yearLink+"</div>";
   if(!workouts&&!state.sessions.some(s=>s.cardio))h+="<div class='empty-note'>Nothing logged yet — progress shows up here.</div>";

@@ -2354,3 +2354,39 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 :root[data-big="1"] .planacts{grid-template-columns:1fr;}
 .planlist .histrow{align-items:flex-start;}
 .planlist .histsets{white-space:normal;text-align:right;overflow:visible;}
+/* The body map. Shades: m0 none or ready, m1 under the aim or partly recovered, m2 on aim or
+   recovering, m3 over the aim. */
+.bmcard .hcardh{align-items:center;}
+.bmseg{margin:0;width:auto;flex:0 0 auto;}
+.bmseg button{padding:0 12px;}
+.bmfigs{display:flex;justify-content:center;gap:clamp(8px,4vw,24px);margin:4px 0 6px;}
+.bmfig{width:min(42%,170px);height:auto;aspect-ratio:1/2;}
+.bmhead{fill:var(--panelHi);}
+.bmm{stroke:var(--panel);stroke-width:2;cursor:pointer;transition:fill .15s;}
+.bmm.m0{fill:var(--panelHi);}
+.bmm.m1{fill:color-mix(in srgb,var(--gold) 40%,var(--panelHi));}
+.bmm.m2{fill:var(--gold);}
+.bmm.m3{fill:var(--text);}
+.bmm.sel{stroke:var(--text);stroke-width:3;}
+.bmm.m3.sel{stroke:var(--gold);}
+.bmlbl{font-size:11px;font-weight:800;letter-spacing:1px;fill:var(--muted);text-anchor:middle;}
+.bmkey{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:8px;}
+.bmkey span{display:inline-flex;align-items:center;gap:5px;}
+.bmkey i{display:inline-block;width:12px;height:10px;border-radius:3px;}
+.bmkey .m0{background:var(--panelHi);}.bmkey .m1{background:color-mix(in srgb,var(--gold) 40%,var(--panelHi));}.bmkey .m2{background:var(--gold);}.bmkey .m3{background:var(--text);}
+.bmsel{border-radius:12px;background:var(--panelHi);padding:10px 12px;margin:0 0 10px;}
+.bmselh{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;}
+.bmselh b{font-size:15px;}
+.bmselh span{flex:1;min-width:0;font-size:12.5px;font-weight:700;color:var(--muted);}
+.bmselx{margin-top:4px;font-size:12.5px;color:var(--text);line-height:1.4;}
+.bmlist{display:flex;flex-direction:column;gap:2px;}
+.bmgroup{min-height:30px!important;padding-top:6px!important;border:0!important;cursor:default!important;font-size:11px!important;letter-spacing:1.2px!important;text-transform:uppercase!important;color:var(--muted)!important;}
+.bmrow{display:grid;grid-template-columns:minmax(84px,104px) minmax(0,1fr) 30px 10px;align-items:center;gap:8px;width:100%;min-height:30px;padding:2px 0;border:0;border-radius:6px;background:none;color:var(--text);font:inherit;font-size:13.5px;text-align:left;cursor:pointer;}
+.bmrow.sel{background:var(--panelHi);}
+.bmrec{width:8px;height:8px;border-radius:4px;background:var(--gold);}
+.bmrec.none{background:transparent;}
+:root[data-big="1"] .bmrow{grid-template-columns:minmax(0,1fr) 40px 10px;}
+:root[data-big="1"] .bmrow .sbtrack{grid-column:1/-1;grid-row:2;}
+.bmseg button{flex:0 0 auto;overflow:visible;}
+.bmcard .hcardh{flex-wrap:wrap;row-gap:8px;}
+@media (min-width:900px){.pggrid>section{display:flex;flex-direction:column;gap:14px;}.pggrid>section>.card{margin:0;}}

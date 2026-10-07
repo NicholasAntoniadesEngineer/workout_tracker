@@ -111,6 +111,11 @@ export function handle(t,ctx){
   }
   if(t.id==="freshreload"){state.updating=true;ctx.render();freshReload();return true;}
   // Year and month in review: open a period, hide the monthly card, share the picture.
+  // The body map: Sets or Recovery, and a muscle tapped for its detail (tap again to close).
+  const bmm=t.closest&&t.closest("[data-bmmode]");
+  if(bmm){state.bmMode=bmm.getAttribute("data-bmmode");ctx.render();return true;}
+  const mu=t.closest&&t.closest("[data-muscle]");
+  if(mu){const k=mu.getAttribute("data-muscle");state.bmSel=state.bmSel===k?"":k;ctx.render();return true;}
   const rv=t.closest&&t.closest("[data-review]");
   if(rv){const p=rv.getAttribute("data-review").split(":");state.reviewPeriod=p[0]==="month"?{kind:"month",y:+p[1],m:+p[2]}:{kind:"year",y:+p[1]};state.view="review";state.scrollTo=0;ctx.render();return true;}
   const ms=t.closest&&t.closest("[data-monthseen]");
