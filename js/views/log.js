@@ -5,7 +5,8 @@ import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,SET_KINDS,canResume,exerciseGroup,isBa
   shortDate,totals,unitOf,workoutOffset,workoutSeconds} from "../model.js";
 import {activeEx,allRoutines,findRoutine,getSession,lastPerformance,newestFirst,planFor,planLine,repRange,restTargetFor,
   state} from "../store.js";
-import {progressionHint,warmupRamp} from "../coach.js";
+import {warmupRamp} from "../coach.js";
+import {exProg,rangeFor,stepFor,targetFor} from "../progression.js";
 import {cuesFor} from "../cues.js";
 import {exAka,exMatches,exWhat,learnTopicsFor} from "../exinfo.js";
 import {position,prescription} from "../programme.js";
@@ -187,6 +188,13 @@ function logPanel(){
   const prev=(a&&!state.editing)?lastPerformance(a.name):null;
   const sess=getSession();
   h+=planHints(a,sess);
+  // The exercise's pinned note, one line; a tap opens the exercise for the whole note.
+  const note=a&&(state.exNotes||{})[a.name.trim().toLowerCase()];
+  if(note&&!state.editing)h+="<button class='pinline' id='exhistbtn' title='"+esc(note)+"'>"+icon("bookmark","sm")+"<span>"+esc(note)+"</span></button>";
+  // When a rule changes the usual (a deload, a drop, a return after a break), say why in a line,
+  // so a lighter weight never looks like a mistake.
+  const tg=a&&!state.editing&&!a.sets.length?targetFor(a):null;
+  if(tg&&tg.rule&&!wide())h+="<div class='ruleline'>"+esc(tg.text)+"</div>";
   // The phone leaves these out for room: last time's numbers are already loaded into reps and
   // weight, and tapping the selected exercise again opens its history.
   if(wide()&&prev){
@@ -195,9 +203,7 @@ function logPanel(){
        setsSummary(prev.ex.sets,unitOf(prev.ex))+"</span> <span class='prevmore'>&rsaquo;</span></button>";
     // The next step, by a plain rule: stay at a weight until every set reaches the top of
     // your rep range, then go up. Tapping it loads the suggestion into reps and weight.
-    const rr=repRange();
-    const hint=progressionHint(prev.ex.sets,{unit:unitOf(a),weightUnit:state.settings.unit||"kg",
-      low:rr.low,top:rr.top,isBand:isBandExercise(a.name)});
+    const hint=targetFor(a);
     if(hint)h+="<button class='hintline' id='hintbtn'"+(hint.apply?" data-hw='"+(hint.apply.w===undefined?"":hint.apply.w)+
        "' data-hr='"+(hint.apply.r===undefined?"":hint.apply.r)+"'":" disabled")+">&rarr; "+esc(hint.text)+"</button>";
   }else if(wide()&&a&&!state.editing){
@@ -457,6 +463,11 @@ function exerciseHistorySheet(name,fromPicker){
   if(what)h+="<p class='exwhat'>"+esc(what)+"</p>";
   if(aka.length)h+="<div class='exaka'>Also called "+aka.map(esc).join(", ")+"</div>";
   if(fromPicker)h+="<button class='btn primary exaddbtn' data-add=\""+esc(name)+"\">Add to today</button>";
+  // A note that stays with the exercise: machine settings, grip, what to watch for.
+  h+="<label class='picklbl' for='exnote'>Pinned note</label>"+
+    "<textarea class='exnote' id='exnote' data-exnote=\""+esc(name)+"\" rows='2' maxlength='300' placeholder='Seat 4, narrow grip, go light on the left shoulder'>"+
+    esc((state.exNotes||{})[k]||"")+"</textarea>"+
+    "<div class='cuenote'>Shows on this exercise every time you train it.</div>";
   h+="<div class='prgrid'>"+
     "<div class='stat'><div class='v mono'>"+(bestW?bestW.w+"<span class='pru'>"+unit+"</span>":"&mdash;")+
       "</div><div class='l'>Best weight"+(bestW?" &times;"+bestW.r:"")+"</div></div>"+
@@ -494,6 +505,16 @@ function exerciseHistorySheet(name,fromPicker){
       (def?" "+fmtClock(def):"")+"</button>"+
     REST_CHOICES.map(c=>"<button class='q"+(own===c[1]?" on":"")+"' data-resttarget='"+c[1]+"'>"+c[0]+"</button>").join("")+
     "</div>";
+  // Progression for this exercise only: its own rep range and jump, or none at all for rehab
+  // and skill work. Default follows Settings.
+  const ep=exProg(name),wu=esc(state.settings.unit||"kg"),defRange=state.settings.progressRange||"10-15";
+  const steps=state.settings.unit==="lb"?[2.5,5,10]:[1,2.5,5];
+  h+="<div class='picklbl'>Progression for this exercise</div>"+
+    "<div class='seg restseg wrapseg'><button class='q"+(ep.off?"":" on")+"' data-exprog='off:0'>Suggest targets</button><button class='q"+(ep.off?" on":"")+"' data-exprog='off:1'>Don't</button></div>"+
+    (ep.off?"":"<div class='seglbl'>Rep range</div><div class='seg restseg wrapseg'><button class='q"+(ep.range?"":" on")+"' data-exprog='range:'>Default "+defRange.replace("-","&ndash;")+"</button>"+
+      ["3-5","5-8","6-10","8-12","12-15","15-20"].map(r=>"<button class='q"+(ep.range===r?" on":"")+"' data-exprog='range:"+r+"'>"+r.replace("-","&ndash;")+"</button>").join("")+"</div>"+
+      "<div class='seglbl'>Jump when every set reaches the top</div><div class='seg restseg wrapseg'><button class='q"+(ep.step?"":" on")+"' data-exprog='step:'>Default +"+stepFor(name)+" "+wu+"</button>"+
+      steps.map(v=>"<button class='q"+(+ep.step===v?" on":"")+"' data-exprog='step:"+v+"'>+"+v+"</button>").join("")+"</div>");
   if(days.length)h+="<div class='picklbl'>History</div>";
   days.forEach(d=>{
     h+="<div class='histrow'><span class='histdate'>"+esc(shortDate(d.s.created))+"</span>"+
@@ -605,13 +626,15 @@ function exerciseBlock(e,session){
       "<span class='lgexm'>First time</span>")+"<span class='lgsp0'></span>";
   if(on&&!state.editing){
     if(last){
-      const rr=repRange();
-      const hint=progressionHint(last.ex.sets,{unit:u,weightUnit:state.settings.unit||"kg",low:rr.low,top:rr.top,isBand:isBandExercise(e.name)});
+      const hint=targetFor(e);
       if(hint)h+="<button class='lghint' id='hintbtn'"+(hint.apply?" data-hw='"+(hint.apply.w===undefined?"":hint.apply.w)+"' data-hr='"+(hint.apply.r===undefined?"":hint.apply.r)+"'":" disabled")+">"+esc(hint.text)+"</button>";
     }else h+="<button class='lghint' id='exhistbtn'>Tips and demo &rsaquo;</button>";
     h+="<button class='lgrm' id='removesel' title='Remove from today'>&times;</button>";
   }
   h+="</div>";
+  const pin=(state.exNotes||{})[e.name.trim().toLowerCase()];
+  if(pin)h+="<button class='lgpin' data-exinfo=\""+esc(e.name)+"\" title='Edit the pinned note'>"+icon("bookmark","sm")+"<span>"+esc(pin)+"</span></button>";
+  else if(on&&!state.editing)h+="<button class='lgpin add' id='exhistbtn'>"+icon("bookmark","sm")+"<span>Pin a note: seat, grip, what to watch</span></button>";
   if(on)h+=planHints(e,session);
   h+="<div class='lgset lghd'><span class='lgsn'>Set</span><span class='lgsp'>Previous</span><span>"+(isBandExercise(e.name)?"Band":esc(state.settings.unit||"kg"))+"</span><span>"+UNIT_LABEL[u]+"</span><span></span><span></span></div>";
   e.sets.forEach((x,i)=>{h+=ed===i?entryRow(e,u,i,prev,true):loggedRow(e,i,x,u,prev);});

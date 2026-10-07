@@ -2197,3 +2197,41 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
   .setsplit .setcols{column-count:1;}
   .setsplit .reset{text-align:left;}
 }
+/* An exercise's pinned note, and the line that explains a rule (deload, drop, return). */
+.pinline{display:flex;align-items:center;gap:6px;width:100%;min-height:30px;margin:0 0 6px;padding:4px 10px;border:0;border-radius:9px;background:var(--panelHi);
+  color:var(--text);font:inherit;font-size:var(--f-sm);font-weight:600;text-align:left;cursor:pointer;}
+.pinline .icn{flex:none;margin:0;color:var(--muted);}
+.pinline span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ruleline{margin:0 0 6px;padding:5px 10px;border-radius:9px;background:var(--accentDim);color:var(--text);font-size:var(--f-sm);font-weight:700;line-height:1.3;}
+.exnote{width:100%;min-height:52px;resize:vertical;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);
+  font:inherit;font-size:16px;line-height:1.35;}
+.seglbl{font-size:12px;font-weight:700;color:var(--muted);margin:8px 0 4px;}
+.wrapseg{flex-wrap:wrap;}
+.wrapseg .q{flex:1 0 auto;min-width:56px;padding-left:10px;padding-right:10px;}
+@media (min-width:900px){
+  .lgpin{display:flex;align-items:center;gap:6px;max-width:100%;margin:2px 0 6px;padding:3px 10px 3px 8px;border:0;border-radius:8px;background:var(--panelHi);
+    color:var(--text);font:inherit;font-size:13px;font-weight:600;text-align:left;cursor:pointer;}
+  .lgpin .icn{flex:none;margin:0;color:var(--muted);width:14px;height:14px;}
+  .lgpin span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .lgpin.add{background:none;color:var(--muted);padding-left:0;}
+  .lgpin.add:hover{color:var(--text);}
+}
+/* Large text on a small phone: the clocks and their buttons stop growing at a size that still
+   leaves the labels whole, so a chosen XXL never squeezes "Start set" to "St…". */
+@media (max-width:899px){
+  .timerbar .tv{font-size:min(var(--f-clock),34px);}
+  .timerbar .tl,.timerbar .tsub{font-size:min(var(--f-tiny),13px);}
+  .timerbar .tbtn{font-size:min(var(--f-md),17px);white-space:normal;line-height:1.1;}
+  .timerbar .tbtn.narrow{flex:0 0 min(calc(34px * var(--k)),44px);width:min(calc(34px * var(--k)),44px);}
+}
+/* Choice rows in the exercise sheet: equal cells that wrap, the Default spanning two. */
+.wrapseg{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;}
+.wrapseg .q{min-width:0;padding-left:6px;padding-right:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wrapseg .q:first-child{grid-column:span 2;}
+.restseg.wrapseg:first-of-type .q:first-child{grid-column:auto;}
+@media (max-width:359px){
+  .timerbar .tv{font-size:min(var(--f-clock),28px);}
+  .timerbar .tsub{display:none;}
+  .timerbar .tl{white-space:normal;line-height:1.1;}
+  .timerbar .tbtn{font-size:min(var(--f-md),15px);}
+}

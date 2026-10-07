@@ -61,6 +61,8 @@ function reminderRow(){
 
 // The groups. On a phone each is its own page behind a list, so one screen is never
 // everything at once; a big screen shows them all down one column.
+const stepLabel=st=>{const lb=st.unit==="lb";return st.stepMode==="big"?(lb?"10 lb":"5 kg"):st.stepMode==="split"?(lb?"5/10 lb":"2.5/5 kg"):(lb?"5 lb":"2.5 kg");};
+const BREAK_HINT={off:"Pick up where you left off.",gentle:"2+ weeks away: 95%. 4+ weeks: 90%.",standard:"2+ weeks away: 90%. 4+ weeks: 80%.",careful:"2+ weeks away: 85%. 4+ weeks: 70%."};
 const pick=(pairs,v)=>{const p=pairs.find(x=>x[1]===v);return p?p[0]:"";};
 function groups(){
   const st=state.settings,on=k=>!!st[k];
@@ -73,11 +75,19 @@ function groups(){
       choiceRow("Bible version",st.bibleVersion==="kjv"?KJV_NOTICE:"","bibleVersion",[["WEB","web"],["KJV","kjv"]])+
       choiceRow("Church calendar","Feast days marked in the calendar.","feastSet",[["Off","off"],["Western","western"],["Orthodox","orthodox"]])+
       choiceRow("Rest day","The day the week keeps for rest.","restDay",[["Sunday",0],["Saturday",6]])},
-    {id:"logging",title:"Logging",pre:(st.progressRange||"10-15").replace("-","&ndash;")+" reps &middot; start at "+(st.startReps||10)+" &middot; "+(st.unit||"kg"),html:()=>
-      choiceRow("Rep range","Every set at the top of the range → go heavier next time.","progressRange",[["6–10","6-10"],["8–12","8-12"],["10–15","10-15"],["12–15","12-15"]])+
+    {id:"logging",title:"Logging",pre:"Start at "+(st.startReps||10)+" reps &middot; "+(st.unit||"kg")+" &middot; per side "+(on("perSideDouble")?"doubles":"as logged"),html:()=>
       choiceRow("Starting reps","","startReps",START_REPS.map(n=>[String(n),n]))+
       toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
       choiceRow("Weight unit","","unit",[["kg","kg"],["lb","lb"]])},
+    {id:"progression",title:"Progression",pre:(st.progressRange||"10-15").replace("-","&ndash;")+" reps &middot; +"+stepLabel(st)+" &middot; "+(+st.stallAfter?"deload after "+st.stallAfter:"no deload")+(st.breakRule&&st.breakRule!=="off"?" &middot; eases you back":""),html:()=>{
+      const lb=st.unit==="lb",sm=lb?"5 lb":"2.5 kg",bg=lb?"10 lb":"5 kg";
+      return choiceRow("Rep range","Every set at the top of the range → go heavier next time. Any exercise can have its own, in its sheet.","progressRange",[["6–10","6-10"],["8–12","8-12"],["10–15","10-15"],["12–15","12-15"]])+
+      choiceRow("Jump","How much to add once every set reaches the top.","stepMode",[["+"+sm,"small"],["+"+bg,"big"],["Legs +"+bg+", rest +"+sm,"split"]])+
+      choiceRow("If a set falls short","A set below the bottom of the range.","missRule",[["Keep the weight","hold"],["Drop one jump","drop"]])+
+      choiceRow("Deload when stuck","The same weight with no extra reps, session after session.","stallAfter",[["Never",0],["After 2",2],["After 3",3],["After 4",4]])+
+      (+st.stallAfter?choiceRow("Deload by","","deloadPct",[["5%",5],["10%",10],["15%",15]]):"")+
+      choiceRow("Back after a break",BREAK_HINT[st.breakRule||"off"],"breakRule",[["Off","off"],["Gentle","gentle"],["Standard","standard"],["Careful","careful"]])+
+      toggleRow("Fill in the next target","Off fills in last time's numbers instead.","autoTarget");}},
     {id:"workout",title:"Workout",pre:"Rest "+(st.restTarget?pick([["1:30",90],["2:00",120],["3:00",180],["4:00",240],["5:00",300]],st.restTarget)||st.restTarget+" s":"target off")+" &middot; alarm "+(on("restSound")?"on":"off")+" &middot; max HR "+(st.maxHR||190),html:()=>
       choiceRow("Rest target","","restTarget",[["Off",0],["1:30",90],["2:00",120],["3:00",180],["4:00",240],["5:00",300]])+
       choiceRow("Rest clock","Count down to the target, or up from the last set.","restDown",[["Count up",false],["Count down",true]])+

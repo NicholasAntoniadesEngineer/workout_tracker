@@ -211,3 +211,39 @@ describe("stacks",()=>{
     assert.equal(lineText({name:"Salt",dose:"1",unit:"tsp"}),"Salt — 1 tsp");
   });
 });
+
+describe("progressionHint — the lifter's own rules",()=>{
+  const day=n=>new Date(Date.UTC(2026,9,1)+n*86400000).toISOString();
+  const now=Date.UTC(2026,9,1);
+  test("a chosen jump replaces the default one",()=>{
+    const h=progressionHint([set(14,100),set(14,100)],Object.assign({},opts,{step:5}));
+    assert.deepEqual(h.apply,{w:105,r:10});
+  });
+  test("drops one jump after a short set when the rule says drop",()=>{
+    const h=progressionHint([set(12,100),set(8,100)],Object.assign({},opts,{miss:"drop"}));
+    assert.deepEqual(h.apply,{w:97.5,r:10});
+    assert.equal(h.rule,"drop");
+  });
+  test("holds the weight after a short set by default",()=>{
+    const h=progressionHint([set(12,100),set(8,100)],opts);
+    assert.deepEqual(h.apply,{w:100,r:9});
+  });
+  test("deloads after the chosen number of stuck sessions",()=>{
+    const s=[set(11,100),set(10,100)];
+    const h=progressionHint(s,Object.assign({},opts,{stallAfter:3,deloadPct:10,history:[{at:day(-3),sets:s},{at:day(-6),sets:s}]}));
+    assert.deepEqual(h.apply,{w:90,r:10});
+    assert.equal(h.rule,"deload");
+  });
+  test("does not deload while reps are still climbing",()=>{
+    const h=progressionHint([set(12,100),set(12,100)],Object.assign({},opts,{stallAfter:2,history:[{at:day(-3),sets:[set(11,100),set(11,100)]}]}));
+    assert.equal(h.rule,undefined);
+  });
+  test("eases back after a break, more after a longer one",()=>{
+    const two=progressionHint([set(12,100)],Object.assign({},opts,{breakRule:"standard",prevAt:day(-15),now}));
+    assert.deepEqual(two.apply,{w:90,r:10});
+    const five=progressionHint([set(12,100)],Object.assign({},opts,{breakRule:"standard",prevAt:day(-35),now}));
+    assert.deepEqual(five.apply,{w:80,r:10});
+    const off=progressionHint([set(12,100)],Object.assign({},opts,{breakRule:"off",prevAt:day(-35),now}));
+    assert.equal(off.rule,undefined);
+  });
+});

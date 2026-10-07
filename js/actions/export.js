@@ -8,7 +8,7 @@ import {notice} from "../dialog.js";
 export function handle(t,ctx){
   // Strong's layout for strength, GPX/TCX for cardio, text for anywhere, or the lot as a zip. Strong's layout for strength, GPX/TCX for cardio.
   const backup=()=>({sessions:state.sessions,catalog:state.catalog,removed:state.removed,settings:state.settings,body:state.body,routines:state.routines,
-    hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme,learnSaved:state.learnSaved});
+    hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme,learnSaved:state.learnSaved});
   const day=()=>new Date().toISOString().slice(0,10);
   if(t.closest&&t.closest("#exportstrong")){deliver(strongCSV(state.sessions,state.settings.unit||"kg"),"kingskiln_strong_"+day()+".csv","text/csv;charset=utf-8");return true;}
   if(t.closest&&t.closest("#exportall")){

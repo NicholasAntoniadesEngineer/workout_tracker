@@ -10,7 +10,8 @@ const SEC_PER_MIN=60;
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
   bibleVersion:"web",feastSet:"western",restDay:0,progressRange:"10-15",remindDays:"0,1,2,3,4,5",
-  remindTime:"07:00",maxHR:190,voice:true,restSound:true,restDown:false,checkin:true,sleepNeed:8,heightCm:0,sex:"",goal:"lift",fastHours:0,fuelMacros:false,modFuel:false,modMarkers:false,modMind:false,recOpen:""};
+  remindTime:"07:00",maxHR:190,voice:true,restSound:true,restDown:false,checkin:true,sleepNeed:8,heightCm:0,sex:"",goal:"lift",fastHours:0,fuelMacros:false,modFuel:false,modMarkers:false,modMind:false,recOpen:"",
+  stepMode:"small",missRule:"hold",stallAfter:3,deloadPct:10,breakRule:"standard",autoTarget:true};
 
 // History lives only on this device, so after a few workouts — and every few weeks after —
 // home suggests saving a backup file. "Not now" quiets it for a week.
@@ -45,7 +46,7 @@ export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],b
   settings:Object.assign({},DEFAULTS),
   reps:DEFAULT_REPS,perSide:false,weight:0,lastWeight:10,band:"",warmup:false,setKind:"",setRpe:0,setNote:"",setStart:null,editing:null,
   adding:false,focusAdd:false,sheet:false,exHist:false,dragId:null,logCount:1,editWork:0,editRest:0,
-  supplements:[],stacks:[],favs:[],learnSaved:[],learnRecent:[],learnIndex:null,programme:null,progSetup:null,cardio:null,cardioSetup:null,cardioDone:null,hrName:"",pickOpen:{},exInfo:null,exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},best:null,summary:null,
+  supplements:[],stacks:[],favs:[],learnSaved:[],learnRecent:[],learnIndex:null,programme:null,progSetup:null,cardio:null,cardioSetup:null,cardioDone:null,hrName:"",pickOpen:{},exInfo:null,exSearch:"",pickTab:"ex",editList:false,bodyMetric:"w",restTargets:{},exNotes:{},exProg:{},best:null,summary:null,
   backupAt:"",backupSnooze:"",focusSearch:false,origin:"home",view:"home",undo:null,progressEx:"",verseIdx:null,
   shareMenu:null,numEdit:null,feedback:null,
   calYear:new Date().getFullYear(),calMonth:new Date().getMonth(),calDay:null};
@@ -140,6 +141,8 @@ export function load(){
   state.stacks=(saved&&saved.stacks)||[];
   state.hiddenRoutines=(saved&&saved.hiddenRoutines)||[];
   state.restTargets=(saved&&saved.restTargets)||{};
+  state.exNotes=(saved&&saved.exNotes)||{};
+  state.exProg=(saved&&saved.exProg)||{};
   state.favs=(saved&&saved.favs)||[];
   state.learnSaved=(saved&&saved.learnSaved)||[];
   state.learnRecent=(saved&&saved.learnRecent)||[];
@@ -167,7 +170,7 @@ export function save(){
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,
-        hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,favs:state.favs,pickOpen:state.pickOpen,programme:state.programme,
+        hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,favs:state.favs,pickOpen:state.pickOpen,programme:state.programme,
         learnSaved:state.learnSaved,learnRecent:state.learnRecent,backupAt:state.backupAt,backupSnooze:state.backupSnooze,welcomed:state.welcomed,checkins:state.checkins,vitals:state.vitals,photos:state.photos,fuel:state.fuel,markers:state.markers,habits:state.habits,habitDone:state.habitDone,journal:state.journal,
         supplements:state.supplements,stacks:state.stacks}));
     state.storageFull=false;
@@ -331,6 +334,9 @@ export function importBackup(d){
   (Array.isArray(d.fuel)?d.fuel:[]).forEach(e=>{if(e&&e.id&&!state.fuel.some(x=>x.id===e.id))state.fuel.push(e);});
   if(d.restTargets&&typeof d.restTargets==="object")
     state.restTargets=Object.assign({},state.restTargets,d.restTargets);
+  // Notes and progression set on an exercise: what is already here wins over the file.
+  if(d.exNotes&&typeof d.exNotes==="object")state.exNotes=Object.assign({},d.exNotes,state.exNotes);
+  if(d.exProg&&typeof d.exProg==="object")state.exProg=Object.assign({},d.exProg,state.exProg);
   (Array.isArray(d.hiddenRoutines)?d.hiddenRoutines:[]).forEach(n=>{
     if(n&&state.hiddenRoutines.map(key).indexOf(key(n))<0)state.hiddenRoutines.push(String(n));
   });

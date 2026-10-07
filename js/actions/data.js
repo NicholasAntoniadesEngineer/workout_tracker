@@ -142,7 +142,7 @@ export function handle(t,ctx){
     state.backupAt=nowISO();state.backupSnooze="";
     exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
       settings:state.settings,body:state.body,routines:state.routines,
-      hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,
+      hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,
       supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme,learnSaved:state.learnSaved});
     ctx.render();return true;
   }

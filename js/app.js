@@ -28,6 +28,7 @@ import * as exporting from "./actions/export.js";
 import * as checkin from "./actions/checkin.js";
 import * as health from "./actions/health.js";
 import {currentVersion,watchForUpdates} from "./update.js";
+import {targetFor} from "./progression.js";
 import {breathTick} from "./views/health.js";
 import * as logging from "./actions/log.js";
 import * as stacking from "./actions/stack.js";
@@ -254,6 +255,11 @@ function recallLast(e){
     state.reps=last.r;
     state.perSide=last.side;
     state.weight=+last.w||0;
+    // A new exercise today starts from the next target, not just last time's numbers.
+    if(e&&!e.sets.length&&state.settings.autoTarget!==false){
+      const tg=targetFor(e);
+      if(tg&&tg.apply){if(tg.apply.w!=null)state.weight=tg.apply.w;if(tg.apply.r!=null)state.reps=tg.apply.r;}
+    }
   }else{
     state.perSide=false;
     state.weight=0;
@@ -440,6 +446,9 @@ document.body.addEventListener("input",ev=>{
   else if(id==="editrest")state.editRest=parseClock(ev.target.value);
   else if(id==="exsearch"){state.exSearch=ev.target.value;state.focusSearch=true;render();}
   else if(id==="setnote"){state.setNote=ev.target.value;}
+  // An exercise's pinned note saves as it is typed, without a repaint.
+  else if(id==="exnote"){const k=String(ev.target.getAttribute("data-exnote")||"").trim().toLowerCase();if(k){const n=Object.assign({},state.exNotes||{});
+    if(ev.target.value.trim())n[k]=ev.target.value;else delete n[k];state.exNotes=n;save();}}
   // The laptop's set row: typed numbers go straight to the pending set, no repaint.
   else if(id==="rowreps"){const v=parseInt(ev.target.value,10);if(!isNaN(v))state.reps=Math.max(0,v);}
   else if(id==="rowweight"){const v=parseFloat(ev.target.value);if(!isNaN(v))state.weight=Math.max(0,Math.round(v*100)/100);}

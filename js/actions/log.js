@@ -40,6 +40,22 @@ export function handle(t,ctx){
     ctx.render();return true;
   }
   // Per-exercise rest: 0 falls back to the default from Settings.
+  // Progression set on one exercise: its rep range, its jump, or no suggestions at all.
+  const epk=t.closest&&t.closest("[data-exprog]");
+  if(epk){
+    const e=state.exInfo?{name:state.exInfo}:activeEx();
+    if(e){
+      const [f,v]=epk.getAttribute("data-exprog").split(":"),k=e.name.trim().toLowerCase();
+      const all=Object.assign({},state.exProg||{}),cur=Object.assign({},all[k]||{});
+      if(f==="off"){if(v==="1")cur.off=true;else delete cur.off;}
+      else if(v===""||v==null)delete cur[f];
+      else cur[f]=f==="step"?+v:v;
+      if(Object.keys(cur).length)all[k]=cur;else delete all[k];
+      state.exProg=all;
+      if(state.exId&&activeEx()&&!activeEx().sets.length)ctx.recallLast(activeEx());
+    }
+    ctx.render();return true;
+  }
   const restPick=t.closest&&t.closest("[data-resttarget]");
   if(restPick){
     const e=state.exInfo?{name:state.exInfo}:activeEx(),v=+restPick.getAttribute("data-resttarget");
