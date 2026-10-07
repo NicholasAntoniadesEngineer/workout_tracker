@@ -2184,3 +2184,16 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
   .pggrid .pgmini{margin-top:0;}
   .pggrid .hcard .chart.sized{height:auto;}
 }
+/* Settings on a big screen: the groups down the left, the chosen one on the right. */
+@media (min-width:900px){
+  .shell .wrap.setsplit{max-width:1120px;display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;padding:0 var(--gut);overflow:hidden;}
+  .setsplit>section{min-height:0;overflow-y:auto;padding-bottom:24px;}
+  .setsplit .setlist{gap:6px;}
+  .setsplit .lrow{border-color:var(--cardLine);box-shadow:0 1px 2px var(--shadow);padding:10px 12px;}
+  .setsplit .lrow .lt{font-size:14.5px;}
+  .setsplit .lrow .lpre{font-size:12px;-webkit-line-clamp:1;}
+  .setsplit .lrow .lchev{display:none;}
+  .setsplit .lrow.sel{border-color:var(--text);box-shadow:inset 0 0 0 1px var(--text);}
+  .setsplit .setcols{column-count:1;}
+  .setsplit .reset{text-align:left;}
+}

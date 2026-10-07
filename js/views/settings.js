@@ -151,13 +151,16 @@ function groups(){
 
 export function settingsView(){
   const all=groups();
-  if(wide())return "<div class='wrap scroll setwrap'>"+pageHead("Settings")+"<div class='setcols'>"+
-    all.map(g=>"<div class='setgroup'>"+g.title+"</div>"+g.html()).join("")+"</div></div>";
+  const list=sel=>"<div class='setlist'>"+all.map(x=>"<button class='lrow setpart"+(sel===x.id?" sel":"")+"' data-setpart='"+x.id+"'"+(sel===x.id?" aria-current='true'":"")+"><span class='lt'>"+x.title+"</span><span class='lpre'>"+x.pre+"</span><span class='lchev'>&rsaquo;</span></button>").join("")+"</div>";
+  // A big screen shows the same groups as a list on the left and the chosen one on the right.
+  if(wide()){
+    const cur=all.find(x=>x.id===state.settingsPart)||all[0];
+    return "<div class='wrap setsplit'><section class='setmaster' data-keepx='setm'>"+pageHead("Settings")+list(cur.id)+"</section>"+
+      "<section class='setdetail' data-keepx='setd'><div class='dhead'><div class='dheadt'><h1 class='dtitle'>"+cur.title+"</h1></div></div><div class='setcols'>"+cur.html()+"</div></section></div>";
+  }
   const g=all.find(x=>x.id===state.settingsPart);
   if(g)return "<div class='wrap scroll setwrap'>"+pageHead(g.title)+"<div class='setcols'>"+g.html()+"</div></div>";
   // The list: each group as one row with a line on what it holds now.
   return "<div class='wrap scroll setwrap'>"+
-    "<div class='hhead'><div></div><div class='h1 plain htitle'>Settings</div><div class='hact'></div></div>"+
-    "<div class='setlist'>"+all.map(x=>"<button class='lrow setpart' data-setpart='"+x.id+"'><span class='lt'>"+x.title+"</span><span class='lpre'>"+x.pre+"</span><span class='lchev'>&rsaquo;</span></button>").join("")+"</div>"+
-    "</div>";
+    "<div class='hhead'><div></div><div class='h1 plain htitle'>Settings</div><div class='hact'></div></div>"+list(null)+"</div>";
 }
