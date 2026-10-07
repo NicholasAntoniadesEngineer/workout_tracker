@@ -55,6 +55,9 @@ export const state={sessions:[],sessionId:null,exId:null,catalog:[],removed:[],b
 export function applySettings(){
   const s=state.settings;
   document.documentElement.dataset.theme=s.theme==="system"?"":s.theme;
+  // Large and extra-large text get layouts of their own on a phone (controls stacked, titles on
+  // their own line), not just bigger type in the same places.
+  document.documentElement.dataset.big=(+s.textScale||0)>=1.2?"1":"";
   options.perSideDouble=!!s.perSideDouble;
   options.unit=s.unit==="lb"?"lb":"kg";
   options.idleEndSeconds=Math.max(0,(+s.idleEndMinutes||0))*SEC_PER_MIN;

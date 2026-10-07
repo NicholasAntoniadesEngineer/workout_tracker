@@ -96,6 +96,7 @@ export function historyView(){
         icon("bookmark")+"</button>":"")+
       "<button class='dact' data-copyday='"+s.id+"' title='Repeat this day&rsquo;s exercises today'>"+
         icon("reset")+"</button>"+
+      (s.ex.some(e=>e.sets.length)?"<button class='dact txt' data-fit='"+s.id+"' title='Save as a FIT file for Garmin Connect or Intervals.icu, sets and reps included'>FIT</button>":"")+
       "<button class='dact del' data-delday='"+s.id+"' title='Delete this day'>&times;</button></div></div>";
   });
   return h+"</div>";

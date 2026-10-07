@@ -93,7 +93,7 @@ const stamp=iso=>String(iso||"").slice(0,10);
 export function everythingZip(sessions,unit,ownCSV,backupJSON,extra){
   const files=[["README.txt","KingsKiln export\n\nstrong-format.csv: every strength set, in the layout Strong, Hevy and most trackers import.\n"+
     "runs/: each run, ride or walk as GPX and TCX, for Strava, Garmin Connect or any training app.\nkingskiln.csv: the app's own spreadsheet of sets.\n"+
-    "kingskiln_backup.json: the full backup, for loading back into KingsKiln.\ncheckins.csv: morning check-ins and sleep.\nfor_ai.md: your recent training as text for an AI chat.\n"],
+    "kingskiln_backup.json: the full backup, for loading back into KingsKiln.\ncheckins.csv: morning check-ins and sleep.\nfor_ai.md: your recent training as text for an AI chat.\nlifting/: each lifting day as a FIT file, sets and reps included, for Garmin Connect or Intervals.icu.\n"],
     ["strong-format.csv",strongCSV(sessions,unit)],["kingskiln.csv",ownCSV],["kingskiln_backup.json",backupJSON]].concat(extra||[]);
   sessions.filter(s=>s.cardio).forEach(s=>{const base="runs/"+stamp(s.created)+"_"+(s.cardio.activity||"other");
     if((s.cardio.track||[]).length>1)files.push([base+".gpx",gpx(s)]);files.push([base+".tcx",tcx(s)]);});

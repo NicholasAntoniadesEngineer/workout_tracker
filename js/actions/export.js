@@ -4,6 +4,7 @@ import {state} from "../store.js";
 import {BOM_CSV,backupJSON,buildCSV,deliver} from "../csv.js";
 import {everythingZip,gpx,strongCSV,tcx,workoutText} from "../exporters.js";
 import {aiSummary,checkinsCSV} from "../aiexport.js";
+import {strengthFit} from "../fitwrite.js";
 import {notice} from "../dialog.js";
 
 export function handle(t,ctx){
@@ -16,7 +17,8 @@ export function handle(t,ctx){
   if(t.closest&&t.closest("#exportstrong")){deliver(strongCSV(state.sessions,state.settings.unit||"kg"),"kingskiln_strong_"+day()+".csv","text/csv;charset=utf-8");return true;}
   if(t.closest&&t.closest("#exportall")){
     const z=everythingZip(state.sessions,state.settings.unit||"kg",BOM_CSV+buildCSV(state.sessions),backupJSON(backup()),
-      [["checkins.csv",checkinsCSV(state.checkins)],["for_ai.md",summary()]]);
+      [["checkins.csv",checkinsCSV(state.checkins)],["for_ai.md",summary()]].concat(state.sessions.filter(s=>!s.cardio&&s.ex.some(e=>e.sets.length))
+        .map(s=>["lifting/"+s.created.slice(0,10)+"_"+s.id.slice(-4)+".fit",strengthFit(s,state.settings.unit||"kg")])));
     deliver(z,"kingskiln_export_"+day()+".zip","application/zip");return true;
   }
   // The AI summary: copied, or saved as a Markdown file; and check-ins as a spreadsheet.
@@ -30,6 +32,9 @@ export function handle(t,ctx){
     return true;
   }
   if(t.closest&&t.closest("#checkinscsv")){deliver(checkinsCSV(state.checkins),"kingskiln_checkins_"+day()+".csv","text/csv;charset=utf-8");return true;}
+  // A lifting day as a FIT file: Garmin Connect and Intervals.icu import it with every set.
+  const ft=t.closest&&t.closest("[data-fit]");
+  if(ft){const s=state.sessions.find(x=>x.id===ft.getAttribute("data-fit"));if(s)deliver(strengthFit(s,state.settings.unit||"kg"),"kingskiln_"+s.created.slice(0,10)+"_lifting.fit","application/vnd.ant.fit");return true;}
   const gx=t.closest&&t.closest("[data-gpx]");
   if(gx){const s=state.sessions.find(x=>x.id===gx.getAttribute("data-gpx"));if(s)deliver(gpx(s),"kingskiln_"+s.created.slice(0,10)+".gpx","application/gpx+xml");return true;}
   const tx=t.closest&&t.closest("[data-tcx]");

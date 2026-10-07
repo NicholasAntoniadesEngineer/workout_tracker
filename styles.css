@@ -2247,3 +2247,45 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .wrapseg.pair .q:first-child{grid-column:auto;}
 .sheethead .plabel{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .wrapseg{grid-template-columns:repeat(auto-fill,minmax(calc(58px * var(--k)),1fr));}
+/* Large text on a phone: controls in a header or beside a number stop growing at a size that
+   still fits, and rows of choices wrap instead of being cut off. Text itself still grows. */
+@media (max-width:899px){
+  .hhead{grid-template-columns:auto minmax(0,1fr) auto;}
+  .hhead .htitle{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  .hhead .backbtn,.hhead .hact .backbtn,.hhead .newday,.hhead .hact .btn{font-size:min(var(--f-md),16px);min-height:min(var(--tap),44px);
+    padding-top:0;padding-bottom:0;padding-left:min(calc(14px * var(--k)),14px);padding-right:min(calc(14px * var(--k)),14px);}
+  .hhead .backbtn.iconbtn{width:min(var(--tap),44px);min-width:0;padding:0;}
+  .togrow{flex-wrap:wrap;row-gap:6px;}
+  .togrow .q{min-width:0;}
+  .rnd{width:min(calc(38px * var(--k)),42px);height:min(calc(38px * var(--k)),42px);font-size:min(calc(21px * var(--k)),24px);}
+  .numval{font-size:min(var(--f-rep),44px);min-width:0;}
+  .numstep{gap:min(calc(8px * var(--k)),8px);}
+  .numctl{min-width:0;}
+  .bc-a{flex-wrap:wrap;}
+  .prgrid>*{min-width:0;}
+  .stat .v{overflow-wrap:anywhere;}
+}
+/* Large text, phone: the number takes its own line above − and +, and a page title gets its
+   own line under Back and the page's buttons. */
+@media (max-width:899px){
+  :root[data-big="1"] .numstep{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"v v" "m p";justify-items:center;row-gap:6px;}
+  :root[data-big="1"] .numstep .numval{grid-area:v;}
+  :root[data-big="1"] .numstep .rnd:first-child{grid-area:m;}
+  :root[data-big="1"] .numstep .rnd:last-child{grid-area:p;}
+  :root[data-big="1"] .hhead{grid-template-columns:auto 1fr;grid-template-areas:"back act" "title title";row-gap:6px;}
+  :root[data-big="1"] .hhead>:first-child{grid-area:back;}
+  :root[data-big="1"] .hhead .htitle{grid-area:title;text-align:left;white-space:normal;}
+  :root[data-big="1"] .hhead .hact{grid-area:act;}
+}
+@media (max-width:899px){
+  /* History at large text: the exercises line and the actions each take a full row, so the
+     day's name and date have the width they need. */
+  :root[data-big="1"] .day.hday{grid-template-columns:minmax(0,1fr) auto;}
+  :root[data-big="1"] .hday .exl{grid-column:1/-1;white-space:normal;}
+  :root[data-big="1"] .hday .dayacts{grid-column:1/-1;justify-content:flex-end;}
+  :root[data-big="1"] .day .t,:root[data-big="1"] .day .sub{white-space:normal;}
+  :root[data-big="1"] .dact{width:min(var(--tap),48px);height:min(var(--tap),48px);}
+  /* Settings list at large text: the group name grows too, and its summary may take two lines. */
+  :root[data-big="1"] .setlist .lt{font-size:calc(15px * var(--k));}
+  :root[data-big="1"] .setlist .lpre{white-space:normal;}
+}

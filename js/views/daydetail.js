@@ -30,7 +30,8 @@ function actions(s){
     (s.ex.length&&!s.cardio?"<button class='btn ghost tiny' data-copyday='"+s.id+"'>"+icon("reset","sm")+"Repeat today</button>"+
       "<button class='btn ghost tiny' data-saveroutine='"+s.id+"'>"+icon("bookmark","sm")+"Save as routine</button>":"")+
     (s.cardio?((s.cardio.track||[]).length>1?"<button class='btn ghost tiny' data-gpx='"+s.id+"'>GPX</button>":"")+"<button class='btn ghost tiny' data-tcx='"+s.id+"'>TCX</button>":
-      "<button class='btn ghost tiny' data-copytext='"+s.id+"'>Copy as text</button>")+
+      "<button class='btn ghost tiny' data-copytext='"+s.id+"'>Copy as text</button>"+
+      (s.ex.some(e=>e.sets.length)?"<button class='btn ghost tiny' data-fit='"+s.id+"' title='For Garmin Connect or Intervals.icu, sets and reps included'>FIT for Garmin</button>":""))+
     "<button class='btn ghost tiny dang' data-delday='"+s.id+"'>Delete</button></div>";
 }
 
