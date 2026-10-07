@@ -2131,3 +2131,7 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
   .lgopts .timerow .btn{margin-left:auto;}
   .lgopts .timerow .btn+.btn{margin-left:0;}
 }
+/* Settings on the phone: a list of groups, each its own page. */
+.setlist{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+.setlist .lrow{width:100%;}
+.setlist .lpre{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}

@@ -19,6 +19,8 @@ function goSection(k,ctx){
     state.calYear=d.getFullYear();state.calMonth=d.getMonth();
   }else if(k==="learn"){
     state.learnOpen=null;state.learnCat=null;state.learnIndex=null;state.learnQuery="";state.learnSearchOpen=false;
+  }else if(k==="settings"){
+    state.settingsPart=null;
   }else if(k==="cardio"&&!state.cardio&&!state.cardioDone){
     openCardio();checkGps(ctx.render);
   }
@@ -79,6 +81,10 @@ export function handle(t,ctx){
   if(t.closest&&t.closest("#backbtn")&&state.view==="learn"&&state.learnCat){
     state.learnCat=null;state.scrollTo=0;ctx.render();return true;
   }
+  // A settings group goes back to the list of groups.
+  if(t.closest&&t.closest("#backbtn")&&state.view==="settings"&&state.settingsPart){state.settingsPart=null;state.scrollTo=0;ctx.render();return true;}
+  const sp=t.closest&&t.closest("[data-setpart]");
+  if(sp){state.settingsPart=sp.getAttribute("data-setpart");state.scrollTo=0;ctx.render();return true;}
   if(t.closest&&t.closest("#backbtn")){
     state.view=state.view==="calendar"?"history":"home";
     state.sheet=false;state.adding=false;ctx.render();return true;
