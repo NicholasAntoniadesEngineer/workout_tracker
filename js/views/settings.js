@@ -113,7 +113,7 @@ function groups(){
       "<div class='setrow'><div class='setlbl'>Height and sex</div><div class='sethint'>Only for the body-fat estimate from your tape measurements.</div>"+
       "<div class='setopts'><input class='timein mono setin' id='heightcm' inputmode='numeric' placeholder='Height, cm' value='"+(st.heightCm||"")+"'>"+
         [["","Not set"],["m","Male"],["f","Female"]].map(([v,l])=>"<button class='q"+((st.sex||"")===v?" on":"")+"' data-set='sex' data-val='"+v+"'>"+l+"</button>").join("")+"</div></div>"},
-    {id:"data",title:"Your data",pre:"Backup, export, import &middot; last backup "+(state.backupAt?esc(shortDate(state.backupAt)):"never"),html:()=>
+    {id:"data",title:"Your data",pre:"Backup, export, for AI, import &middot; last backup "+(state.backupAt?esc(shortDate(state.backupAt)):"never"),html:()=>
       // Files in and out: a spreadsheet of every set, a full backup, and loading either back.
       "<div class='setrow'><div class='setlbl'>Save and load history</div>"+
       "<div class='sethint'>CSV opens in a spreadsheet. A backup also keeps routines, body log and settings. "+
@@ -129,6 +129,10 @@ function groups(){
       "<div class='sethint'>Nothing here is locked in. A Strong-format CSV imports into Hevy, Strong and most trackers; runs and rides go out as GPX and TCX from History. Everything together as one zip.</div>"+
       "<div class='setopts'><button class='q' id='exportstrong'>"+icon("save","sm")+"Strong-format CSV</button>"+
         "<button class='q' id='exportall'>"+icon("save","sm")+"Everything (zip)</button></div></div>"+
+      "<div class='setrow'><div class='setlbl'>For ChatGPT or Claude</div>"+
+      "<div class='sethint'>Your recent training, records, check-ins and plan as plain text. Paste it into an AI chat and ask about your training. KingsKiln sends nothing anywhere.</div>"+
+      "<div class='setopts'>"+[[4,"4 weeks"],[12,"12 weeks"],[52,"A year"]].map(([w,l])=>"<button class='q"+((state.aiWeeks||12)===w?" on":"")+"' data-aiweeks='"+w+"'>"+l+"</button>").join("")+"</div>"+
+      "<div class='setopts'><button class='q' id='aicopy'>"+icon("share","sm")+"Copy</button><button class='q' id='aisave'>"+icon("save","sm")+"Save as file</button><button class='q' id='checkinscsv'>"+icon("save","sm")+"Check-ins CSV</button></div></div>"+
       "<div class='setrow'><div class='setlbl'>Import from other apps</div>"+
       "<div class='sethint'>Strava, Garmin Connect, Apple Health, Strong, Hevy, Fitbod, or any FIT, GPX or TCX file. Read on this device; nothing is uploaded.</div>"+
       "<div class='setopts'><button class='q' id='openimport'>"+icon("share","sm")+"Import history</button></div></div>"+

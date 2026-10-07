@@ -3,6 +3,7 @@
 import {state} from "../store.js";
 import {BOM_CSV,backupJSON,buildCSV,deliver} from "../csv.js";
 import {everythingZip,gpx,strongCSV,tcx,workoutText} from "../exporters.js";
+import {aiSummary,checkinsCSV} from "../aiexport.js";
 import {notice} from "../dialog.js";
 
 export function handle(t,ctx){
@@ -10,11 +11,25 @@ export function handle(t,ctx){
   const backup=()=>({sessions:state.sessions,catalog:state.catalog,removed:state.removed,settings:state.settings,body:state.body,routines:state.routines,
     hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,gyms:state.gyms,gymId:state.gymId,supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme,learnSaved:state.learnSaved});
   const day=()=>new Date().toISOString().slice(0,10);
+  const summary=()=>aiSummary({sessions:state.sessions,settings:state.settings,body:state.body,checkins:state.checkins,exNotes:state.exNotes,
+    exProg:state.exProg,gyms:state.gyms,routines:state.routines,programme:state.programme},{weeks:state.aiWeeks||12});
   if(t.closest&&t.closest("#exportstrong")){deliver(strongCSV(state.sessions,state.settings.unit||"kg"),"kingskiln_strong_"+day()+".csv","text/csv;charset=utf-8");return true;}
   if(t.closest&&t.closest("#exportall")){
-    const z=everythingZip(state.sessions,state.settings.unit||"kg",BOM_CSV+buildCSV(state.sessions),backupJSON(backup()));
+    const z=everythingZip(state.sessions,state.settings.unit||"kg",BOM_CSV+buildCSV(state.sessions),backupJSON(backup()),
+      [["checkins.csv",checkinsCSV(state.checkins)],["for_ai.md",summary()]]);
     deliver(z,"kingskiln_export_"+day()+".zip","application/zip");return true;
   }
+  // The AI summary: copied, or saved as a Markdown file; and check-ins as a spreadsheet.
+  const aw=t.closest&&t.closest("[data-aiweeks]");
+  if(aw){state.aiWeeks=+aw.getAttribute("data-aiweeks");ctx.render();return true;}
+  if(t.closest&&t.closest("#aisave")){deliver(summary(),"kingskiln_for_ai_"+day()+".md","text/markdown;charset=utf-8");return true;}
+  if(t.closest&&t.closest("#aicopy")){
+    const txt=summary(),done=()=>{notice("Copied","Paste it into ChatGPT, Claude or any AI chat, then ask about your training.");ctx.render();};
+    const fall=()=>{state.dialog={kind:"notice",title:"Copy your training",copy:txt,ok:"Done"};ctx.render();};
+    try{navigator.clipboard.writeText(txt).then(done,fall);}catch(e){fall();}
+    return true;
+  }
+  if(t.closest&&t.closest("#checkinscsv")){deliver(checkinsCSV(state.checkins),"kingskiln_checkins_"+day()+".csv","text/csv;charset=utf-8");return true;}
   const gx=t.closest&&t.closest("[data-gpx]");
   if(gx){const s=state.sessions.find(x=>x.id===gx.getAttribute("data-gpx"));if(s)deliver(gpx(s),"kingskiln_"+s.created.slice(0,10)+".gpx","application/gpx+xml");return true;}
   const tx=t.closest&&t.closest("[data-tcx]");
