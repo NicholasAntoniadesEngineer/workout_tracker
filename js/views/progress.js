@@ -1,13 +1,13 @@
 // Progress: honest numbers over gamification — how often, how much, and which way each
 // lift is moving. Everything derives from the logged sets; nothing extra is stored.
-import {shortDate,totals,exerciseGroup} from "../model.js";
+import {dateKey,shortDate,totals,exerciseGroup} from "../model.js";
 import {state} from "../store.js";
 import {ACTIVITIES} from "./cardio.js";
 import {BEST_KM,cardioBests,fmtPace} from "../cardio.js";
 import {SET_TARGET,SPANS,barChart,cardioWeekly,exerciseRecords,exerciseTrend,lineChart,topExercises,
   weeklySetsByGroup,weeklyVolume,withAxis} from "../charts.js";
 import {esc,pageHead,wide} from "./common.js";
-import {recoverSection} from "./checkin.js";
+import {recoverMini} from "./checkin.js";
 
 const fmtNum=v=>Math.round(v).toLocaleString();
 const clk=s=>{s=Math.round(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
@@ -39,14 +39,12 @@ function cardioSection(){
   const weeks=cardioWeekly(ses,undefined,state.progressSpan||"8w"),byDist=weeks.some(w=>w.dist),now=weeks[weeks.length-1];
   const vals=weeks.map(w=>byDist?w.dist/per:w.secs/60);
   const fmtV=v=>byDist?(Math.round(v*10)/10)+" "+u:Math.round(v)+" min";
-  let h="<div class='setgroup'>Cardio &middot; weekly "+(byDist?"distance":"time")+"</div>"+
-    "<div class='card chartcard'>"+withAxis(barChart(vals,wide()?{w:960,h:150,labels:weeks.map((w,i)=>w.label+": "+fmtV(vals[i]))}:undefined),fmtV(Math.max(0,...vals)),0)+
+  let h="<div class='card hcard'><div class='hcardh'><span class='llabel'>Cardio &middot; weekly "+(byDist?"distance":"time")+"</span></div>"+withAxis(barChart(vals,wide()?{w:960,h:150,labels:weeks.map((w,i)=>w.label+": "+fmtV(vals[i]))}:undefined),fmtV(Math.max(0,...vals)),0)+
     "<div class='chartlbls'><span>"+esc(weeks[0].label)+"</span>"+
     "<span>"+fmtV(byDist?now.dist/per:now.secs/60)+" &middot; "+now.n+" this week</span>"+
     "<span>"+esc(now.label)+"</span></div></div>";
   const row=(l,v,at)=>"<div class='histrow'><span class='histdate'>"+l+"</span><span class='histsets mono'>"+v+
     (at?" <span class='cbdate'>"+esc(shortDate(at))+"</span>":"")+"</span></div>";
-  h+="<div class='setgroup'>Cardio bests</div>";
   cardioBests(ses).forEach(b=>{
     const name=(ACTIVITIES.find(a=>a[0]===b.activity)||["","",b.activity])[2];
     h+="<div class='card cbest'><div class='cbhead'><b>"+esc(name)+"</b><span>"+b.n+" session"+(b.n===1?"":"s")+
@@ -62,34 +60,55 @@ function cardioSection(){
   return h;
 }
 
+// The week as seven small marks: trained, today, kept for rest.
+function weekDots(){
+  const restDay=state.settings.restDay===6?6:0;
+  const today=new Date();today.setHours(12,0,0,0);
+  const sinceStart=restDay===0?(today.getDay()+6)%7:today.getDay();
+  const trained={};
+  state.sessions.forEach(s=>{if(s.ex.some(e=>e.sets.length)||s.cardio)trained[dateKey(s.created)]=true;});
+  let h="";
+  for(let i=0;i<7;i++){
+    const d=new Date(today);d.setDate(d.getDate()-sinceStart+i);
+    const did=!!trained[dateKey(d.toISOString())],isRest=d.getDay()===restDay;
+    h+="<i class='"+(i===sinceStart?"now":did?"on":isRest?"rest":"")+"' title='"+esc(d.toLocaleDateString(undefined,{weekday:"short"}))+"'></i>";
+  }
+  return "<div class='pgwk'>"+h+"</div>";
+}
+// One card for the week: days trained, hard sets against the aim, the load moved.
+function thisWeekCard(thisWeek,useTon,unit){
+  const groups=weeklySetsByGroup(state.sessions).filter(g=>g.target);
+  const hard=groups.reduce((n,g)=>n+g.sets,0),inRange=groups.filter(g=>g.sets>=SET_TARGET.low&&g.sets<=SET_TARGET.high).length;
+  return "<div class='card hcard'><div class='hcardh'><span class='llabel'>This week</span><button class='hmore' id='homecal'>Calendar &rsaquo;</button></div>"+
+    "<div class='pgk3'><div><b class='mono'>"+thisWeek.trained+"<small>"+(thisWeek.trained===1?"day":"days")+"</small></b><span>trained</span></div>"+
+    "<div><b class='mono'>"+hard+"<small>hard</small></b><span>sets &middot; "+inRange+"/"+groups.length+" on aim</span></div>"+
+    "<div><b class='mono'>"+(useTon?fmtNum(thisWeek.ton)+"<small>"+unit+"</small>":thisWeek.reps+"<small>reps</small>")+"</b><span>"+(useTon?"lifted":"this week")+"</span></div></div>"+
+    weekDots()+"</div>";
+}
+const segc=(items,attr,cur)=>"<div class='segc'>"+items.map(([k,l])=>"<button class='"+(String(cur)===String(k)?"on":"")+"' "+attr+"=\""+esc(k)+"\">"+l+"</button>").join("")+"</div>";
+
 export function progressView(){
   const span=state.progressSpan||"8w";
   const weeks=weeklyVolume(state.sessions,span);
   const thisWeek=weeks[weeks.length-1];
-  const last4=weeks.slice(-4).reduce((n,w)=>n+w.trained,0);
   const workouts=state.sessions.filter(s=>s.ex.some(e=>e.sets.length)).length;
   const totalReps=state.sessions.reduce((n,s)=>n+totals(s).reps,0);
   const unit=esc(state.settings.unit||"kg");
-
   const big=wide();
-  const kpi="<div class='prgrid'>"+
-    "<div class='stat'><div class='v mono'>"+thisWeek.trained+"</div><div class='l'>Days this week</div></div>"+
-    "<div class='stat'><div class='v mono'>"+last4+"</div><div class='l'>Days, last 4 weeks</div></div>"+
-    "<div class='stat'><div class='v mono'>"+workouts+"</div><div class='l'>Workouts logged</div></div>"+
-    "<div class='stat'><div class='v mono'>"+totalReps+"</div><div class='l'>Total reps</div></div></div>";
 
   // Weekly volume: tonnage once any weight has been logged, plain reps until then.
   const useTon=weeks.some(w=>w.ton);
   const vals=weeks.map(w=>useTon?w.ton:w.reps);
+  const week=thisWeekCard(thisWeek,useTon,unit);
   // This week's hard sets per movement against the 10–20 that drives growth: a bar per group,
   // the target band shaded, so an under-trained pattern shows before the week is out.
-  const sets="<div class='setgroup'>Hard sets this week &middot; aim "+SET_TARGET.low+"&ndash;"+SET_TARGET.high+"</div>"+setBars();
-
+  const sets="<div class='card hcard'><div class='hcardh'><span class='llabel'>Hard sets &middot; aim "+SET_TARGET.low+"&ndash;"+SET_TARGET.high+"</span></div>"+
+    setBars().replace("<div class='card chartcard setbars'>","<div class='setbars'>")+"</div>";
   // Volume is weight × reps added up: the total load moved, in plain words.
-  const vol="<div class='setgroup'>Weekly "+(useTon?"volume &middot; total "+unit+" lifted":"reps")+"</div>"+
-    "<div class='card chartcard'>"+withAxis(barChart(vals,big?{w:640,h:190,labels:weeks.map(w=>w.label+": "+fmtNum(useTon?w.ton:w.reps))}:undefined),fmtNum(Math.max(0,...vals)),0)+
+  const vol="<div class='card hcard'><div class='hcardh'><span class='llabel'>Weekly "+(useTon?"volume &middot; "+unit:"reps")+"</span></div>"+
+    withAxis(barChart(vals,big?{w:640,h:170,labels:weeks.map(w=>w.label+": "+fmtNum(useTon?w.ton:w.reps))}:undefined),fmtNum(Math.max(0,...vals)),0)+
     "<div class='chartlbls'><span>"+esc(weeks[0].label)+"</span>"+
-    "<span>"+fmtNum(useTon?thisWeek.ton:thisWeek.reps)+" this week</span>"+
+    "<span><b>"+fmtNum(useTon?thisWeek.ton:thisWeek.reps)+" this week</b></span>"+
     "<span>"+esc(thisWeek.label)+"</span></div></div>";
 
   // One exercise's line: top-set weight per day, or top reps for unweighted movements.
@@ -102,23 +121,18 @@ export function progressView(){
     const measure=state.progressMeasure||"";
     const trend=exerciseTrend(done,cur,{span,measure:measure||undefined});
     const MEAS=[["e1rm","Est. 1RM"],["top","Top set"],["volume","Volume"],["reps","Reps"]];
-    // A dropdown, not a wall of buttons: the chart stays in view however many lifts there are.
-    // A big screen has room for the lifts as chips.
-    trendH+="<div class='setgroup'>Exercise trend</div><div class='card chartcard'>"+
-      (big?"<div class='lchips pgchips'>"+names.map(n=>"<button class='lchip"+(n===cur?" on":"")+"' data-trend=\""+esc(n)+"\">"+esc(n)+"</button>").join("")+"</div>":
-      "<select class='trendsel' id='trendsel'>");
-    if(!big){names.forEach(n=>{trendH+="<option"+(n===cur?" selected":"")+" value=\""+esc(n)+"\">"+esc(n)+"</option>";});
-      trendH+="</select>";}
-    if(trend.weighted)trendH+="<div class='lchips pgmeas'>"+MEAS.map(([k,l])=>"<button class='lchip"+((measure||"e1rm")===k?" on":"")+"' data-measure='"+k+"'>"+l+"</button>").join("")+"</div>";
+    // The lift as a dropdown in the card's corner, so the chart stays put however many there are.
+    trendH="<div class='card hcard'><div class='hcardh'><span class='llabel'>Exercise</span><select class='pickchip' id='trendsel' aria-label='Exercise'>"+
+      names.map(n=>"<option"+(n===cur?" selected":"")+" value=\""+esc(n)+"\">"+esc(n)+"</option>").join("")+"</select></div>";
+    if(trend.weighted)trendH+=segc(MEAS,"data-measure",measure||"e1rm");
     if(trend.points.length>1){
       const latest=trend.points[trend.points.length-1],first=trend.points[0];
       const delta=Math.round((latest.v-first.v)*10)/10;
       const vs=trend.points.map(p=>p.v);
       const what={e1rm:"est. 1RM, "+unit,top:"top set, "+unit,volume:"volume, "+unit,reps:"best reps"}[trend.measure];
-      trendH+=withAxis(lineChart(vs,big?{w:640,h:190,labels:trend.points.map(p=>shortDate(p.at)+": "+p.v)}:undefined),Math.max(...vs),Math.min(...vs))+
+      trendH+=withAxis(lineChart(vs,big?{w:640,h:170,labels:trend.points.map(p=>shortDate(p.at)+": "+p.v)}:undefined),Math.max(...vs),Math.min(...vs))+
         "<div class='chartlbls'><span>"+esc(shortDate(first.at))+"</span>"+
-        "<span>"+what+" &middot; now "+latest.v+
-        (delta?" ("+(delta>0?"+":"")+delta+")":"")+"</span>"+
+        "<span><b>now "+latest.v+(delta?" ("+(delta>0?"+":"")+delta+")":"")+"</b> &middot; "+what+"</span>"+
         "<span>"+esc(shortDate(latest.at))+"</span></div>";
     }else{
       trendH+="<div class='empty-note'>Log "+esc(cur)+" on a second day to see its trend.</div>";
@@ -126,14 +140,14 @@ export function progressView(){
     trendH+="</div>";
   }
 
-  const cardio=cardioSection()+recoverSection();
+  const cardio=cardioSection(),mini=recoverMini();
   const recs=exerciseRecords(state.sessions);
   let recsH="";
   if(recs.length){
-    // Grouped by movement; the groups and the exercises inside each run A–Z.
-    // Each group folds; the ones left open are remembered.
+    // Grouped by movement; the groups and the exercises inside each run A–Z. Each group folds;
+    // the ones left open are remembered.
     const open=String(state.settings.recOpen||"").split("|").filter(Boolean);
-    recsH+="<div class='setgroup'>Records</div><div class='card recs'>";
+    recsH="<div class='card hcard recs'><div class='hcardh'><span class='llabel'>Records</span><span class='pgall'>"+workouts+" workout"+(workouts===1?"":"s")+" &middot; "+fmtNum(totalReps)+" reps all time</span></div>";
     const by={};
     recs.forEach(r=>{const g=exerciseGroup(r.name);(by[g]=by[g]||[]).push(r);});
     Object.keys(by).sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base"})).forEach(g=>{
@@ -149,16 +163,18 @@ export function progressView(){
     });
     recsH+="</div>";
   }
-  const spanRow="<div class='lchips pgspan'>"+SPANS.map(([k,l])=>"<button class='lchip"+(span===k?" on":"")+"' data-span='"+k+"'>"+l+"</button>").join("")+"</div>";
+  const SHORT={"8w":"8 wk","3m":"3 mo","6m":"6 mo","1y":"1 yr",all:"All"};
+  const spanRow=segc(SPANS.map(([k,l])=>[k,SHORT[k]||l]),"data-span",span);
+  const tabs=big?"":"<div class='segc pgtabs'><button class='on'>Charts</button><button id='homedays'>History</button><button id='homecal'>Calendar</button><button id='homebody'>Body</button>"+
+    (state.settings.modFuel?"<button data-openhealth='fuel'>Fuel</button>":"")+(state.settings.modMarkers?"<button data-openhealth='markers'>Markers</button>":"")+(state.settings.modMind?"<button data-openhealth='mind'>Mind</button>":"")+"</div>";
   let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress",spanRow):
-    "<div class='hhead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'></div></div>"+
-    "<div class='pgchiprow'><button class='lchip' id='homedays'>History</button><button class='lchip' id='homecal'>Calendar</button><button class='lchip' id='homebody'>Body</button>"+
-      (state.settings.modFuel?"<button class='lchip' data-openhealth='fuel'>Fuel</button>":"")+(state.settings.modMarkers?"<button class='lchip' data-openhealth='markers'>Markers</button>":"")+(state.settings.modMind?"<button class='lchip' data-openhealth='mind'>Mind</button>":"")+"</div>"+spanRow);
-  // A big screen arranges the same sections as a dashboard; the phone reads them in a column.
-  if(big)h+="<div class='pggrid'><section class='pg12'>"+kpi+"</section><section class='pg8'>"+vol+"</section><section class='pg4'>"+sets+"</section>"+
-    (trendH?"<section class='pg8'>"+trendH+"</section>":"")+(recsH?"<section class='pg4 pgrecs'>"+recsH+"</section>":"")+
+    "<div class='hhead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'></div></div>"+spanRow+tabs);
+  // A big screen arranges the same cards as a dashboard; the phone reads them in a column.
+  if(big)h+="<div class='pggrid'><section class='pg8'>"+vol+"</section><section class='pg4'>"+week+sets+"</section>"+
+    (trendH?"<section class='pg8'>"+trendH+"</section>":"")+(mini?"<section class='pg4'>"+mini+"</section>":"")+
+    (recsH?"<section class='pg8'>"+recsH+"</section>":"")+
     (cardio?"<section class='pg12 pgcardio'>"+cardio+"</section>":"")+"</div>";
-  else h+=kpi+sets+vol+trendH+cardio+recsH;
+  else h+="<div class='pgstack'>"+week+vol+sets+trendH+mini+cardio+recsH+"</div>";
   if(!workouts&&!state.sessions.some(s=>s.cardio))h+="<div class='empty-note'>Nothing logged yet — progress shows up here.</div>";
   return h+"</div>";
 }

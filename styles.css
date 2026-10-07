@@ -2149,3 +2149,38 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .setopts.cstepv{justify-content:flex-start;}
 .setopts.cstepv .q{flex:0 0 44px;}
 .setopts.cstepv b{flex:none;min-width:48px;text-align:center;font-size:16px;}
+/* Progress: one stack of cards with their headings inside, compact segmented controls. */
+.segc{display:flex;gap:2px;padding:3px;border-radius:11px;background:var(--panelHi);margin:0 0 10px;}
+.segc button{flex:1 1 0;min-width:0;height:30px;padding:0 6px;border:0;border-radius:8px;background:none;color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.segc button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 2px var(--shadow);}
+.segc.pgtabs{margin-bottom:14px;}
+.pgstack{display:flex;flex-direction:column;gap:10px;}
+.pgstack .card,.pgmini .card{margin:0;}
+.pgk3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.pgk3 div{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.pgk3 b{font-size:24px;font-weight:800;letter-spacing:-.8px;line-height:1;}
+.pgk3 b small{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:0;margin-left:3px;}
+.pgk3 span{font-size:11.5px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pgwk{display:flex;gap:6px;margin-top:12px;}
+.pgwk i{flex:1;height:6px;border-radius:3px;background:var(--panelHi);}
+.pgwk i.on{background:var(--text);}
+.pgwk i.now{background:var(--gold);}
+.pgwk i.rest{background:transparent;border:1px dashed var(--line);height:4px;}
+.pgmini{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.pgbig{display:block;font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1.1;}
+.pgbig small{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:0;}
+.pgsub{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-top:3px;}
+.pickchip{appearance:none;-webkit-appearance:none;height:28px;padding:0 24px 0 12px;border:0;border-radius:14px;background:var(--panelHi) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 3.5l3 3 3-3' fill='none' stroke='%23666' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 8px center/10px;color:var(--text);font:inherit;font-size:13px;font-weight:800;max-width:60%;text-overflow:ellipsis;cursor:pointer;}
+.hcardh .pickchip{margin-left:auto;}
+.pgall{font-size:12px;color:var(--muted);font-weight:700;text-align:right;}
+.chart rect{fill:var(--muted);opacity:.38;stroke:none;}
+.chart rect.now{fill:var(--gold);opacity:1;}
+.chartlbls b{color:var(--text);}
+.recs .recgroup{font-size:14.5px;letter-spacing:0;text-transform:none;min-height:42px;}
+.recs .reccount{font-size:13px;}
+.hcard .setbars{gap:7px;}
+@media (min-width:900px){
+  .shell .dhead .segc{margin:0;width:360px;}
+  .pggrid .pgmini{margin-top:0;}
+  .pggrid .hcard .chart.sized{height:auto;}
+}

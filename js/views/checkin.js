@@ -46,7 +46,17 @@ export function readinessCard(){
   return "<button class='rslim "+r.band+"' id='cistart' title='"+esc(r.why+". "+suggestion(r.band,r.planned))+"'><span class='rdot'></span><span class='rslimt'><b>"+BAND_LABEL[r.band]+"</b> &middot; "+esc(suggestion(r.band,r.planned))+"</span><span class='rslime'>Edit</span></button>";
 }
 
-// Progress: sleep and load, in two small cards with plain labels.
+// Progress: load and sleep as two small cards side by side.
+export function recoverMini(){
+  if(!state.settings.checkin||!state.checkins.length)return "";
+  const r=readinessNow(),a=acwr(r.loads),s=r.sleep;
+  const word=a.ratio>1.5?"Spike":a.ratio>1.3?"High":a.ratio<0.8&&a.chronic?"Light":"Steady";
+  const need=state.settings.sleepNeed||8;
+  return "<div class='pgmini'>"+
+    "<div class='card hcard'><div class='hcardh'><span class='llabel'>Load</span></div><b class='pgbig'>"+word+(a.ratio?"<small> &middot; "+a.ratio.toFixed(2)+"</small>":"")+"</b><span class='pgsub'>"+a.acute+" this week vs "+a.chronic+" lately</span></div>"+
+    "<div class='card hcard'><div class='hcardh'><span class='llabel'>Sleep</span></div>"+(s.nights?"<b class='pgbig'>"+s.avg+"<small> h</small></b><span class='pgsub'>"+s.nights+" nights &middot; "+(s.debt?s.debt+" h short of "+need:"no debt")+"</span>":
+      "<b class='pgbig'>&mdash;</b><span class='pgsub'>No nights logged</span>")+"</div></div>";
+}
 export function recoverSection(){
   if(!state.settings.checkin||!state.checkins.length)return "";
   const r=readinessNow(),a=acwr(r.loads),s=r.sleep;
