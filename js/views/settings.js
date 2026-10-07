@@ -77,6 +77,11 @@ function groups(){
       choiceRow("Rest day","The day the week keeps for rest.","restDay",[["Sunday",0],["Saturday",6]])},
     {id:"logging",title:"Logging",pre:"Start at "+(st.startReps||10)+" reps &middot; "+(st.unit||"kg")+" &middot; per side "+(on("perSideDouble")?"doubles":"as logged"),html:()=>
       choiceRow("Starting reps","","startReps",START_REPS.map(n=>[String(n),n]))+
+      (st.unit==="lb"?choiceRow("Bar","For plates and warm-ups. Any lift can have its own, in its sheet.","barLb",[["35 lb",35],["45 lb",45]]):
+        choiceRow("Bar","For plates and warm-ups. Any lift can have its own, in its sheet.","barKg",[["15 kg",15],["20 kg",20]]))+
+      "<div class='setrow'><div class='setlbl'>Gyms</div><div class='sethint'>Train in more than one place? Name them; each keeps its own records and suggestions, since machines differ.</div>"+
+        "<div class='setopts gymlist'>"+(state.gyms||[]).map(g=>"<span class='gymtag'>"+esc(g.name)+"<button data-delgym='"+esc(g.id)+"' aria-label='Remove "+esc(g.name)+"'>&times;</button></span>").join("")+
+        "<button class='q' id='addgym'>+ Add gym</button></div></div>"+
       toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
       choiceRow("Weight unit","","unit",[["kg","kg"],["lb","lb"]])},
     {id:"progression",title:"Progression",pre:(st.progressRange||"10-15").replace("-","&ndash;")+" reps &middot; +"+stepLabel(st)+" &middot; "+(+st.stallAfter?"deload after "+st.stallAfter:"no deload")+(st.breakRule&&st.breakRule!=="off"?" &middot; eases you back":""),html:()=>{

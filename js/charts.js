@@ -1,6 +1,6 @@
 // Progress analytics: pure computations over sessions plus tiny inline-SVG charts.
 // No libraries — the charts inherit the theme through currentColor and CSS variables.
-import {EXERCISE_GROUPS,OTHER_GROUP,dateKey,exerciseGroup,setReps} from "./model.js";
+import {EXERCISE_GROUPS,OTHER_GROUP,dateKey,exerciseGroup,setReps,setLoad} from "./model.js";
 
 const WEEKS_SHOWN=8;
 const TREND_POINTS=12;
@@ -17,7 +17,7 @@ function hasSets(s){return s.ex.some(e=>e.sets.length);}
 // Tonnage of a session: reps × weight, so bodyweight sets contribute volume only to reps.
 function tonnage(s){
   let t=0;
-  s.ex.forEach(e=>e.sets.forEach(x=>{if(!x.wu)t+=setReps(x)*(+x.w||0);}));
+  s.ex.forEach(e=>e.sets.forEach(x=>{if(!x.wu)t+=setReps(x)*setLoad(x);}));
   return Math.round(t);
 }
 

@@ -428,6 +428,10 @@ document.body.addEventListener("change",ev=>{
     return;
   }
   if(ev.target&&ev.target.id==="trendsel"){state.progressEx=ev.target.value;render();return;}
+  // The gym for this workout, and the one new workouts start at.
+  if(ev.target&&ev.target.id==="gympick"){const s=getSession();state.gymId=ev.target.value;if(s){if(ev.target.value)s.gym=ev.target.value;else delete s.gym;}
+    const e=activeEx();if(e&&!e.sets.length)recallLast(e);save();render();return;}
+  if(ev.target&&ev.target.id==="recgym"){state.recGym=ev.target.value;render();return;}
   if(ev.target&&ev.target.id==="remtime"){setSetting("remindTime",ev.target.value);render();return;}
   if(ev.target&&ev.target.id==="csvfile"){
     const f=ev.target.files&&ev.target.files[0];

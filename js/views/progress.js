@@ -141,13 +141,18 @@ export function progressView(){
   }
 
   const cardio=cardioSection(),mini=recoverMini();
-  const recs=exerciseRecords(state.sessions);
+  // Records at one gym, or everywhere: machines and bars differ from place to place.
+  const gyms=(state.gyms||[]).filter(g=>state.sessions.some(s=>s.gym===g.id));
+  const rg=gyms.some(g=>g.id===state.recGym)?state.recGym:"";
+  const recs=exerciseRecords(rg?state.sessions.filter(s=>s.gym===rg):state.sessions);
+  const gymSel=gyms.length?"<select class='pickchip' id='recgym' aria-label='Records at'><option value=''>All gyms</option>"+
+    gyms.map(g=>"<option value='"+esc(g.id)+"'"+(g.id===rg?" selected":"")+">"+esc(g.name)+"</option>").join("")+"</select>":"";
   let recsH="";
   if(recs.length){
     // Grouped by movement; the groups and the exercises inside each run A–Z. Each group folds;
     // the ones left open are remembered.
     const open=String(state.settings.recOpen||"").split("|").filter(Boolean);
-    recsH="<div class='card hcard recs'><div class='hcardh'><span class='llabel'>Records</span><span class='pgall'>"+workouts+" workout"+(workouts===1?"":"s")+" &middot; "+fmtNum(totalReps)+" reps all time</span></div>";
+    recsH="<div class='card hcard recs'><div class='hcardh'><span class='llabel'>Records</span>"+(gymSel||"<span class='pgall'>"+workouts+" workout"+(workouts===1?"":"s")+" &middot; "+fmtNum(totalReps)+" reps all time</span>")+"</div>";
     const by={};
     recs.forEach(r=>{const g=exerciseGroup(r.name);(by[g]=by[g]||[]).push(r);});
     Object.keys(by).sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base"})).forEach(g=>{

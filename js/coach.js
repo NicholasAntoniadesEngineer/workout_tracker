@@ -1,7 +1,7 @@
 // The session loop: what to aim for next time, when a set beats everything before it, and
 // what a finished workout added up to. Pure functions over the logged sets — simple rules
 // anyone can check, never a black box.
-import {setReps,totals,unitOf,workoutSeconds} from "./model.js";
+import {setLoad,setReps,totals,unitOf,workoutSeconds} from "./model.js";
 import {est1RM} from "./charts.js";
 
 const key=n=>String(n||"").trim().toLowerCase();
@@ -95,8 +95,8 @@ export function progressionHint(prevSets,opts){
 // Warm-up ramp toward a working weight on a barbell: the empty bar for 10, then roughly
 // 50%, 70% and 85% for fewer reps each — enough to groove the lift without tiring it.
 const RAMP=[[0.5,5],[0.7,3],[0.85,1]];
-export function warmupRamp(target,unit){
-  const u=unit==="lb"?"lb":"kg",bar=u==="lb"?45:20,step=u==="lb"?5:2.5;
+export function warmupRamp(target,unit,barWeight){
+  const u=unit==="lb"?"lb":"kg",bar=+barWeight>0?+barWeight:(u==="lb"?45:20),step=u==="lb"?5:2.5;
   if(!(+target>bar))return [];
   const out=[{w:bar,r:10}];
   RAMP.forEach(([f,r])=>{
@@ -161,7 +161,7 @@ export function sessionVolume(session){
   let v=0;
   session.ex.forEach(e=>{
     if(e.timed||e.dist)return;
-    e.sets.forEach(x=>{if(!x.wu)v+=setReps(x)*(+x.w||0);});
+    e.sets.forEach(x=>{if(!x.wu)v+=setReps(x)*setLoad(x);});
   });
   return Math.round(v);
 }

@@ -1,4 +1,5 @@
 import {test,describe,afterEach} from "node:test";
+import * as M from "../js/model.js";
 import assert from "node:assert/strict";
 import {
   setReps,totals,exerciseTotal,fmtClock,dateKey,exerciseGroup,OTHER_GROUP,RETIRED,
@@ -364,4 +365,23 @@ test("sets carry a kind, an RPE and a note, and warm-ups still read as warm-ups"
   assert.equal(e.sets.length,2);assert.equal(e.sets[1].kind,"fail");assert.equal(e.sets[1].rpe,10);
   addManualSets(s,e,10,false,60,1,true,"");
   assert.equal(e.sets[2].wu,true);
+});
+
+describe("setLoad — per hand, other units",()=>{
+  test("a pair logged per hand counts both hands",()=>{
+    const {setLoad}=M;assert.equal(setLoad({w:12,hand:true}),24);
+  });
+  test("a weight in the other unit converts to the app's unit",()=>{
+    const {setLoad,options}=M;const was=options.unit;options.unit="kg";
+    assert.ok(Math.abs(setLoad({w:100,u:"lb"})-45.36)<0.01);
+    options.unit=was;
+  });
+  test("normSet keeps per hand and unit",()=>{
+    const {normSet}=M;const x=normSet({r:10,w:12,hand:true,u:"lb"});
+    assert.equal(x.hand,true);assert.equal(x.u,"lb");
+    assert.equal(normSet({r:10,w:12}).hand,undefined);
+  });
+  test("plates use a chosen bar",()=>{
+    const {platesPerSide}=M;assert.deepEqual(platesPerSide(55,"kg",15).plates,[20]);
+  });
 });

@@ -2235,3 +2235,15 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
   .timerbar .tl{white-space:normal;line-height:1.1;}
   .timerbar .tbtn{font-size:min(var(--f-md),15px);}
 }
+/* Gyms: a chip under the workout's title, and the list in Settings. */
+.daysum{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;}
+.gympick{height:26px;font-size:12.5px;max-width:160px;}
+.lgstats .gympick{margin-left:4px;}
+.gymlist{flex-wrap:wrap;gap:6px;}
+.gymtag{display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 4px 0 12px;border-radius:17px;background:var(--panelHi);font-size:13.5px;font-weight:700;}
+.gymtag button{width:26px;height:26px;border:0;border-radius:13px;background:none;color:var(--muted);font-size:17px;cursor:pointer;}
+.gymlist .q{flex:none;}
+.wrapseg.pair{grid-template-columns:1fr 1fr;}
+.wrapseg.pair .q:first-child{grid-column:auto;}
+.sheethead .plabel{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wrapseg{grid-template-columns:repeat(auto-fill,minmax(calc(58px * var(--k)),1fr));}

@@ -9,7 +9,7 @@ import {bookPos,saveBookPos} from "../reader.js";
 import {shareTopic} from "../share.js";
 import {topicById} from "../lazy.js";
 import {checkForUpdate,freshReload} from "../update.js";
-import {notice} from "../dialog.js";
+import {ask,notice} from "../dialog.js";
 
 export function handle(t,ctx){
   if(t.id==="bodysave"){
@@ -108,6 +108,9 @@ export function handle(t,ctx){
     return true;
   }
   if(t.id==="freshreload"){state.updating=true;ctx.render();freshReload();return true;}
+  if(t.id==="addgym"){ask({title:"Name this gym",value:"",placeholder:"Home, work, the club…",ok:"Add",act:"addgym"});ctx.render();return true;}
+  const dg=t.closest&&t.closest("[data-delgym]");
+  if(dg){const id=dg.getAttribute("data-delgym");state.gyms=(state.gyms||[]).filter(g=>g.id!==id);if(state.gymId===id)state.gymId="";ctx.render();return true;}
   const rg=t.closest&&t.closest("[data-recgroup]");
   if(rg){const g=rg.getAttribute("data-recgroup"),open=String(state.settings.recOpen||"").split("|").filter(Boolean);
     const i=open.indexOf(g);if(i>=0)open.splice(i,1);else open.push(g);setSetting("recOpen",open.join("|"));ctx.render();return true;}
@@ -142,7 +145,7 @@ export function handle(t,ctx){
     state.backupAt=nowISO();state.backupSnooze="";
     exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
       settings:state.settings,body:state.body,routines:state.routines,
-      hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,
+      hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,gyms:state.gyms,gymId:state.gymId,
       supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme,learnSaved:state.learnSaved});
     ctx.render();return true;
   }

@@ -132,13 +132,13 @@ export function isBarbellLift(name){return BARBELL_LIFTS.indexOf(String(name||""
 // Returns null when the bar alone is the weight or more than it; inexact loads flag `exact`.
 const PLATES={kg:[25,20,15,10,5,2.5,1.25],lb:[45,35,25,10,5,2.5]};
 const BAR={kg:20,lb:45};
-export function platesPerSide(total,unit){
-  const u=unit==="lb"?"lb":"kg";
-  let side=(+total-BAR[u])/2;
+export function platesPerSide(total,unit,bar){
+  const u=unit==="lb"?"lb":"kg",b=+bar>0?+bar:BAR[u];
+  let side=(+total-b)/2;
   if(!(side>0))return null;
   const out=[];
   PLATES[u].forEach(p=>{while(side>=p-1e-9){out.push(p);side=Math.round((side-p)*1000)/1000;}});
-  return {plates:out,exact:side<1e-9,bar:BAR[u]};
+  return {plates:out,exact:side<1e-9,bar:b};
 }
 
 // Bands carry a resistance range, not a fixed weight — three bands, labelled in pounds.
@@ -151,7 +151,7 @@ export const QUICK_SECS=[15,20,30,45,60,90];
 const SIDES_PER_SET=2;
 const UID_RADIX=36;
 // Set from the settings screen; kept here so counting and staleness stay in one place.
-export const options={perSideDouble:true,idleEndSeconds:3600};
+export const options={perSideDouble:true,idleEndSeconds:3600,unit:"kg"};
 const UID_SPREAD=1e6;
 const MS_PER_SEC=1000;
 const SEC_PER_MIN=60;
@@ -226,11 +226,22 @@ export function normSet(v){
   if(kind&&kind!=="wu")out.kind=kind;
   if(+v.rpe)out.rpe=Math.min(10,Math.max(5,Math.round(+v.rpe*2)/2));
   if(v.note&&String(v.note).trim())out.note=String(v.note).trim().slice(0,200);
+  // A dumbbell pair logged per hand, and a weight logged in the other unit than the app's.
+  if(v.hand)out.hand=true;
+  if(v.u==="kg"||v.u==="lb")out.u=v.u;
   return out;
 }
 export const setKind=x=>x.wu?"wu":(x.kind||"");
 
 export function setReps(x){return (x.side&&options.perSideDouble)?x.r*SIDES_PER_SET:x.r;}
+// The weight a set moved, in the app's unit: both hands for a pair, converted if logged in
+// the other unit. Volume and tonnage add these up.
+const LB_PER_KG=2.2046226;
+export function setLoad(x){
+  let w=+x.w||0;
+  if(x.u&&x.u!==options.unit)w=x.u==="lb"?w/LB_PER_KG:w*LB_PER_KG;
+  return x.hand?w*2:w;
+}
 
 export function exerciseTotal(e){return e.sets.reduce((sum,x)=>sum+(x.wu?0:setReps(x)),0);}
 

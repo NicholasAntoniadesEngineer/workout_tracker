@@ -6,7 +6,7 @@ import {BANDS,EXERCISE_GROUPS,OTHER_GROUP,SET_KINDS,canResume,exerciseGroup,isBa
 import {activeEx,allRoutines,findRoutine,getSession,lastPerformance,newestFirst,planFor,planLine,repRange,restTargetFor,
   state} from "../store.js";
 import {warmupRamp} from "../coach.js";
-import {exProg,rangeFor,stepFor,targetFor} from "../progression.js";
+import {barFor,exProg,perHand,rangeFor,stepFor,targetFor,unitFor} from "../progression.js";
 import {cuesFor} from "../cues.js";
 import {exAka,exMatches,exWhat,learnTopicsFor} from "../exinfo.js";
 import {position,prescription} from "../programme.js";
@@ -31,11 +31,19 @@ function statsBar(session,t){
     "<div class='stat'><div class='v mono'>"+t.sets+"</div><div class='l'>Sets</div></div>"+
     "<div class='stat'><div class='v mono'>"+session.ex.length+"</div><div class='l'>Exercises</div></div></div>";
 }
+// Which gym this workout is at, when you have more than one place you train. Records and
+// suggestions then come from that gym's own history.
+function gymPick(session){
+  const gs=state.gyms||[];if(!gs.length)return "";
+  const cur=session.gym||state.gymId||"";
+  return "<select class='pickchip gympick' id='gympick' aria-label='Gym'><option value=''"+(cur?"":" selected")+">No gym</option>"+
+    gs.map(g=>"<option value='"+esc(g.id)+"'"+(g.id===cur?" selected":"")+">"+esc(g.name)+"</option>").join("")+"</select>";
+}
 // The phone's version: the same three numbers as one quiet line under the title.
 function statsLine(session,t){
-  if(!session.ex.length)return "";
+  if(!session.ex.length&&!(state.gyms||[]).length)return "";
   const n=(v,one,many)=>v+" "+(v===1?one:many);
-  return "<div class='daysum'><b class='mono'>"+t.reps+"</b> reps &middot; <b class='mono'>"+t.sets+"</b> "+(t.sets===1?"set":"sets")+" &middot; "+n(session.ex.length,"exercise","exercises")+"</div>";
+  return "<div class='daysum'><span><b class='mono'>"+t.reps+"</b> reps &middot; <b class='mono'>"+t.sets+"</b> "+(t.sets===1?"set":"sets")+" &middot; "+n(session.ex.length,"exercise","exercises")+"</span>"+gymPick(session)+"</div>";
 }
 
 function setsTable(session){
@@ -135,7 +143,8 @@ function numEditor(a){
 
 // Under the weight on a barbell lift: what goes on each side of a standard bar.
 function plateCaption(a,unit){
-  const p=a&&isBarbellLift(a.name)?platesPerSide(state.weight,unit):null;
+  if(a){unit=unitFor(a.name);if(perHand(a.name))return esc(unit)+" per hand";}
+  const p=a&&isBarbellLift(a.name)?platesPerSide(state.weight,unit,barFor(a.name)):null;
   if(!p)return esc(unit)+" &middot; 0 = bodyweight";
   return (p.exact?"":"&asymp; ")+"per side "+p.plates.join(" + ");
 }
@@ -483,7 +492,7 @@ function exerciseHistorySheet(name,fromPicker){
       "Watch a demo &#8599;</a>"+
     "<div class='cuenote'>General form cues, not medical advice. Stop if anything hurts.</div>";
   // On a barbell lift, a ramp up to the weight on screen — log the sets as warm-ups.
-  const ramp=isBarbellLift(name)?warmupRamp(state.weight,state.settings.unit||"kg"):[];
+  const ramp=isBarbellLift(name)?warmupRamp(state.weight,unitFor(name),barFor(name)):[];
   if(ramp.length)h+="<div class='picklbl'>Warm-up to "+state.weight+esc(state.settings.unit||"kg")+"</div>"+
     "<div class='ramp mono'>"+ramp.map(x=>x.w+" &times; "+x.r).join(" &middot; ")+"</div>";
   // Every Learn topic that uses it, the ones that programme it first.
@@ -500,21 +509,31 @@ function exerciseHistorySheet(name,fromPicker){
   // Rest after this exercise: its own target, or the default from Settings.
   const own=state.restTargets&&state.restTargets[k];
   const def=+state.settings.restTarget||0;
-  h+="<div class='picklbl'>Rest after this exercise</div><div class='seg restseg'>"+
+  h+="<div class='picklbl'>Rest after this exercise</div><div class='seg restseg wrapseg'>"+
     "<button class='q"+(own?"":" on")+"' data-resttarget='0'>Default"+
       (def?" "+fmtClock(def):"")+"</button>"+
     REST_CHOICES.map(c=>"<button class='q"+(own===c[1]?" on":"")+"' data-resttarget='"+c[1]+"'>"+c[0]+"</button>").join("")+
     "</div>";
   // Progression for this exercise only: its own rep range and jump, or none at all for rehab
   // and skill work. Default follows Settings.
-  const ep=exProg(name),wu=esc(state.settings.unit||"kg"),defRange=state.settings.progressRange||"10-15";
-  const steps=state.settings.unit==="lb"?[2.5,5,10]:[1,2.5,5];
+  const ep=exProg(name),wu=esc(unitFor(name)),defRange=state.settings.progressRange||"10-15";
+  const steps=unitFor(name)==="lb"?[2.5,5,10]:[1,2.5,5];
   h+="<div class='picklbl'>Progression for this exercise</div>"+
-    "<div class='seg restseg wrapseg'><button class='q"+(ep.off?"":" on")+"' data-exprog='off:0'>Suggest targets</button><button class='q"+(ep.off?" on":"")+"' data-exprog='off:1'>Don't</button></div>"+
+    "<div class='seg restseg wrapseg pair'><button class='q"+(ep.off?"":" on")+"' data-exprog='off:0'>Suggest targets</button><button class='q"+(ep.off?" on":"")+"' data-exprog='off:1'>Don't</button></div>"+
     (ep.off?"":"<div class='seglbl'>Rep range</div><div class='seg restseg wrapseg'><button class='q"+(ep.range?"":" on")+"' data-exprog='range:'>Default "+defRange.replace("-","&ndash;")+"</button>"+
       ["3-5","5-8","6-10","8-12","12-15","15-20"].map(r=>"<button class='q"+(ep.range===r?" on":"")+"' data-exprog='range:"+r+"'>"+r.replace("-","&ndash;")+"</button>").join("")+"</div>"+
       "<div class='seglbl'>Jump when every set reaches the top</div><div class='seg restseg wrapseg'><button class='q"+(ep.step?"":" on")+"' data-exprog='step:'>Default +"+stepFor(name)+" "+wu+"</button>"+
       steps.map(v=>"<button class='q"+(+ep.step===v?" on":"")+"' data-exprog='step:"+v+"'>+"+v+"</button>").join("")+"</div>");
+  // How this exercise's weight is written down: per hand for a pair, its own unit, its own bar.
+  if(!isBandExercise(name)){
+    const gu=state.settings.unit==="lb"?"lb":"kg",bars=unitFor(name)==="lb"?[15,25,35,45,55]:[7,10,15,20,25];
+    h+="<div class='picklbl'>Weight for this exercise</div>"+
+      "<div class='seg restseg wrapseg pair'><button class='q"+(ep.hand?"":" on")+"' data-exprog='hand:'>Total</button><button class='q"+(ep.hand?" on":"")+"' data-exprog='hand:1'>Per hand</button></div>"+
+      "<div class='seglbl'>Unit</div><div class='seg restseg wrapseg'><button class='q"+(ep.unit?"":" on")+"' data-exprog='unit:'>Default "+gu+"</button>"+
+        ["kg","lb"].map(v=>"<button class='q"+(ep.unit===v?" on":"")+"' data-exprog='unit:"+v+"'>"+v+"</button>").join("")+"</div>"+
+      (isBarbellLift(name)||/bar|ez|trap|smith/i.test(name)?"<div class='seglbl'>Bar</div><div class='seg restseg wrapseg'><button class='q"+(ep.bar?"":" on")+"' data-exprog='bar:'>Default "+barFor(name)+"</button>"+
+        bars.map(v=>"<button class='q"+(+ep.bar===v?" on":"")+"' data-exprog='bar:"+v+"'>"+v+"</button>").join("")+"</div>":"");
+  }
   if(days.length)h+="<div class='picklbl'>History</div>";
   days.forEach(d=>{
     h+="<div class='histrow'><span class='histdate'>"+esc(shortDate(d.s.created))+"</span>"+
@@ -636,7 +655,7 @@ function exerciseBlock(e,session){
   if(pin)h+="<button class='lgpin' data-exinfo=\""+esc(e.name)+"\" title='Edit the pinned note'>"+icon("bookmark","sm")+"<span>"+esc(pin)+"</span></button>";
   else if(on&&!state.editing)h+="<button class='lgpin add' id='exhistbtn'>"+icon("bookmark","sm")+"<span>Pin a note: seat, grip, what to watch</span></button>";
   if(on)h+=planHints(e,session);
-  h+="<div class='lgset lghd'><span class='lgsn'>Set</span><span class='lgsp'>Previous</span><span>"+(isBandExercise(e.name)?"Band":esc(state.settings.unit||"kg"))+"</span><span>"+UNIT_LABEL[u]+"</span><span></span><span></span></div>";
+  h+="<div class='lgset lghd'><span class='lgsn'>Set</span><span class='lgsp'>Previous</span><span>"+(isBandExercise(e.name)?"Band":esc(unitFor(e.name))+(perHand(e.name)?" each":""))+"</span><span>"+UNIT_LABEL[u]+"</span><span></span><span></span></div>";
   e.sets.forEach((x,i)=>{h+=ed===i?entryRow(e,u,i,prev,true):loggedRow(e,i,x,u,prev);});
   const n=e.sets.length;
   if(on&&ed<0)h+=entryRow(e,u,n,prev,false);
@@ -686,7 +705,7 @@ function timerCard(session){
 function upNext(session){
   const a=activeEx();if(!a)return "";
   const k=session.ex.indexOf(a),rest=session.ex.slice(k+1).concat(session.ex.slice(0,k)).filter(e=>!e.sets.length);
-  const ramp=isBarbellLift(a.name)&&state.weight?warmupRamp(state.weight,state.settings.unit||"kg"):[];
+  const ramp=isBarbellLift(a.name)&&state.weight?warmupRamp(state.weight,unitFor(a.name),barFor(a.name)):[];
   if(!rest.length&&!ramp.length)return "";
   return "<div class='card lgnext'>"+
     (ramp.length?"<div class='llabel'>Warm-up to "+state.weight+" "+esc(state.settings.unit||"kg")+"</div><div class='ramp mono'>"+ramp.map(x=>x.w+" &times; "+x.r).join(" &middot; ")+"</div>":"")+
@@ -700,7 +719,7 @@ function logWide(s){
     "<section class='lgc' data-keepx='lgc'>"+
       "<div class='lghead'><div class='lght'><div class='eyebrow'>"+(s.running?"Live":"Session")+" &middot; "+esc(shortDate(s.created))+(started?" &middot; started "+esc(started):"")+"</div>"+
         "<div class='h1' id='daytitle'><span class='httl'>"+esc(s.title)+"</span> <span class='pen'>&#9998;</span></div>"+
-        "<div class='lgstats'><span><b class='mono'>"+t.reps+"</b> reps</span><span><b class='mono'>"+t.sets+"</b> sets</span><span><b class='mono'>"+s.ex.length+"</b> exercises</span></div></div>"+
+        "<div class='lgstats'><span><b class='mono'>"+t.reps+"</b> reps</span><span><b class='mono'>"+t.sets+"</b> sets</span><span><b class='mono'>"+s.ex.length+"</b> exercises</span>"+gymPick(s)+"</div></div>"+
         "<div class='headbtns'>"+(s.ex.length?"<button class='btn ghost tiny' data-saveroutine='"+s.id+"'>Save as routine</button>"+
           "<button class='daysbtn iconbtn' id='sharebtn' title='Share'>"+icon("share")+"</button>":"")+"</div></div>"+
       "<div class='card lgsheet' data-keepx='lgsheet'>"+

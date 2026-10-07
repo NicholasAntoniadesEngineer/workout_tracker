@@ -6,6 +6,7 @@ import {BANDS,addManualSets,addSet,dateKey,endWorkout,fmtClock,isBandExercise,no
   workoutSeconds} from "../model.js";
 import {activeEx,addExerciseToDay,getSession,removeFromCatalog,state} from "../store.js";
 import {bestsBefore,newBestLabel} from "../coach.js";
+import {perHand,unitFor} from "../progression.js";
 import {ask,confirmAct} from "../dialog.js";
 import {keepAlive,primeAudio} from "../sensors.js";
 
@@ -49,7 +50,7 @@ export function handle(t,ctx){
       const all=Object.assign({},state.exProg||{}),cur=Object.assign({},all[k]||{});
       if(f==="off"){if(v==="1")cur.off=true;else delete cur.off;}
       else if(v===""||v==null)delete cur[f];
-      else cur[f]=f==="step"?+v:v;
+      else cur[f]=f==="step"||f==="bar"?+v:f==="hand"?true:v;
       if(Object.keys(cur).length)all[k]=cur;else delete all[k];
       state.exProg=all;
       if(state.exId&&activeEx()&&!activeEx().sets.length)ctx.recallLast(activeEx());
@@ -190,7 +191,10 @@ export function handle(t,ctx){
       const isB=isBandExercise(e.name),w=isB?0:state.weight,bd=isB?state.band:"";
       // A live set on today counts with the timer; a past day is manual transcription.
       const live=dateKey(s.created)===dateKey(nowISO());
-      const extra={kind:state.setKind,rpe:state.setRpe,note:state.setNote};
+      const eu=unitFor(e.name);
+      const extra={kind:state.setKind,rpe:state.setRpe,note:state.setNote,hand:perHand(e.name),u:eu!==(state.settings.unit==="lb"?"lb":"kg")?eu:""};
+      // The gym this workout is at, from the first set on.
+      if(state.gymId&&!s.gym)s.gym=state.gymId;
       if(live)addSet(s,e,state.reps,state.perSide,state.setStart,w,extra,bd);
       else addManualSets(s,e,state.reps,state.perSide,w,1,extra,bd);
       // Beat everything before it? Say so, briefly, right as it happens.
@@ -209,7 +213,7 @@ export function handle(t,ctx){
       const old=e.sets[state.editing.i];
       const isB=isBandExercise(e.name);
       e.sets[state.editing.i]=normSet({r:state.reps,side:state.perSide,w:isB?0:state.weight,
-        t:state.editWork||0,rest:state.editRest||0,at:old.at||"",kind:state.setKind,rpe:state.setRpe,note:state.setNote,
+        t:state.editWork||0,rest:state.editRest||0,at:old.at||"",kind:state.setKind,rpe:state.setRpe,note:state.setNote,hand:old.hand,u:old.u,
         band:isB?state.band:""});
     }
     state.editing=null;state.warmup=false;state.setKind="";state.setRpe=0;state.setNote="";state.noteOpen=false;ctx.render();return true;
