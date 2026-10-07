@@ -23,6 +23,7 @@ import {checkinSheet} from "./views/checkin.js";
 import {healthView} from "./views/health.js";
 import {reviewView} from "./views/review.js";
 import {plannerView,planDaySheet,plannedSheet} from "./views/planner.js";
+import {scanSheet} from "./views/scan.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
 import {VERSES} from "./verses.js";
@@ -64,6 +65,10 @@ function shareMenu(){
       opts.push(["link",icon("link","sm")+"Share workout","a link that saves this plan"]);
     if(s&&s.ex.some(e=>e.sets.length))
       opts.push(["text",icon("chat","sm")+"Copy as text","paste it anywhere"]);
+    if(s&&s.ex.length)
+      opts.push(["print",icon("days","sm")+"Print as a sheet","tick and fill it in the gym, then scan it back"]);
+    opts.push(["printweek",icon("calendar","sm")+"Print this week&rsquo;s plans","one sheet for each planned day"]);
+    opts.push(["scan",icon("photo","sm")+"Scan a filled sheet","a photo of the sheet adds what you did"]);
   }else if(m.type==="routine"){
     opts.push(["link",icon("link","sm")+"Share routine","a link that saves this routine"]);
   }
@@ -187,5 +192,5 @@ export function paint(){
   if(welcomeNeeded()&&!state.importJob&&state.view!=="import"){document.getElementById("app").innerHTML=welcomeView()+dialogView();return;}
   const view=(VIEWS[state.view]||logView)();
   document.getElementById("app").innerHTML=
-    (wide()?shell(view):view+tabBar())+keysSheet()+paletteView()+checkinSheet()+planDaySheet()+plannedSheet()+dialogView()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
+    (wide()?shell(view):view+tabBar())+keysSheet()+paletteView()+checkinSheet()+planDaySheet()+plannedSheet()+scanSheet()+"<input type='file' id='sheetscan' accept='image/*' capture='environment' hidden>"+dialogView()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
 }

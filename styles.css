@@ -2390,3 +2390,25 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .bmseg button{flex:0 0 auto;overflow:visible;}
 .bmcard .hcardh{flex-wrap:wrap;row-gap:8px;}
 @media (min-width:900px){.pggrid>section{display:flex;flex-direction:column;gap:14px;}.pggrid>section>.card{margin:0;}}
+/* The scan review. */
+.scansheet .sheetbody{display:flex;flex-direction:column;gap:10px;}
+.scanex{display:flex;flex-direction:column;gap:6px;}
+.scann{font-weight:800;font-size:15px;}
+.scansets{display:flex;flex-wrap:wrap;gap:6px;}
+.scanset{display:inline-flex;align-items:baseline;gap:5px;min-height:38px;padding:0 12px;border-radius:10px;border:1px dashed var(--line);background:none;color:var(--muted);font:inherit;font-size:14px;cursor:pointer;text-decoration:line-through;}
+.scanset.on{border:1px solid var(--line);background:var(--panelHi);color:var(--text);text-decoration:none;}
+.scanset.on.chg{background:var(--gold);border-color:var(--gold);color:#000;}
+.scanset b{font-size:16px;}
+.scannotes,.ddnote img{width:100%;border-radius:10px;border:1px solid var(--line);background:#fff;}
+.ddnote{margin:10px 0;}
+/* Printing: only the sheets, each its own A4 page, edge to edge. */
+#printarea{display:none;}
+@media print{
+  @page{size:A4;margin:0;}
+  html,body{width:auto!important;height:auto!important;overflow:visible!important;background:#fff!important;}
+  body>*:not(#printarea){display:none!important;}
+  #printarea{display:block!important;}
+  .printpage{width:210mm;height:297mm;page-break-after:always;break-after:page;overflow:hidden;}
+  .printpage:last-child{page-break-after:auto;break-after:auto;}
+  .printpage svg{display:block;width:210mm;height:297mm;}
+}

@@ -35,7 +35,7 @@ function actions(s){
     (s.ex.length&&!s.cardio?"<button class='btn ghost tiny' data-copyday='"+s.id+"'>"+icon("reset","sm")+"Repeat today</button>"+
       "<button class='btn ghost tiny' data-saveroutine='"+s.id+"'>"+icon("bookmark","sm")+"Save as routine</button>":"")+
     (s.cardio?((s.cardio.track||[]).length>1?"<button class='btn ghost tiny' data-gpx='"+s.id+"'>GPX</button>":"")+"<button class='btn ghost tiny' data-tcx='"+s.id+"'>TCX</button>":
-      "<button class='btn ghost tiny' data-copytext='"+s.id+"'>Copy as text</button>"+
+      "<button class='btn ghost tiny' data-copytext='"+s.id+"'>Copy as text</button><button class='btn ghost tiny' data-printday='"+s.id+"'>Print sheet</button>"+
       (s.ex.some(e=>e.sets.length)?"<button class='btn ghost tiny' data-fit='"+s.id+"' title='For Garmin Connect or Intervals.icu, sets and reps included'>FIT for Garmin</button>":""))+
     "<button class='btn ghost tiny dang' data-delday='"+s.id+"'>Delete</button></div>";
 }
@@ -64,6 +64,7 @@ export function dayDetailPane(s){
     (s.running?" &middot; <span class='live'>live</span>":"")+"</div>"+
     "<div class='ddtitle'>"+esc(s.title)+"</div>"+actions(s)+"</div>";
   if(s.cardio)return h+cardioPane(s);
+  if(s.notePhoto)h+="<div class='ddnote'><div class='llabel'>Notes from the sheet</div><img alt='Handwritten notes' src='"+s.notePhoto+"'></div>";
   const prev=lastSame(s),pt=prev?totals(prev):null,ton=tonnage(s),pton=prev?tonnage(prev):null;
   h+="<div class='ddkpis'>"+kpi(t.reps,"reps",prev?delta(t.reps,pt.reps):"")+kpi(t.sets,"sets",prev?delta(t.sets,pt.sets):"")+
     (ton?kpi(fmtK(ton),unit+" lifted",prev?delta(ton,pton,fmtK):""):"")+

@@ -28,6 +28,7 @@ import * as exporting from "./actions/export.js";
 import * as checkin from "./actions/checkin.js";
 import * as health from "./actions/health.js";
 import * as planning from "./actions/planner.js";
+import * as sheets from "./actions/sheet.js";
 import {currentVersion,watchForUpdates} from "./update.js";
 import {targetFor} from "./progression.js";
 import {breathTick} from "./views/health.js";
@@ -417,6 +418,8 @@ document.body.addEventListener("change",ev=>{
     ev.target.value="";return;
   }
   if(ev.target&&ev.target.id==="bodydate"){state.bodyDate=ev.target.value||null;render();return;}
+  // A photo of a filled sheet, from the camera or the library.
+  if(ev.target&&ev.target.id==="sheetscan"){const f=ev.target.files&&ev.target.files[0];ev.target.value="";if(f)sheets.scanFile(f,render);return;}
   if(ev.target&&ev.target.id==="supphoto"){
     stacking.pickPhoto(ev.target.files&&ev.target.files[0],render);ev.target.value="";return;
   }
@@ -504,7 +507,7 @@ function dismissSheet(){
 // row act on its own before the row does (delete a day before opening it).
 const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
   addExercise,showBest};
-const AREAS=[dialogs,checkin,planning,health,exporting,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
+const AREAS=[dialogs,checkin,sheets,planning,health,exporting,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
 onShareNotice(render);
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
