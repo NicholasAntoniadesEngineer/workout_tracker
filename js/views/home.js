@@ -100,7 +100,7 @@ function homeCta(running,finished,emptyOpen,doneToday){
       "<button class='homelink' data-resume='"+finished.id+"'>Resume "+esc(finished.title)+
       (doneToday>1?" &middot; "+doneToday+" today":"")+"</button>";
   if(emptyOpen)
-    return "<button class='homecta' data-resume='"+emptyOpen.id+"'>Continue &rarr; "+esc(emptyOpen.title)+"</button>";
+    return "<button class='homecta' data-resume='"+emptyOpen.id+"'>"+(emptyOpen.started?"Continue":"Start")+" &rarr; "+esc(emptyOpen.title)+"</button>";
   // Nothing today yet: most workouts repeat a recent day, so offer that in one tap too.
   let h="<button class='homecta' id='homestart'>Start today&rsquo;s workout</button>";
   const last=newestFirst(state.sessions).find(s=>s.ex.some(e=>e.sets.length));
@@ -200,7 +200,7 @@ function ringSvg(score){
 function workoutCta(running,finished,emptyOpen){
   if(running)return "<button class='btn primary' data-resume='"+running.id+"'>Continue &rarr; "+esc(running.title)+"</button>";
   if(finished)return "<button class='btn primary' id='homestart'>Start another workout</button>";
-  if(emptyOpen)return "<button class='btn primary' data-resume='"+emptyOpen.id+"'>Continue &rarr; "+esc(emptyOpen.title)+"</button>";
+  if(emptyOpen)return "<button class='btn primary' data-resume='"+emptyOpen.id+"'>"+(emptyOpen.started?"Continue":"Start")+" &rarr; "+esc(emptyOpen.title)+(emptyOpen.deload?" &middot; deload":"")+"</button>";
   return "<button class='btn primary' id='homestart'>Start today&rsquo;s workout</button>";
 }
 function heroWide(running,finished,emptyOpen,doneToday){

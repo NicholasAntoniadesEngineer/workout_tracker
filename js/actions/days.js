@@ -1,6 +1,7 @@
 // Days: open, repeat or delete one from History, start or resume today from home, and the
 // calendar — move between months, open a day, or create one on an empty date.
 // Each handler returns true once it has dealt with the tap.
+import {isPlanned} from "../views/planner.js";
 import {activeEx,getSession,selectSession,state} from "../store.js";
 import {dateKey,makeExercise,makeSession,makeSessionOn,nowISO} from "../model.js";
 import {wide} from "../views/common.js";
@@ -73,6 +74,8 @@ export function handle(t,ctx){
     const onDay=state.sessions.filter(s=>dateKey(s.created)===key);
     // One workout opens straight away; several open a picker for that day. A big screen
     // shows the day beside the month instead.
+    // A planned day (exercises, no sets yet) opens its own sheet: open, move, copy, remove.
+    if(onDay.length===1&&!wide()&&isPlanned(onDay[0])){state.planned={id:onDay[0].id};ctx.render();return true;}
     if(onDay.length===1&&!wide()){
       state.origin="calendar";
       selectSession(onDay[0].id);
@@ -84,6 +87,7 @@ export function handle(t,ctx){
   }
   // Tapping an empty day starts a workout dated to it — backfill a past day or plan a future one.
   const newDay=t.closest&&t.closest("[data-newday]");
+  if(newDay&&state.view==="calendar"){state.planDay=newDay.getAttribute("data-newday");ctx.render();return true;}
   if(newDay){
     const parts=newDay.getAttribute("data-newday").split("-").map(Number);
     const ns=makeSessionOn(parts[0],parts[1]-1,parts[2]);

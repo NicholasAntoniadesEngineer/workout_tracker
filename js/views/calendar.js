@@ -65,7 +65,7 @@ export function calendarView(){
   const colourOf=s=>KIND_COLOURS[Math.max(0,kinds.indexOf(kindKey(s)))%KIND_COLOURS.length];
 
   let h="<div class='wrap scroll'>"+
-    pageHead("Calendar","<button class='newday' id='newday'>+ New</button>")+
+    pageHead("Calendar","<button class='btn ghost tiny' data-nav='planner'>Plan weeks</button><button class='newday' id='newday'>+ New</button>")+
     "<div class='calnav'>"+
       "<button class='calarrow' id='calprev'>&lsaquo;</button>"+
       "<div class='calmonth'>"+esc(monthLabel(y,m))+"</div>"+

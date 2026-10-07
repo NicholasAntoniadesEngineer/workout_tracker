@@ -27,6 +27,7 @@ import * as importer from "./actions/importer.js";
 import * as exporting from "./actions/export.js";
 import * as checkin from "./actions/checkin.js";
 import * as health from "./actions/health.js";
+import * as planning from "./actions/planner.js";
 import {currentVersion,watchForUpdates} from "./update.js";
 import {targetFor} from "./progression.js";
 import {breathTick} from "./views/health.js";
@@ -432,6 +433,10 @@ document.body.addEventListener("change",ev=>{
   if(ev.target&&ev.target.id==="gympick"){const s=getSession();state.gymId=ev.target.value;if(s){if(ev.target.value)s.gym=ev.target.value;else delete s.gym;}
     const e=activeEx();if(e&&!e.sets.length)recallLast(e);save();render();return;}
   if(ev.target&&ev.target.id==="recgym"){state.recGym=ev.target.value;render();return;}
+  // The Plan page's weekly pattern and start date.
+  const pw=ev.target&&ev.target.getAttribute&&ev.target.getAttribute("data-planwd");
+  if(pw!=null&&state.block){const p=Object.assign({},state.block.pattern);if(ev.target.value)p[pw]=ev.target.value;else delete p[pw];state.block.pattern=p;render();return;}
+  if(ev.target&&ev.target.id==="planstart"&&state.block){if(ev.target.value)state.block.start=ev.target.value;render();return;}
   if(ev.target&&ev.target.id==="remtime"){setSetting("remindTime",ev.target.value);render();return;}
   if(ev.target&&ev.target.id==="csvfile"){
     const f=ev.target.files&&ev.target.files[0];
@@ -499,7 +504,7 @@ function dismissSheet(){
 // row act on its own before the row does (delete a day before opening it).
 const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteDay,removeExercise,
   addExercise,showBest};
-const AREAS=[dialogs,checkin,health,exporting,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
+const AREAS=[dialogs,checkin,planning,health,exporting,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
 onShareNotice(render);
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}

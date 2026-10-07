@@ -3,6 +3,7 @@
 // and how to come back after time away. Shared by the phone, the laptop and the auto-fill.
 import {state,repRange,newestFirst,getSession} from "./store.js";
 import {progressionHint} from "./coach.js";
+import {deloadTarget} from "./planner.js";
 import {exerciseGroup,isBandExercise,unitOf} from "./model.js";
 
 const key=n=>String(n||"").trim().toLowerCase();
@@ -53,6 +54,9 @@ export function targetFor(e,now){
   const h=historyOf(e.name,8);
   if(!h.length)return null;
   const st=state.settings,r=rangeFor(e.name);
+  // A planned deload week: lighter and fewer sets, whatever the usual rules say.
+  const cur=getSession();
+  if(cur&&cur.deload&&unitOf(e)==="reps"&&!isBandExercise(e.name))return deloadTarget(h[0].sets,unitFor(e.name));
   return progressionHint(h[0].sets,{unit:unitOf(e),weightUnit:unitFor(e.name),low:r.low,top:r.top,isBand:isBandExercise(e.name),
     step:stepFor(e.name),miss:st.missRule||"hold",stallAfter:+st.stallAfter||0,deloadPct:+st.deloadPct||10,
     breakRule:st.breakRule||"off",history:h.slice(1),prevAt:h[0].at,now:now||Date.now()});

@@ -22,6 +22,7 @@ import {welcomeNeeded,welcomeView} from "./views/welcome.js";
 import {checkinSheet} from "./views/checkin.js";
 import {healthView} from "./views/health.js";
 import {reviewView} from "./views/review.js";
+import {plannerView,planDaySheet,plannedSheet} from "./views/planner.js";
 import {fmtClock,shortDate} from "./model.js";
 import {workoutSummary} from "./coach.js";
 import {VERSES} from "./verses.js";
@@ -33,7 +34,7 @@ export {setClockSeconds,setLabel,setSub,setsSummary,workoutLabel,
   workoutSub} from "./views/log.js";
 
 const VIEWS={cardio:cardioView,prog:programmeView,home:homeView,history:historyView,calendar:calendarView,settings:settingsView,
-  progress:progressView,body:bodyView,learn:learnPage,stack:stackView,import:importView,health:healthView,review:reviewView};
+  progress:progressView,body:bodyView,learn:learnPage,stack:stackView,import:importView,health:healthView,review:reviewView,planner:plannerView};
 // Learn, once its library is in; a quiet holding page for the moment before.
 function learnPage(){
   const L=learnLib();
@@ -186,5 +187,5 @@ export function paint(){
   if(welcomeNeeded()&&!state.importJob&&state.view!=="import"){document.getElementById("app").innerHTML=welcomeView()+dialogView();return;}
   const view=(VIEWS[state.view]||logView)();
   document.getElementById("app").innerHTML=
-    (wide()?shell(view):view+tabBar())+keysSheet()+paletteView()+checkinSheet()+dialogView()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
+    (wide()?shell(view):view+tabBar())+keysSheet()+paletteView()+checkinSheet()+planDaySheet()+plannedSheet()+dialogView()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
 }

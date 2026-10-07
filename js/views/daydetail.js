@@ -26,6 +26,11 @@ function delta(now,then,fmt){
 function kpi(v,l,extra){return "<div class='ddkpi'><span class='ddkv mono'>"+v+"</span><span class='ddkl'>"+l+(extra||"")+"</span></div>";}
 
 function actions(s){
+  // A planned day: open it, move or copy it to another day, or remove it.
+  if(!s.cardio&&s.ex.length&&!s.ex.some(e=>e.sets.length)&&!s.running)
+    return "<div class='ddacts'><button class='btn primary tiny' data-load='"+s.id+"'>Open</button>"+
+      "<button class='btn ghost tiny' data-planopen='"+s.id+"' data-mode='move'>Move</button><button class='btn ghost tiny' data-planopen='"+s.id+"' data-mode='copy'>Copy</button>"+
+      "<button class='btn ghost tiny dang' data-delday='"+s.id+"'>Remove</button></div>"+(s.deload?"<div class='revsub'>Deload week</div>":"");
   return "<div class='ddacts'><button class='btn primary tiny' data-load='"+s.id+"'>Open in Log</button>"+
     (s.ex.length&&!s.cardio?"<button class='btn ghost tiny' data-copyday='"+s.id+"'>"+icon("reset","sm")+"Repeat today</button>"+
       "<button class='btn ghost tiny' data-saveroutine='"+s.id+"'>"+icon("bookmark","sm")+"Save as routine</button>":"")+

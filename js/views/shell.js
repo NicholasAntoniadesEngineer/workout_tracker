@@ -15,7 +15,7 @@ export const NAV=[["home","Today","home"],["log","Train","dumbbell"],["progress"
 // Which place each screen belongs to, shared by the sidebar and the phone's tab bar so the
 // two always agree.
 const TAB_OF={home:"home",log:"log",cardio:"log",prog:"log",history:"progress",calendar:"progress",progress:"progress",body:"progress",
-  stack:"progress",health:"progress",review:"progress",learn:"learn",settings:"settings",import:"settings"};
+  stack:"progress",health:"progress",review:"progress",planner:"progress",learn:"learn",settings:"settings",import:"settings"};
 
 function brand(){
   return "<div class='sbrand'><svg class='brandshield' viewBox='0 0 100 100' aria-hidden='true'>"+

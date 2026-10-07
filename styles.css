@@ -2329,3 +2329,28 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .revmonth .revline b{color:var(--text);font-size:17px;}
 .revmonth{margin:0 0 12px;}
 @media (min-width:900px){.revk{grid-template-columns:repeat(4,minmax(0,1fr));}.shell .wrap.scroll.revwrap{max-width:900px;}.revmonth{margin:0;}}
+/* Planning: the sheets for a day, and the Plan page. */
+.plansheet .sheetbody{display:flex;flex-direction:column;gap:10px;}
+.planrs,.planprogs{display:flex;flex-direction:column;gap:8px;}
+.planrs .lrow .lchev,.planprogs .lrow .lchev{font-size:20px;}
+.planprogs .lt small{font-weight:600;color:var(--muted);font-size:12px;margin-left:4px;}
+.plantitle{font-size:calc(22px * var(--k));}
+.planex{font-size:var(--f-sm);color:var(--muted);line-height:1.4;}
+.planacts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.planmove{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+.planmove .picklbl{width:100%;margin:0;}
+.planmove .timein{flex:1 1 160px;min-height:42px;}
+.planwrap .card{margin-bottom:10px;}
+.planweek{display:flex;flex-direction:column;gap:6px;}
+.planrow{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px;font-size:14.5px;font-weight:700;}
+.planrow .pickchip{max-width:62%;}
+.planrow .timein{max-width:62%;min-height:38px;}
+.planlist{margin:4px 0 10px;}
+.planwrap .segc{margin-bottom:8px;}
+.pastebox{min-height:140px;margin-bottom:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;}
+@media (min-width:900px){.shell .wrap.scroll.planwrap{max-width:820px;}}
+:root[data-big="1"] .planrow{flex-direction:column;align-items:stretch;}
+:root[data-big="1"] .planrow .pickchip,:root[data-big="1"] .planrow .timein{max-width:none;}
+:root[data-big="1"] .planacts{grid-template-columns:1fr;}
+.planlist .histrow{align-items:flex-start;}
+.planlist .histsets{white-space:normal;text-align:right;overflow:visible;}
