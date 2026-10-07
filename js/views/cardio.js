@@ -54,7 +54,7 @@ function setupView(){
   if(!state.cardioSetup)state.cardioSetup={activity:"run",preset:"open",o:{},gps:false};
   const c=state.cardioSetup;
   const preset=PRESETS.find(p=>p.id===c.preset)||PRESETS[0];
-  const f=MODES[preset.mode].fields,total=totalSecs(phases(preset.mode,c.o));
+  const f=MODES[preset.mode].fields;
   const LAB={work:"Work",rest:"Rest",rounds:"Rounds",minutes:"Minutes"};
   const big=wide();
   const importer="<label class='btn ghost tiny cimport'>Import file<input type='file' id='cardiofile' accept='.fit,.gpx,.tcx,.zip,.gz,.csv,.xml,application/gpx+xml,application/xml,text/xml,application/zip,text/csv,application/octet-stream' hidden></label>";
@@ -63,16 +63,18 @@ function setupView(){
     "<div class='chead'><button class='backbtn iconbtn' id='cardioback' aria-label='Back'>"+icon("back","sm")+"</button>"+
     "<span class='cheadt'>Cardio</span>"+importer+"</div>")+
     "<div class='cseg'>"+ACTIVITIES.map(([k,l])=>"<button class='"+(c.activity===k?"on":"")+"' data-cardioact='"+k+"'>"+l+"</button>").join("")+"</div>"+
-    "<div class='cpresets'>"+PRESETS.map(p=>"<button class='cpreset"+(p.id===c.preset?" on":"")+"' data-cardiopreset='"+p.id+"'>"+esc(p.short)+"</button>").join("")+"</div>"+
-    "<div class='cplan'><div class='cplann'><b>"+esc(preset.name)+"</b>"+(total?"<span class='mono'>"+clock(total)+"</span>":"")+"</div>"+
-    "<div class='cplans'>"+esc(preset.note)+"</div>";
-  // The chosen timer's numbers, side by side.
+    // Each timer as one card: its name, what it is, and its length. The chosen one's numbers
+    // can be changed on the row beneath.
+    "<div class='cpgrid'>"+PRESETS.map(p=>{
+      const on=p.id===c.preset,o=on?c.o:p.o,pf=MODES[p.mode].fields,len=totalSecs(phases(p.mode,o));
+      // The chosen one shows its numbers (they can be changed below); the others say what they are.
+      const sub=on&&pf.length?pf.map(k=>k==="minutes"?o[k]+" min":k==="rounds"?o[k]+" rounds":fmtClock(o[k])+" "+k).join(" &middot; "):p.note;
+      return "<button class='cpcard"+(on?" on":"")+"' data-cardiopreset='"+p.id+"' aria-pressed='"+on+"'><span class='cpn'>"+esc(p.name)+(len?"<span class='mono cpt'>"+clock(len)+"</span>":"")+"</span><span class='cps'>"+sub+"</span></button>";}).join("")+"</div>";
   if(f.length)h+="<div class='csteps' style='grid-template-columns:repeat("+f.length+",minmax(0,1fr))'>"+f.map(k=>{
     const v=k==="work"||k==="rest"?fmtClock(c.o[k]):c.o[k];
     return "<div class='cstep'><span class='cstepl'>"+LAB[k]+"</span><b class='mono cstepn'>"+v+"</b><span class='cstepb'>"+
       "<button data-cardiostep='"+k+":-1' aria-label='Less "+LAB[k].toLowerCase()+"'>&minus;</button>"+
       "<button data-cardiostep='"+k+":1' aria-label='More "+LAB[k].toLowerCase()+"'>+</button></span></div>";}).join("")+"</div>";
-  h+="</div>";
   // Sensors: GPS outdoors, a heart-rate strap or watch over Bluetooth.
   const g=state.gpsLive||{},help=g.st&&g.st!=="ok"?gpsHelp(g.st):"";
   if(big)h+="</div><div class='csetr'><div class='llabel'>Track</div>";
@@ -91,9 +93,8 @@ function setupView(){
       "<button class='cgpsb' data-cardiogps='1'>Try again</button></span>"+
       (state.gpsHowOpen?"<span class='cgpsp'>"+esc(help.path)+"</span>"+
         (g.code?"<span class='cgpsraw'>Phone says: "+esc(g.msg||"no details")+" (code "+g.code+")</span>":""):"")+"</div>":"")+
-    (voiceSupported()?"<button class='cmaxhr cvoice' data-cardiovoice='1' aria-pressed='"+!!state.settings.voice+"'><span>Voice cues <span class='cmaxs'>"+
-      (state.settings.voice?"Splits and interval changes, spoken":"Off")+"</span></span><span class='cswitch"+(state.settings.voice?" on":"")+"'></span></button>":"")+
-    "<div class='cmaxhr'><span>Max heart rate <span class='cmaxs'>sets your zones</span></span>"+stepper("cardiomax",state.settings.maxHR||190,"maximum heart rate").replace(/data-cardiomax=':/g,"data-cardiomax='")+"</div>"+
+    // Voice cues and the heart-rate zones are settings, not choices for this session.
+    "<button class='cmore' data-opensettings='workout'>"+(voiceSupported()?"Voice cues "+(state.settings.voice?"on":"off")+" &middot; ":"")+"zones from max HR "+(state.settings.maxHR||190)+" &middot; <b>Settings &rsaquo;</b></button>"+
     "<div class='cgrow'></div>"+
     "<button class='btn primary pbig cstart' data-cardiostart='1'>Start "+esc(actName(c.activity).toLowerCase())+(big?" <kbd>Enter</kbd>":"")+"</button>";
   if(big)h+="</div></div>";

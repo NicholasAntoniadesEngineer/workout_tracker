@@ -78,11 +78,14 @@ function groups(){
       choiceRow("Starting reps","","startReps",START_REPS.map(n=>[String(n),n]))+
       toggleRow("Per side counts double","10 per side totals 20 rather than 10.","perSideDouble")+
       choiceRow("Weight unit","","unit",[["kg","kg"],["lb","lb"]])},
-    {id:"workout",title:"Workout",pre:"Rest "+(st.restTarget?pick([["1:30",90],["2:00",120],["3:00",180],["4:00",240],["5:00",300]],st.restTarget)||st.restTarget+" s":"target off")+" &middot; alarm "+(on("restSound")?"on":"off"),html:()=>
+    {id:"workout",title:"Workout",pre:"Rest "+(st.restTarget?pick([["1:30",90],["2:00",120],["3:00",180],["4:00",240],["5:00",300]],st.restTarget)||st.restTarget+" s":"target off")+" &middot; alarm "+(on("restSound")?"on":"off")+" &middot; max HR "+(st.maxHR||190),html:()=>
       choiceRow("Rest target","","restTarget",[["Off",0],["1:30",90],["2:00",120],["3:00",180],["4:00",240],["5:00",300]])+
       choiceRow("Rest clock","Count down to the target, or up from the last set.","restDown",[["Count up",false],["Count down",true]])+
       toggleRow("Rest alarm","A beep and a buzz when the target passes. Keep the app open on iPhone; the beep is best effort with the screen locked.","restSound")+
-      choiceRow("End an idle workout after","","idleEndMinutes",IDLE_ENDS)},
+      choiceRow("End an idle workout after","","idleEndMinutes",IDLE_ENDS)+
+      toggleRow("Voice cues","Splits and interval changes spoken during cardio.","voice")+
+      "<div class='setrow'><div class='setlbl'>Max heart rate</div><div class='sethint'>Sets your heart-rate zones for cardio.</div>"+
+      "<div class='setopts cstepv'><button class='q' data-cardiomax='-1' aria-label='Lower'>&minus;</button><b class='mono'>"+(st.maxHR||190)+"</b><button class='q' data-cardiomax='1' aria-label='Higher'>+</button></div></div>"},
     {id:"recovery",title:"Recovery",pre:"Check-in "+(on("checkin")?"on":"off")+" &middot; "+(st.sleepNeed||8)+" h sleep",html:()=>
       toggleRow("Morning check-in","Four quick ratings and your sleep each morning. After a week, Today shows a readiness word and why.","checkin")+
       choiceRow("Sleep you aim for","","sleepNeed",[["7 h",7],["7.5 h",7.5],["8 h",8],["8.5 h",8.5],["9 h",9]])},

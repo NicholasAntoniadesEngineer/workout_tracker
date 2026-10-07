@@ -2135,3 +2135,17 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .setlist{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
 .setlist .lrow{width:100%;}
 .setlist .lpre{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* Cardio setup: each timer as one card with its name, what it is and its length. */
+.cpgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:8px;}
+.cpcard{display:flex;flex-direction:column;gap:3px;min-height:60px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;text-align:left;cursor:pointer;}
+.cpcard.on{border:2px solid var(--gold);padding:9px 11px;background:var(--panelHi);}
+.cpn{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14.5px;font-weight:800;line-height:1.2;}
+.cpt{font-size:12px;font-weight:800;color:var(--muted);}
+.cps{font-size:12px;color:var(--muted);line-height:1.3;}
+.csteps{margin:2px 0 10px;}
+.cstep{background:var(--panelHi);}
+.cmore{width:100%;border:0;background:none;padding:8px 4px 2px;font:inherit;font-size:12.5px;font-weight:600;color:var(--muted);text-align:left;cursor:pointer;}
+.cmore b{color:var(--text);font-weight:800;}
+.setopts.cstepv{justify-content:flex-start;}
+.setopts.cstepv .q{flex:0 0 44px;}
+.setopts.cstepv b{flex:none;min-width:48px;text-align:center;font-size:16px;}

@@ -83,6 +83,8 @@ export function handle(t,ctx){
   }
   // A settings group goes back to the list of groups.
   if(t.closest&&t.closest("#backbtn")&&state.view==="settings"&&state.settingsPart){state.settingsPart=null;state.scrollTo=0;ctx.render();return true;}
+  const os=t.closest&&t.closest("[data-opensettings]");
+  if(os){state.settingsPart=os.getAttribute("data-opensettings");state.view="settings";state.sheet=false;state.scrollTo=0;ctx.render();return true;}
   const sp=t.closest&&t.closest("[data-setpart]");
   if(sp){state.settingsPart=sp.getAttribute("data-setpart");state.scrollTo=0;ctx.render();return true;}
   if(t.closest&&t.closest("#backbtn")){
