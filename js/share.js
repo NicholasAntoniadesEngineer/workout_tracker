@@ -195,6 +195,40 @@ export function shareTopic(id,title){
   }catch(e){copyBox(url);}
 }
 
+// A year or a month in review, the same black and gold card: the title, four big numbers,
+// the records, and the verse.
+export function buildReviewCanvas(title,sub,stats,lines){
+  const c=document.createElement("canvas");c.width=W;c.height=H;
+  const ctx=c.getContext("2d");
+  ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);
+  shield(ctx,MARGIN,MARGIN,72);
+  ctx.textBaseline="middle";ctx.font="800 44px "+FONT;
+  ctx.fillStyle=INK;ctx.fillText("Kings",MARGIN+88,MARGIN+36);
+  const kw=ctx.measureText("Kings").width;ctx.fillStyle=GOLD;ctx.fillText("Kiln",MARGIN+88+kw,MARGIN+36);
+  ctx.textBaseline="alphabetic";
+  ctx.font="600 34px "+FONT;ctx.fillStyle=MUTED;ctx.fillText(sub,MARGIN,MARGIN+150);
+  ctx.font="800 76px "+FONT;ctx.fillStyle=INK;ctx.fillText(title,MARGIN,MARGIN+236);
+  const cw=(W-MARGIN*2)/2;
+  stats.slice(0,4).forEach((s,i)=>{const x=MARGIN+(i%2)*cw,y=MARGIN+360+Math.floor(i/2)*150;
+    ctx.font="800 72px "+FONT;ctx.fillStyle=GOLD;ctx.fillText(s[0],x,y);
+    ctx.font="600 30px "+FONT;ctx.fillStyle=MUTED;ctx.fillText(s[1],x,y+46);});
+  let y=MARGIN+690;
+  ctx.font="700 32px "+FONT;
+  lines.slice(0,6).forEach(l=>{ctx.fillStyle=INK;ctx.textAlign="left";ctx.fillText(l[0],MARGIN,y);
+    ctx.fillStyle=MUTED;ctx.textAlign="right";ctx.fillText(l[1],W-MARGIN,y);ctx.textAlign="left";y+=58;});
+  ctx.font="600 26px "+FONT;ctx.fillStyle=MUTED;ctx.textAlign="center";ctx.fillText("kingskiln.com",W/2,H-MARGIN+30);
+  return c;
+}
+export function shareCanvas(canvas,fname,text){
+  canvas.toBlob(blob=>{
+    if(!blob)return;
+    try{const file=new File([blob],fname,{type:"image/png"});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:"KingsKiln",text:text+" · "+APP_URL}).catch(()=>{});return;}}catch(e){}
+    const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1500);
+  },"image/png");
+}
+
 // Share sheet where it exists — AirDrop, Messages, Instagram — a PNG download otherwise.
 export function shareDay(session){
   const canvas=buildShareCanvas(session);

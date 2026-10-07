@@ -147,7 +147,7 @@ export function load(){
   state.restTargets=(saved&&saved.restTargets)||{};
   state.exNotes=(saved&&saved.exNotes)||{};
   state.exProg=(saved&&saved.exProg)||{};
-  state.gyms=(saved&&saved.gyms)||[];state.gymId=(saved&&saved.gymId)||"";
+  state.gyms=(saved&&saved.gyms)||[];state.gymId=(saved&&saved.gymId)||"";state.monthSeen=(saved&&saved.monthSeen)||"";
   state.favs=(saved&&saved.favs)||[];
   state.learnSaved=(saved&&saved.learnSaved)||[];
   state.learnRecent=(saved&&saved.learnRecent)||[];
@@ -175,7 +175,7 @@ export function save(){
       {version:STORE_VERSION,sessionId:state.sessionId,sessions:state.sessions,
         catalog:state.catalog,removed:state.removed,seeded:SEED_EXERCISES,settings:state.settings,
         setStart:state.setStart,body:state.body,routines:state.routines,
-        hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,gyms:state.gyms,gymId:state.gymId,favs:state.favs,pickOpen:state.pickOpen,programme:state.programme,
+        hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,gyms:state.gyms,gymId:state.gymId,monthSeen:state.monthSeen,favs:state.favs,pickOpen:state.pickOpen,programme:state.programme,
         learnSaved:state.learnSaved,learnRecent:state.learnRecent,backupAt:state.backupAt,backupSnooze:state.backupSnooze,welcomed:state.welcomed,checkins:state.checkins,vitals:state.vitals,photos:state.photos,fuel:state.fuel,markers:state.markers,habits:state.habits,habitDone:state.habitDone,journal:state.journal,
         supplements:state.supplements,stacks:state.stacks}));
     state.storageFull=false;

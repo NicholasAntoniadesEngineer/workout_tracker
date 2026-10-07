@@ -174,12 +174,14 @@ export function progressView(){
     (state.settings.modFuel?"<button data-openhealth='fuel'>Fuel</button>":"")+(state.settings.modMarkers?"<button data-openhealth='markers'>Markers</button>":"")+(state.settings.modMind?"<button data-openhealth='mind'>Mind</button>":"")+"</div>";
   let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress",spanRow):
     "<div class='hhead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'></div></div>"+spanRow+tabs);
+  // The year so far, one tap away.
+  const yearLink=workouts?"<button class='card hcard revlink' data-review='year:"+new Date().getFullYear()+"'><span class='llabel'>Year in review</span><b>Your "+new Date().getFullYear()+" so far</b><span class='lchev'>&rsaquo;</span></button>":"";
   // A big screen arranges the same cards as a dashboard; the phone reads them in a column.
   if(big)h+="<div class='pggrid'><section class='pg8'>"+vol+"</section><section class='pg4'>"+week+sets+"</section>"+
     (trendH?"<section class='pg8'>"+trendH+"</section>":"")+(mini?"<section class='pg4'>"+mini+"</section>":"")+
-    (recsH?"<section class='pg8'>"+recsH+"</section>":"")+
+    (recsH?"<section class='pg8'>"+recsH+"</section>":"")+(yearLink?"<section class='pg4'>"+yearLink+"</section>":"")+
     (cardio?"<section class='pg12 pgcardio'>"+cardio+"</section>":"")+"</div>";
-  else h+="<div class='pgstack'>"+week+vol+sets+trendH+mini+cardio+recsH+"</div>";
+  else h+="<div class='pgstack'>"+week+vol+sets+trendH+mini+cardio+recsH+yearLink+"</div>";
   if(!workouts&&!state.sessions.some(s=>s.cardio))h+="<div class='empty-note'>Nothing logged yet — progress shows up here.</div>";
   return h+"</div>";
 }

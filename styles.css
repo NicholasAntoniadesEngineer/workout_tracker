@@ -2308,3 +2308,24 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .rstrip .rc,.rkey .rc{background:var(--muted);}
 .rstrip .rd,.rkey .rd{background:var(--danger);}
 .pgmini+.card,.pgstack .rstrip{margin-top:0;}
+/* Year and month in review. */
+.revpick{margin:0 0 12px;}
+.revwrap .card{margin-bottom:10px;}
+.revk{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px;}
+.revk div{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.revk b{font-size:calc(30px * var(--k));font-weight:800;letter-spacing:-1px;line-height:1;color:var(--text);}
+.revk span{font-size:12px;font-weight:700;color:var(--muted);}
+.revsub{margin-top:10px;font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.35;}
+.revbars{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;height:110px;align-items:end;}
+.revbars span{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;}
+.revbars i{display:block;width:100%;min-height:2px;border-radius:4px 4px 0 0;background:var(--muted);opacity:.38;}
+.revbars i.top{background:var(--gold);opacity:1;}
+.revbars em{font-style:normal;font-size:11px;font-weight:800;color:var(--muted);}
+.revlink{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:2px;width:100%;text-align:left;font:inherit;color:var(--text);cursor:pointer;}
+.revlink .llabel{grid-column:1;margin:0;}
+.revlink b{grid-column:1;font-size:17px;font-weight:800;}
+.revlink .lchev{grid-column:2;grid-row:1/3;align-self:center;font-size:22px;font-weight:800;}
+.revmonth .revline{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:10px;}
+.revmonth .revline b{color:var(--text);font-size:17px;}
+.revmonth{margin:0 0 12px;}
+@media (min-width:900px){.revk{grid-template-columns:repeat(4,minmax(0,1fr));}.shell .wrap.scroll.revwrap{max-width:900px;}.revmonth{margin:0;}}

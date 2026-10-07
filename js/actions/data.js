@@ -9,6 +9,8 @@ import {bookPos,saveBookPos} from "../reader.js";
 import {shareTopic} from "../share.js";
 import {topicById} from "../lazy.js";
 import {checkForUpdate,freshReload} from "../update.js";
+import {periodTitle,reviewOf,reviewPeriod} from "../views/review.js";
+import {buildReviewCanvas,shareCanvas} from "../share.js";
 import {ask,notice} from "../dialog.js";
 
 export function handle(t,ctx){
@@ -108,6 +110,19 @@ export function handle(t,ctx){
     return true;
   }
   if(t.id==="freshreload"){state.updating=true;ctx.render();freshReload();return true;}
+  // Year and month in review: open a period, hide the monthly card, share the picture.
+  const rv=t.closest&&t.closest("[data-review]");
+  if(rv){const p=rv.getAttribute("data-review").split(":");state.reviewPeriod=p[0]==="month"?{kind:"month",y:+p[1],m:+p[2]}:{kind:"year",y:+p[1]};state.view="review";state.scrollTo=0;ctx.render();return true;}
+  const ms=t.closest&&t.closest("[data-monthseen]");
+  if(ms){state.monthSeen=ms.getAttribute("data-monthseen");ctx.render();return true;}
+  if(t.closest&&t.closest("#reviewshare")){
+    const p=reviewPeriod(),r=reviewOf(p),u=state.settings.unit||"kg";
+    const c=buildReviewCanvas((p.kind==="year"?"Your ":"")+periodTitle(p),"Year in review · KingsKiln",
+      [[String(r.days),"days trained"],[String(r.workouts),"workouts"],[r.volume>=10000?Math.round(r.volume/1000)+"k":String(r.volume),u+" lifted"],r.hours?[String(r.hours),"hours"]:[String(r.sets),"sets"]],
+      r.records.slice(0,5).map(x=>[x.name,x.from+" → "+x.to+" "+u]).concat(r.topMonth&&p.kind==="year"?[["Most days in",r.topMonth]]:[]));
+    shareCanvas(c,"kingskiln_"+periodTitle(p).replace(/\s+/g,"_")+".png",periodTitle(p)+" in review");
+    return true;
+  }
   if(t.id==="addgym"){ask({title:"Name this gym",value:"",placeholder:"Home, work, the club…",ok:"Add",act:"addgym"});ctx.render();return true;}
   const dg=t.closest&&t.closest("[data-delgym]");
   if(dg){const id=dg.getAttribute("data-delgym");state.gyms=(state.gyms||[]).filter(g=>g.id!==id);if(state.gymId===id)state.gymId="";ctx.render();return true;}

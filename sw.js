@@ -1,10 +1,10 @@
 // Precache the whole app so it opens instantly and fully offline. Bump VERSION whenever
 // a listed file changes — activate drops every older cache.
-const VERSION="v188";
+const VERSION="v189";
 const CACHE="kingskiln-"+VERSION;
 const ASSETS=["./","index.html","styles.css","manifest.webmanifest",
   "js/app.js","js/store.js","js/model.js","js/views.js","js/csv.js","js/charts.js","js/verses.js","js/feasts.js","js/share.js","js/icons.js","js/feedback.js",
-  "js/coach.js","js/cues.js","js/reminder.js","js/paths.js","js/lazy.js","js/route.js","js/palette.js","js/db.js","js/dialog.js","js/actions/dialog.js","js/views/welcome.js","js/exporters.js","js/actions/export.js","js/ready.js","js/views/checkin.js","js/actions/checkin.js","js/body.js","js/update.js","js/progression.js","js/aiexport.js","js/fitwrite.js","js/muscles.js","js/fuel.js","js/markers.js","js/views/health.js","js/actions/health.js","js/keys.js","js/views/shell.js","js/views/daydetail.js","js/archive.js","js/importers.js","js/actions/importer.js","js/views/importer.js",
+  "js/coach.js","js/cues.js","js/reminder.js","js/paths.js","js/lazy.js","js/route.js","js/palette.js","js/db.js","js/dialog.js","js/actions/dialog.js","js/views/welcome.js","js/exporters.js","js/actions/export.js","js/ready.js","js/views/checkin.js","js/actions/checkin.js","js/body.js","js/update.js","js/progression.js","js/aiexport.js","js/fitwrite.js","js/muscles.js","js/review.js","js/views/review.js","js/fuel.js","js/markers.js","js/views/health.js","js/actions/health.js","js/keys.js","js/views/shell.js","js/views/daydetail.js","js/archive.js","js/importers.js","js/actions/importer.js","js/views/importer.js",
   "js/actions/nav.js","js/actions/routines.js","js/actions/days.js","js/actions/share.js",
   "js/actions/data.js","js/actions/log.js",
   "js/views/common.js","js/views/log.js","js/views/home.js","js/views/history.js",
