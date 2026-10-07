@@ -2289,3 +2289,22 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
   :root[data-big="1"] .setlist .lt{font-size:calc(15px * var(--k));}
   :root[data-big="1"] .setlist .lpre{white-space:normal;}
 }
+/* Recovery: the line under Today's hero, caution lines on Train, the check-in's new rows and
+   the strip of the last 14 mornings. */
+.hbody{margin-top:6px;font-size:13.5px;font-weight:700;color:var(--muted);line-height:1.35;}
+.hbody.phone{margin:-4px 2px 12px;font-size:var(--f-sm);}
+.ruleline.caution{background:var(--panelHi);border-left:3px solid var(--danger);}
+.lgcaution{margin:2px 0 6px;}
+.ciopts.two{grid-template-columns:1fr 2fr;}
+.ciopts.wrap{grid-template-columns:repeat(auto-fill,minmax(88px,1fr));}
+.rstrip{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:4px;margin:4px 0 8px;}
+.rstrip i,.rkey i{display:block;height:22px;border-radius:5px;background:var(--panelHi);}
+.rkey{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;font-weight:700;color:var(--muted);}
+.rkey span{display:inline-flex;align-items:center;gap:5px;}
+.rkey i{display:inline-block;width:12px;height:12px;border-radius:3px;}
+.rstrip .ps,.rkey .ps{background:var(--gold);box-shadow:inset 0 0 0 2px var(--text);}
+.rstrip .rdy,.rkey .rdy{background:var(--gold);}
+.rstrip .ez,.rkey .ez{background:color-mix(in srgb,var(--gold) 40%,var(--panelHi));}
+.rstrip .rc,.rkey .rc{background:var(--muted);}
+.rstrip .rd,.rkey .rd{background:var(--danger);}
+.pgmini+.card,.pgstack .rstrip{margin-top:0;}

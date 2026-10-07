@@ -10,7 +10,7 @@ import {setBars} from "./progress.js";
 import {barChart,lineChart,weeklyVolume,withAxis} from "../charts.js";
 import {setClockSeconds,workoutLabel} from "./log.js";
 import {learnLib} from "../lazy.js";
-import {readinessCard,readinessNow} from "./checkin.js";
+import {bodyLine,readinessCard,readinessNow} from "./checkin.js";
 import {BAND_LABEL,suggestion} from "../ready.js";
 import {proteinTarget,totalsOf} from "../fuel.js";
 
@@ -215,9 +215,11 @@ function heroWide(running,finished,emptyOpen,doneToday){
     word="Checked in";sub="Your readiness word shows after "+Math.max(1,7-state.checkins.length)+" more mornings.";
     second="<button class='btn ghost' id='cistart'>Edit check-in</button>";
   }else{
-    word=esc(r.why);sub=esc(suggestion(r.band,r.planned));score=r.score;ringWord=BAND_LABEL[r.band];
+    word=esc(r.why);sub=esc(suggestion(r.rundown?"rundown":r.band,r.planned));score=r.score;ringWord=r.rundown?"Rest":BAND_LABEL[r.band];
     second="<button class='btn ghost' id='cistart'>Edit check-in</button>";
   }
+  // Run down before the readiness word exists still gets its advice.
+  if(r&&r.rundown&&!ringWord){word="Feeling run down";sub=esc(suggestion("rundown"));}
   const live=running?"<div class='hlive'><span class='lgdot'></span><b class='mono' id='hhero-work'>"+workoutLabel(running)+"</b> elapsed &middot; rest <b class='mono' id='hhero-rest'>"+
     fmtClock(setClockSeconds(running))+"</b> &middot; "+running.ex.filter(e=>e.sets.length).length+" of "+running.ex.length+" lifts</div>":"";
   const ringInner=ringWord?"<b>"+ringWord+"</b><span>readiness</span>":"";
@@ -226,7 +228,8 @@ function heroWide(running,finished,emptyOpen,doneToday){
   const left=score!=null?"<div class='hringwrap "+r.band+"'>"+ringSvg(score)+"<div class='hringv2'>"+ringInner+"</div></div>":
     "<div class='hdisc'>"+icon(ci?"target":"dumbbell","sm")+"</div>";
   return "<div class='card hhero2'>"+left+
-    "<div class='hherob'><div class='llabel'>Today</div><div class='hheroh'>"+word+"</div><div class='hheros'>"+sub+"</div>"+live+
+    "<div class='hherob'><div class='llabel'>Today</div><div class='hheroh'>"+word+"</div><div class='hheros'>"+sub+"</div>"+
+    (bodyLine()?"<div class='hbody'>"+bodyLine()+"</div>":"")+live+
     "<div class='hherobtns'>"+workoutCta(running,finished,emptyOpen)+second+finishedLink+"</div></div></div>";
 }
 function backupLine(){
@@ -285,7 +288,7 @@ export function homeView(){
         "</svg><span>Kings<span class='bk'>Kiln</span><sup class='tm' aria-label='trademark'>&trade;</sup></span></div>"+
       "<div class='homehero'>"+
         "<div class='homeday'>"+esc(dateStr)+"</div>"+
-        readinessCard()+moduleChips()+
+        readinessCard()+(bodyLine()?"<div class='hbody phone'>"+bodyLine()+"</div>":"")+moduleChips()+
         verseCard()+
         (running?"":nextCard())+
         homeCta(running,finished,emptyOpen,doneToday)+

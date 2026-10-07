@@ -67,6 +67,8 @@ export function banister(loads){
 export function readiness(opts){
   const {checkin,loads28,hrv,rhr,baseline,count}=opts;
   if(!checkin)return {band:null,why:"No check-in today",score:null};
+  // Feeling run down or ill outranks every number: rest, whatever the week looks like.
+  if(checkin.rundown)return {band:"recover",score:Math.min(30,100-((checkin.sleep+checkin.soreness+checkin.fatigue+checkin.stress-4)/16)*60),why:"Feeling run down",ratio:0,rundown:true};
   if((count||0)<7)return {band:null,why:"Check in for a week to see your readiness",score:null,warming:true};
   const hooper=checkin.sleep+checkin.soreness+checkin.fatigue+checkin.stress;     // 4..20
   let score=100-((hooper-4)/16)*60;                                                   // 100 at best, 40 at worst
@@ -92,6 +94,7 @@ export function suggestion(band,planned){
   if(!band)return "";
   const p=planned?planned:"";
   if(band==="recover")return p?p+" is planned. Make it an easy session, or walk and keep the day.":"Walk, stretch, sleep. The week still counts the day.";
+  if(band==="rundown")return "Rest today. Training through being run down tends to make it last longer.";
   if(band==="easy")return p?p+" is planned. Keep it, but leave a rep or two in the tank.":"A lighter session or a steady walk suits today.";
   if(band==="push")return p?p+" is planned. A good day to go for the top set.":"A good day for the hard one.";
   return p?p+" is planned. Go as written.":"Train as planned.";

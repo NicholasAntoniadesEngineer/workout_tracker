@@ -7,6 +7,8 @@ import {activeEx,allRoutines,findRoutine,getSession,lastPerformance,newestFirst,
   state} from "../store.js";
 import {warmupRamp} from "../coach.js";
 import {barFor,exProg,perHand,rangeFor,stepFor,targetFor,unitFor} from "../progression.js";
+import {JOINT_NAME,musclesOf} from "../muscles.js";
+import {recovering,soreToday} from "./checkin.js";
 import {cuesFor} from "../cues.js";
 import {exAka,exMatches,exWhat,learnTopicsFor} from "../exinfo.js";
 import {position,prescription} from "../programme.js";
@@ -38,6 +40,16 @@ function gymPick(session){
   const cur=session.gym||state.gymId||"";
   return "<select class='pickchip gympick' id='gympick' aria-label='Gym'><option value=''"+(cur?"":" selected")+">No gym</option>"+
     gs.map(g=>"<option value='"+esc(g.id)+"'"+(g.id===cur?" selected":"")+">"+esc(g.name)+"</option>").join("")+"</select>";
+}
+// A word of caution on the chosen exercise: a joint marked sore today, or its main muscle still
+// recovering from the last session.
+function bodyCaution(e){
+  if(!e)return "";
+  const m=musclesOf(e.name),sore=soreToday().filter(j=>m.joints.indexOf(j)>=0);
+  if(sore.length)return "Your "+sore.map(j=>JOINT_NAME[j].toLowerCase()).join(" and ")+(sore.length>1?" are":" is")+" sore today: go lighter, or swap for something easier on it.";
+  const rec=recovering().filter(x=>m.primary.indexOf(x.key)>=0);
+  if(rec.length&&!e.sets.length)return rec.map(x=>x.name).join(" and ")+" still recovering: fewer sets, or another muscle today.";
+  return "";
 }
 // The phone's version: the same three numbers as one quiet line under the title.
 function statsLine(session,t){
@@ -204,6 +216,8 @@ function logPanel(){
   // so a lighter weight never looks like a mistake.
   const tg=a&&!state.editing&&!a.sets.length?targetFor(a):null;
   if(tg&&tg.rule&&!wide())h+="<div class='ruleline'>"+esc(tg.text)+"</div>";
+  const caution=!state.editing&&!wide()?bodyCaution(a):"";
+  if(caution)h+="<div class='ruleline caution'>"+esc(caution)+"</div>";
   // The phone leaves these out for room: last time's numbers are already loaded into reps and
   // weight, and tapping the selected exercise again opens its history.
   if(wide()&&prev){
@@ -654,6 +668,7 @@ function exerciseBlock(e,session){
   const pin=(state.exNotes||{})[e.name.trim().toLowerCase()];
   if(pin)h+="<button class='lgpin' data-exinfo=\""+esc(e.name)+"\" title='Edit the pinned note'>"+icon("bookmark","sm")+"<span>"+esc(pin)+"</span></button>";
   else if(on&&!state.editing)h+="<button class='lgpin add' id='exhistbtn'>"+icon("bookmark","sm")+"<span>Pin a note: seat, grip, what to watch</span></button>";
+  if(on&&!state.editing){const c=bodyCaution(e);if(c)h+="<div class='ruleline caution lgcaution'>"+esc(c)+"</div>";}
   if(on)h+=planHints(e,session);
   h+="<div class='lgset lghd'><span class='lgsn'>Set</span><span class='lgsp'>Previous</span><span>"+(isBandExercise(e.name)?"Band":esc(unitFor(e.name))+(perHand(e.name)?" each":""))+"</span><span>"+UNIT_LABEL[u]+"</span><span></span><span></span></div>";
   e.sets.forEach((x,i)=>{h+=ed===i?entryRow(e,u,i,prev,true):loggedRow(e,i,x,u,prev);});
