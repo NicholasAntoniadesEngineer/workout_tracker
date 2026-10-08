@@ -20,8 +20,12 @@ export function lineText(l){
   return (l.name||"")+(l.dose?" — "+l.dose+" "+(l.unit||""):"");
 }
 
+// Unique even when many are made in the same millisecond (a stack added at once): the time, a
+// running count, and six random characters.
+let seq=0;
 export function newId(prefix){
-  return prefix+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  seq=(seq+1)%1296;
+  return prefix+Date.now().toString(36)+seq.toString(36).padStart(2,"0")+Math.floor(Math.random()*2176782336).toString(36).padStart(6,"0");
 }
 
 // Shrink a photo to a small JPEG data URL so a shelf of products fits in local storage.

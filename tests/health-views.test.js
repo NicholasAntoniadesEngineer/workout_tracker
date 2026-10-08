@@ -248,24 +248,25 @@ describe("Muscles this week",()=>{
   const cls=(h,k)=>[...h.matchAll(new RegExp("class='bmm (m\\d)[^']*' data-muscle='"+k+"'","g"))].map(m=>m[1]);
   test("an empty week shades nothing and says so, never NaN",()=>{
     const h=clean(bodyMapCard());
-    assert.ok(cls(h,"chest").every(c=>c==="m0"));assert.match(h,/<i class='m0'><\/i>none/);
+    assert.ok(cls(h,"p:peclower").length&&cls(h,"p:peclower").every(c=>c==="m0"));assert.match(h,/<i class='m0'><\/i>none/);
   });
   test("only sets since Monday count; last Sunday's still shows in recovery",()=>{
     // Thursday 8 October: the week began Monday 5 October.
     state.sessions=[sq(3*DAY+4*HOUR,12,"Bench press"),sq(4*DAY,9,"Bench press")];
-    state.bmSel="chest";
+    state.bmSel="g:chest";
     let h=clean(bodyMapCard());
-    assert.deepEqual(cls(h,"chest"),["m2"]);assert.match(h,/<b>Chest<\/b><span>12 sets &middot; on aim/);assert.match(h,/Bench press 12/);
+    // Drawn once a side: both halves of the chest on aim.
+    assert.deepEqual(cls(h,"p:peclower"),["m2","m2"]);assert.match(h,/<b>Chest<\/b><span>12 sets &middot; on aim/);assert.match(h,/Bench press 12/);
     state.bmMode="rec";h=clean(bodyMapCard());assert.match(h,/partly recovered|recovering|ready/);
   });
   test("one set is \"1 set\", and a muscle with none says nothing yet",()=>{
-    state.sessions=[sq(HOUR,1,"Bicep curls")];state.bmSel="biceps";
+    state.sessions=[sq(HOUR,1,"Bicep curls")];state.bmSel="g:biceps";
     assert.match(clean(bodyMapCard()),/1 set &middot; under the aim/);
-    state.bmSel="calves";assert.match(bodyMapCard(),/Nothing for it yet this week/);
-    state.bmSel="not-a-muscle";assert.doesNotMatch(bodyMapCard(),/bmsel/);
+    state.bmSel="g:calves";assert.match(bodyMapCard(),/Nothing for it yet this week/);
+    for(const bad of ["not-a-muscle","g:nope","p:nope","chest"])state.bmSel=bad,assert.doesNotMatch(bodyMapCard(),/bmsel/,bad);
   });
   test("recovery shades a muscle worked an hour ago as recovering",()=>{
     state.sessions=[sq(HOUR,8)];state.bmMode="rec";
-    const h=clean(bodyMapCard());assert.deepEqual(cls(h,"quads"),["m2","m2"]);assert.deepEqual(cls(h,"chest"),["m0"]);
+    const h=clean(bodyMapCard());assert.deepEqual(cls(h,"p:vastuslat"),["m2","m2"]);assert.deepEqual(cls(h,"p:peclower"),["m0","m0"]);
   });
 });

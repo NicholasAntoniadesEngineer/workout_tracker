@@ -385,3 +385,11 @@ describe("setLoad — per hand, other units",()=>{
     const {platesPerSide}=M;assert.deepEqual(platesPerSide(55,"kg",15).plates,[20]);
   });
 });
+
+describe("ids",()=>{
+  test("thousands made in the same millisecond, as an import does, never repeat",()=>{
+    const ids=Array.from({length:20000},()=>M.uid());
+    assert.equal(new Set(ids).size,ids.length);
+    ids.slice(0,50).forEach(id=>assert.match(id,/^i[a-z0-9]{10,}$/));
+  });
+});

@@ -225,6 +225,9 @@ const SCREENS=[
   {name:"Calendar · planned day",hash:"#/calendar",prep:monthOf(PLAN_DAY),taps:["[data-calday='"+dayKey(PLAN_DAY.toISOString())+"']"]},
   {name:"Calendar · empty day",hash:"#/calendar",prep:monthOf(EMPTY_DAY),taps:["[data-newday='"+dayKey(EMPTY_DAY.toISOString())+"']"]},
   {name:"Progress",hash:"#/progress"},
+  {name:"Progress · a muscle group chosen",hash:"#/progress",taps:["[data-muscle='g:quads']"]},
+  {name:"Progress · a deep muscle chosen",hash:"#/progress",taps:["[data-muscle='g:rotatorcuff']","[data-muscle='p:supraspinatus']"]},
+  {name:"Progress · muscle recovery",hash:"#/progress",taps:["[data-bmmode='rec']","[data-muscle='p:glutemax']"]},
   {name:"Body",hash:"#/body"},
   {name:"Settings",hash:"#/settings"},
   ...["display","logging","progression","workout","printing","recovery","modules","body","data","reminder","about"].map(k=>
@@ -260,7 +263,8 @@ const RUNNER=String(async function show(hash,taps,keep,prep){
     else{
       el=[...document.querySelectorAll(t)].find(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0;});
       if(!el)return {missing:t};
-      el.click();
+      // A shape on the muscle figure is an SVG path, which has no click() of its own.
+      if(el.click)el.click();else el.dispatchEvent(new MouseEvent("click",{bubbles:true}));
     }
     await new Promise(r=>setTimeout(r,40));await raf();
   }

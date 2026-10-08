@@ -19,7 +19,7 @@ function placeRoutine(k,r,deload){
 function copyTo(s,k,keep){
   const [y,m,d]=parts(k),n=makeSessionOn(y,m-1,d);
   n.title=s.title;if(s.routine)n.routine=s.routine;if(s.deload)n.deload=true;
-  n.ex=s.ex.map(e=>Object.assign({},e,{id:"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),sets:[]}));
+  n.ex=s.ex.map((e,i)=>Object.assign({},e,{id:"e"+Date.now().toString(36)+i.toString(36)+Math.random().toString(36).slice(2,8),sets:[]}));
   state.sessions.push(n);
   if(!keep)state.sessions=state.sessions.filter(x=>x.id!==s.id);
   return n;

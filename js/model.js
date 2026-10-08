@@ -177,8 +177,11 @@ export function fmtTime(iso){
 
 export function nowISO(){return new Date().toISOString();}
 
+// The time, a running count (an import makes thousands in one millisecond) and a random part.
+let uidSeq=0;
 export function uid(){
-  return "i"+Date.now().toString(UID_RADIX)+Math.floor(Math.random()*UID_SPREAD).toString(UID_RADIX);
+  uidSeq=(uidSeq+1)%46656;
+  return "i"+Date.now().toString(UID_RADIX)+uidSeq.toString(UID_RADIX).padStart(3,"0")+Math.floor(Math.random()*UID_SPREAD).toString(UID_RADIX);
 }
 
 export function todayLabel(){

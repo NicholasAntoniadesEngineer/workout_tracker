@@ -46,10 +46,11 @@ describe("which muscles a name trains",()=>{
     const p=n=>musclesOf(n).primary;
     assert.deepEqual(p("Rear delt fly"),["reardelt"]);
     assert.deepEqual(p("Reverse fly"),["reardelt"]);
-    assert.deepEqual(p("Hanging leg raise"),["abs"]);
-    assert.deepEqual(p("Hanging knee raises"),["abs"]);
-    assert.deepEqual(p("Band woodchop"),["abs"]);
-    assert.deepEqual(p("Single Arm High to Low woodchop"),["abs"]);
+    // Raising the legs is the hip flexors' work as much as the abs'; a woodchop is the obliques'.
+    assert.deepEqual(p("Hanging leg raise"),["abs","hipflexors"]);
+    assert.deepEqual(p("Hanging knee raises"),["abs","hipflexors"]);
+    assert.deepEqual(p("Band woodchop"),["obliques"]);
+    assert.deepEqual(p("Single Arm High to Low woodchop"),["obliques"]);
     assert.deepEqual(musclesOf("Wrestler's bridge").joints,["neck"]);
     assert.deepEqual(p("Hurdles"),["quads","glutes","calves"]);
     assert.deepEqual(p("Cross bench pullover"),["lats","chest"]);
