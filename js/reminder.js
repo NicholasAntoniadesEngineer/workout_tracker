@@ -16,7 +16,8 @@ export function checkinICS(time,now){
   const t=String(time||"07:00").split(":").map(Number);
   const today=now?new Date(now):new Date();
   let first=new Date(today.getFullYear(),today.getMonth(),today.getDate(),t[0]||0,t[1]||0);
-  if(first<=today)first=new Date(first.getTime()+86400000);
+  // Tomorrow by the calendar, not 24 hours on, so a clock change doesn't shift the hour.
+  if(first<=today)first=new Date(today.getFullYear(),today.getMonth(),today.getDate()+1,t[0]||0,t[1]||0);
   return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//KingsKiln//Check-in//EN","CALSCALE:GREGORIAN",
     "BEGIN:VEVENT","UID:"+utcStamp(today)+"-checkin@kingskiln.com","DTSTAMP:"+utcStamp(today),
     "DTSTART:"+localStamp(first),"DTEND:"+localStamp(new Date(first.getTime()+5*60000)),"RRULE:FREQ=DAILY",

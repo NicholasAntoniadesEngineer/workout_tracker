@@ -8,7 +8,7 @@ import {makeExercise,makeSession,nowISO,normSet} from "../model.js";
 import {PRESETS,haversine,hrStats,parseWorkoutFile,lapSpeech,phaseAt,phaseSpeech,phases,splitSpeech,thin,trackStats} from "../cardio.js";
 import {isFit,parseFit,unzipWorkout} from "../fit.js";
 import {connectHeartRate,cue,gpsPermission,keepAwake,primeAudio,say,startGps,stopGps,stopWarm,warmGps} from "../sensors.js";
-import {ACTIVITIES,elapsedOf,gpsLine} from "../views/cardio.js";
+import {ACTIVITIES,elapsedOf,gpsLine,phaseClock} from "../views/cardio.js";
 
 const LIVE_KEY="kk_cardio";
 let ticker=null,repaint=()=>{};
@@ -68,7 +68,7 @@ function tick(){
   const c=state.cardio;if(!c)return;
   const list=c.phases||[];
   if(list.length&&!c.pauseAt){
-    const at=phaseAt(list,elapsedOf(c));
+    const at=phaseAt(list,phaseClock(c));
     if(at.i!==c.lastPhase){
       if(c.lastPhase>=0||at.i>0){cue(at.done?"done":at.phase.kind);if(state.settings.voice)say(phaseSpeech(at.phase,at.done));}
       c.lastPhase=at.i;save();
@@ -85,10 +85,13 @@ function begin(render){
   keepAwake(true);
 }
 // Each kept fix: add the distance, and say the split when a kilometre (or mile) is crossed.
+// The first fix after a pause carries its length (gap): the way between the two fixes either
+// side of the pause isn't run, and the pause isn't split time.
 function onFix(c,fix){
   const prev=c.track[c.track.length-1];
+  if(c.gapNext){fix=Object.assign({},fix,{gap:c.gapNext});delete c.gapNext;}
   c.track.push(fix);c.gpsMsg="";
-  if(!prev)return;
+  if(!prev||fix.gap)return;
   c.dist=(c.dist||0)+haversine(prev,fix);
   const miles=state.settings.unit==="lb",per=miles?1609.344:1000,n=Math.floor(c.dist/per);
   if(n>(c.splitN||0)){
@@ -158,7 +161,7 @@ export function handle(t,ctx){
   }
   const c=state.cardio;
   if(t.closest&&t.closest("[data-cardiopause]")&&c){
-    if(c.pauseAt){c.pausedMs+=Date.now()-c.pauseAt;c.pauseAt=null;}else c.pauseAt=Date.now();
+    if(c.pauseAt){const p=Date.now()-c.pauseAt;c.pausedMs+=p;c.pauseAt=null;if(c.track.length)c.gapNext=(c.gapNext||0)+p;}else c.pauseAt=Date.now();
     save();ctx.render();return true;
   }
   if(t.closest&&t.closest("[data-cardiolap]")&&c&&!c.pauseAt){
@@ -167,13 +170,13 @@ export function handle(t,ctx){
     save();ctx.render();return true;
   }
   if(t.closest&&t.closest("[data-cardioskip]")&&c){
-    const at=phaseAt(c.phases,elapsedOf(c));
-    if(!at.done){c.startedAt-=Math.ceil(at.left)*1000;}
+    const at=phaseAt(c.phases,phaseClock(c));
+    if(!at.done){c.skipMs=(c.skipMs||0)+Math.ceil(at.left)*1000;}
     save();tick();ctx.render();return true;
   }
   if(t.closest&&t.closest("[data-cardiofinish]")&&c){
     halt();
-    const secs=Math.round(elapsedOf(c)),done=c.phases.length?phaseAt(c.phases,secs):null;
+    const secs=Math.round(elapsedOf(c)),done=c.phases.length?phaseAt(c.phases,phaseClock(c)):null;
     const rounds=done?c.phases.slice(0,done.i).filter(p=>p.kind==="work").length:0;
     const st=trackStats(c.track);
     const label=(ACTIVITIES.find(x=>x[0]===c.activity)||ACTIVITIES[0])[1];

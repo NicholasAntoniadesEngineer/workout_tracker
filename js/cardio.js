@@ -57,8 +57,10 @@ export function acceptFix(prev,fix,limit){
 }
 // Distance, climb and kilometre (or mile) splits from a track [{t,lat,lon,alt}].
 export function trackStats(track,splitM){
-  const sm=splitM||1000;let dist=0,climb=0,splits=[],nextSplit=sm,lastSplitT=track.length?track[0].t:0;
+  const sm=splitM||1000;let dist=0,climb=0,splits=[],nextSplit=sm,lastSplitT=track.length?track[0].t:0,paused=0;
   for(let i=1;i<track.length;i++){
+    // A pause (gap) adds no distance, and its time comes off the split and the total.
+    if(track[i].gap){lastSplitT+=track[i].gap;paused+=track[i].gap;continue;}
     const d=haversine(track[i-1],track[i]);dist+=d;
     if(track[i].alt!=null&&track[i-1].alt!=null&&track[i].alt>track[i-1].alt)climb+=track[i].alt-track[i-1].alt;
     while(dist>=nextSplit){
@@ -67,7 +69,7 @@ export function trackStats(track,splitM){
       lastSplitT=tAt;nextSplit+=sm;
     }
   }
-  const secs=track.length>1?Math.round((track[track.length-1].t-track[0].t)/1000):0;
+  const secs=track.length>1?Math.max(0,Math.round((track[track.length-1].t-track[0].t-paused)/1000)):0;
   return {dist:Math.round(dist),climb:Math.round(climb),secs,splits};
 }
 // What the voice says: a split as it is crossed, and each phase as it starts.
@@ -111,15 +113,17 @@ export function cardioBests(sessions){
 export function recentPace(track,windowS,perM){
   const w=(windowS||30)*1000,end=track[track.length-1];
   if(!end)return 0;
-  let i=track.length-1;while(i>0&&end.t-track[i-1].t<=w)i--;
+  // The window stops at a pause, so the pace just after Resume isn't dragged down by it.
+  let i=track.length-1;while(i>0&&!track[i].gap&&end.t-track[i-1].t<=w)i--;
   let d=0;for(let j=i+1;j<track.length;j++)d+=haversine(track[j-1],track[j]);
   const dt=(end.t-track[i].t)/1000;
   return d>5&&dt>0?dt/(d/(perM||1000)):0;
 }
 export function fmtPace(spm){
   if(!spm||!isFinite(spm))return "–";
-  const m=Math.floor(spm/60),s=Math.round(spm%60);
-  return m+":"+String(s===60?0:s).padStart(2,"0");
+  // Rounded to the second first, so 4:59.5 shows 5:00, not 4:00.
+  const t=Math.round(spm),m=Math.floor(t/60),s=t%60;
+  return m+":"+String(s).padStart(2,"0");
 }
 
 // Heart-rate zones as shares of maximum heart rate (the five-zone model most watches use).
@@ -171,9 +175,16 @@ export function parseWorkoutFile(text){
   }
   const sport=(doc.getElementsByTagName("Activity")[0]||{getAttribute:()=>null}).getAttribute("Sport")||pick(doc,["type"])||"";
   const name=pick(doc,["name"])||"";
-  const start=track.length?track[0].t:(hr.length?hr[0].t:null);
+  // TCX laps carry distance and time of their own: a treadmill run has them and no positions.
+  // The lap's own DistanceMeters comes before its Track; the last trackpoint's is the running total.
+  let lapDist=0,lapTime=0,lapStart=null,tpDist=0;
+  [...doc.getElementsByTagName("Lap")].forEach(l=>{lapDist+=+pick(l,["DistanceMeters"])||0;lapTime+=+pick(l,["TotalTimeSeconds"])||0;
+    const st=Date.parse(l.getAttribute("StartTime")||"");if(!isNaN(st)&&(lapStart==null||st<lapStart))lapStart=st;});
+  [...doc.getElementsByTagName("Trackpoint")].forEach(p=>{tpDist=Math.max(tpDist,+pick(p,["DistanceMeters"])||0);});
+  const start=track.length?track[0].t:(hr.length?hr[0].t:lapStart);
   const end=track.length?track[track.length-1].t:(hr.length?hr[hr.length-1].t:null);
-  return {track,hr,sport,name,start,secs:start&&end?Math.round((end-start)/1000):0};
+  const secs=start&&end&&end>start?Math.round((end-start)/1000):Math.round(lapTime);
+  return {track,hr,sport,name,start,secs,distM:Math.round(Math.max(lapDist,tpDist))||0};
 }
 
 // Downsample a track for storage: at most n points, always keeping the ends.

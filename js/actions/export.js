@@ -1,6 +1,6 @@
 // Getting data out to other apps. These buttons sit inside tappable History rows, so this
 // area runs before the day handlers: a tap on GPX saves the file rather than opening the day.
-import {state} from "../store.js";
+import {backupDoc,state} from "../store.js";
 import {BOM_CSV,backupJSON,buildCSV,deliver} from "../csv.js";
 import {everythingZip,gpx,strongCSV,tcx,workoutText} from "../exporters.js";
 import {aiSummary,checkinsCSV} from "../aiexport.js";
@@ -9,8 +9,7 @@ import {notice} from "../dialog.js";
 
 export function handle(t,ctx){
   // Strong's layout for strength, GPX/TCX for cardio, text for anywhere, or the lot as a zip. Strong's layout for strength, GPX/TCX for cardio.
-  const backup=()=>({sessions:state.sessions,catalog:state.catalog,removed:state.removed,settings:state.settings,body:state.body,routines:state.routines,
-    hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,gyms:state.gyms,gymId:state.gymId,supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme,learnSaved:state.learnSaved});
+  const backup=backupDoc;
   const day=()=>new Date().toISOString().slice(0,10);
   const summary=()=>aiSummary({sessions:state.sessions,settings:state.settings,body:state.body,checkins:state.checkins,exNotes:state.exNotes,
     exProg:state.exProg,gyms:state.gyms,routines:state.routines,programme:state.programme},{weeks:state.aiWeeks||12});

@@ -81,7 +81,9 @@ export function activeEx(){
 function readSaved(){
   try{
     const raw=db.getItem(KEY);
-    if(raw){const d=JSON.parse(raw);if(d.sessions&&d.sessions.length)return d;}
+    // A damaged day (null, or with no exercise list) is dropped and the rest still loads.
+    if(raw){const d=JSON.parse(raw);if(Array.isArray(d.sessions))d.sessions=d.sessions.filter(s=>s&&typeof s==="object"&&Array.isArray(s.ex));
+      if(d.sessions&&d.sessions.length)return d;}
   }catch(e){}
   return null;
 }
@@ -127,7 +129,8 @@ function normSession(s){
   s.ended=s.ended||"";
   s.timerFrom=s.timerFrom||"";
   s.running=!!s.running;
-  s.ex.forEach(e=>{e.timed=!!e.timed;e.dist=!!e.dist&&!e.timed;e.sets=(e.sets||[]).map(normSet);});
+  s.ex=s.ex.filter(e=>e&&typeof e==="object");
+  s.ex.forEach(e=>{e.timed=!!e.timed;e.dist=!!e.dist&&!e.timed;e.sets=(Array.isArray(e.sets)?e.sets:[]).filter(x=>x!=null).map(normSet);});
   return s;
 }
 
@@ -198,20 +201,28 @@ export function addExerciseToDay(name){
 
 // Changing the weight unit converts every stored number — sets, the live selection, and
 // the body log — so history keeps meaning the same load it always did.
+// A converted number keeps the one it came from (o.orig), so switching back gives 135 lb, not
+// 134.9; an edit since then breaks the match and the edit stands.
+function flip(o,k,from,to,conv){
+  const m=o.orig&&o.orig[k];
+  if(m&&m[1]===to&&conv(m[0],to,from)===o[k]){o[k]=m[0];delete o.orig[k];if(!Object.keys(o.orig).length)delete o.orig;return;}
+  if(!+o[k])return;
+  o.orig=o.orig||{};o.orig[k]=[o[k],from];o[k]=conv(o[k],from,to);
+}
 export function convertAllWeights(from,to){
   if(from===to)return;
   // A set logged in its own unit (an exercise kept in lb in a kg app) keeps its number.
   state.sessions.forEach(s=>s.ex.forEach(e=>e.sets.forEach(x=>{
-    if(!x.u)x.w=convertWeight(x.w,from,to);
+    if(!x.u)flip(x,"w",from,to,convertWeight);
   })));
   // Routine targets, gym bars and an exercise's own jump follow the unit too.
-  state.routines.forEach(r=>(r.plan||[]).forEach(p=>(p.sets||[]).forEach(x=>{if(+x.w)x.w=convertWeight(x.w,from,to);})));
-  Object.keys(state.exProg||{}).forEach(k=>{const p=state.exProg[k];if(!p.unit&&+p.step)p.step=to==="lb"?(p.step<=1?2.5:p.step<=2.5?5:10):(p.step<=2.5?1:p.step<=5?2.5:5);});
+  state.routines.forEach(r=>(r.plan||[]).forEach(p=>(p.sets||[]).forEach(x=>flip(x,"w",from,to,convertWeight))));
+  Object.keys(state.exProg||{}).forEach(k=>{const p=state.exProg[k];if(!p.unit&&+p.bar)p.bar=convertWeight(p.bar,from,to);if(!p.unit&&+p.step)p.step=to==="lb"?(p.step<=1?2.5:p.step<=2.5?5:10):(p.step<=2.5?1:p.step<=5?2.5:5);});
   state.weight=convertWeight(state.weight,from,to);
   state.lastWeight=convertWeight(state.lastWeight,from,to);
   state.body.forEach(b=>{
-    b.w=convertWeight(b.w,from,to);
-    ["waist","chest","arm"].forEach(k=>{if(b[k])b[k]=convertLength(b[k],from,to);});
+    flip(b,"w",from,to,convertWeight);
+    ["waist","chest","arm","neck","hip","thigh"].forEach(k=>flip(b,k,from,to,convertLength));
   });
 }
 
@@ -314,10 +325,22 @@ export function selectSession(id){
 
 // Restore a JSON backup: days merge by created stamp like the CSV path, and the exercise
 // list, removals, body log and settings come back with them.
+// Everything a backup holds: all that's saved, so a new phone gets it all back. One list for
+// every way a backup is made (Back up now, Export, the everything zip).
+export function backupDoc(){
+  return {sessions:state.sessions,catalog:state.catalog,removed:state.removed,settings:state.settings,body:state.body,routines:state.routines,
+    hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,gyms:state.gyms,gymId:state.gymId,
+    supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme,learnSaved:state.learnSaved,
+    checkins:state.checkins,vitals:state.vitals,fuel:state.fuel,markers:state.markers,habits:state.habits,habitDone:state.habitDone,journal:state.journal,photos:state.photos};
+}
 export function importBackup(d){
   const sessions=(Array.isArray(d.sessions)?d.sessions:[])
     .filter(s=>s&&s.id&&s.created&&Array.isArray(s.ex));
   sessions.forEach(s=>{s.ex=s.ex.filter(e=>e&&e.name);normSession(s);});
+  // A file in the other unit: this phone's numbers move to it first (the file's settings win
+  // below), so every load still means the same weight.
+  const fu=d.settings&&d.settings.unit;
+  if((fu==="kg"||fu==="lb")&&fu!==(state.settings.unit==="lb"?"lb":"kg"))convertAllWeights(state.settings.unit==="lb"?"lb":"kg",fu);
   if(sessions.length)mergeSessions(sessions);
   (Array.isArray(d.catalog)?d.catalog:[]).forEach(addToCatalog);
   (Array.isArray(d.removed)?d.removed:[]).forEach(removeFromCatalog);
@@ -328,9 +351,12 @@ export function importBackup(d){
       if(x&&x.id&&x.name&&!state[k].some(y=>y.id===x.id))state[k].push(x);
     });
   });
+  // Routines keep their ids, so planned days and printed sheets still point at them.
   (Array.isArray(d.routines)?d.routines:[]).forEach(r=>{
-    if(r&&r.name&&Array.isArray(r.ex))saveRoutine(r.name,r.ex,r.plan);
+    if(!(r&&r.name&&Array.isArray(r.ex)))return;
+    const nr=saveRoutine(r.name,r.ex,r.plan);if(nr&&r.id&&!state.routines.some(x=>x!==nr&&x.id===r.id))nr.id=r.id;
   });
+  (Array.isArray(d.photos)?d.photos:[]).forEach(p=>{if(p&&p.id&&!state.photos.some(x=>x.id===p.id))state.photos.push(p);});
   if(d.programme&&d.programme.id&&Array.isArray(d.programme.days)&&!state.programme)state.programme=d.programme;
   (Array.isArray(d.favs)?d.favs:[]).forEach(n=>{if(n&&state.favs.indexOf(n)<0)state.favs.push(String(n));});
   (Array.isArray(d.learnSaved)?d.learnSaved:[]).forEach(n=>{if(n&&state.learnSaved.indexOf(n)<0)state.learnSaved.push(String(n));});

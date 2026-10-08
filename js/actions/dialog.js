@@ -19,7 +19,7 @@ export function handle(t,ctx){
     case "endworkout":endWorkout(s);keepAlive(false);if(s.ex.some(e=>e.sets.length))state.summary=s.id;state.setStart=null;break;
     case "resetrest":resetRestTimer(s);state.setStart=null;break;
     case "resetwork":resetWorkout(s);state.setStart=null;break;
-    case "workmins":if(val.trim()!==""){const mins=parseFloat(val);if(dateKey(s.created)===dateKey(nowISO()))setWorkoutMinutes(s,mins);else setWorkoutSpanOn(s,mins);}break;
+    case "workmins":if(val.trim()!==""){const mins=parseFloat(val);if(s.running||dateKey(s.created)===dateKey(nowISO()))setWorkoutMinutes(s,mins);else setWorkoutSpanOn(s,mins);}break;
     case "progstop":state.programme=null;state.view="home";break;
     case "addgym":if(val.trim()){const g={id:"g"+Date.now().toString(36),name:val.trim().slice(0,40)};state.gyms=(state.gyms||[]).concat([g]);state.gymId=g.id;}break;
     case "cardiodiscard":state.cardioDone=null;openCardio();checkGps(ctx.render);break;

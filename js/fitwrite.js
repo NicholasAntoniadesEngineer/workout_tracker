@@ -24,7 +24,7 @@ const CATEGORY=[
   [/curl/,7],[/deadlift|rdl|rack pull|good morning|jefferson/,8],[/fly|flye|pec deck|crossover/,9],
   [/hip thrust|glute bridge|bridge/,10],[/swing/,12],[/back extension|hyperext|reverse hyper/,13],
   [/lateral raise|front raise|rear delt/,14],[/lunge|split squat|step up|step-up/,17],
-  [/clean|snatch|jerk/,18],[/plank|hollow|dead bug/,19],[/jump|burpee|box/,20],
+  [/clean|snatch|jerk/,18],[/plank|hollow|dead bug/,19],[/jump|burpee/,20],
   [/pull up|pull-up|chin up|chin-up|pulldown|pull down/,21],[/push up|push-up|pushup/,22],[/row/,23],
   [/shoulder press|overhead press|military|push press|arnold/,24],[/shrug/,26],[/sit-up|sit up|situp/,27],[/crunch/,6],
   [/squat|leg press|hack/,28],[/tricep|skull|pushdown|kickback|dip/,30],
@@ -87,11 +87,12 @@ export function strengthFit(session,unit){
   });
   // timer stop, lap, session (training › strength training), activity
   w.data(1,[end,0,4]);
-  w.define(3,19,[[254,"u32"],[2,"u32"],[7,"u32"],[8,"u32"],[0,"enum"],[1,"enum"]]);
+  // 253 is FIT's timestamp field on every message.
+  w.define(3,19,[[253,"u32"],[2,"u32"],[7,"u32"],[8,"u32"],[0,"enum"],[1,"enum"]]);
   w.data(3,[end,start,elapsed,elapsed,9,1]);
-  w.define(4,18,[[254,"u32"],[2,"u32"],[7,"u32"],[8,"u32"],[5,"enum"],[6,"enum"],[0,"enum"],[1,"enum"],[25,"u16"],[26,"u16"]]);
+  w.define(4,18,[[253,"u32"],[2,"u32"],[7,"u32"],[8,"u32"],[5,"enum"],[6,"enum"],[0,"enum"],[1,"enum"],[25,"u16"],[26,"u16"]]);
   w.data(4,[end,start,elapsed,elapsed,10,20,8,1,0,1]);
-  w.define(5,34,[[254,"u32"],[0,"u32"],[1,"u16"],[2,"enum"],[3,"enum"],[4,"enum"]]);
+  w.define(5,34,[[253,"u32"],[0,"u32"],[1,"u16"],[2,"enum"],[3,"enum"],[4,"enum"]]);
   w.data(5,[end,elapsed,1,0,26,1]);
   const data=w.out,file=new Uint8Array(14+data.length+2),dv=new DataView(file.buffer);
   file[0]=14;file[1]=0x20;dv.setUint16(2,2132,true);dv.setUint32(4,data.length,true);file.set([0x2E,0x46,0x49,0x54],8);

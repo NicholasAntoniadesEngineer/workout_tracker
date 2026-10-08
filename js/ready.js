@@ -38,15 +38,17 @@ export function sleepSummary(checkins,need,now){
 export function sessionLoad(s){
   if(s.cardio){const mins=(s.cardio.secs||0)/60,rpe=s.cardio.rpe||6;return Math.round(mins*rpe);}
   let units=0,rpeSum=0,rpeN=0;
-  s.ex.forEach(e=>e.sets.forEach(x=>{if(x.wu)return;units+=x.r||0;if(x.rpe){rpeSum+=x.rpe;rpeN++;}}));
+  // A hold's seconds and a carry's metres aren't reps: each such set counts as 10.
+  s.ex.forEach(e=>e.sets.forEach(x=>{if(x.wu)return;units+=e.timed||e.dist?10:(x.r||0);if(x.rpe){rpeSum+=x.rpe;rpeN++;}}));
   if(!units)return 0;
   const rpe=rpeN?rpeSum/rpeN:7;
   return Math.round(units*rpe*0.3);
 }
 // Daily totals for the last n days, oldest first, ending today.
 export function dailyLoads(sessions,n,now){
-  const out=Array.from({length:n},()=>0),base=now-(n-1)*DAY;
-  sessions.forEach(s=>{if(!s.created)return;const i=Math.floor((Date.parse(s.created)-base)/DAY);if(i>=0&&i<n)out[i]+=sessionLoad(s);});
+  // Counted back from now, so a session an hour ago is today's, not yesterday's.
+  const out=Array.from({length:n},()=>0);
+  sessions.forEach(s=>{if(!s.created)return;const i=n-1-Math.floor((now-Date.parse(s.created))/DAY);if(i>=0&&i<n)out[i]+=sessionLoad(s);});
   return out;
 }
 // ACWR: this week's load against the average week of the last four. 0.8–1.3 is the usual
@@ -64,9 +66,11 @@ export function banister(loads){
 
 // ── The band. Hooper total runs 4 (best) to 20 (worst); each slider is 1 best, 5 worst.
 // HRV and RHR, when present, move it by at most one band each way.
+export const isRated=c=>!!c&&[c.sleep,c.soreness,c.fatigue,c.stress].every(v=>v>=1&&v<=5);
 export function readiness(opts){
   const {checkin,loads28,hrv,rhr,baseline,count}=opts;
-  if(!checkin)return {band:null,why:"No check-in today",score:null};
+  // A night imported from a watch has hours but no ratings: it isn't a check-in.
+  if(!isRated(checkin))return {band:null,why:"No check-in today",score:null};
   // Feeling run down or ill outranks every number: rest, whatever the week looks like.
   if(checkin.rundown)return {band:"recover",score:Math.min(30,100-((checkin.sleep+checkin.soreness+checkin.fatigue+checkin.stress-4)/16)*60),why:"Feeling run down",ratio:0,rundown:true};
   if((count||0)<7)return {band:null,why:"Check in for a week to see your readiness",score:null,warming:true};

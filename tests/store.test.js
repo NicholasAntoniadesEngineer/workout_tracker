@@ -296,6 +296,41 @@ describe("routines with a plan",()=>{
 });
 
 describe("changing the weight unit",()=>{
+  test("there and back gives the numbers typed, but a set edited in between keeps the edit",()=>{
+    loadWith({sessions:[day("d1","2026-01-01T10:00:00.000Z",[ex("Bench press",[set(5,135),set(5,185)])])],settings:{unit:"lb"}});
+    store.state.body=[{at:"2026-01-01T12:00:00.000Z",w:181,waist:33.5,neck:15.25}];
+    store.convertAllWeights("lb","kg");
+    const sets=store.state.sessions[0].ex[0].sets;
+    assert.equal(sets[0].w,61.2);sets[1].w=85;
+    store.convertAllWeights("kg","lb");
+    assert.equal(sets[0].w,135);assert.equal(sets[1].w,model.convertWeight(85,"kg","lb"));
+    assert.deepEqual([store.state.body[0].w,store.state.body[0].waist,store.state.body[0].neck],[181,33.5,15.25]);
+    assert.ok(!sets[0].orig,"nothing left over once back where it began");
+    // The memo survives a save and a reload.
+    store.convertAllWeights("lb","kg");
+    loadWith(JSON.parse(JSON.stringify({sessions:store.state.sessions,settings:{unit:"kg"}})));
+    store.convertAllWeights("kg","lb");
+    assert.equal(store.state.sessions[0].ex[0].sets[0].w,135);
+  });
+
+  test("a backup holds everything that's saved, and restores into a phone in the other unit",()=>{
+    loadWith({sessions:[day("d1","2026-01-01T10:00:00.000Z",[ex("Back squat",[set(5,100)])])]});
+    Object.assign(store.state,{checkins:[{at:"2026-01-01T07:00:00.000Z",sleep:2,soreness:2,fatigue:2,stress:2}],vitals:[{at:"2026-01-01T07:00:00.000Z",hrv:60}],
+      fuel:[{at:"2026-01-01T12:00:00.000Z",p:40}],markers:[{at:"2026-01-01",name:"TSH",v:0.38}],habits:[{id:"h1",name:"Walk"}],habitDone:{"2026-01-01":["h1"]},
+      journal:[{at:"2026-01-01",text:"Good"}],photos:[{id:"p1",at:"2026-01-01",src:"data:x"}]});
+    store.state.routines=[{id:"r9",name:"Legs",ex:["Back squat"],plan:[{name:"Back squat",sets:[{r:5,w:100,rest:0}]}]}];
+    const doc=JSON.parse(JSON.stringify(store.backupDoc()));
+    for(const k of ["checkins","vitals","fuel","markers","habits","habitDone","journal","photos","routines","sessions","settings"])assert.ok(k in doc,k);
+    loadWith({sessions:[day("d2","2026-02-01T10:00:00.000Z",[ex("Back squat",[set(5,225)])])],settings:{unit:"lb"}});
+    store.importBackup(doc);
+    assert.equal(store.state.settings.unit,"kg");
+    const byDay=Object.fromEntries(store.state.sessions.map(s=>[s.id,s.ex[0].sets[0].w]));
+    assert.equal(byDay.d1,100);assert.equal(byDay.d2,model.convertWeight(225,"lb","kg"));
+    assert.equal(store.state.routines.find(r=>r.name==="Legs").id,"r9");
+    assert.deepEqual(store.state.photos.map(p=>p.id),["p1"]);
+    store.importBackup(doc);assert.equal(store.state.photos.length,1,"restoring twice doesn't double the photos");
+  });
+
   test("sets convert; sets kept in their own unit don't; routine targets and jumps follow",()=>{
     loadWith({sessions:[day("d1","2026-01-01T10:00:00.000Z",[ex("Back squat",[set(5,100),Object.assign(set(5,225),{u:"lb"})])])]});
     store.state.routines=[{id:"r1",name:"Legs",ex:["Back squat"],plan:[{name:"Back squat",sets:[{r:5,w:100,rest:0}]}]}];

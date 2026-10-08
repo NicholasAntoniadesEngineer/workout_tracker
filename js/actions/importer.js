@@ -50,7 +50,8 @@ async function readZip(file,job){
   job.total=files.length;let k=0;
   await walkZip(file,async en=>{
     if(!/\.(fit|gpx|tcx)(\.gz)?$/i.test(en.name))return;
-    const a=fromWatchFile(await en.read(),en.name.replace(/\.gz$/i,""));
+    // One damaged file is skipped; the rest still come in.
+    let a=null;try{a=fromWatchFile(await en.read(),en.name.replace(/\.gz$/i,""));}catch(e){}
     if(a)job.acts.push(a);
     job.done=++k;tick();
   });
@@ -66,9 +67,10 @@ async function readStrava(file,job){
   await walkZip(file,async en=>{
     const key=Object.keys(byFile).find(f=>en.name===f||en.name.endsWith("/"+f));
     if(!key)return;
-    const r=byFile[key];used[r.id]=true;
-    const a=fromWatchFile(await en.read(),en.name.replace(/\.gz$/i,""),r);
-    if(a){a.title=r.name||a.title;job.acts.push(a);}
+    // A file that can't be read leaves its row to come in from its totals below.
+    const r=byFile[key];let a=null;
+    try{a=fromWatchFile(await en.read(),en.name.replace(/\.gz$/i,""),r);}catch(e){}
+    if(a){used[r.id]=true;a.title=r.name||a.title;job.acts.push(a);}
     job.done=++k;tick();
   });
   // Manual entries and activities without a file still come in, from their row's totals.
@@ -100,7 +102,7 @@ async function readApple(file,job,xmlOnly){
   for(const w of workouts){
     const meta={when:w.when,type:appleName(w.type),name:appleName(w.type),secs:w.secs,dist:w.dist,climb:w.climb,hr:w.hr};
     const en=w.route&&routes[w.route.replace(/^.*workout-routes\//,"")];
-    let a=en?fromWatchFile(await en.read(),en.name,meta):null;
+    let a=null;if(en)try{a=fromWatchFile(await en.read(),en.name,meta);}catch(e){}
     if(a){a.secs=w.secs||a.secs;a.dist=w.dist||a.dist;}
     else a={when:w.when,activity:actOf(meta.type),title:meta.name,secs:w.secs,dist:w.dist,climb:w.climb,splits:[],hr:w.hr,track:[]};
     a.kind=meta.type;
@@ -127,7 +129,8 @@ function finishReview(job){
   state.sessions.forEach(s=>{if(s.cardio){const m=minuteOf(s.created);for(let d=-2;d<=2;d++)have.add(m+d);}});
   const seen=new Set();
   job.acts.sort((a,b)=>a.when.localeCompare(b.when));
-  job.acts.forEach(a=>{const m=minuteOf(a.when);a.dup=have.has(m)||seen.has(m);seen.add(m);});
+  // Twice in the file (a watch's and Strava's copy) gets the same two minutes either way.
+  job.acts.forEach(a=>{const m=minuteOf(a.when);a.dup=have.has(m)||seen.has(m);if(!a.dup)for(let d=-2;d<=2;d++)seen.add(m+d);});
   job.groups={};
   job.acts.forEach(a=>{if(a.dup)return;const g=groupOf(a);job.groups[g]=(job.groups[g]||0)+1;});
   // Everything is ticked, except all-day walking from a phone, which would swamp History.

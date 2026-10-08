@@ -5,7 +5,8 @@ import {newId} from "../stack.js";
 import {primeAudio} from "../sensors.js";
 
 const val=id=>{const el=document.getElementById(id);return el?el.value:"";};
-const num=id=>{const v=parseFloat(val(id));return isNaN(v)||v<0?0:Math.round(v*10)/10;};
+// Kept to the decimals typed (a TSH of 0.38 stays 0.38); a decimal comma reads as a point.
+const num=id=>{const v=parseFloat(val(id).replace(",","."));return isNaN(v)||v<0?0:Math.round(v*1000)/1000;};
 
 export function handle(t,ctx){
   const hp=t.closest&&t.closest("[data-health]");

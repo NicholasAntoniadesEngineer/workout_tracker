@@ -2,7 +2,7 @@
 // out as a Strong-format CSV, which Hevy, Strong and most loggers import. Runs and rides go
 // out as GPX or TCX, which Strava, Garmin Connect, Runna and Apple Health (via Shortcuts)
 // take. A workout can also be copied as plain text. Everything together goes in one zip.
-import {setKind} from "./model.js";
+import {setKind,weightIn} from "./model.js";
 import {setsSummary} from "./views/log.js";
 
 const pad=n=>String(n).padStart(2,"0");
@@ -12,7 +12,8 @@ const xml=s=>String(s||"").replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&am
 const secsOf=s=>s.ended&&s.started?Math.max(0,Math.round((Date.parse(s.ended)-Date.parse(s.started))/1000)):0;
 const ORDER={wu:"W",drop:"D",fail:"F"};
 
-// Strong's layout: one row per set, semicolon-separated, weights in the app's unit.
+// Strong's layout: one row per set, semicolon-separated, weights in the app's unit (a set logged
+// in the other unit is converted). A carry's or a weighted plank's load goes out too.
 export function strongCSV(sessions,unit){
   const u=unit==="lb"?"lbs":"kg";
   const head=["Workout #","Date","Workout Name","Duration (sec)","Exercise Name","Set Order","Weight ("+u+")","Reps","RPE","Distance (meters)","Seconds","Notes","Workout Notes"];
@@ -23,7 +24,7 @@ export function strongCSV(sessions,unit){
       let k=0;
       e.sets.forEach(x=>{
         const kind=setKind(x),order=ORDER[kind]||String(++k);
-        rows.push([n+1,local(s.started||s.created),s.title,secsOf(s),e.name,order,e.timed||e.dist?0:(x.w||0),e.timed||e.dist?0:x.r,x.rpe||"",
+        rows.push([n+1,local(s.started||s.created),s.title,secsOf(s),e.name,order,weightIn(x,unit),e.timed||e.dist?0:x.r,x.rpe||"",
           e.dist?x.r:0,e.timed?x.r:0,x.note||"",""].map(q).join(";"));
       });
     });
@@ -61,8 +62,8 @@ export function workoutText(s,unit){
   let t=s.title+" · "+d.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short",year:"numeric"})+(secsOf(s)?" · "+Math.round(secsOf(s)/60)+" min":"")+"\n";
   if(s.cardio){const c=s.cardio;t+=(c.dist?(c.dist/1000).toFixed(2)+" km · ":"")+Math.round(c.secs/60)+" min"+(c.hr&&c.hr.avg?" · "+c.hr.avg+" bpm avg":"")+"\n";return t;}
   s.ex.forEach(e=>{if(!e.sets.length)return;
-    const u=e.timed?"secs":e.dist?"m":"reps";
-    t+=e.name+": "+setsSummary(e.sets,u).replace(/&hellip;/g,"…")+(u==="reps"&&e.sets.some(x=>x.w)?" "+unit:"")+"\n";
+    const u=e.timed?"secs":e.dist?"m":"reps",sets=e.sets.map(x=>x.u?Object.assign({},x,{w:weightIn(x,unit),u:""}):x);
+    t+=e.name+": "+setsSummary(sets,u).replace(/&hellip;/g,"…")+(u==="reps"&&e.sets.some(x=>x.w)?" "+unit:"")+"\n";
     e.sets.forEach((x,i)=>{if(x.note)t+="  set "+(i+1)+": "+x.note+"\n";});});
   return t;
 }
@@ -95,7 +96,9 @@ export function everythingZip(sessions,unit,ownCSV,backupJSON,extra){
     "runs/: each run, ride or walk as GPX and TCX, for Strava, Garmin Connect or any training app.\nkingskiln.csv: the app's own spreadsheet of sets.\n"+
     "kingskiln_backup.json: the full backup, for loading back into KingsKiln.\ncheckins.csv: morning check-ins and sleep.\nfor_ai.md: your recent training as text for an AI chat.\nlifting/: each lifting day as a FIT file, sets and reps included, for Garmin Connect or Intervals.icu.\n"],
     ["strong-format.csv",strongCSV(sessions,unit)],["kingskiln.csv",ownCSV],["kingskiln_backup.json",backupJSON]].concat(extra||[]);
-  sessions.filter(s=>s.cardio).forEach(s=>{const base="runs/"+stamp(s.created)+"_"+(s.cardio.activity||"other");
+  // Named by day and start time, so two runs on one day get a file each.
+  sessions.filter(s=>s.cardio).forEach(s=>{const d=new Date(s.started||s.created),hm=isNaN(d)?"":"_"+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds());
+    const base="runs/"+stamp(s.created)+hm+"_"+(s.cardio.activity||"other");
     if((s.cardio.track||[]).length>1)files.push([base+".gpx",gpx(s)]);files.push([base+".tcx",tcx(s)]);});
   return zipFiles(files);
 }

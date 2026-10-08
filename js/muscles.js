@@ -24,11 +24,12 @@ const R=[
   [/nordic|leg curl|hamstring curl/,["hamstrings"],[],["knee"]],
   // Hinges
   [/good morning|jefferson curl|back extension|reverse hyper|ql extension|seated good/,["lowerback","hamstrings"],["glutes"],["lowerback","hip"]],
-  [/romanian|rdl|stiff-leg|single-leg deadlift/,["hamstrings","glutes"],["lowerback","forearms"],["lowerback","hip"]],
+  [/romanian|\brdl\b|stiff-leg|single-leg deadlift/,["hamstrings","glutes"],["lowerback","forearms"],["lowerback","hip"]],
   [/rack pull|deadlift from blocks|pull from blocks/,["upperback","glutes"],["hamstrings","forearms","lowerback"],["lowerback","hip"]],
   [/snatch pull|clean pull|high pull/,["upperback","glutes"],["hamstrings","quads","sidedelt"],["lowerback","hip","shoulder"]],
   [/deadlift|jefferson lift|hand-and-thigh|leverage lift|stone lift|barrel lift|keg/,["glutes","hamstrings","lowerback"],["quads","upperback","forearms"],["lowerback","hip"]],
   [/swing|pull-through|pull through/,["glutes","hamstrings"],["lowerback","forearms"],["hip","lowerback"]],
+  [/wrestler's bridge/,["upperback"],["glutes","hamstrings"],["neck"]],
   [/hip thrust|glute bridge|glute kickback|bridge$/,["glutes"],["hamstrings"],["hip"]],
   [/lateral walk/,["glutes"],[],["hip"]],
   // Olympic and full-body
@@ -43,7 +44,7 @@ const R=[
   [/farmer|suitcase|yoke|stone carry|carry|loaded march|front rack hold/,["forearms","upperback"],["abs","glutes"],["wrist","lowerback"]],
   [/sled|backward walk|elephant walk/,["quads","glutes"],["calves","hamstrings"],["knee","ankle"]],
   [/burpee|mountain climber|jumping jack/,["quads","chest"],["abs","triceps"],["knee","wrist","shoulder"]],
-  [/box jump|depth jump|long jump|high jump|jump|bound|hop|hurdle|pole vault/,["quads","glutes","calves"],["hamstrings"],["knee","ankle"]],
+  [/box jump|depth jump|long jump|high jump|jump|bound|\bhop(s|ping)?\b|hurdle|pole vault/,["quads","glutes","calves"],["hamstrings"],["knee","ankle"]],
   // Squats and lunges
   [/split squat|lunge|step[ -]?up|step-down|slant board steps|patrick step|cossack|pistol/,["quads","glutes"],["adductors","hamstrings"],["knee","hip"]],
   [/sumo squat/,["quads","glutes","adductors"],["hamstrings"],["knee","hip"]],
@@ -55,12 +56,12 @@ const R=[
   [/incline (bench|dumbbell press|log)|inclined bench|incline press/,["chest","frontdelt"],["triceps"],["shoulder","elbow"]],
   [/dip/,["chest","triceps"],["frontdelt"],["shoulder","elbow"]],
   [/push[- ]?up|push up|meels|kabbadeh|scrum|bridge press/,["chest","triceps"],["frontdelt","abs"],["shoulder","wrist","elbow"]],
-  [/bench|chest press|floor press|isometric rack press/,["chest","triceps"],["frontdelt"],["shoulder","elbow","wrist"]],
-  [/fly|pec deck|crossover/,["chest"],["frontdelt"],["shoulder"]],
   [/pullover/,["lats","chest"],["triceps"],["shoulder"]],
+  [/bench|chest press|floor press|isometric rack press/,["chest","triceps"],["frontdelt"],["shoulder","elbow","wrist"]],
+  [/rear delt|reverse fly|reverse pec deck|face pull|pull-apart|pull apart|external rotation/,["reardelt"],["upperback"],["shoulder"]],
+  [/fly|pec deck|crossover/,["chest"],["frontdelt"],["shoulder"]],
   [/lateral raise|upright row|trap 3 raise/,["sidedelt"],["upperback"],["shoulder"]],
   [/front raise/,["frontdelt"],[],["shoulder"]],
-  [/rear delt|face pull|pull-apart|pull apart|external rotation/,["reardelt"],["upperback"],["shoulder"]],
   [/tricep|skull crusher|kickback|pushdown/,["triceps"],[],["elbow"]],
   // Pulls
   [/pull[- ]?up|chin[- ]?up|pulldown|rope climb|lat spread/,["lats"],["biceps","upperback","forearms"],["shoulder","elbow"]],
@@ -70,11 +71,10 @@ const R=[
   [/wrist|grip|pinch|finger|gripper|roller|nigiri|chi-ishi|ishi-sashi/,["forearms"],[],["wrist"]],
   [/hammer curl|reverse curl|zottman/,["biceps","forearms"],[],["elbow","wrist"]],
   [/curl/,["biceps"],["forearms"],["elbow"]],
+  // Core, ahead of the hang rule so hanging raises count as abs.
+  [/plank|dead bug|hollow|pallof|ab wheel|crunch|sit-up|sit up|leg raise|knee raise|l-sit|woodchop|side bend|trunk twist|garhammer|powell/,["abs"],[],["lowerback"]],
   [/hang/,["forearms"],["lats"],["shoulder","wrist"]],
   [/handstand|frog stand|headstand|forearm stand|hand balancing/,["frontdelt","triceps"],["abs"],["shoulder","wrist","neck"]],
-  // Core
-  [/plank|dead bug|hollow|pallof|ab wheel|crunch|sit-up|sit up|leg raise|knee raise|l-sit|woodchop|side bend|trunk twist|garhammer|powell/,["abs"],[],["lowerback"]],
-  [/wrestler's bridge/,[],[],["neck"]],
 ];
 
 // {primary:[...], secondary:[...], joints:[...]} for an exercise name; custom names with no rule

@@ -11,7 +11,7 @@ export const SOVIET={cat:"Soviet & Russian strength",topics:[
    exercises:["Kettlebell press","Kettlebell snatch","Bridge press","Squats"],
    links:[
     {t:"Vladislav Kraevsky — Wikipedia (in Russian)",u:"https://ru.wikipedia.org/wiki/%D0%9A%D1%80%D0%B0%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9,_%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D1%81%D0%BB%D0%B0%D0%B2_%D0%A4%D1%80%D0%B0%D0%BD%D1%86%D0%B5%D0%B2%D0%B8%D1%87",k:"article",d:"The physician who founded Russian athletics"},
-    {t:"The birthday of Russian athletics — Geraklion (in Russian)",u:"http://www.geraklion.ru/news2/item/14607-den-rozhdeniya-rossijskogo-atletizma",k:"article",d:"How the 1885 circle came to be"},
+    {t:"The birthday of Russian athletics — Geraklion (in Russian)",u:"https://www.geraklion.ru/news2/item/14607-den-rozhdeniya-rossijskogo-atletizma",k:"article",d:"How the 1885 circle came to be"},
     {t:"How Dr Kraevsky became father of Russian athletics — AiF (in Russian)",u:"https://spb.aif.ru/society/people/dva_buldoga_na_grud_kak_doktor_kraevskiy_stal_otcom_russkoy_atletiki",k:"article",d:"Long-form story of Kraevsky and his pupils"},
     {t:"Ivan Zaikin — Wikipedia (in Russian)",u:"https://ru.wikipedia.org/wiki/%D0%97%D0%B0%D0%B8%D0%BA%D0%B8%D0%BD,_%D0%98%D0%B2%D0%B0%D0%BD_%D0%9C%D0%B8%D1%85%D0%B0%D0%B9%D0%BB%D0%BE%D0%B2%D0%B8%D1%87",k:"article",d:"Wrestler, weightlifter and pioneer aviator of the era"},
     {t:"Early wrestling championships — Wikipedia",u:"https://en.wikipedia.org/wiki/Early_wrestling_championships",k:"article",d:"The circus and world wrestling titles of the period"}]},
@@ -239,7 +239,7 @@ export const SOVIET={cat:"Soviet & Russian strength",topics:[
     {t:"Science and Practice of Strength Training (ebook) — Human Kinetics",u:"https://us.humankinetics.com/products/science-and-practice-of-strength-training-3rd-edition-epub",k:"article",d:"Contents and description of the current edition"},
     {t:"Emeritus faculty — Penn State Kinesiology",u:"https://hhd.psu.edu/kines/emeritus-faculty",k:"article",d:"His listing as professor emeritus"},
     {t:"Faculty — Penn State Biomechanics Laboratory",u:"https://biomechanicslab.psu.edu/faculty/",k:"article",d:"His research areas, including strength training"},
-    {t:"Prof. Dr. Vladimir M. Zatsiorsky — International Association of Sport Kinetics",u:"http://www.internationalsportkinetics.org/index.php/honorary-members/18-prof-dr-vladimir-m-zatsiorsky",k:"article",d:"Honorary member profile and career"},
+    {t:"Prof. Dr. Vladimir M. Zatsiorsky — International Association of Sport Kinetics",u:"https://www.internationalsportkinetics.org/index.php/honorary-members/18-prof-dr-vladimir-m-zatsiorsky",k:"article",d:"Honorary member profile and career"},
     {t:"Zatsiorsky, Vladimir M. — Encyclopedia.com",u:"https://www.encyclopedia.com/arts/culture-magazines/zatsiorsky-vladimir-m",k:"article",d:"Career timeline and list of books"},
     {t:"Contributions of Vladimir M. Zatsiorsky — Human Movement Science",u:"https://doi.org/10.1016/j.humov.2022.103048",k:"article",d:"Tribute by former students for his 90th birthday"},
     {t:"Zatsiorsky's two-factor theory, part 1 — Barbell Logic podcast",u:"https://barbell-logic.com/214-a-brief-history-of-programming-theory-zatsiorskys-two-factor-theory-pt-1/",k:"podcast",d:"Podcast on his fitness-fatigue model"}]},

@@ -1,6 +1,7 @@
 import {normSet,uid,workoutEnd} from "./model.js";
 
-const HEADER=["Date","Day","Started","Ended","Exercise","Set","Reps","Side","Weight","Band","Rest","Work","At","Mark","Mode","RPE","Note"];
+// Unit is filled only for a set logged in its own unit (lb in a kg app); blank is the app's.
+const HEADER=["Date","Day","Started","Ended","Exercise","Set","Reps","Side","Weight","Band","Rest","Work","At","Mark","Mode","RPE","Note","Unit"];
 const MARK={wu:"warmup",drop:"drop",fail:"failure"};
 const SIDE_WORDS=["per side","side","each side","yes","y","true","1"];
 const SIDE_MARK="per side";
@@ -22,8 +23,8 @@ export function buildCSV(sessions){
     const mode=e.timed?"sec":(e.dist?"m":"");
     if(e.sets.length)e.sets.forEach((x,i)=>
       rows.push(day.concat([e.name,i+1,x.r,x.side?SIDE_MARK:"",x.w||"",x.band||"",x.rest||"",x.t||"",x.at||"",
-        MARK[x.wu?"wu":(x.kind||"")]||"",mode,x.rpe||"",x.note||""])));
-    else rows.push(day.concat([e.name,"","","","","","","","","",mode,"",""]));
+        MARK[x.wu?"wu":(x.kind||"")]||"",mode,x.rpe||"",x.note||"",x.u||""])));
+    else rows.push(day.concat([e.name,"","","","","","","","","",mode,"","",""]));
   }));
   return rows.map(r=>r.map(csvField).join(",")).join(EOL);
 }
@@ -49,6 +50,20 @@ export function parseCSV(text){
   return rows;
 }
 
+// A date as written, or as a spreadsheet re-saved it: ISO, or 15/01/2026 10:00 (day first
+// unless the second number can only be a day). null when it can't be read.
+function readDate(v){
+  const s=String(v||"").trim();if(!s)return null;
+  let m=/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})(?:[ T,]+(\d{1,2}):(\d\d)(?::(\d\d))?)?$/.exec(s);
+  if(m){let d=+m[1],mo=+m[2];if(mo>12&&d<=12){const t=d;d=mo;mo=t;}
+    if(mo<1||mo>12||d<1||d>31)return null;
+    return new Date(+m[3],mo-1,d,+m[4]||0,+m[5]||0,+m[6]||0).toISOString();}
+  m=/^(\d{4})[\/.](\d{1,2})[\/.](\d{1,2})(?:[ T]+(\d{1,2}):(\d\d)(?::(\d\d))?)?$/.exec(s);
+  if(m)return new Date(+m[1],m[2]-1,+m[3],+m[4]||0,+m[5]||0,+m[6]||0).toISOString();
+  const t=Date.parse(s);return isNaN(t)?null:(/^\d{4}-\d\d-\d\dT/.test(s)?s:new Date(t).toISOString());
+}
+const decimal=v=>parseFloat(String(v||"").trim().replace(",","."));
+
 function isSide(v){return SIDE_WORDS.indexOf(String(v||"").trim().toLowerCase())>=0;}
 
 export function parseImport(text){
@@ -58,7 +73,7 @@ export function parseImport(text){
   const col={date:head.indexOf("date"),day:head.indexOf("day"),ex:head.indexOf("exercise"),
     set:head.indexOf("set"),reps:head.indexOf("reps"),side:head.indexOf("side"),
     started:head.indexOf("started"),ended:head.indexOf("ended"),work:head.indexOf("work"),rest:head.indexOf("rest"),weight:head.indexOf("weight"),band:head.indexOf("band"),
-    at:head.indexOf("at"),mark:head.indexOf("mark"),mode:head.indexOf("mode"),rpe:head.indexOf("rpe"),note:head.indexOf("note")};
+    at:head.indexOf("at"),mark:head.indexOf("mark"),mode:head.indexOf("mode"),rpe:head.indexOf("rpe"),note:head.indexOf("note"),unit:head.indexOf("unit")};
   if(col.date<0||col.ex<0||col.reps<0)
     throw new Error("Couldn't find the expected columns. Keep the header row: Date, Day, Exercise, Set, Reps, Side.");
 
@@ -71,9 +86,11 @@ export function parseImport(text){
     const name=(row[col.ex]||"").trim();
     if(!name)continue;
     if(!groups[key]){
-      groups[key]={created:key,title:(col.day>=0?(row[col.day]||""):"")||key,
-        started:col.started>=0?(row[col.started]||"").trim():"",
-        ended:col.ended>=0?(row[col.ended]||"").trim():"",
+      const created=readDate(key);
+      if(!created)throw new Error("Couldn't read the date \u201c"+key+"\u201d on row "+(r+1)+". Dates look like 2026-01-15 10:00.");
+      groups[key]={created,title:(col.day>=0?(row[col.day]||""):"")||key,
+        started:col.started>=0?(readDate(row[col.started])||""):"",
+        ended:col.ended>=0?(readDate(row[col.ended])||""):"",
         ex:[],byName:{}};
       order.push(key);
     }
@@ -89,11 +106,11 @@ export function parseImport(text){
     const setNo=parseInt((row[col.set]||"").trim(),10);
     const num=i=>{const v=i>=0?parseInt((row[i]||"").trim(),10):NaN;return isNaN(v)?0:v;};
     g.byName[name].tmp.push({i:isNaN(setNo)?g.byName[name].tmp.length+1:setNo,
-      r:reps,side:col.side>=0&&isSide(row[col.side]),w:col.weight>=0?(parseFloat((row[col.weight]||"").trim())||0):0,
+      r:reps,side:col.side>=0&&isSide(row[col.side]),w:col.weight>=0?(decimal(row[col.weight])||0):0,u:col.unit>=0?(row[col.unit]||"").trim().toLowerCase():"",
       band:col.band>=0?(row[col.band]||"").trim():"",t:num(col.work),rest:num(col.rest),
       at:col.at>=0?(row[col.at]||"").trim():"",
       kind:{warmup:"wu",drop:"drop",failure:"fail"}[col.mark>=0?(row[col.mark]||"").trim().toLowerCase():""]||"",
-      rpe:col.rpe>=0?parseFloat(row[col.rpe])||0:0,note:col.note>=0?(row[col.note]||"").trim():""});
+      rpe:col.rpe>=0?decimal(row[col.rpe])||0:0,note:col.note>=0?(row[col.note]||"").trim():""});
   }
 
   const imported=order.map(k=>{
@@ -103,7 +120,7 @@ export function parseImport(text){
     return Object.assign(day,{
       ex:g.ex.map(e=>{
         e.tmp.sort((a,b)=>a.i-b.i);
-        return {id:uid(),name:e.name,timed:!!e.timed,dist:!!e.dist,sets:e.tmp.map(o=>normSet({r:o.r,side:o.side,w:o.w,band:o.band||"",t:o.t,rest:o.rest,at:o.at,kind:o.kind,rpe:o.rpe,note:o.note}))};
+        return {id:uid(),name:e.name,timed:!!e.timed,dist:!!e.dist,sets:e.tmp.map(o=>normSet({r:o.r,side:o.side,w:o.w,band:o.band||"",t:o.t,rest:o.rest,at:o.at,kind:o.kind,rpe:o.rpe,note:o.note,u:o.u}))};
       })});
   });
   if(!imported.length)throw new Error("No workout rows found in that file.");

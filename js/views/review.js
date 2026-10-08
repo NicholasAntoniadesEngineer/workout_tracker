@@ -35,7 +35,7 @@ export function reviewView(){
     const max=Math.max(1,...r.byMonth);
     h+="<div class='card hcard'><div class='hcardh'><span class='llabel'>Days by month</span>"+(r.topMonth?"<span class='pgall'>Most in "+esc(r.topMonth)+"</span>":"")+"</div>"+
       "<div class='revbars'>"+r.byMonth.map((v,i)=>"<span title='"+monthName(i)+": "+v+" days'><i style='height:"+Math.round(v/max*100)+"%' class='"+(v===max&&v?"top":"")+"'></i><em>"+monthName(i)[0]+"</em></span>").join("")+"</div>"+
-      "<div class='revsub'>"+r.weeks+" of "+Math.min(52,r.weeksSoFar)+" weeks with training</div></div>";
+      "<div class='revsub'>"+r.weeks+" of "+r.weeksSoFar+" weeks with training</div></div>";
   }
   h+="<div class='card hcard'><div class='hcardh'><span class='llabel'>Records</span><span class='pgall'>"+r.records.length+" lifts got stronger"+(r.firsts?" &middot; "+r.firsts+" new":"")+"</span></div>"+
     (r.records.length?r.records.slice(0,8).map(x=>"<div class='histrow'><span class='histdate'>"+esc(x.name)+"</span><span class='histsets mono'>"+x.from+" &rarr; <b>"+x.to+"</b> "+u+"</span></div>").join("")+

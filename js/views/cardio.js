@@ -16,6 +16,9 @@ const distStr=m=>miles()?(m/1609.344).toFixed(2)+" mi":(m/1000).toFixed(2)+" km"
 const perM=()=>miles()?1609.344:1000;
 const clock=s=>{s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
   return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0");};
+// Where the timer's phases are: the clock plus whatever was skipped (Skip moves the phases on,
+// not the session's start).
+export const phaseClock=(c,now)=>elapsedOf(c,now)+((c&&c.skipMs)||0)/1000;
 export function elapsedOf(c,now){
   if(!c||!c.startedAt)return 0;
   const end=c.pauseAt||now||Date.now();
@@ -112,7 +115,7 @@ function tile(v,unit,label,extra,cls){
 }
 
 function liveView(){
-  const c=state.cardio,el=elapsedOf(c),list=c.phases||[],at=phaseAt(list,el);
+  const c=state.cardio,el=elapsedOf(c),list=c.phases||[],at=phaseAt(list,phaseClock(c));
   const st=trackStats(c.track||[],perM()),pace=recentPace(c.track||[],30,perM()),bpm=c.hr&&c.hr.length?c.hr[c.hr.length-1].bpm:0;
   const max=state.settings.maxHR||190,z=zoneOf(bpm,max),u=miles()?"mi":"km";
   const ph=at.phase,frac=ph?Math.min(1,at.into/ph.secs):1,timed=list.length&&!at.done;

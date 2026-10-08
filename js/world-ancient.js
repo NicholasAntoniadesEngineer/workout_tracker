@@ -40,7 +40,7 @@ export const ANCIENT={cat:"Ancient Greece & Rome",region:"Ancient world",topics:
    exercises:["Running","Wrestling practice"],
    links:[
     {t:"Plutarch, Life of Lycurgus — LacusCurtius",u:"https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Plutarch/Lives/Lycurgus*.html",k:"article",d:"Primary text: boys' companies, reed beds and girls' training"},
-    {t:"Xenophon, Constitution of the Lacedaemonians 2 — Perseus",u:"http://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0210:text=Const.%20Lac.:chapter=2",k:"article",d:"Primary text: how Spartan boys were raised"},
+    {t:"Xenophon, Constitution of the Lacedaemonians 2 — Perseus",u:"https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0210:text=Const.%20Lac.:chapter=2",k:"article",d:"Primary text: how Spartan boys were raised"},
     {t:"Plutarch, Ancient Customs of the Spartans — LacusCurtius",u:"https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Plutarch/Moralia/Instituta_Laconica*.html",k:"article",d:"Primary text: Spartan daily customs, short and direct"},
     {t:"Pausanias, Description of Greece 5.8 — Theoi Classical Texts",u:"https://www.theoi.com/Text/Pausanias5A.html",k:"article",d:"Primary text: Spartan winners of the first events"},
     {t:"Agoge — Wikipedia",u:"https://en.wikipedia.org/wiki/Agoge",k:"article",d:"Stages, terms and ancient sources on the training"},
@@ -188,7 +188,7 @@ export const ANCIENT={cat:"Ancient Greece & Rome",region:"Ancient world",topics:
     {t:"The stone of Bybon — Hellenic Ministry of Culture",u:"http://odysseus.culture.gr/h/4/eh430.jsp?obj_id=11001",k:"article",d:"The museum's own entry for the inscribed stone"},
     {t:"Seneca, Moral Letters 15 — Wikisource",u:"https://en.wikisource.org/wiki/Moral_letters_to_Lucilius/Letter_15",k:"article",d:"Primary text: running, weights and jumping"},
     {t:"Halteres (ancient Greece) — Wikipedia",u:"https://en.wikipedia.org/wiki/Halteres_(ancient_Greece)",k:"article",d:"Shapes, weights and use in the long jump"},
-    {t:"Ancient jumpers used weights — Nature News",u:"http://www.nature.com/articles/news021111-8",k:"article",d:"How swinging halteres lengthens a standing jump"},
+    {t:"Ancient jumpers used weights — Nature News",u:"https://www.nature.com/articles/news021111-8",k:"article",d:"How swinging halteres lengthens a standing jump"},
     {t:"Halteres used in ancient Olympic long jump — Minetti & Ardigò, Nature",u:"https://www.nature.com/articles/420141a",k:"study",d:"Simulation: about 17 cm gained on a 3 m jump"},
     {t:"From Milo to Milo: barbells, dumbells and Indian clubs — Iron Game History",u:"https://www.starkcenter.org/igh/igh-v3/igh-v3-n6/igh0306c.pdf",k:"study",d:"Jan Todd on halteres, Galen and Antyllus"}]},
   {id:"an-galen-method",part:"method",title:"Galen's exercise: strong, swift and violent",
@@ -228,7 +228,7 @@ export const ANCIENT={cat:"Ancient Greece & Rome",region:"Ancient world",topics:
    points:["Earliest training diet: fresh cheese, dried figs, wheat","Dromeus the runner is credited with the first meat diet","Beef and pork for the heavy athletes","Milo: 20 lb of meat and 20 lb of bread a day","Galen: heavy athletes ate pork with special bread"],
    links:[
     {t:"Pausanias, Description of Greece 6.7 — Theoi Classical Texts",u:"https://www.theoi.com/Text/Pausanias6A.html",k:"article",d:"Primary text: Dromeus and the first meat diet"},
-    {t:"Diogenes Laertius, Lives 8.1 (Pythagoras) — Perseus",u:"http://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0258:book=8:chapter=1",k:"article",d:"Primary text: figs, cheese, then meat for athletes"},
+    {t:"Diogenes Laertius, Lives 8.1 (Pythagoras) — Perseus",u:"https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0258:book=8:chapter=1",k:"article",d:"Primary text: figs, cheese, then meat for athletes"},
     {t:"Athenaeus, Deipnosophists 10 — LacusCurtius",u:"https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Athenaeus/10A*.html",k:"article",d:"Primary text: Milo, Theagenes and other great eaters"},
     {t:"Athletae — Smith's Dictionary of Antiquities (LacusCurtius)",u:"https://penelope.uchicago.edu/Thayer/E/Roman/Texts/secondary/SMIGRA*/Athletae.html",k:"article",d:"Every ancient source on the athletes' diet, gathered"},
     {t:"Milo of Kroton — Perseus Digital Library, Tufts",u:"https://www.perseus.tufts.edu/Olympics/milo.html",k:"article",d:"The champion whose appetite became legend"},
@@ -237,8 +237,8 @@ export const ANCIENT={cat:"Ancient Greece & Rome",region:"Ancient world",topics:
    summary:"Pliny the Elder writes that gladiators were nicknamed hordearii, barley men, and barley with beans was the base of their food: cheap, filling fuel for hard daily training. Pliny also passes on Varro's remedy of lye from hearth ashes stirred into a drink, which gladiators took to recover after their bouts. Bones from the gladiators' cemetery at Ephesus, from the 2nd and 3rd centuries AD, fit the texts: wheat and barley were the staples, legumes were probably eaten often, and the gladiators' bones held far more strontium than the townspeople's, consistent with a plant-ash drink.",
    points:["Hordearii: Pliny's name for gladiators","Barley and beans fuelled the daily training","An ash drink was taken to recover after bouts","Ephesus bones: grain and legumes, high strontium"],
    links:[
-    {t:"Pliny the Elder, Natural History 18.14 — Perseus",u:"http://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0137:book=18:chapter=14",k:"article",d:"Primary text: barley and the hordearii"},
-    {t:"Pliny the Elder, Natural History 36.69 — Perseus",u:"http://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0137:book=36:chapter=69",k:"article",d:"Primary text: the gladiators' ash drink"},
+    {t:"Pliny the Elder, Natural History 18.14 — Perseus",u:"https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0137:book=18:chapter=14",k:"article",d:"Primary text: barley and the hordearii"},
+    {t:"Pliny the Elder, Natural History 36.69 — Perseus",u:"https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0137:book=36:chapter=69",k:"article",d:"Primary text: the gladiators' ash drink"},
     {t:"Gladiator — Wikipedia",u:"https://en.wikipedia.org/wiki/Gladiator",k:"article",d:"Barley, beans, massage and medical care"},
     {t:"Stable isotope and trace element studies on gladiators from Ephesus — Lösch et al., PLOS ONE",u:"https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0110489",k:"study",d:"Grain staples and an ash-drink signal in gladiator bones"}]},
   {id:"an-oil-baths",part:"food",title:"Oil, strigil and baths: how the ancients recovered",

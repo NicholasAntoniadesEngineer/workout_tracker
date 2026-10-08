@@ -3,6 +3,7 @@
 // programme or culture page shows up on every exercise it uses.
 import {learnLib} from "./lazy.js";
 import {EXINFO} from "./exinfo-data.js";
+import {fold} from "./text.js";
 
 const key=n=>String(n||"").trim().toLowerCase();
 let INDEX=null;
@@ -26,7 +27,7 @@ export const exWhat=name=>(EXINFO[name]&&EXINFO[name].what)||"";
 export const exAka=name=>(EXINFO[name]&&EXINFO[name].aka)||[];
 
 // Search that forgives hyphens, spacing and plurals, and knows the usual short names.
-const squash=s=>key(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"").replace(/s$/,"");
+const squash=s=>fold(key(s)).replace(/[^a-z0-9]/g,"").replace(/s$/,"");
 export function exMatches(name,q){
   const nq=squash(q),kq=key(q);
   if(!nq)return true;

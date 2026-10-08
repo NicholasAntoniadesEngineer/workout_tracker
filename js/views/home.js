@@ -12,7 +12,7 @@ import {setClockSeconds,workoutLabel} from "./log.js";
 import {learnLib} from "../lazy.js";
 import {bodyLine,readinessCard,readinessNow} from "./checkin.js";
 import {monthCard} from "./review.js";
-import {BAND_LABEL,suggestion} from "../ready.js";
+import {BAND_LABEL,isRated,suggestion} from "../ready.js";
 import {proteinTarget,totalsOf} from "../fuel.js";
 
 // One chip per module that is on: protein so far, habits done. A tap opens the page.
@@ -213,7 +213,7 @@ function heroWide(running,finished,emptyOpen,doneToday){
     word="Morning check-in";sub="30 seconds: sleep, soreness, energy, stress.";
     second="<button class='btn ghost' id='cistart'>Check in</button>";
   }else if(!r.band){
-    word="Checked in";sub="Your readiness word shows after "+Math.max(1,7-state.checkins.length)+" more mornings.";
+    word="Checked in";sub="Your readiness word shows after "+Math.max(1,7-state.checkins.filter(isRated).length)+" more mornings.";
     second="<button class='btn ghost' id='cistart'>Edit check-in</button>";
   }else{
     word=esc(r.why);sub=esc(suggestion(r.rundown?"rundown":r.band,r.planned));score=r.score;ringWord=r.rundown?"Rest":BAND_LABEL[r.band];

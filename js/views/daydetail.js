@@ -49,7 +49,8 @@ function cardioPane(s){
   if(track.length>1)h+="<div class='card ddroute'><svg viewBox='0 0 520 260' aria-label='Route'><path d='"+routePath(track,520,260)+"'/></svg></div>";
   if((c.splits||[]).length){
     const best=Math.min(...c.splits.map(x=>x.secs));
-    h+="<div class='llabel'>Splits</div><div class='csplits'>"+c.splits.map(x=>"<div class='csplit'><span class='mono'>"+x.n+"</span>"+
+    // Saved splits are per kilometre, whatever unit the pace above is in.
+    h+="<div class='llabel'>Splits /km</div><div class='csplits'>"+c.splits.map(x=>"<div class='csplit'><span class='mono'>"+x.n+"</span>"+
       "<span class='csbar'><span style='width:"+Math.round(best/x.secs*100)+"%'></span></span><span class='mono'>"+fmtPace(x.secs)+"</span></div>").join("")+"</div>";
   }
   return h;

@@ -20,6 +20,8 @@ function focusSearch(){
 export function handleKey(ev,render){
   const tag=(ev.target&&ev.target.tagName)||"";
   if(/^(INPUT|TEXTAREA|SELECT)$/.test(tag)||ev.metaKey||ev.ctrlKey||ev.altKey)return false;
+  // An open dialog has the floor: no shortcut acts on the screen behind it.
+  if(state.dialog)return false;
   const k=ev.key;
   if((k===" "||k==="Enter")&&tag==="BUTTON")return false;
   // While the number pad is open it takes the digits.

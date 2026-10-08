@@ -99,6 +99,7 @@ export const CUES={
   "single arm low to high woodchop":["Set the cable low, stand side-on","Pull up and across the body","Rotate through the trunk, control the return"],
   // Carry & full body
   "farmer carry":["Stand tall, shoulders back","Short, steady steps","Grip hard and breathe"],
+  "walking":["Stand tall, eyes ahead","Swing the arms and roll heel to toe","Brisk enough to breathe harder but still talk"],
   "suitcase carry":["Weight in one hand only","Don't lean toward the weight","Walk tall with a braced trunk"],
   "turkish get-up":["Eyes on the weight the whole time","Arm locked straight overhead","Move slowly, one step at a time"],
   "burpees":["Hands down, step or jump back to plank","Chest down, then back to a squat","Stand and jump, land softly"],

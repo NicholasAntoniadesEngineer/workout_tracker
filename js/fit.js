@@ -48,7 +48,8 @@ export function parseFit(buf){
     }else if(rh&0x40){                         // a definition: how this local type's data is laid out
       local=rh&0x0F;
       const little=bytes[at+1]===0,num=little?dv.getUint16(at+2,true):dv.getUint16(at+2,false);
-      const n=bytes[at+4];at+=5;
+      if(at+5>end)break;
+      const n=bytes[at+4];at+=5;if(at+n*3>end)break;
       const fields=[];
       for(let i=0;i<n;i++){fields.push({num:bytes[at],size:bytes[at+1],type:bytes[at+2]});at+=3;}
       let devSize=0;
@@ -58,6 +59,8 @@ export function parseFit(buf){
     }else local=rh&0x0F;
     const d=defs[local];
     if(!d)throw new Error("FIT data before its definition");
+    // A file cut off mid-record keeps everything before the cut.
+    if(at+d.fields.reduce((a,f)=>a+f.size,0)+d.devSize>end)break;
     const v={};
     d.fields.forEach(f=>{v[f.num]=readValue(dv,at,f.type,f.size,d.little);at+=f.size;});
     at+=d.devSize;

@@ -1,6 +1,6 @@
 // Progress analytics: pure computations over sessions plus tiny inline-SVG charts.
 // No libraries — the charts inherit the theme through currentColor and CSS variables.
-import {EXERCISE_GROUPS,OTHER_GROUP,dateKey,exerciseGroup,setReps,setLoad} from "./model.js";
+import {EXERCISE_GROUPS,OTHER_GROUP,dateKey,exerciseGroup,options,setReps,setLoad,weightIn} from "./model.js";
 
 const WEEKS_SHOWN=8;
 const TREND_POINTS=12;
@@ -21,9 +21,10 @@ function tonnage(s){
   return Math.round(t);
 }
 
+// Lifted reps only: a run's metres and a plank's seconds aren't reps.
 function repCount(s){
   let r=0;
-  s.ex.forEach(e=>e.sets.forEach(x=>{if(!x.wu)r+=setReps(x);}));
+  s.ex.forEach(e=>{if(e.timed||e.dist)return;e.sets.forEach(x=>{if(!x.wu)r+=setReps(x);});});
   return r;
 }
 
@@ -117,8 +118,9 @@ export function exerciseRecords(sessions){
     if((s.created||"")>rec.last)rec.last=s.created||"";
     e.sets.forEach(x=>{
       if(x.wu)return;   // warm-ups never set records
-      if(x.w&&(x.w>rec.bestW||(x.w===rec.bestW&&x.r>rec.bestWReps))){rec.bestW=x.w;rec.bestWReps=x.r;}
-      if(x.w)rec.best1RM=Math.max(rec.best1RM,est1RM(x.w,x.r));
+      const w=weightIn(x,options.unit);   // a set logged in the other unit, in the app's
+      if(w&&(w>rec.bestW||(w===rec.bestW&&x.r>rec.bestWReps))){rec.bestW=w;rec.bestWReps=x.r;}
+      if(w)rec.best1RM=Math.max(rec.best1RM,est1RM(w,x.r));
       rec.bestR=Math.max(rec.bestR,x.r);
     });
   }));

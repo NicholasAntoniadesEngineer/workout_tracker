@@ -60,7 +60,7 @@ export function bodyView(){
   if(today&&(today.neck||today.sys)){
     h+="<div class='bodyderived'>"+(bf!=null?"<span><b>Body fat about "+bodyFatRange(bf)+"</b> by the US Navy tape method; a lab reading can differ by 3–4 points.</span>":
       today.neck?"<span>Set your height"+(state.settings.sex?"":" and sex")+" in Settings to estimate body fat from the tape.</span>":"")+
-      (today.sys?"<span>Blood pressure "+today.sys+"/"+today.dia+": "+bpBand(today.sys,today.dia)+".</span>":"")+"</div>";
+      (today.sys&&today.dia?"<span>Blood pressure "+today.sys+"/"+today.dia+": "+bpBand(today.sys,today.dia)+".</span>":"")+"</div>";
   }
   h+="<button class='btn primary bodysave' id='bodysave'>"+(today?"Update":"Log")+(day===dateKey(nowISO())?" today":" "+shortDate(day+"T12:00:00"))+"</button></div>";
   h+=photosCard(day);

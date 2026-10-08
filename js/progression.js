@@ -4,7 +4,7 @@
 import {state,repRange,newestFirst,getSession} from "./store.js";
 import {progressionHint} from "./coach.js";
 import {deloadTarget} from "./planner.js";
-import {exerciseGroup,isBandExercise,unitOf} from "./model.js";
+import {convertWeight,exerciseGroup,isBandExercise,unitOf} from "./model.js";
 
 const key=n=>String(n||"").trim().toLowerCase();
 const LOWER=["Squat & lunge","Hinge & glutes","Lower leg"];
@@ -39,10 +39,12 @@ export function stepFor(name){
 // Past performances of an exercise before the open session, newest first. At a gym, its own
 // history comes first, since machines and bars differ from gym to gym.
 export function historyOf(name,limit){
-  const k=key(name),cur=getSession(),gym=(cur&&cur.gym)||"",all=[];
+  // A workout not yet started at the chosen gym is at that gym.
+  const k=key(name),cur=getSession(),gym=(cur&&cur.gym)||state.gymId||"",all=[];
   for(const s of newestFirst(state.sessions)){
     if(cur&&(s.id===cur.id||(s.created||"")>(cur.created||"")))continue;
-    const e=s.ex.find(x=>key(x.name)===k&&x.sets.length);
+    // A day of only warm-ups isn't a performance to progress from.
+    const e=s.ex.find(x=>key(x.name)===k&&x.sets.some(y=>!y.wu));
     if(e)all.push({at:s.created,sets:e.sets,unit:unitOf(e),gym:s.gym||""});
   }
   const here=gym?all.filter(h=>h.gym===gym):[];
@@ -56,8 +58,13 @@ export function targetFor(e,now){
   const st=state.settings,r=rangeFor(e.name);
   // A planned deload week: lighter and fewer sets, whatever the usual rules say.
   const cur=getSession();
-  if(cur&&cur.deload&&unitOf(e)==="reps"&&!isBandExercise(e.name))return deloadTarget(h[0].sets,unitFor(e.name));
-  return progressionHint(h[0].sets,{unit:unitOf(e),weightUnit:unitFor(e.name),low:r.low,top:r.top,isBand:isBandExercise(e.name),
+  // Past sets in another unit (days before the exercise moved to lb, say) are read in this one.
+  const wu=unitFor(e.name),app=st.unit==="lb"?"lb":"kg";
+  const inU=sets=>sets.map(x=>{const f=x.u||app;return f===wu?x:Object.assign({},x,{w:convertWeight(x.w,f,wu),u:wu});});
+  if(cur&&cur.deload&&unitOf(e)==="reps"&&!isBandExercise(e.name))return deloadTarget(inU(h[0].sets),wu);
+  // "Now" is the day being logged: a day filled in afterwards is judged by its own date.
+  const when=now||Math.min(Date.now(),Date.parse((cur&&cur.created)||"")||Date.now());
+  return progressionHint(inU(h[0].sets),{unit:unitOf(e),weightUnit:wu,low:r.low,top:r.top,isBand:isBandExercise(e.name),
     step:stepFor(e.name),miss:st.missRule||"hold",stallAfter:+st.stallAfter||0,deloadPct:+st.deloadPct||10,
-    breakRule:st.breakRule||"off",history:h.slice(1),prevAt:h[0].at,now:now||Date.now()});
+    breakRule:st.breakRule||"off",history:h.slice(1).map(y=>Object.assign({},y,{sets:inU(y.sets)})),prevAt:h[0].at,now:when});
 }

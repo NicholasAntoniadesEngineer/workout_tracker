@@ -1,7 +1,7 @@
 // Settings, files and the body log: choices, restore defaults, CSV and backup, the backup
 // nudge, the calendar reminder, weigh-ins, and the chart pickers.
 // Each handler returns true once it has dealt with the tap.
-import {DEFAULTS,convertAllWeights,setSetting,state,upsertBodyEntry} from "../store.js";
+import {DEFAULTS,backupDoc,convertAllWeights,setSetting,state,upsertBodyEntry} from "../store.js";
 import {dateKey,nowISO} from "../model.js";
 import {deliver,exportCSV,exportJSON} from "../csv.js";
 import {checkinICS,reminderICS} from "../reminder.js";
@@ -16,7 +16,7 @@ import {ask,notice} from "../dialog.js";
 export function handle(t,ctx){
   if(t.id==="bodysave"){
     const num=id=>{const el=document.getElementById(id);
-      const v=el?parseFloat(el.value):NaN;return isNaN(v)||v<=0?0:Math.round(v*10)/10;};
+      const v=el?parseFloat(el.value.replace(",",".")):NaN;return isNaN(v)||v<=0?0:Math.round(v*10)/10;};
     // The chosen day, at noon, so the entry sits on that date in every time zone it is read in.
     const day=state.bodyDate||dateKey(nowISO()),at=day===dateKey(nowISO())?nowISO():new Date(day+"T12:00:00").toISOString();
     const prev=state.body.find(b=>dateKey(b.at)===day)||{};
@@ -163,10 +163,7 @@ export function handle(t,ctx){
   if(t.closest&&t.closest("#exportcsv")){exportCSV(state.sessions);return true;}
   if(t.closest&&(t.closest("#exportjson")||t.closest("#backupnow"))){
     state.backupAt=nowISO();state.backupSnooze="";
-    exportJSON({sessions:state.sessions,catalog:state.catalog,removed:state.removed,
-      settings:state.settings,body:state.body,routines:state.routines,
-      hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,gyms:state.gyms,gymId:state.gymId,
-      supplements:state.supplements,stacks:state.stacks,favs:state.favs,programme:state.programme,learnSaved:state.learnSaved});
+    exportJSON(backupDoc());
     ctx.render();return true;
   }
   if(t.id==="backupsnooze"){

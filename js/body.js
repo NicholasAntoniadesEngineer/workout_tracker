@@ -4,6 +4,8 @@
 const log10=x=>Math.log(x)/Math.LN10;
 // cm in, percentage out. Men: waist and neck. Women: waist, hip and neck.
 export function navyBodyFat(sex,heightCm,waistCm,neckCm,hipCm){
+  // The two formulas differ by about 12 points, so with sex not set there's no estimate.
+  if(sex!=="m"&&sex!=="f")return null;
   if(!heightCm||!waistCm||!neckCm||(sex==="f"&&!hipCm))return null;
   const i=x=>x/2.54,h=i(heightCm),w=i(waistCm),n=i(neckCm);
   let bf;
@@ -16,9 +18,9 @@ export const bodyFatRange=bf=>bf==null?"":Math.max(2,Math.round(bf-3))+"–"+Mat
 // Blood pressure, in the bands most charts use; a word, not a verdict.
 export function bpBand(sys,dia){
   if(!sys||!dia)return "";
+  // The higher band of the two numbers wins; low only when neither is high.
+  if(sys>=140||dia>=90)return "high (stage 2)";
+  if(sys>=130||dia>=80)return "high (stage 1)";
   if(sys<90||dia<60)return "low";
-  if(sys<120&&dia<80)return "normal";
-  if(sys<130&&dia<80)return "elevated";
-  if(sys<140||dia<90)return "high (stage 1)";
-  return "high (stage 2)";
+  return sys>=120?"elevated":"normal";
 }

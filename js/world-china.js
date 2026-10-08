@@ -207,7 +207,7 @@ export const CHINA={cat:"China",region:"East Asia",topics:[
    exercises:["Horse stance","Handstand","Stick fighting"],
    links:[
     {t:"Authentic Shaolin Heritage: Training Methods of 72 Arts of Shaolin — Shaolin Kung Fu Library",u:"https://shaolinkungfulibrary.com/products/authentic-shaolin-heritage-training-methods-of-72-arts-of-shaolin",k:"article",d:"Jin Jing Zhong's 1934 manual in English"},
-    {t:"Training Methods of 72 Arts of Shaolin, sample — Shaolin Kung Fu Library",u:"http://www.kungfulibrary.com/72-shaolin-arts-trial-2020.pdf",k:"article",d:"The publisher's free excerpt and full contents list"},
+    {t:"Training Methods of 72 Arts of Shaolin, sample — Shaolin Kung Fu Library",u:"https://www.kungfulibrary.com/72-shaolin-arts-trial-2020.pdf",k:"article",d:"The publisher's free excerpt and full contents list"},
     {t:"72 Arts of Shaolin — Shaolin Wahnam (Wong Kiew Kit)",u:"https://shaolin.org/shaolin/72-arts.html",k:"article",d:"The hard and soft arts, and how lists differ"},
     {t:"Iron shirt — Wikipedia",u:"https://en.wikipedia.org/wiki/Iron_shirt",k:"article",d:"The body-toughening art and its stances"},
     {t:"Iron palm — Wikipedia",u:"https://en.wikipedia.org/wiki/Iron_palm",k:"article",d:"Striking bags from beans up to iron shot"},

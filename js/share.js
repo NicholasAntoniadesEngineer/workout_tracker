@@ -139,7 +139,8 @@ export function decodeRoutineHash(hash){
     const json=decodeURIComponent(escape(atob(m[1].replace(/-/g,"+").replace(/_/g,"/"))));
     const d=JSON.parse(json);
     if(!d||typeof d.n!=="string"||!Array.isArray(d.e))return null;
-    const ex=d.e.map(x=>String(x).trim()).filter(Boolean).slice(0,40);
+    // Only names: anything else in a tampered link is dropped, not saved as "null".
+    const ex=d.e.filter(x=>typeof x==="string").map(x=>x.trim()).filter(Boolean).slice(0,40);
     const name=d.n.trim().slice(0,60);
     return name&&ex.length?{name,ex}:null;
   }catch(e){return null;}

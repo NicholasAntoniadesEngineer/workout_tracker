@@ -45,6 +45,8 @@ const tx=(mode,fn)=>new Promise((res,rej)=>{
   const t=db.transaction(STORE,mode),s=t.objectStore(STORE),out=fn(s);
   t.oncomplete=()=>res(out&&out.result);
   t.onerror=()=>rej(t.error);
+  // A full disk aborts the transaction rather than erroring it; that's a failed write too.
+  t.onabort=()=>rej(t.error||new Error("aborted"));
 });
 
 // Read everything once, moving the old localStorage document across the first time.

@@ -109,30 +109,40 @@ export const VIDEOS={
    "yt": "DeQCWZyfy2g",
    "t": "Exercise for longevity: top 4 lessons",
    "ch": "The Kneesovertoesguy",
+   "y": 2024,
+   "min": 1,
    "d": "What he's learned about training for the long run"
   },
   {
    "yt": "43cGzAwsvJs",
    "t": "My mom's knee and hip strategy",
    "ch": "The Kneesovertoesguy",
+   "y": 2026,
+   "min": 2,
    "d": "How his mother trains her knees and hips"
   },
   {
    "yt": "56GR_KT1_Io",
    "t": "Rebuild your Achilles from the ground up",
    "ch": "The Kneesovertoesguy",
+   "y": 2026,
+   "min": 5,
    "d": "Foot, calf and Achilles progressions"
   },
   {
    "yt": "7NAd90tVnT8",
    "t": "Rebuild your elbows from the wrist up",
    "ch": "The Kneesovertoesguy",
+   "y": 2026,
+   "min": 3,
    "d": "Wrist and elbow strengthening sequence"
   },
   {
    "yt": "GcpTEyAQHMg",
    "t": "3-step shoulder routine",
    "ch": "The Kneesovertoesguy",
+   "y": 2024,
+   "min": 12,
    "d": "His routine for cranky shoulders"
   }
  ],

@@ -1,8 +1,9 @@
 // The church year, computed — no data files, works offline for any year. Fixed feasts are
 // calendar dates; movable feasts hang off Easter. Western Easter uses the Gregorian
 // computus (Butcher's algorithm); Orthodox Pascha uses the Julian computus, shifted to the
-// civil (Gregorian) calendar — the +13 day offset holds for 1900–2099.
-const JULIAN_OFFSET_DAYS=13;
+// civil (Gregorian) calendar: 13 days for 1900–2099, a day more each century the Gregorian
+// skips a leap year (14 from 2100).
+const julianOffset=y=>Math.floor(y/100)-Math.floor(y/400)-2;
 
 export function westernEaster(y){
   const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,
@@ -16,7 +17,7 @@ export function orthodoxPascha(y){
   const a=y%4,b=y%7,c=y%19,d=(19*c+15)%30,e=(2*a+4*b-d+34)%7;
   const month=Math.floor((d+e+114)/31),day=((d+e+114)%31)+1;
   const julian=new Date(y,month-1,day);
-  julian.setDate(julian.getDate()+JULIAN_OFFSET_DAYS);
+  julian.setDate(julian.getDate()+julianOffset(y));
   return julian;
 }
 

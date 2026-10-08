@@ -1,6 +1,7 @@
 // The Learn library in four areas — Training (how to train), Health (fuel and recovery), World
 // (traditions by culture) and Books (classics to read in full) — with one lookup across them.
 import {LEARN} from "./learn.js";
+import {plainText} from "./text.js";
 import {HEALTH} from "./health.js";
 import {WORLD} from "./world.js";
 import {BOOKS} from "./books.js";
@@ -42,7 +43,7 @@ export function booksFrom(id){
 // People across Learn. Someone can turn up in several places — Mentzer in Training, in Health on
 // eating, in Books — so a person's page lists every other topic about them, and every topic that
 // mentions them by full name. Names are matched without accents, initials or bracketed full names.
-const norm=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\([^)]*\)/g," ")
+const norm=s=>plainText(s).replace(/\([^)]*\)/g," ")
   .toLowerCase().replace(/[^a-z ]/g," ").replace(/\s+/g," ").trim();
 let ALL=null;
 function allTopics(){

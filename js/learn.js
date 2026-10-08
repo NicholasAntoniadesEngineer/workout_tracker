@@ -132,7 +132,7 @@ export const LEARN=[
       {t:"5/3/1 for hypertrophy — Jim Wendler (YouTube)",u:"https://www.youtube.com/watch?v=7aLWXqtGuJ0",k:"video",d:"Using 5/3/1 to build muscle"},
       {t:"5/3/1 rest periods explained — Jim Wendler (YouTube)",u:"https://www.youtube.com/watch?v=IWcY1UOqOr0",k:"video",d:"How long to rest in 5/3/1"}]},
     {id:"pavel",title:"Pavel Tsatsouline: kettlebells & grease the groove",era:"1990s–today",focus:"Kettlebells",
-     people:[{name:"Pavel Tsatsouline",from:"Minsk, Byelorussian SSR, Soviet Union",known:"Kettlebell instructor and founder of StrongFirst",
+     people:[{name:"Pavel Tsatsouline",born:"1969",from:"Minsk, Byelorussian SSR, Soviet Union",known:"Kettlebell instructor and founder of StrongFirst",
        works:[{y:1999,t:"Power to the People!",k:"book"},{y:2003,t:"The Naked Warrior",k:"book"},{y:2006,t:"Enter the Kettlebell!",k:"book"},{y:2011,t:"Easy Strength",k:"book"},{y:2012,t:"StrongFirst",k:"programme"},{y:2013,t:"Kettlebell Simple & Sinister",k:"book"},{y:2019,t:"The Quick and the Dead",k:"book"}]}],
      summary:"Pavel Tsatsouline, founder of StrongFirst, is widely credited with popularising the Russian kettlebell in the West. His Simple & Sinister plan pairs one-arm swings with Turkish get-ups in a short session done most days. His grease-the-groove idea treats strength as a skill: several easy sets of one move spread through the day, always stopping well short of failure.",
      points:["Practise often, stay fresh, never grind","Swings and get-ups cover a lot of ground","Ideal for pull-ups and push-ups at home","Progress by moving up to a heavier bell"],

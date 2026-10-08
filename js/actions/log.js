@@ -190,7 +190,8 @@ export function handle(t,ctx){
       // Bands record a resistance range and no weight; everything else records the weight.
       const isB=isBandExercise(e.name),w=isB?0:state.weight,bd=isB?state.band:"";
       // A live set on today counts with the timer; a past day is manual transcription.
-      const live=dateKey(s.created)===dateKey(nowISO());
+      // A workout begun before midnight is still live after it.
+      const live=s.running||dateKey(s.created)===dateKey(nowISO());
       const eu=unitFor(e.name);
       const extra={kind:state.setKind,rpe:state.setRpe,note:state.setNote,hand:perHand(e.name),u:eu!==(state.settings.unit==="lb"?"lb":"kg")?eu:""};
       // The gym this workout is at, from the first set on.
@@ -199,8 +200,7 @@ export function handle(t,ctx){
       else addManualSets(s,e,state.reps,state.perSide,w,1,extra,bd);
       // Beat everything before it? Say so, briefly, right as it happens.
       const i=e.sets.length-1;
-      const label=newBestLabel(bestsBefore(state.sessions,s,e.name,i),e.sets[i],unitOf(e),
-        state.settings.unit||"kg");
+      const label=newBestLabel(bestsBefore(state.sessions,s,e.name,i),e.sets[i],unitOf(e),eu);
       if(label)ctx.showBest(e.name,label);
     }
     // Kind, RPE and note are per set, not sticky: the next set starts clean.

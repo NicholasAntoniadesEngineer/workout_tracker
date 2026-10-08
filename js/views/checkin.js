@@ -3,7 +3,7 @@
 // is on in Settings; the band appears after a week of check-ins, never sooner.
 import {state,todayCheckin} from "../store.js";
 import {dateKey,nowISO} from "../model.js";
-import {BAND_LABEL,acwr,dailyLoads,readiness,sleepHours,sleepSummary,suggestion,baselineOf} from "../ready.js";
+import {BAND_LABEL,acwr,dailyLoads,isRated,readiness,sleepHours,sleepSummary,suggestion,baselineOf} from "../ready.js";
 import {position} from "../programme.js";
 import {icon} from "../icons.js";
 import {JOINTS,JOINT_NAME,MUSCLE_NAME,fatigueByMuscle,MUSCLES} from "../muscles.js";
@@ -16,7 +16,7 @@ export function readinessNow(){
   const c=todayCheckin(),now=Date.now();
   const loads=dailyLoads(state.sessions,28,now);
   const v=state.vitals[state.vitals.length-1],fresh=v&&dateKey(v.at)===dateKey(nowISO())?v:null;
-  const r=readiness({checkin:c,loads28:loads,count:state.checkins.length,hrv:fresh&&fresh.hrv,rhr:fresh&&fresh.rhr,baseline:baselineOf(state.vitals,now)});
+  const r=readiness({checkin:c,loads28:loads,count:state.checkins.filter(isRated).length,hrv:fresh&&fresh.hrv,rhr:fresh&&fresh.rhr,baseline:baselineOf(state.vitals,now)});
   const p=state.programme,planned=p&&!p.paused?position(p,state.sessions).dayName:"";
   return Object.assign(r,{planned,loads,sleep:sleepSummary(state.checkins,state.settings.sleepNeed||8,now)});
 }
@@ -62,7 +62,7 @@ export function readinessCard(){
   const r=readinessNow(),c=todayCheckin();
   if(!c)return "<button class='card rcard ask' id='cistart'><span class='rband'>"+icon("target","sm")+"</span><span class='rbody'><b>Morning check-in</b><span>30 seconds: sleep, soreness, energy, stress</span></span><span class='lchev'>&rsaquo;</span></button>";
   // Once today's is in, it shrinks to one line; a tap opens it again to change.
-  if(!r.band)return "<button class='rslim' id='cistart'><span class='rtick'>&#10003;</span><span class='rslimt'><b>Checked in</b> &middot; your readiness shows after "+Math.max(1,7-state.checkins.length)+" more</span><span class='rslime'>Edit</span></button>";
+  if(!r.band)return "<button class='rslim' id='cistart'><span class='rtick'>&#10003;</span><span class='rslimt'><b>Checked in</b> &middot; your readiness shows after "+Math.max(1,7-state.checkins.filter(isRated).length)+" more</span><span class='rslime'>Edit</span></button>";
   const adv=suggestion(r.rundown?"rundown":r.band,r.planned);
   return "<button class='rslim "+r.band+"' id='cistart' title='"+esc(r.why+". "+adv)+"'><span class='rdot'></span><span class='rslimt'><b>"+(r.rundown?"Run down":BAND_LABEL[r.band])+"</b> &middot; "+esc(adv)+"</span><span class='rslime'>Edit</span></button>";
 }
@@ -75,7 +75,7 @@ export function readinessStrip(){
     const d=new Date(now);d.setDate(d.getDate()-i);
     const c=state.checkins.find(x=>dateKey(x.at)===dateKey(d.toISOString()));
     let cls="",tip=d.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"});
-    if(c){const hooper=c.sleep+c.soreness+c.fatigue+c.stress,s=100-((hooper-4)/16)*60-(c.hours&&c.hours<6?10:0);
+    if(c&&isRated(c)){const hooper=c.sleep+c.soreness+c.fatigue+c.stress,s=100-((hooper-4)/16)*60-(c.hours&&c.hours<6?10:0);
       cls=c.rundown?"rd":s<45?"rc":s<65?"ez":s<85?"rdy":"ps";
       tip+=": "+(c.rundown?"run down":({rc:"recover",ez:"easy",rdy:"ready",ps:"push"})[cls])+(c.hours?", slept "+c.hours+" h":"")+(c.sore&&c.sore.length?", sore "+c.sore.join(", "):"");}
     h+="<i class='"+cls+"' title='"+esc(tip)+"'></i>";
@@ -102,6 +102,6 @@ export function recoverSection(){
     "<div class='recrow'><span class='recl'>This week's load</span><span class='recv mono'>"+a.acute+"</span><span class='recs'>vs "+a.chronic+" a week lately &middot; "+ratioWord+"</span></div>"+
     (s.nights?"<div class='recrow'><span class='recl'>Sleep, 14 nights</span><span class='recv mono'>"+s.avg+" h</span><span class='recs'>"+(s.debt?s.debt+" h short of "+(state.settings.sleepNeed||8)+" h":"no debt")+
       (s.regularMin!=null?" &middot; bedtime varies "+(s.regularMin<30?"little":s.regularMin<60?"by about an hour":"a lot"):"")+"</span></div>":"")+
-    "<div class='recrow'><span class='recl'>Check-ins</span><span class='recv mono'>"+state.checkins.length+"</span><span class='recs'>"+(state.checkins.length<7?"readiness shows after "+(7-state.checkins.length)+" more":"readiness on")+"</span></div>"+
+    "<div class='recrow'><span class='recl'>Check-ins</span><span class='recv mono'>"+state.checkins.filter(isRated).length+"</span><span class='recs'>"+(state.checkins.filter(isRated).length<7?"readiness shows after "+(7-state.checkins.filter(isRated).length)+" more":"readiness on")+"</span></div>"+
     "<p class='pnote'>Load is session RPE × minutes (reps × RPE for lifting), compared week to month. The formulas are in Learn.</p></div>";
 }

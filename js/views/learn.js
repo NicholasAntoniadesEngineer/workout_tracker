@@ -4,6 +4,7 @@
 // Calm and tiled: Learn's home is a grid of categories, a category is one page of people and
 // topics, and a topic opens as its own page, so nothing jumps in place.
 import {AREAS,areaCats,booksFrom,catOfTopic,relatedFor,topicById} from "../library.js";
+import {fold,plainText} from "../text.js";
 import {bookPos,scanEmbed,scanLink} from "../reader.js";
 import {filmEmbed,filmKey,filmPage,filmsFor} from "../films.js";
 import {followCard} from "./programme.js";
@@ -112,7 +113,7 @@ export function learnHomeBody(){
   const q=(state.learnQuery||"").trim().toLowerCase();
   if(q){
     // Search covers all of Learn — Training, Health, World and Books — titles first, then the rest.
-    const strip=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    const strip=fold;
     const nq=strip(q),first=[],rest=[];
     AREAS.forEach(a=>a[2].forEach(c=>c.topics.forEach(tp=>{
       const who=(tp.people||[]).map(p=>p.name+" "+(p.known||"")).join(" ");
@@ -122,7 +123,7 @@ export function learnHomeBody(){
       else if(text.indexOf(nq)>=0)rest.push({tp,where});
     })));
     const hits=first.concat(rest);
-    return hits.length?"<div class='llabel'>"+plural(hits.length,"result")+" across Learn</div><div class='lwrows'>"+hits.slice(0,80).map(x=>
+    return hits.length?"<div class='llabel'>"+plural(hits.length,"result")+" across Learn"+(hits.length>80?" · the first 80":"")+"</div><div class='lwrows'>"+hits.slice(0,80).map(x=>
       "<button class='lwrow' data-learn='"+esc(x.tp.id)+"'><span class='lalso'><span class='lwrt'>"+esc(x.tp.title)+"</span>"+
       "<span class='lalsow'>"+esc(x.where)+"</span></span><span class='lchev'>&rsaquo;</span></button>").join("")+"</div>":
       "<div class='empty-note'>Nothing matches &ldquo;"+esc(state.learnQuery)+"&rdquo;.</div>";
@@ -179,7 +180,7 @@ function continueCard(){
 }
 
 // Everyone with a bio anywhere in Learn, A–Z by surname, each pointing at their own topic.
-const plain=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const plain=plainText;
 export function peopleIndex(){
   const by=new Map();
   AREAS.forEach(a=>a[2].forEach(c=>c.topics.forEach(tp=>(tp.people||[]).forEach(p=>{

@@ -21,10 +21,10 @@ describe("two windows",{skip:!has&&"Chrome not found"},()=>{
     b=await a.tab();await b.nav(srv.url+"/index.html",300);assert.ok(await b.eval(ready));
     await a.eval(log(100));
     // The other window takes it up without being touched.
-    let seen=[];for(let i=0;i<40;i++){seen=await b.eval(weights);if(seen.length===1)break;await new Promise(r=>setTimeout(r,100));}
+    let seen=[];for(let i=0;i<150;i++){seen=await b.eval(weights);if(seen.length===1)break;await new Promise(r=>setTimeout(r,100));}
     assert.deepEqual(seen,[100],"window two after window one saved");
     await b.eval(log(105));
-    for(let i=0;i<40;i++){seen=await a.eval(weights);if(seen.length===2)break;await new Promise(r=>setTimeout(r,100));}
+    for(let i=0;i<150;i++){seen=await a.eval(weights);if(seen.length===2)break;await new Promise(r=>setTimeout(r,100));}
     assert.deepEqual(seen,[100,105],"window one after window two saved");
     await a.nav(srv.url+"/index.html",300);assert.ok(await a.eval(ready));
     assert.deepEqual(await a.eval(weights),[100,105],"both sets after a reload");

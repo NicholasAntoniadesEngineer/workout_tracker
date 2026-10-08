@@ -24,12 +24,13 @@ export function appleName(t){
 }
 
 // ── Strength apps ─────────────────────────────────────────────────────────────────────
-const sq=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]/g,"").replace(/es$|s$/,"");
+const sq=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\b(bi|tri)ceps\b/g,"$1cep").replace(/[^a-z0-9]/g,"").replace(/es$|s$/,"");
 // Their exercise names, matched to the list where the movement is clearly the same: "Squat
 // (Barbell)" is Squats, "Pull Up" is Pull ups, "Overhead Press (Barbell)" finds Shoulder press
 // through its other names. A dumbbell or cable version never falls back to the barbell lift;
 // anything without a clear match keeps its own name.
 const PLAIN_KIT=/^(barbell|bodyweight|body weight|weighted|olympic)$/i;
+const MACHINE_KIT=/^(cable|machine|lever|plate loaded)$/i;
 export function exerciseMatcher(catalog){
   const idx={};
   const put=(k,n)=>{const q=sq(k);if(q&&!idx[q])idx[q]=n;};
@@ -37,8 +38,13 @@ export function exerciseMatcher(catalog){
   catalog.forEach(n=>((EXINFO[n]&&EXINFO[n].aka)||[]).forEach(a=>put(a,n)));
   return name=>{
     const raw=String(name||"").trim(),m=/^(.*?)\s*\(([^)]*)\)\s*$/.exec(raw);
-    const base=m?m[1]:raw,kit=m?m[2]:"";
-    const tries=kit?[kit+" "+base,base+" "+kit].concat(PLAIN_KIT.test(kit)?[base]:[]):[raw];
+    // "Cable - Straight Bar" is a cable; "Seated Row (Cable)" may be our "Seated cable row".
+    const base=m?m[1]:raw,kit=m?m[2].split(/\s+-\s+/)[0]:"",words=base.split(/\s+/);
+    const mid=words.length>1?words.slice(0,-1).concat([kit,words[words.length-1]]).join(" "):"";
+    // The plain name, where the kit doesn't change the lift: a machine or cable version, or a
+    // dumbbell curl, raise or fly (a dumbbell bench press is not our barbell bench press).
+    const plain=PLAIN_KIT.test(kit)||MACHINE_KIT.test(kit)||(/^(dumbbell|kettlebell)$/i.test(kit)&&/curl|raise|fly|goblet/i.test(base));
+    const tries=kit?[kit+" "+base,base+" "+kit,mid].concat(plain?[base]:[]):[raw];
     for(const t of tries){const hit=idx[sq(t)];if(hit)return hit;}
     return idx[sq(raw)]||raw;
   };
@@ -86,8 +92,10 @@ export function parseWhen(s,utc){
     if(m[7]){const z=m[7]==="Z"?"Z":m[7].replace(/^([+-]\d\d)(\d\d)$/,"$1:$2");return new Date(m[1]+"-"+m[2]+"-"+m[3]+"T"+m[4]+":"+m[5]+":"+(m[6]||"00")+z).toISOString();}
     return utc?new Date(Date.UTC(+m[1],m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0))).toISOString():localDate(m[1],m[2],m[3],m[4],m[5],m[6]);
   }
-  if((m=/^(\d{1,2}) ([A-Za-z]{3})[a-z]* (\d{4}),? (\d{1,2}):(\d\d)(?::(\d\d))?$/.exec(v))&&MON[m[2].toLowerCase()])
-    return localDate(m[3],MON[m[2].toLowerCase()],m[1],m[4],m[5],m[6]);
+  if((m=/^(\d{1,2}) ([A-Za-z]{3})[a-z]* (\d{4}),? (\d{1,2}):(\d\d)(?::(\d\d))?$/.exec(v))&&MON[m[2].toLowerCase()]){
+    const mo=MON[m[2].toLowerCase()];
+    return utc?new Date(Date.UTC(+m[3],mo-1,+m[1],+m[4],+m[5],+(m[6]||0))).toISOString():localDate(m[3],mo,m[1],m[4],m[5],m[6]);
+  }
   if((m=/^([A-Za-z]{3})[a-z]* (\d{1,2}),? (\d{4}),? (\d{1,2}):(\d\d)(?::(\d\d))? ?(AM|PM)?$/i.exec(v))&&MON[m[1].toLowerCase()]){
     let h=+m[4];const pm=m[7]&&m[7].toUpperCase()==="PM";if(m[7]){if(h===12)h=0;if(pm)h+=12;}
     const mo=MON[m[1].toLowerCase()];
@@ -122,7 +130,8 @@ function buildDays(sets,toUnit){
     else if(!r&&x.time){r=Math.round(x.time);e.timed=true;}
     if(!r)return;
     if(w&&toUnit)w=Math.round(toUnit(w)*10)/10;
-    e.sets.push(normSet({r,side:false,w:w||0,band:"",t:x.time&&x.reps?Math.round(x.time):0,rest:0,at:"",kind:x.kind||(x.wu?"wu":""),rpe:x.rpe||0}));
+    // A row of 2 km in 8 minutes keeps its time as well as its distance.
+    e.sets.push(normSet({r,side:false,w:w||0,band:"",t:x.time&&(x.reps||x.dist)?Math.round(x.time):0,rest:0,at:"",kind:x.kind||(x.wu?"wu":""),rpe:x.rpe||0,note:x.note||""}));
   });
   return order.map(k=>{const d=days[k];delete d.by;d.ex=d.ex.filter(e=>e.sets.length);return d;}).filter(d=>d.ex.length);
 }
@@ -135,7 +144,8 @@ export function parseStrong(text,appUnit,assumeUnit){
   const rows=rowsOf(text),h=rows[0].map(x=>x.trim().toLowerCase());
   const c={date:findCol(h,"date"),title:findCol(h,"workout name"),dur:findCol(h,"duration (sec)","duration"),
     ex:findCol(h,"exercise name"),set:findCol(h,"set order"),w:findCol(h,"weight (kg)","weight (lbs)","weight"),
-    reps:findCol(h,"reps"),dist:findCol(h,"distance (meters)","distance (m)","distance (km)","distance"),secs:findCol(h,"seconds"),rpe:findCol(h,"rpe")};
+    reps:findCol(h,"reps"),dist:findCol(h,"distance (meters)","distance (m)","distance (km)","distance"),secs:findCol(h,"seconds"),rpe:findCol(h,"rpe"),
+    note:h.indexOf("notes")};
   const wh=c.w>=0?h[c.w]:"",fileUnit=/kg/.test(wh)?"kg":/lb/.test(wh)?"lb":(assumeUnit||null);
   const distK=c.dist>=0&&/km/.test(h[c.dist])?1000:c.dist>=0&&/mi/.test(h[c.dist])?1609.344:1;
   const sets=[];
@@ -144,7 +154,7 @@ export function parseStrong(text,appUnit,assumeUnit){
     if(!/^(\d+|W|D|F)$/i.test(so))return;
     sets.push({when:parseWhen(r[c.date]),title:(r[c.title]||"").trim(),secs:seconds(r[c.dur]),name:(r[c.ex]||"").trim(),
       reps:Math.round(num(r[c.reps])),w:num(r[c.w]),dist:num(r[c.dist])*distK,time:num(r[c.secs]),
-      kind:/^W$/i.test(so)?"wu":/^D$/i.test(so)?"drop":/^F$/i.test(so)?"fail":"",rpe:c.rpe>=0?num(r[c.rpe]):0});
+      kind:/^W$/i.test(so)?"wu":/^D$/i.test(so)?"drop":/^F$/i.test(so)?"fail":"",rpe:c.rpe>=0?num(r[c.rpe]):0,note:c.note>=0?(r[c.note]||"").trim():""});
   });
   return {days:buildDays(sets,converter(fileUnit,appUnit)),unit:fileUnit,source:"Strong"};
 }
@@ -198,13 +208,15 @@ export function parseStravaCsv(text){
 // stages count the same. Returns [{at, bed, wake, hours, stages}] oldest first.
 export function nightsFrom(spans){
   const by={};
-  spans.forEach(s=>{
-    if(!s.at||!s.end)return;
+  // In start order, each span counts only the time no earlier span covered, so a night that a
+  // watch and a sleep app both recorded counts once.
+  spans.filter(s=>s.at&&s.end).sort((a,b)=>Date.parse(a.at)-Date.parse(b.at)).forEach(s=>{
     const end=new Date(s.end),key=new Date(end.getTime()-12*3600000);     // noon-to-noon day
     const k=key.getFullYear()+"-"+String(key.getMonth()+1).padStart(2,"0")+"-"+String(key.getDate()).padStart(2,"0");
-    const n=by[k]=by[k]||{key:k,first:s.at,last:s.end,mins:0,stages:{}};
+    const n=by[k]=by[k]||{key:k,first:s.at,last:s.end,mins:0,stages:{},upto:0};
     if(s.at<n.first)n.first=s.at;if(s.end>n.last)n.last=s.end;
-    const m=(Date.parse(s.end)-Date.parse(s.at))/60000;n.mins+=m;n.stages[s.stage||"asleep"]=(n.stages[s.stage||"asleep"]||0)+m;
+    const a=Math.max(Date.parse(s.at),n.upto),b=Date.parse(s.end);if(b<=a)return;
+    n.upto=b;const m=(b-a)/60000;n.mins+=m;n.stages[s.stage||"asleep"]=(n.stages[s.stage||"asleep"]||0)+m;
   });
   const hm=iso=>{const d=new Date(iso);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
   return Object.values(by).filter(n=>n.mins>=60).sort((a,b)=>a.key.localeCompare(b.key))

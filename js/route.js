@@ -7,7 +7,8 @@ const VIEW_PATH={home:"",log:"log",history:"history",calendar:"calendar",progres
   cardio:"cardio",settings:"settings",import:"import",stack:"supplements",prog:"programme",health:"health",review:"review",planner:"plan"};
 const PATH_VIEW=Object.fromEntries(Object.entries(VIEW_PATH).map(([v,p])=>[p,v]));
 const enc=s=>encodeURIComponent(s).replace(/%20/g,"+");
-const dec=s=>decodeURIComponent(String(s).replace(/\+/g,"%20"));
+// A broken escape (a pasted, cut-off address) is read as typed rather than throwing.
+const dec=s=>{const v=String(s).replace(/\+/g,"%20");try{return decodeURIComponent(v);}catch(e){return v;}};
 
 export function routeOf(s){
   if(s.view==="learn"){

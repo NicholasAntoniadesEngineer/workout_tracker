@@ -220,6 +220,8 @@ export function monthLabel(y,m){
 // RPE is 0 when not rated, 5–10 (halves allowed) when it is. Notes are short and optional.
 export const SET_KINDS=[["","Working"],["wu","Warm-up"],["drop","Drop set"],["fail","To failure"]];
 export function normSet(v){
+  // The first version saved a set as its bare rep count.
+  if(!v||typeof v!=="object")v={r:+v||0};
   const kind=v.kind||(v.wu?"wu":"");
   const out={r:+v.r||0,side:!!v.side,w:+v.w||0,t:+v.t||0,rest:+v.rest||0,at:v.at||"",wu:kind==="wu",
     band:v.band||""};
@@ -229,6 +231,7 @@ export function normSet(v){
   // A dumbbell pair logged per hand, and a weight logged in the other unit than the app's.
   if(v.hand)out.hand=true;
   if(v.u==="kg"||v.u==="lb")out.u=v.u;
+  if(v.orig&&typeof v.orig==="object")out.orig=v.orig;
   return out;
 }
 export const setKind=x=>x.wu?"wu":(x.kind||"");
@@ -237,6 +240,12 @@ export function setReps(x){return (x.side&&options.perSideDouble)?x.r*SIDES_PER_
 // The weight a set moved, in the app's unit: both hands for a pair, converted if logged in
 // the other unit. Volume and tonnage add these up.
 const LB_PER_KG=2.2046226;
+// A set's weight in the given unit, for a set logged in its own unit (lb in a kg app).
+export function weightIn(x,unit){
+  let w=+x.w||0;const u=unit==="lb"?"lb":"kg";
+  if(x.u&&x.u!==u&&w)w=Math.round((x.u==="lb"?w/LB_PER_KG:w*LB_PER_KG)*10)/10;
+  return w;
+}
 export function setLoad(x){
   let w=+x.w||0;
   if(x.u&&x.u!==options.unit)w=x.u==="lb"?w/LB_PER_KG:w*LB_PER_KG;
@@ -319,7 +328,9 @@ function isToday(iso){
 // A workout left running overnight freezes at its last set instead of counting forever.
 export function workoutSeconds(session){
   if(!session.started)return null;
-  const live=session.running&&isToday(session.started);
+  // Still live past midnight while sets keep coming; left overnight it freezes at its last set.
+  const last=Date.parse(lastSetAt(session)||session.started);
+  const live=session.running&&(isToday(session.started)||(Date.now()-last)/MS_PER_SEC<(options.idleEndSeconds||3600));
   const end=live?Date.now():Date.parse(session.ended||lastSetAt(session)||session.started);
   return Math.max(0,(end-Date.parse(session.started))/MS_PER_SEC);
 }

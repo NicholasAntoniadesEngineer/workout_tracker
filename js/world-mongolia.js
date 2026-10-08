@@ -179,7 +179,7 @@ export const MONGOLIA={cat:"Mongolia",region:"East Asia",topics:[
     {t:"P. Orkhon becomes world champion in wrestling — Montsame",u:"https://montsame.mn/en/read/131229",k:"article",d:"Her 2017 world final against Tkach"},
     {t:"2017 World Championships, women's freestyle 63 kg — Wikipedia",u:"https://en.wikipedia.org/wiki/2017_World_Wrestling_Championships_%E2%80%93_Women%27s_freestyle_63_kg",k:"article",d:"The Paris bracket, bout by bout"},
     {t:"Purevdorj suspended after anti-doping violation at Asian Games — United World Wrestling",u:"https://uww.org/article/purevdorj-suspended-after-anti-doping-violation-asian-games",k:"article",d:"The federation's ruling and its dates"},
-    {t:"Mongolian freestyle wrestler banned four years for doping — Xinhua",u:"http://www.xinhuanet.com/english/2019-02/21/c_137839888.htm",k:"article",d:"The 2019 report of the four-year ban"},
+    {t:"Mongolian freestyle wrestler banned four years for doping — Xinhua",u:"https://www.xinhuanet.com/english/2019-02/21/c_137839888.htm",k:"article",d:"The 2019 report of the four-year ban"},
     {t:"P. Orkhon banned for four years following doping case — News.MN",u:"https://news.mn/en/786602/",k:"article",d:"Mongolian report on the ruling"},
     {t:"Purevdorj reignites Olympic quest with Ulaanbaatar Open gold — United World Wrestling",u:"https://uww.org/article/purevdorj-reignites-olympic-quest-ulaanbaatar-open-gold",k:"article",d:"Her comeback, in her own words"},
     {t:"Orkhon Purevdorj — YouTube search",u:"https://www.youtube.com/results?search_query=Orkhon+Purevdorj+wrestling",k:"video",d:"Search results: her world and Olympic bouts"}]},

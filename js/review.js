@@ -32,7 +32,7 @@ export function periodReview(sessions,opts){
   lifting.forEach(s=>{
     const w=workoutSeconds(s);if(w)secs+=w;
     s.ex.forEach(e=>{const n=e.sets.filter(x=>!x.wu);if(!n.length)return;exCount[e.name]=(exCount[e.name]||0)+n.length;
-      n.forEach(x=>{sets++;reps+=setReps(x);if(!e.timed&&!e.dist)volume+=setReps(x)*setLoad(x);});});
+      n.forEach(x=>{sets++;if(!e.timed&&!e.dist){reps+=setReps(x);volume+=setReps(x)*setLoad(x);}});});
   });
   let km=0;cardio.forEach(s=>{km+=(s.cardio.dist||0)/1000;secs+=s.cardio.secs||0;});
   // Records: lifts whose best estimated max in the period beat everything before it.
@@ -47,14 +47,17 @@ export function periodReview(sessions,opts){
   const topMonth=byMonth.indexOf(Math.max(...byMonth));
   const weeks=new Set([...days].map(d=>{const t=new Date(d+"T12:00:00");t.setDate(t.getDate()-((t.getDay()+6)%7));return dateKey(t.toISOString());}));
   // Rest days kept: the chosen rest day with nothing logged, up to today.
-  const restDay=opts.restDay===6?6:0;let restKept=0,restAll=0;
-  for(let t=opts.from;t<Math.min(opts.to,opts.now||Date.now());t+=86400000){
-    const d=new Date(t);if(d.getDay()!==restDay)continue;restAll++;if(!days.has(dateKey(d.toISOString())))restKept++;}
+  // Day by calendar day, so a clock change neither repeats nor skips one; the Monday weeks it
+  // touches are the weeks there were to train in.
+  const restDay=opts.restDay===6?6:0,end=Math.min(opts.to,opts.now||Date.now()),touched=new Set();let restKept=0,restAll=0;
+  for(const d=new Date(opts.from);+d<end;d.setDate(d.getDate()+1)){
+    const m=new Date(d);m.setDate(m.getDate()-((m.getDay()+6)%7));touched.add(dateKey(m.toISOString()));
+    if(d.getDay()!==restDay)continue;restAll++;if(!days.has(dateKey(d.toISOString())))restKept++;}
   const favourite=Object.entries(exCount).sort((a,b)=>b[1]-a[1])[0]||null;
   return {days:days.size,workouts:lifting.length,cardio:cardio.length,sets,reps,volume:Math.round(volume),hours:Math.round(secs/360)/10,
     km:Math.round(km*10)/10,records,firsts,favourite:favourite?{name:favourite[0],sets:favourite[1]}:null,
     byMonth,topMonth:Math.max(...byMonth)?MONTHS[topMonth]:"",weeks:weeks.size,
-    weeksSoFar:Math.max(1,Math.ceil((Math.min(opts.to,opts.now||Date.now())-opts.from)/(7*86400000))),restKept,restAll};
+    weeksSoFar:Math.max(1,touched.size),restKept,restAll};
 }
 export const yearRange=y=>({from:new Date(y,0,1).getTime(),to:new Date(y+1,0,1).getTime()});
 export const monthRange=(y,m)=>({from:new Date(y,m,1).getTime(),to:new Date(y,m+1,1).getTime()});
