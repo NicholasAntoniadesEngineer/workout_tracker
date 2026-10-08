@@ -112,11 +112,20 @@ export function say(text){
 // Keeping the page awake under a locked iPhone: a silent, looping audio element started from a
 // tap. Community practice rather than anything Apple promises, so everything that relies on it
 // is labelled best effort. Stopped when the workout ends.
-let keep=null;
+// Half a second of real silence: a clip with no samples loops flat out and swamps the page.
+let keep=null,silence="";
+function silentClip(){
+  if(silence)return silence;
+  const rate=8000,n=rate/2,b=new Uint8Array(44+n*2),v=new DataView(b.buffer),txt=(at,s)=>{for(let i=0;i<4;i++)b[at+i]=s.charCodeAt(i);};
+  txt(0,"RIFF");v.setUint32(4,36+n*2,true);txt(8,"WAVE");txt(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);txt(36,"data");v.setUint32(40,n*2,true);
+  try{silence=URL.createObjectURL(new Blob([b],{type:"audio/wav"}));}catch(e){let s="";for(let i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);silence="data:audio/wav;base64,"+btoa(s);}
+  return silence;
+}
 export function keepAlive(on){
   try{
     if(on&&!keep){
-      keep=new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=");
+      keep=new Audio(silentClip());
       keep.loop=true;keep.volume=0.01;keep.play().catch(()=>{keep=null;});
     }else if(!on&&keep){keep.pause();keep=null;}
   }catch(e){keep=null;}

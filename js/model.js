@@ -329,7 +329,7 @@ function isToday(iso){
 export function workoutSeconds(session){
   if(!session.started)return null;
   // Still live past midnight while sets keep coming; left overnight it freezes at its last set.
-  const last=Date.parse(lastSetAt(session)||session.started);
+  const last=Date.parse(setAnchor(session));
   const live=session.running&&(isToday(session.started)||(Date.now()-last)/MS_PER_SEC<(options.idleEndSeconds||3600));
   const end=live?Date.now():Date.parse(session.ended||lastSetAt(session)||session.started);
   return Math.max(0,(end-Date.parse(session.started))/MS_PER_SEC);
@@ -366,7 +366,9 @@ export function endWorkout(session){
 export function autoEndIfStale(session){
   if(!session||!session.running||!session.started)return false;
   if(!options.idleEndSeconds)return false;
-  const last=lastSetAt(session)||session.started;
+  // Idle since the last set, the start, or a timer reset, whichever is latest: a workout
+  // started again in the afternoon isn't idle since the morning's last set.
+  const last=setAnchor(session);
   if((Date.now()-Date.parse(last))/MS_PER_SEC<options.idleEndSeconds)return false;
   session.ended=last;
   session.running=false;

@@ -388,5 +388,7 @@ export function mergeSessions(imported){
   imported.forEach(s=>{seen[s.created]=true;});
   state.sessions=state.sessions.filter(s=>!seen[s.created]).concat(imported);
   imported.forEach(s=>s.ex.forEach(e=>addToCatalog(e.name)));
-  selectSession(newestFirst(state.sessions)[0].id);
+  // Today or the latest day done, not a day planned ahead.
+  const now=nowISO(),list=newestFirst(state.sessions);
+  selectSession((list.find(s=>(s.created||"")<=now)||list[0]).id);
 }

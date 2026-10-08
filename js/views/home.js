@@ -171,7 +171,7 @@ function recentCard(){
     "<div class='hrecent'>"+list.map(s=>{
       const t=totals(s),secs=workoutSeconds(s),c=s.cardio;
       return "<button class='hrec' data-resume='"+s.id+"'><span class='hrect'><b>"+esc(s.title)+"</b><span class='mono'>"+
-        (c&&c.dist>50?(c.dist/1000).toFixed(1)+" km":t.reps+" reps")+"</span></span>"+
+        (c&&c.dist>50?(state.settings.unit==="lb"?(c.dist/1609.344).toFixed(1)+" mi":(c.dist/1000).toFixed(1)+" km"):t.reps+" reps")+"</span></span>"+
         "<span class='hrecs'>"+esc(shortDate(s.created))+(secs==null?"":" &middot; "+fmtClock(secs))+"</span>"+
         "<span class='hrecx'>"+esc(s.ex.map(e=>e.name).slice(0,3).join(" · "))+"</span></button>";}).join("")+"</div></div>";
 }

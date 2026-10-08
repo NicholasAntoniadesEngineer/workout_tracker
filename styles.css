@@ -527,7 +527,8 @@ input.name{background:var(--bg);border:1px solid var(--accent);color:var(--text)
   margin:calc(-3px * var(--k)) 0 calc(8px * var(--k));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .hintline[disabled]{cursor:default;}
 /* New best: a warm banner over the panel for a few seconds. */
-.besttoast{position:fixed;left:50%;transform:translateX(-50%);z-index:41;
+/* It never takes a tap: Log set under it must still work while it shows. */
+.besttoast{position:fixed;left:50%;transform:translateX(-50%);z-index:41;pointer-events:none;
   bottom:calc(170px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;
   gap:2px;background:var(--accent);color:var(--onAccent);border-radius:14px;padding:10px 18px;
   box-shadow:0 10px 28px var(--shadow);max-width:min(92vw,420px);text-align:center;
@@ -1869,7 +1870,7 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .mval{font-weight:800;font-size:16px;}.mval small{font-size:11px;color:var(--muted);}
 .mflag{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:10px;background:var(--panelHi);color:var(--muted);}
 .mflag.low,.mflag.high{background:var(--gold);color:#000;}
-.msub{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4;}
+.msub{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4;padding-right:28px;}
 .mspark{display:flex;align-items:flex-end;gap:3px;height:34px;margin-top:8px;}
 .mspark span{flex:0 0 12px;min-height:4px;border-radius:3px 3px 0 0;background:var(--muted);opacity:.45;}
 .mspark span.ok{background:var(--text);opacity:.6;}.mspark span.low,.mspark span.high{background:var(--gold);opacity:1;}
@@ -1989,6 +1990,8 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
   .shell .setrow .setopts{grid-column:2;grid-row:1/span 3;margin:0;justify-content:flex-end;flex-wrap:nowrap;}
   .shell .setrow .setopts .q{flex:none;min-width:0;min-height:34px;padding:0 13px;font-size:13px;}
   .shell .setrow .setopts.onerow{display:flex;}
+  /* A second group of buttons in a row sits under the first, not on top of it. */
+  .shell .setrow .setopts~.setopts{grid-row:auto;margin-top:8px;}
   .shell .setrow>*:not(.setlbl):not(.sethint):not(.setopts){grid-column:1/-1;}
   .shell .setgroup{margin:22px 0 8px;}
   /* The backup reminder as one line, not a boxed banner. */
@@ -2158,7 +2161,7 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .pgstack .card,.pgmini .card{margin:0;}
 .pgk3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
 .pgk3 div{display:flex;flex-direction:column;gap:2px;min-width:0;}
-.pgk3 b{font-size:24px;font-weight:800;letter-spacing:-.8px;line-height:1;}
+.pgk3 b{font-size:clamp(17px,6.2vw,24px);font-weight:800;letter-spacing:-.8px;line-height:1;white-space:nowrap;}
 .pgk3 b small{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:0;margin-left:3px;}
 .pgk3 span{font-size:11.5px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pgwk{display:flex;gap:6px;margin-top:12px;}
@@ -2263,7 +2266,7 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
   .numctl{min-width:0;}
   .bc-a{flex-wrap:wrap;}
   .prgrid>*{min-width:0;}
-  .stat .v{overflow-wrap:anywhere;}
+  .stat .v{overflow-wrap:normal;white-space:nowrap;}
 }
 /* Large text, phone: the number takes its own line above − and +, and a page title gets its
    own line under Back and the page's buttons. */
@@ -2426,4 +2429,34 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
   .printpage{width:210mm;height:297mm;page-break-after:always;break-after:page;overflow:hidden;}
   .printpage:last-child{page-break-after:auto;break-after:auto;}
   .printpage svg{display:block;width:210mm;height:297mm;}
+}
+
+/* Large text on a phone, and the narrowest phones: four numbers in a row go two by two, a
+   label wraps rather than being cut to a letter, and a button's words wrap inside it. */
+@media (max-width:899px){
+  :root[data-big="1"] .calstats,:root[data-big="1"] .sumgrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  :root[data-big="1"] .stat .v{font-size:calc(clamp(19px,5.6vw,24px) * min(var(--k),1.4));}
+  :root[data-big="1"] .segc.pgtabs{flex-wrap:wrap;}
+  :root[data-big="1"] .segc.pgtabs button{flex:1 1 auto;}
+  :root[data-big="1"] .sheethead .plabel{white-space:normal;}
+  :root[data-big="1"] .timerbar .tl{white-space:normal;letter-spacing:.3px;}
+  :root[data-big="1"] .setopts{flex-wrap:wrap;}
+  :root[data-big="1"] .setopts .q{white-space:normal;max-width:100%;min-width:0;flex:1 1 auto;}
+  :root[data-big="1"] .editrow{flex-wrap:wrap;}
+  :root[data-big="1"] .editrow .btn{flex:1 1 40%;min-width:0;}
+  :root[data-big="1"] .setopts.onerow{grid-template-columns:repeat(4,minmax(0,1fr));}
+}
+/* Large text anywhere: the month's four numbers go two by two (the calendar's column is narrow
+   beside the month on a laptop too). */
+:root[data-big="1"] .calstats{grid-template-columns:repeat(2,minmax(0,1fr));}
+/* Large text on a small phone: the timer's label goes above its clock, where it has room. */
+@media (max-width:419px){
+  :root[data-big="1"] .timerbar .tcell{grid-template-columns:minmax(0,1fr);grid-template-areas:"l" "v" "s" "b";}
+}
+@media (max-width:359px){
+  .calstats,.sumgrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .segc.pgtabs{flex-wrap:wrap;}
+  .segc.pgtabs button{flex:1 1 auto;}
+  .pgk3 b{font-size:16px;letter-spacing:-.5px;}
+  .pgk3 b small{font-size:10.5px;margin-left:2px;}
 }

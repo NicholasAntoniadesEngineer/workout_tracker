@@ -1,1 +1,1 @@
-{"name":"kingskiln","private":true,"type":"module","scripts":{"test":"node --test tests/*.test.js","test:browser":"node --test tests/browser/*.test.mjs","fixtures":"node tests/fixtures/make-sheets.mjs"}}
+{"name":"kingskiln","private":true,"type":"module","scripts":{"test":"node --test tests/*.test.js","test:browser":"node --test --test-concurrency=1 tests/browser/*.test.mjs","fixtures":"node tests/fixtures/make-sheets.mjs"}}

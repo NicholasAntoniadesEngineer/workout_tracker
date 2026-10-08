@@ -1,7 +1,7 @@
 import {autoEndIfStale,nowISO,dateKey,fmtClock,isBandExercise,makeSession,parseClock,restSeconds,
   setAnchor} from "./model.js";
 import {activeEx,addExerciseToDay,getSession,importBackup,lastPerformance,load,mergeSessions,
-  restTargetFor,save,saveRoutine,selectSession,state} from "./store.js";
+  restTargetFor,save,saveRoutine,selectSession,setSetting,state} from "./store.js";
 import {parseImport} from "./csv.js";
 import {learnLib,loadLearn,topicById} from "./lazy.js";
 import {decodeRoutineHash,learnLinkId} from "./share.js";
@@ -129,6 +129,8 @@ function render(){
   paint();
   if(keepFocus){const el=document.getElementById(keepFocus);if(el){el.focus();try{el.select();}catch(e){}}}
   if(state.view==="settings"&&!state.storageInfo)measureStorage();
+  // On Learn before its library is in (or after a load that failed): ask for it again.
+  if(state.view==="learn"&&!learnLib())loadLearn().then(()=>{if(state.view==="learn")render();},()=>{});
   // A dialog's field gets the caret the moment it opens, with its text selected.
   if(state.focusNote){const el=document.getElementById("setnote");if(el)el.focus();state.focusNote=false;}
   if(state.dialog&&!state.dialog.focused){const el=document.getElementById("dlgin")||document.getElementById("dlgcopy");
@@ -697,5 +699,5 @@ if(/^#\//.test(location.hash))applyRoute(location.hash).then(ok=>{if(ok)render()
 render();
 openLearnLink().then(ok=>{if(ok)render();});
 // Learn's library comes in once the first screen is up; anything showing Learn repaints then.
-setTimeout(()=>loadLearn().then(()=>{if(state.view==="learn"||state.exInfo||state.progSetup)render();}),300);
+setTimeout(()=>loadLearn().then(()=>{if(state.view==="learn"||state.exInfo||state.progSetup)render();},()=>{}),300);
 setInterval(tick,TICK_MS);

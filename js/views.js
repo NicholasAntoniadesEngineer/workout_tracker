@@ -137,7 +137,7 @@ function summaryModal(){
   if(sm.bests.length){
     h+="<div class='picklbl'>New bests</div>";
     sm.bests.forEach(b=>{h+="<div class='histrow'><span class='histdate'>"+esc(b.name)+"</span>"+
-      "<span class='histsets mono'>"+esc(b.label)+"</span></div>";});
+      "<span class='histsets mono wrapvals'>"+esc(b.label)+"</span></div>";});
   }
   // A verse to close on, chosen by the workout so it stays the same each time it's opened.
   if(VERSES.length){

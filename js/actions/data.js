@@ -146,7 +146,7 @@ export function handle(t,ctx){
     const key=setBtn.getAttribute("data-set"),raw=setBtn.getAttribute("data-val");
     const was=DEFAULTS[key];
     const oldUnit=state.settings.unit;
-    setSetting(key,typeof was==="boolean"?raw==="1":(typeof was==="number"?Number(raw):raw));
+    setSetting(key,typeof was==="boolean"?(raw==="1"||raw==="true"):(typeof was==="number"?Number(raw):raw));
     if(key==="startReps")state.reps=Number(raw);
     if(key==="unit")convertAllWeights(oldUnit,state.settings.unit);
     ctx.markRefit();
