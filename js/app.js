@@ -463,6 +463,11 @@ document.body.addEventListener("input",ev=>{
     if(ev.target.value.trim())n[k]=ev.target.value;else delete n[k];state.exNotes=n;save();}}
   // The laptop's set row: typed numbers go straight to the pending set, no repaint.
   else if(id==="rowreps"){const v=parseInt(ev.target.value,10);if(!isNaN(v))state.reps=Math.max(0,v);}
+  // A scanned set printed with nothing planned: its weight, typed in the review.
+  else if(ev.target.hasAttribute&&ev.target.hasAttribute("data-scanw")&&state.scan){const [n,i]=ev.target.getAttribute("data-scanw").split("|");
+    const x=state.scan.sets[n]&&state.scan.sets[n][+i],v=parseFloat(ev.target.value);if(x){x.w=isNaN(v)?0:Math.max(0,Math.round(v*100)/100);x.changed=true;}}
+  else if(ev.target.hasAttribute&&ev.target.hasAttribute("data-scanr")&&state.scan){const [n,i]=ev.target.getAttribute("data-scanr").split("|");
+    const x=state.scan.sets[n]&&state.scan.sets[n][+i],v=parseInt(ev.target.value,10);if(x){x.r=isNaN(v)?0:Math.max(0,v);x.changed=true;}}
   else if(id==="rowweight"){const v=parseFloat(ev.target.value);if(!isNaN(v))state.weight=Math.max(0,Math.round(v*100)/100);}
   else if(id==="heightcm"){setSetting("heightCm",Math.max(0,parseInt(ev.target.value,10)||0));}
   else if(id==="journal"){const j=Object.assign({},state.journal||{});const k=dateKey(nowISO());if(ev.target.value.trim())j[k]=ev.target.value;else delete j[k];state.journal=j;save();}

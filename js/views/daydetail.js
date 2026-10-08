@@ -64,7 +64,8 @@ export function dayDetailPane(s){
     (s.running?" &middot; <span class='live'>live</span>":"")+"</div>"+
     "<div class='ddtitle'>"+esc(s.title)+"</div>"+actions(s)+"</div>";
   if(s.cardio)return h+cardioPane(s);
-  if(s.notePhoto)h+="<div class='ddnote'><div class='llabel'>Notes from the sheet</div><img alt='Handwritten notes' src='"+s.notePhoto+"'></div>";
+  const notes=(s.notePhotos||[]).filter(Boolean);if(!notes.length&&s.notePhoto)notes.push(s.notePhoto);
+  if(notes.length)h+="<div class='ddnote'><div class='llabel'>Notes from the sheet</div>"+notes.map((src,i)=>"<img alt='Handwritten notes"+(notes.length>1?", page "+(i+1):"")+"' src='"+src+"'>").join("")+"</div>";
   const prev=lastSame(s),pt=prev?totals(prev):null,ton=tonnage(s),pton=prev?tonnage(prev):null;
   h+="<div class='ddkpis'>"+kpi(t.reps,"reps",prev?delta(t.reps,pt.reps):"")+kpi(t.sets,"sets",prev?delta(t.sets,pt.sets):"")+
     (ton?kpi(fmtK(ton),unit+" lifted",prev?delta(ton,pton,fmtK):""):"")+

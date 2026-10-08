@@ -294,3 +294,17 @@ describe("routines with a plan",()=>{
     assert.equal(store.planFor(store.saveRoutine("Plain",["Dips"]),"Dips"),null);
   });
 });
+
+describe("changing the weight unit",()=>{
+  test("sets convert; sets kept in their own unit don't; routine targets and jumps follow",()=>{
+    loadWith({sessions:[day("d1","2026-01-01T10:00:00.000Z",[ex("Back squat",[set(5,100),Object.assign(set(5,225),{u:"lb"})])])]});
+    store.state.routines=[{id:"r1",name:"Legs",ex:["Back squat"],plan:[{name:"Back squat",sets:[{r:5,w:100,rest:0}]}]}];
+    store.state.exProg={"back squat":{step:2.5},"curls":{step:1,unit:"kg"}};
+    store.convertAllWeights("kg","lb");
+    const sets=store.state.sessions[0].ex[0].sets;
+    assert.equal(sets[0].w,model.convertWeight(100,"kg","lb"));assert.equal(sets[1].w,225);
+    assert.equal(store.state.routines[0].plan[0].sets[0].w,model.convertWeight(100,"kg","lb"));
+    assert.equal(store.state.exProg["back squat"].step,5);assert.equal(store.state.exProg.curls.step,1);
+    store.convertAllWeights("lb","kg");assert.equal(store.state.exProg["back squat"].step,2.5);
+  });
+});

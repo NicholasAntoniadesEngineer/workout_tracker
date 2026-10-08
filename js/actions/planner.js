@@ -72,7 +72,7 @@ export function handle(t,ctx){
   }
   if(t.id==="planpaste"){state.paste={text:""};state.focusId="pastetext";ctx.render();return true;}
   if(t.id==="pasteclose"){state.paste=null;ctx.render();return true;}
-  if(t.id==="pasteread"){const el=document.getElementById("pastetext");state.paste={text:el?el.value:"",result:parseProgramme(el?el.value:"",state.catalog)};ctx.render();return true;}
+  if(t.id==="pasteread"){const el=document.getElementById("pastetext");state.paste={text:el?el.value:"",result:parseProgramme(el?el.value:"",state.catalog,state.settings.unit==="lb"?"lb":"kg")};ctx.render();return true;}
   if(t.id==="pastesave"&&state.paste&&state.paste.result){
     ctx.snapshot("Saved pasted routines");
     const saved=state.paste.result.days.map(d=>saveRoutine(d.name,d.ex,d.plan)).filter(Boolean);

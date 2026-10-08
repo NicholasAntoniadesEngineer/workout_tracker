@@ -101,6 +101,9 @@ function groups(){
       toggleRow("Voice cues","Splits and interval changes spoken during cardio.","voice")+
       "<div class='setrow'><div class='setlbl'>Max heart rate</div><div class='sethint'>Sets your heart-rate zones for cardio.</div>"+
       "<div class='setopts cstepv'><button class='q' data-cardiomax='-1' aria-label='Lower'>&minus;</button><b class='mono'>"+(st.maxHR||190)+"</b><button class='q' data-cardiomax='1' aria-label='Higher'>+</button></div></div>"},
+    {id:"printing",title:"Printing",pre:({a4:"A4",a5:"A5",letter:"Letter"}[st.paper||"a4"])+" &middot; "+(on("printLarge")?"large":"normal")+" text",html:()=>
+      choiceRow("Paper","The sheet scales to fit; any size scans.","paper",[["A4","a4"],["A5","a5"],["Letter","letter"]])+
+      choiceRow("Text on the sheet","Large prints exercise names and plans bigger, on more pages.","printLarge",[["Normal",false],["Large",true]])},
     {id:"recovery",title:"Recovery",pre:"Check-in "+(on("checkin")?"on":"off")+" &middot; "+(st.sleepNeed||8)+" h sleep",html:()=>
       toggleRow("Morning check-in","Four quick ratings and your sleep each morning. After a week, Today shows a readiness word and why.","checkin")+
       choiceRow("Sleep you aim for","","sleepNeed",[["7 h",7],["7.5 h",7.5],["8 h",8],["8.5 h",8.5],["9 h",9]])},

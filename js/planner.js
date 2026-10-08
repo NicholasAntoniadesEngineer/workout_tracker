@@ -61,14 +61,16 @@ export function programmeRoutines(p){
 
 // ── Pasting a programme ─────────────────────────────────────────────────────────────────
 // Reads a programme written as text, from a coach, a forum or an AI chat:
-//   Day 1: Upper            ← a day: "Day 1", "Monday", "Workout A", or any line ending ":"
+//   Day 1: Upper            ← a day: "Day 1", "Day A", "Monday", "Workout A", or any line ending ":"
 //   Bench press 4x8 @ 80    ← an exercise: name, then sets × reps (a range keeps its top), then weight
+//   Squat 3x5 @ RPE 8       ← effort notes (RPE, RIR, a percentage) aren't weights
+//   Leg press 4x12 180lb    ← a weight in the other unit is converted to yours
 //   - Pull ups 3 x 8-10
 //   Squats: 5×5 100kg
 // Lines it can't read are skipped and reported. Exercise names are matched to the list.
 const DAYNAMES=/^(mon|tues?|wed(nes)?|thu(rs)?|fri|sat(ur)?|sun)(day)?\b/i;
-const HEAD=/^(#+\s*)?(day\s*\d+|week\s*\d+.*day\s*\d+|workout\s*[a-z0-9]+|session\s*\d+|[a-z][\w &'\/-]{1,40}:)\s*(.*)$/i;
-const SETS=/(\d+)\s*(?:x|×|\*|sets? of)\s*(\d+)(?:\s*[-–to]+\s*(\d+))?(\s*(?:reps?|r))?/i;
+const HEAD=/^(#+\s*)?(day\s*\d+|day\s+[a-z]\b|week\s*\d+.*day\s*\d+|workout\s*[a-z0-9]+|session\s*\d+|[a-z][\w &'\/-]{1,40}:)\s*(.*)$/i;
+const SETS=/(\d+)\s*(?:x|×|\*|sets? of)\s*(\d+)(?:\s*[-–to]+\s*(\d+))?(\s*(?:reps?|r)\b)?/i;
 const WEIGHT=/(?:@|at)?\s*(\d+(?:[.,]\d+)?)\s*(kg|lbs?|#)?\s*$/i;
 const tidy=s=>s.replace(/^[\s\-–•*·\d.)]+(?=[a-z])/i,"").replace(/\s+/g," ").trim();
 
@@ -85,7 +87,9 @@ export function matchExercise(raw,catalog){
   return raw.trim().replace(/^./,c=>c.toUpperCase());
 }
 
-export function parseProgramme(text,catalog){
+// RPE 8, RIR 2, @ 75%: how hard, not how heavy.
+const EFFORT=/\b(?:rpe|rir)\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?\s*%(?:\s*(?:of\s*)?(?:1rm|max|tm))?/gi;
+export function parseProgramme(text,catalog,unit){
   const days=[],skipped=[];let cur=null;
   String(text||"").split(/\r?\n/).forEach(line=>{
     const l=line.trim();if(!l)return;
@@ -97,10 +101,13 @@ export function parseProgramme(text,catalog){
     }
     if(!sm){skipped.push(l);return;}
     let name=tidy(l.slice(0,sm.index).replace(/[:\-–]\s*$/,""));
-    const after=l.slice(sm.index+sm[0].length);
+    const after=l.slice(sm.index+sm[0].length).replace(EFFORT," ").replace(/\s*@\s*$/,"");
     if(!name){skipped.push(l);return;}
     const sets=+sm[1],reps=+(sm[3]||sm[2]);
-    const wm=after.match(WEIGHT),w=wm?parseFloat(wm[1].replace(",",".")):0;
+    const wm=after.match(WEIGHT);let w=wm?parseFloat(wm[1].replace(",",".")):0;
+    // Written in the other unit: converted, to the nearest half kilo or whole pound.
+    const wu=wm&&wm[2]?(/kg/i.test(wm[2])?"kg":"lb"):"";
+    if(w&&wu&&unit&&wu!==unit)w=unit==="kg"?Math.round(w*0.45359237*2)/2:Math.round(w/0.45359237);
     if(!(sets>0&&sets<=20&&reps>0&&reps<=100)){skipped.push(l);return;}
     if(!cur){cur={name:"Day 1",ex:[],plan:[]};days.push(cur);}
     name=matchExercise(name,catalog);

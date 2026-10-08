@@ -1,0 +1,402 @@
+{
+ "ppm": 6,
+ "sheets": {
+  "en-lower": [
+   {
+    "file": "en-lower.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "bc121a4d5eddc94f"
+   },
+   {
+    "file": "en-lower.p2.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "c8de0bf255f5f79d"
+   }
+  ],
+  "af-push": [
+   {
+    "file": "af-push.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "ab374c240960bc7c"
+   },
+   {
+    "file": "af-push.p2.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "4b1e2d0d9ae6460e"
+   }
+  ],
+  "es-legs": [
+   {
+    "file": "es-legs.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "319987135526021d"
+   },
+   {
+    "file": "es-legs.p2.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "3e61aa778333f9b0"
+   }
+  ],
+  "de-pull": [
+   {
+    "file": "de-pull.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "4a94266bac1c3670"
+   },
+   {
+    "file": "de-pull.p2.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "58a5ad2345fb49b5"
+   }
+  ],
+  "fr-full": [
+   {
+    "file": "fr-full.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "6685e566032b4431"
+   }
+  ],
+  "pt-a": [
+   {
+    "file": "pt-a.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "ffc2dff58ec09500"
+   },
+   {
+    "file": "pt-a.p2.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "5e88c51f67dffe98"
+   }
+  ],
+  "it-push": [
+   {
+    "file": "it-push.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "bcc844c7e50ecf54"
+   }
+  ],
+  "el-legs": [
+   {
+    "file": "el-legs.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "48434bcaa4f85278"
+   }
+  ],
+  "ru-back": [
+   {
+    "file": "ru-back.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "bfbf95ddc7350942"
+   }
+  ],
+  "zh-push": [
+   {
+    "file": "zh-push.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "e312d199dff108bc"
+   }
+  ],
+  "ja-legs": [
+   {
+    "file": "ja-legs.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "7767983ba5c690fe"
+   }
+  ],
+  "ko-back": [
+   {
+    "file": "ko-back.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "ea7aff9285881bad"
+   }
+  ],
+  "ar-chest": [
+   {
+    "file": "ar-chest.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "bd26e694100e07ea"
+   }
+  ],
+  "hi-legs": [
+   {
+    "file": "hi-legs.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "bd091dbb65f4fd62"
+   }
+  ],
+  "he-legs": [
+   {
+    "file": "he-legs.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "b0caaa1d41b02c73"
+   }
+  ],
+  "en-strongman-lb": [
+   {
+    "file": "en-strongman-lb.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "9b1839a7f4aaad1e"
+   },
+   {
+    "file": "en-strongman-lb.p2.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "d440bfa976177182"
+   }
+  ],
+  "en-big": [
+   {
+    "file": "en-big.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "476fb751e4dac642"
+   },
+   {
+    "file": "en-big.p2.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "6fad8f3afb147752"
+   },
+   {
+    "file": "en-big.p3.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "b4e82da04dd46a4b"
+   }
+  ],
+  "en-long": [
+   {
+    "file": "en-long.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "fdbce39775d8221d"
+   }
+  ],
+  "en-new": [
+   {
+    "file": "en-new.p1.gray.gz",
+    "w": 1260,
+    "h": 1782,
+    "hash": "5a277da27536abf3"
+   }
+  ]
+ },
+ "hands": {
+  "en": {
+   "file": "hand-en.gray.gz",
+   "w": 564,
+   "h": 41,
+   "text": "Left hip pinched on set 3 — try a narrower stance"
+  },
+  "af": {
+   "file": "hand-af.gray.gz",
+   "w": 562,
+   "h": 41,
+   "text": "Linkerknie voel styf, volgende keer 2.5 kg ligter"
+  },
+  "es": {
+   "file": "hand-es.gray.gz",
+   "w": 525,
+   "h": 41,
+   "text": "Subir 2,5 kg la próxima semana. Dormí mal."
+  },
+  "de": {
+   "file": "hand-de.gray.gz",
+   "w": 542,
+   "h": 41,
+   "text": "Rücken fühlte sich gut an, nächstes Mal +2,5"
+  },
+  "el": {
+   "file": "hand-el.gray.gz",
+   "w": 546,
+   "h": 41,
+   "text": "Καλή μέρα, ανέβασε βάρος την επόμενη φορά"
+  },
+  "ru": {
+   "file": "hand-ru.gray.gz",
+   "w": 585,
+   "h": 41,
+   "text": "Плечо побаливало на жиме, проверить технику"
+  },
+  "zh": {
+   "file": "hand-zh.gray.gz",
+   "w": 378,
+   "h": 41,
+   "text": "左膝有点不舒服，下次减轻重量"
+  },
+  "ja": {
+   "file": "hand-ja.gray.gz",
+   "w": 555,
+   "h": 41,
+   "text": "最後のセットはきつかった。来週も同じ重さで"
+  },
+  "ar": {
+   "file": "hand-ar.gray.gz",
+   "w": 344,
+   "h": 41,
+   "text": "الكتف الأيسر متعب قليلا، خفف الوزن"
+  },
+  "hi": {
+   "file": "hand-hi.gray.gz",
+   "w": 388,
+   "h": 41,
+   "text": "आज ऊर्जा कम थी, अगली बार वही वज़न"
+  },
+  "n105": {
+   "file": "hand-n105.gray.gz",
+   "w": 73,
+   "h": 44,
+   "text": "105"
+  },
+  "n12": {
+   "file": "hand-n12.gray.gz",
+   "w": 58,
+   "h": 44,
+   "text": "12"
+  },
+  "skip": {
+   "file": "hand-skip.gray.gz",
+   "w": 116,
+   "h": 44,
+   "text": "skipped"
+  }
+ },
+ "legacy": {
+  "file": "legacy-v1.p1.gray.gz",
+  "w": 1260,
+  "h": 1782,
+  "session": {
+   "id": "s-legacy-7f3a",
+   "title": "Legs, Back & Biceps",
+   "ex": [
+    {
+     "name": "Squats",
+     "sets": []
+    },
+    {
+     "name": "Barbell row",
+     "sets": []
+    },
+    {
+     "name": "Bicep curls",
+     "sets": []
+    }
+   ]
+  },
+  "rows": [
+   {
+    "kind": "ex",
+    "name": "Squats"
+   },
+   {
+    "kind": "set",
+    "ex": "Squats",
+    "i": 0,
+    "r": 5,
+    "w": 100
+   },
+   {
+    "kind": "set",
+    "ex": "Squats",
+    "i": 1,
+    "r": 5,
+    "w": 100
+   },
+   {
+    "kind": "set",
+    "ex": "Squats",
+    "i": 2,
+    "r": 5,
+    "w": 100
+   },
+   {
+    "kind": "set",
+    "ex": "Squats",
+    "i": 3,
+    "r": 0,
+    "w": 100,
+    "extra": true
+   },
+   {
+    "kind": "ex",
+    "name": "Barbell row"
+   },
+   {
+    "kind": "set",
+    "ex": "Barbell row",
+    "i": 0,
+    "r": 8,
+    "w": 70
+   },
+   {
+    "kind": "set",
+    "ex": "Barbell row",
+    "i": 1,
+    "r": 8,
+    "w": 70
+   },
+   {
+    "kind": "set",
+    "ex": "Barbell row",
+    "i": 2,
+    "r": 8,
+    "w": 70
+   },
+   {
+    "kind": "set",
+    "ex": "Barbell row",
+    "i": 3,
+    "r": 0,
+    "w": 70,
+    "extra": true
+   },
+   {
+    "kind": "ex",
+    "name": "Bicep curls"
+   },
+   {
+    "kind": "set",
+    "ex": "Bicep curls",
+    "i": 0,
+    "r": 10,
+    "w": 14
+   },
+   {
+    "kind": "set",
+    "ex": "Bicep curls",
+    "i": 1,
+    "r": 10,
+    "w": 14
+   },
+   {
+    "kind": "set",
+    "ex": "Bicep curls",
+    "i": 2,
+    "r": 0,
+    "w": 14,
+    "extra": true
+   }
+  ]
+ }
+}

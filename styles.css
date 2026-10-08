@@ -2399,6 +2399,21 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .scanset.on{border:1px solid var(--line);background:var(--panelHi);color:var(--text);text-decoration:none;}
 .scanset.on.chg{background:var(--gold);border-color:var(--gold);color:#000;}
 .scanset b{font-size:16px;}
+.scanset{position:relative;}
+.scanset.unsure{border-style:solid;border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;}
+.scanq{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;font-style:normal;font-weight:800;font-size:12px;line-height:18px;text-align:center;}
+.scancheck{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;padding:8px;border-radius:10px;border:1px solid var(--gold);opacity:.55;}
+.scancheck.on{opacity:1;}
+.scancheck .scanq{position:static;flex:none;}
+.scanpic{flex:1 1 100%;max-width:100%;height:auto;max-height:64px;object-fit:contain;object-position:left;border-radius:6px;background:#fff;border:1px solid var(--line);}
+.scanfield{display:inline-flex;align-items:center;gap:5px;color:var(--muted);font-size:13px;}
+.scanr,.scanw{width:64px;min-height:36px;padding:0 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:15px;}
+.scantoggle{margin-left:auto;min-height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:none;color:var(--text);font:inherit;font-size:13px;cursor:pointer;}
+.scancheck:not(.on) .scantoggle{color:var(--muted);}
+.scanadd{margin-top:6px;padding:6px 2px;border:0;background:none;color:var(--muted);font:inherit;font-size:13px;cursor:pointer;}
+.scanadd:hover{color:var(--text);}
+.scanset span{font-size:12px;color:inherit;opacity:.75;}
+.ddnote img+img{margin-top:8px;}
 .scannotes,.ddnote img{width:100%;border-radius:10px;border:1px solid var(--line);background:#fff;}
 .ddnote{margin:10px 0;}
 /* Printing: only the sheets, each its own A4 page, edge to edge. */

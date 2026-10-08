@@ -10,7 +10,7 @@ const SEC_PER_MIN=60;
 export const DEFAULTS={theme:"system",textScale:0,perSideDouble:true,
   startReps:DEFAULT_REPS,idleEndMinutes:60,showSetTimes:true,unit:"kg",restTarget:0,
   bibleVersion:"web",feastSet:"western",restDay:0,progressRange:"10-15",remindDays:"0,1,2,3,4,5",
-  remindTime:"07:00",maxHR:190,voice:true,restSound:true,restDown:false,checkin:true,sleepNeed:8,heightCm:0,sex:"",goal:"lift",fastHours:0,fuelMacros:false,modFuel:false,modMarkers:false,modMind:false,recOpen:"",
+  remindTime:"07:00",maxHR:190,voice:true,restSound:true,restDown:false,checkin:true,sleepNeed:8,heightCm:0,sex:"",goal:"lift",fastHours:0,fuelMacros:false,modFuel:false,modMarkers:false,modMind:false,recOpen:"",paper:"a4",printLarge:false,
   stepMode:"small",missRule:"hold",stallAfter:3,deloadPct:10,breakRule:"standard",autoTarget:true,barKg:20,barLb:45};
 
 // History lives only on this device, so after a few workouts — and every few weeks after —
@@ -200,9 +200,13 @@ export function addExerciseToDay(name){
 // the body log — so history keeps meaning the same load it always did.
 export function convertAllWeights(from,to){
   if(from===to)return;
+  // A set logged in its own unit (an exercise kept in lb in a kg app) keeps its number.
   state.sessions.forEach(s=>s.ex.forEach(e=>e.sets.forEach(x=>{
-    x.w=convertWeight(x.w,from,to);
+    if(!x.u)x.w=convertWeight(x.w,from,to);
   })));
+  // Routine targets, gym bars and an exercise's own jump follow the unit too.
+  state.routines.forEach(r=>(r.plan||[]).forEach(p=>(p.sets||[]).forEach(x=>{if(+x.w)x.w=convertWeight(x.w,from,to);})));
+  Object.keys(state.exProg||{}).forEach(k=>{const p=state.exProg[k];if(!p.unit&&+p.step)p.step=to==="lb"?(p.step<=1?2.5:p.step<=2.5?5:10):(p.step<=2.5?1:p.step<=5?2.5:5);});
   state.weight=convertWeight(state.weight,from,to);
   state.lastWeight=convertWeight(state.lastWeight,from,to);
   state.body.forEach(b=>{
