@@ -83,7 +83,7 @@ const R=[
   [/fhl/,["gastroc","soleus","toeflex"],["tibpost","fhb","abdhal"],["ankle"]],
   // The foot's own muscles.
   [/short foot|foot dom|arch lift|arch raise/,["abdhal","fdb","quadplantae"],["fhb","footinter","tibpost"],["ankle"]],
-  [/toe curl|towel curl|towel scrunch|toe grip/,["fdb","quadplantae","footlumb","fhb"],["toeflex","abdhal"],["ankle"]],
+  [/toe curl|towel curl|towel scrunch|toe grip/,["fdb","quadplantae","footlumb","fhb"],["toeflex","abdhal","addhal","fdmb"],["ankle"]],
   [/toe spread|toe splay|toe abduct/,["abdhal","abddm","footinter"],[],["ankle"]],
   [/toe yoga|toe lift|toe extension/,["edb","ehb","toeext"],["fhb","fdb"],["ankle"]],
   [/seated calf|kot calf|soleus/,["soleus"],["gastroc","tibpost","toeflex"],["ankle"]],
@@ -104,12 +104,13 @@ const R=[
   [/lateral walk|abduction|abductor|clamshell|fire hydrant/,["glutemed","glutemin","tfl"],["glutemax","hiprot"],["hip"]],
   [/copenhagen|adduction|adductor/,["addlong","addbrev","addmag","gracilis","pectineus"],["extoblique","intoblique"],["hip"]],
   [/pigeon push/,["hiprot","glutemax"],["glutemed"],["hip"]],
+  [/psoas/,["iliopsoas"],["rectusfem","sartorius","rectusabd","transverse"],["hip"]],
   // Olympic and full-body
   [/clean and jerk|clean and press|long cycle|squat press clean/,["quads","glutemax","frontdelt"],["uppertrap","triceps","hams","sidedelt","erectors","gastroc","serratus"],["shoulder","wrist","knee","hip","lowerback"]],
   [/snatch/,["quads","glutemax","uppertrap","midtrap"],["sidedelt","hams","triceps","lowertrap","erectors","supraspinatus","infraspinatus"],["shoulder","wrist","knee","hip","lowerback"]],
   [/power clean|hang clean|one-hand barbell clean|clean$/,["glutemax","quads","uppertrap"],["hams","wristflex","erectors","midtrap","gastroc"],["wrist","knee","hip","lowerback"]],
   [/jerk|push press/,["frontdelt","triceps"],["quads","sidedelt","uppertrap","serratus","glutemax"],["shoulder","wrist","knee"]],
-  [/indian club|mace/,["sidedelt","wristflex","wristext","brachiorad"],["reardelt","infraspinatus","teresminor","subscapularis","lats","rectusabd"],["shoulder","wrist"]],
+  [/indian club|mace/,["sidedelt","wristflex","wristext","brachiorad"],["reardelt","infraspinatus","teresminor","subscapularis","lats","pronsup","rectusabd"],["shoulder","wrist"]],
   [/put$|toss|throw|weight for distance|weight over bar/,["glutemax","frontdelt"],["quads","rectusabd","extoblique","triceps","serratus"],["shoulder","hip"]],
   [/pit digging|sledgehammer/,["lats","extoblique","intoblique","rectusabd"],["wristflex","glutemax","teresmajor","triceps"],["lowerback","shoulder"]],
   [/turkish get-up|windmill/,["frontdelt","extoblique","intoblique","rectusabd"],["infraspinatus","supraspinatus","glutemax","glutemed","sidedelt","triceps","serratus"],["shoulder","hip"]],
@@ -132,17 +133,20 @@ const R=[
   [/handstand push|pike push|behind-the-neck|overhead press|shoulder press|seated press|military|log press|axle press|kettlebell press|bent press|one-hand barbell press|one-arm push$|sang press|single-arm dumbbell press|band overhead/,["frontdelt","triceps"],["sidedelt","uppertrap","serratus","pecupper"],["shoulder","elbow"]],
   [/decline/,["peclower","triceps"],["pecupper","frontdelt"],["shoulder","elbow","wrist"]],
   [/dip/,["peclower","triceps"],["frontdelt","pecupper","pecminor"],["shoulder","elbow"]],
+  [/scapular push|scap push|push-up plus|serratus punch/,["serratus"],["rectusabd","transverse","frontdelt"],["shoulder","wrist"]],
   [/push[- ]?up|push up|meels|kabbadeh|bridge press/,["pecs","triceps"],["frontdelt","serratus","rectusabd","transverse"],["shoulder","wrist","elbow"]],
   [/pullover/,["lats","peclower"],["tricepslong","teresmajor","serratus","pecupper"],["shoulder"]],
   [/bench|chest press|floor press|isometric rack press/,["pecs","triceps"],["frontdelt"],["shoulder","elbow","wrist"]],
   [/external rotation/,["infraspinatus","teresminor"],["reardelt","supraspinatus"],["shoulder"]],
+  [/internal rotation/,["subscapularis"],["peclower","lats","teresmajor"],["shoulder"]],
+  [/full can|scaption/,["supraspinatus"],["frontdelt","sidedelt","serratus","lowertrap"],["shoulder"]],
   [/trap 3 raise|y raise|prone y/,["lowertrap"],["reardelt","midtrap","infraspinatus"],["shoulder"]],
   [/rear delt|reverse fly|reverse pec deck|face pull|pull-apart|pull apart/,["reardelt"],["midtrap","rhomboids","infraspinatus","teresminor","lowertrap"],["shoulder"]],
   [/incline fly|fly upper|low to high fly/,["pecupper"],["frontdelt","peclower"],["shoulder"]],
   [/fly lower|decline fly|high to low fly/,["peclower"],["pecupper","pecminor"],["shoulder"]],
-  [/fly|pec deck|crossover/,["pecs"],["frontdelt"],["shoulder"]],
+  [/fly|pec deck|crossover/,["pecs"],["frontdelt","coraco"],["shoulder"]],
   [/lateral raise|upright row/,["sidedelt"],["uppertrap","supraspinatus"],["shoulder"]],
-  [/front raise/,["frontdelt"],["pecupper","serratus"],["shoulder"]],
+  [/front raise/,["frontdelt"],["pecupper","serratus","coraco"],["shoulder"]],
   [/tricep|skull crusher|kickback|pushdown/,["triceps"],[],["elbow"]],
   // Pulls
   [/straight-arm pulldown/,["lats","teresmajor"],["tricepslong","peclower"],["shoulder"]],
@@ -150,6 +154,7 @@ const R=[
   [/row/,["lats","midtrap","rhomboids","teresmajor"],["reardelt","flexors","brachiorad","lowertrap","erectors","infraspinatus"],["lowerback","elbow"]],
   [/shrug/,["uppertrap"],["levator","wristflex","midtrap"],["neck"]],
   [/neck/,["scm","splenius","scalenes"],["levator","uppertrap"],["neck"]],
+  [/forearm rotation|pronation|supination/,["pronsup"],["brachiorad","bicepsbr","wristflex"],["wrist","elbow"]],
   [/reverse wrist curl/,["wristext"],["brachiorad"],["wrist"]],
   [/wrist curl/,["wristflex"],[],["wrist"]],
   [/finger extension|band finger|finger spread/,["handinter","wristext"],["handlumb"],["wrist"]],
@@ -159,9 +164,10 @@ const R=[
   [/hammer curl|reverse curl|zottman/,["brachialis","bicepsbr","brachiorad"],["wristext"],["elbow","wrist"]],
   [/curl/,["bicepsbr","brachialis"],["brachiorad","wristflex"],["elbow"]],
   // Core, ahead of the hang rule so hanging raises count as abs.
+  [/bird dog/,["multifidus","erectors"],["glutemax","transverse","extoblique"],["lowerback"]],
   [/side plank|side bend/,["extoblique","intoblique","ql"],["glutemed","rectusabd"],["lowerback"]],
   [/woodchop|trunk twist|russian twist|pallof/,["extoblique","intoblique"],["rectusabd","transverse"],["lowerback"]],
-  [/leg raise|knee raise|l-sit|garhammer|powell/,["rectusabd","iliopsoas"],["extoblique","intoblique","rectusfem","wristflex"],["lowerback"]],
+  [/leg raise|knee raise|l-sit|garhammer|powell/,["rectusabd","iliopsoas"],["extoblique","intoblique","rectusfem","sartorius","wristflex"],["lowerback"]],
   [/sit-up|sit up/,["rectusabd"],["iliopsoas","extoblique","intoblique"],["lowerback"]],
   [/plank|dead bug|hollow|ab wheel|crunch/,["rectusabd","transverse"],["extoblique","intoblique"],["lowerback"]],
   [/hang/,["wristflex"],["hands","lats","teresmajor","lowertrap"],["shoulder","wrist"]],
@@ -240,3 +246,18 @@ function fatigue(sessions,now,keys,of,half){
 export const fatigueByMuscle=(sessions,now)=>fatigue(sessions,now,MUSCLES.map(m=>m[0]),musclesOf,k=>HALF[k]);
 export const fatigueByPart=(sessions,now)=>fatigue(sessions,now,PARTS.map(p=>p[0]),partsOf,k=>HALF[PART_GROUP[k]]);
 export const recoveryWord=f=>f>=0.6?"recovering":f>=0.3?"partly recovered":"ready";
+
+// Exercises for a group (or, with part set, one muscle), from the names given: the ones that
+// suit it best first (best, in order), then the ones where it does the main work, the most
+// targeted first (fewest other main movers), then the ones it helps in. done (name → times)
+// puts familiar ones first among equals. Each comes with how it works the muscle: "isolates"
+// when it's the only main mover, "main" alongside others, "helps" when it assists.
+export function exercisesFor(id,part,names,done,best){
+  const key=n=>String(n||"").trim().toLowerCase(),seen={},out=[];
+  names.forEach(n=>{const k=key(n);if(!k||seen[k])return;seen[k]=1;
+    const m=part?partsOf(n):musclesOf(n),i=m.primary.indexOf(id);
+    if(i>=0)out.push({name:n,main:true,role:m.primary.length===1?"isolates":"main",score:m.primary.length});
+    else if(m.secondary.indexOf(id)>=0)out.push({name:n,main:false,role:"helps",score:100+m.primary.length});});
+  const d=done||{},pick=(best||[]).map(key),rank=n=>{const i=pick.indexOf(key(n));return i<0?1e3:i;};
+  return out.sort((a,b)=>rank(a.name)-rank(b.name)||a.score-b.score||(d[key(b.name)]||0)-(d[key(a.name)]||0)||a.name.localeCompare(b.name));
+}

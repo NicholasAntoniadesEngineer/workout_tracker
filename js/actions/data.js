@@ -1,8 +1,9 @@
 // Settings, files and the body log: choices, restore defaults, CSV and backup, the backup
 // nudge, the calendar reminder, weigh-ins, and the chart pickers.
 // Each handler returns true once it has dealt with the tap.
-import {DEFAULTS,backupDoc,convertAllWeights,setSetting,state,upsertBodyEntry} from "../store.js";
-import {dateKey,nowISO} from "../model.js";
+import {DEFAULTS,activeEx,addExerciseToDay,backupDoc,convertAllWeights,selectSession,setSetting,state,upsertBodyEntry} from "../store.js";
+import {dateKey,makeSession,nowISO} from "../model.js";
+import {todayWork} from "../views/bodymap.js";
 import {deliver,exportCSV,exportJSON} from "../csv.js";
 import {checkinICS,reminderICS} from "../reminder.js";
 import {bookPos,saveBookPos} from "../reader.js";
@@ -111,11 +112,23 @@ export function handle(t,ctx){
   }
   if(t.id==="freshreload"){state.updating=true;ctx.render();freshReload();return true;}
   // Year and month in review: open a period, hide the monthly card, share the picture.
-  // The body map: Sets or Recovery, and a muscle tapped for its detail (tap again to close).
+  // The body map: Sets or Recovery; a muscle or group tapped opens its close-up, whose tabs
+  // switch view and layer, and which the cross or the dim backdrop closes.
   const bmm=t.closest&&t.closest("[data-bmmode]");
   if(bmm){state.bmMode=bmm.getAttribute("data-bmmode");ctx.render();return true;}
+  if(t.id==="bmback"||t.closest&&t.closest("#bmclose")){state.bmSel="";state.bmPanel=0;ctx.render();return true;}
+  // A suggested exercise: into today's workout (a new day if there's none yet), the pop-up
+  // staying open; one already in today's opens on Train.
+  const ba=t.closest&&t.closest("[data-bmadd]");
+  if(ba){let s=todayWork();if(!s){s=makeSession();state.sessions.push(s);}
+    selectSession(s.id);addExerciseToDay(ba.getAttribute("data-bmadd"));ctx.recallLast(activeEx());ctx.render();return true;}
+  const bg=t.closest&&t.closest("[data-bmgo]");
+  if(bg){const s=todayWork();if(s){selectSession(s.id);const n=bg.getAttribute("data-bmgo").trim().toLowerCase(),e=s.ex.find(x=>x.name.trim().toLowerCase()===n);if(e)state.exId=e.id;}
+    state.bmSel="";state.bmPanel=0;state.sheet=false;state.view="log";state.scrollTo=0;ctx.markRefit();ctx.render();return true;}
+  const bp=t.closest&&t.closest("[data-bmpanel]");
+  if(bp){state.bmPanel=+bp.getAttribute("data-bmpanel");state.bmSel="g:"+bp.getAttribute("data-bmgroup");ctx.render();return true;}
   const mu=t.closest&&t.closest("[data-muscle]");
-  if(mu){const k=mu.getAttribute("data-muscle");state.bmSel=state.bmSel===k?"":k;ctx.render();return true;}
+  if(mu){const k=mu.getAttribute("data-muscle");if(!k||k.startsWith("g:"))state.bmPanel=0;state.bmSel=k;ctx.render();return true;}
   const rv=t.closest&&t.closest("[data-review]");
   if(rv){const p=rv.getAttribute("data-review").split(":");state.reviewPeriod=p[0]==="month"?{kind:"month",y:+p[1],m:+p[2]}:{kind:"year",y:+p[1]};state.view="review";state.scrollTo=0;ctx.render();return true;}
   const ms=t.closest&&t.closest("[data-monthseen]");

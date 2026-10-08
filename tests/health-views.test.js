@@ -21,7 +21,7 @@ const {state,load}=await import("../js/store.js");
 const CI=await import("../js/views/checkin.js");
 const HV=await import("../js/views/health.js");
 const {bodyView}=await import("../js/views/body.js");
-const {bodyMapCard}=await import("../js/views/bodymap.js");
+const {bodyMapCard,bodyMapPop}=await import("../js/views/bodymap.js");
 const checkinAct=await import("../js/actions/checkin.js");
 const healthAct=await import("../js/actions/health.js");
 const {bodyFatRange,navyBodyFat}=await import("../js/body.js");
@@ -253,17 +253,18 @@ describe("Muscles this week",()=>{
   test("only sets since Monday count; last Sunday's still shows in recovery",()=>{
     // Thursday 8 October: the week began Monday 5 October.
     state.sessions=[sq(3*DAY+4*HOUR,12,"Bench press"),sq(4*DAY,9,"Bench press")];
-    state.bmSel="g:chest";
+    state.bmSel="g:chest";state.view="progress";
     let h=clean(bodyMapCard());
-    // Drawn once a side: both halves of the chest on aim.
-    assert.deepEqual(cls(h,"p:peclower"),["m2","m2"]);assert.match(h,/<b>Chest<\/b><span>12 sets &middot; on aim/);assert.match(h,/Bench press 12/);
-    state.bmMode="rec";h=clean(bodyMapCard());assert.match(h,/partly recovered|recovering|ready/);
+    // Drawn once a side: both halves of the chest on aim; the close-up says how many and from what.
+    assert.deepEqual(cls(h,"p:peclower"),["m2","m2"]);
+    const pop=clean(bodyMapPop());assert.match(pop,/<b>Chest<\/b><span>12 sets &middot; on aim/);assert.match(pop,/Bench press 12/);
+    state.bmMode="rec";assert.match(clean(bodyMapPop()),/partly recovered|recovering|ready/);
   });
   test("one set is \"1 set\", and a muscle with none says nothing yet",()=>{
-    state.sessions=[sq(HOUR,1,"Bicep curls")];state.bmSel="g:biceps";
-    assert.match(clean(bodyMapCard()),/1 set &middot; under the aim/);
-    state.bmSel="g:calves";assert.match(bodyMapCard(),/Nothing for it yet this week/);
-    for(const bad of ["not-a-muscle","g:nope","p:nope","chest"])state.bmSel=bad,assert.doesNotMatch(bodyMapCard(),/bmsel/,bad);
+    state.sessions=[sq(HOUR,1,"Bicep curls")];state.bmSel="g:biceps";state.view="progress";
+    assert.match(clean(bodyMapPop()),/1 set &middot; under the aim/);
+    state.bmSel="g:calves";assert.match(clean(bodyMapPop()),/0 sets &middot; under the aim/);assert.doesNotMatch(bodyMapPop(),/This week:/);
+    for(const bad of ["not-a-muscle","g:nope","p:nope","chest"])state.bmSel=bad,assert.equal(bodyMapPop(),"",bad);
   });
   test("recovery shades a muscle worked an hour ago as recovering",()=>{
     state.sessions=[sq(HOUR,8)];state.bmMode="rec";

@@ -226,7 +226,7 @@ const SCREENS=[
   {name:"Calendar · empty day",hash:"#/calendar",prep:monthOf(EMPTY_DAY),taps:["[data-newday='"+dayKey(EMPTY_DAY.toISOString())+"']"]},
   {name:"Progress",hash:"#/progress"},
   {name:"Progress · a muscle group chosen",hash:"#/progress",taps:["[data-muscle='g:quads']"]},
-  {name:"Progress · a deep muscle chosen",hash:"#/progress",taps:["[data-muscle='g:rotatorcuff']","[data-muscle='p:supraspinatus']"]},
+  {name:"Progress · a deep muscle chosen",hash:"#/progress",taps:["[data-muscle='g:rotatorcuff']","[data-bmpanel='1']","[data-muscle='p:supraspinatus']"]},
   {name:"Progress · the feet close up",hash:"#/progress",taps:["[data-muscle='g:feet']","[data-muscle='p:fdb']"]},
   {name:"Progress · muscle recovery",hash:"#/progress",taps:["[data-bmmode='rec']","[data-muscle='p:glutemax']"]},
   {name:"Body",hash:"#/body"},

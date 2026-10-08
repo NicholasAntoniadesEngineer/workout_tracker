@@ -3,9 +3,9 @@
 // per-muscle numbers agree with the per-group ones.
 import {test,describe} from "node:test";
 import assert from "node:assert/strict";
-import {AIM,MUSCLES,MUSCLE_NAME,PARTS,PART_DEEP,PART_GROUP,PART_NAME,PART_UNDER,contributors,fatigueByMuscle,fatigueByPart,musclesOf,partsIn,partsOf,setsByMuscle,setsByPart} from "../js/muscles.js";
+import {AIM,MUSCLES,MUSCLE_NAME,PARTS,PART_DEEP,PART_GROUP,PART_NAME,PART_UNDER,contributors,exercisesFor,fatigueByMuscle,fatigueByPart,musclesOf,partsIn,partsOf,setsByMuscle,setsByPart} from "../js/muscles.js";
 import {BACK,BACK_DEEP,FRONT,FRONT_DEEP,SKIN,SOLE,SOLE_DEEP,SOLE_SKIN} from "../js/anatomy.js";
-import {EXERCISE_GROUPS} from "../js/model.js";
+import {EXERCISE_GROUPS,SEED_EXERCISES} from "../js/model.js";
 
 const HOUR=3600000,DAY=24*HOUR,now=Date.UTC(2026,9,8,12);
 const iso=t=>new Date(t).toISOString();
@@ -106,6 +106,50 @@ describe("which muscles an exercise works",()=>{
   });
 });
 
+describe("exercises for a muscle",()=>{
+  test("every muscle has an exercise in the list, and every group one that works it as a main mover",()=>{
+    PARTS.forEach(([k])=>assert.ok(exercisesFor(k,true,SEED_EXERCISES).length,k));
+    MUSCLES.forEach(([g])=>assert.ok(exercisesFor(g,false,SEED_EXERCISES).some(x=>x.main),g));
+  });
+  test("the most targeted come first, then the ones it only helps in",()=>{
+    const top=(id,part)=>exercisesFor(id,part,SEED_EXERCISES).map(x=>x.name);
+    assert.equal(top("pecupper",true)[0],"Cable Fly Upper");
+    assert.equal(top("subscapularis",true)[0],"Internal rotation");
+    assert.equal(top("supraspinatus",true)[0],"Full can raise");
+    assert.equal(top("serratus",false)[0],"Scapular push-up");
+    assert.deepEqual(top("feet",false).slice(0,4).sort(),["Short foot","Toe spreads","Toe yoga","Towel curls"]);
+    const all=exercisesFor("glutemin",true,SEED_EXERCISES);assert.ok(all.every(x=>x.main));
+    const mixed=exercisesFor("popliteus",true,SEED_EXERCISES);assert.ok(mixed.length&&mixed.every(x=>!x.main),"helps only");
+    const r=exercisesFor("quads",false,SEED_EXERCISES);r.forEach((x,i)=>{if(i)assert.ok(!(x.main&&!r[i-1].main),"main ones first");});
+  });
+  test("among equals, the ones already done come first",()=>{
+    const names=["Hammer curl","Zottman curl","Reverse curl"];
+    assert.deepEqual(exercisesFor("brachiorad",true,names).map(x=>x.name),["Hammer curl","Reverse curl","Zottman curl"]);
+    assert.deepEqual(exercisesFor("brachiorad",true,names,{"zottman curl":3}).map(x=>x.name)[0],"Zottman curl");
+  });
+});
+
+describe("what each muscle does and what trains it",async()=>{
+  const {GROUP_INFO,PART_INFO}=await import("../js/muscleinfo.js");
+  test("every muscle and group has its lines, one short sentence each",()=>{
+    PARTS.forEach(([k])=>assert.ok(PART_INFO[k],k));MUSCLES.forEach(([g])=>assert.ok(GROUP_INFO[g],g));
+    const line=(x,w)=>{assert.match(x,/^[A-Z].*\.$/,w);assert.ok(x.length<=110,w+" is long: "+x);};
+    Object.entries(PART_INFO).forEach(([k,[does,how]])=>{assert.ok(PART_NAME[k],k);line(does,k);line(how,k);});
+    Object.entries(GROUP_INFO).forEach(([g,[how]])=>{assert.ok(MUSCLE_NAME[g],g);line(how,g);});
+  });
+  test("every exercise picked for a muscle is in the list and credits that muscle",()=>{
+    Object.entries(PART_INFO).forEach(([k,[,,best]])=>{assert.ok(best.length,k);const ok=exercisesFor(k,true,SEED_EXERCISES).map(x=>x.name);
+      best.forEach(n=>assert.ok(ok.includes(n),k+": "+n));});
+    Object.entries(GROUP_INFO).forEach(([g,[,best]])=>{const ok=exercisesFor(g,false,SEED_EXERCISES).map(x=>x.name);best.forEach(n=>assert.ok(ok.includes(n),g+": "+n));});
+  });
+  test("the picks lead, in their order, and say how they work it",()=>{
+    const best=PART_INFO.tricepslong[2],r=exercisesFor("tricepslong",true,SEED_EXERCISES,{},best);
+    assert.deepEqual(r.slice(0,3).map(x=>x.name),best);
+    assert.deepEqual(exercisesFor("soleus",true,["Calf raises","Seated calf raise"]).map(x=>[x.name,x.role]),[["Seated calf raise","isolates"],["Calf raises","main"]]);
+    assert.equal(exercisesFor("popliteus",true,["Lying leg curl"])[0].role,"helps");
+  });
+});
+
 describe("sets and recovery, muscle by muscle",()=>{
   test("a bench press set is a full set for both pec heads and the triceps, half for the front deltoid",()=>{
     const s=[day("Bench press",4)];
@@ -146,24 +190,46 @@ describe("the close-up of a chosen group",async()=>{
   Object.defineProperty(globalThis,"BroadcastChannel",{configurable:true,writable:true,value:undefined});
   globalThis.document={documentElement:{dataset:{}},getElementById:()=>null};
   const store=await import("../js/store.js");store.load();
-  const {bodyMapCard,closeUps}=await import("../js/views/bodymap.js");
-  test("every group shows every one of its muscles, numbered as in its list",()=>{
+  const {bodyMapPop,closeUps}=await import("../js/views/bodymap.js");
+  store.state.view="progress";
+  const pop=(sel,panel)=>{store.state.bmSel=sel;store.state.bmPanel=panel||0;return bodyMapPop();};
+  const tabs=g=>[...pop("g:"+g).matchAll(/data-bmpanel='\d+' data-bmgroup='\w+'>([^<]+)</g)].map(m=>m[1]);
+  test("every group's views between them show every one of its muscles, numbered 1, 2, 3… as listed",()=>{
     MUSCLES.forEach(([g])=>{
-      const shown=new Set();closeUps(g).forEach(x=>x.ids.forEach(k=>shown.add(k)));
+      const shown=new Set(),n=Math.max(1,tabs(g).length);
+      for(let i=0;i<n;i++){const h=pop("g:"+g,i);
+        assert.doesNotMatch(h,/NaN|undefined/,g+" "+i);
+        const onFig=[...h.matchAll(/<g class='bmtag[^']*' data-muscle='p:(\w+)'>.*?<text[^>]*>(\d+)</g)].map(m=>[m[1],+m[2]]);
+        const listed=[...h.matchAll(/data-muscle='p:(\w+)'><i class='bmnum'>(\d+)</g)].map(m=>[m[1],+m[2]]);
+        assert.deepEqual(onFig.slice().sort(),listed.slice().sort(),g+" "+i+": the drawing's numbers and the list's agree");
+        assert.deepEqual(listed.map(x=>x[1]),listed.map((x,j)=>j+1),g+" "+i+": numbered from 1");
+        listed.forEach(([p])=>shown.add(p));}
       assert.deepEqual([...shown].sort(),partsIn(g).slice().sort(),g);
-      store.state.bmSel="g:"+g;const h=bodyMapCard();
-      assert.doesNotMatch(h,/NaN|undefined/,g);
-      partsIn(g).forEach((p,i)=>{assert.ok(h.includes("<g class='bmtag' data-muscle='p:"+p+"'>"),g+": no number on "+p);
-        assert.ok(h.includes("data-muscle='p:"+p+"'><i class='bmnum'>"+(i+1)+"</i>"),g+": list number of "+p);});
+      closeUps(g).forEach(x=>x.ids.forEach(k=>assert.ok(shown.has(k),g+" "+k)));
     });
   });
-  test("a deep layer gets its own panel; the foot shows its sole; one view is enough where one holds it all",()=>{
-    const panels=g=>{store.state.bmSel="g:"+g;return [...bodyMapCard().matchAll(/<figcaption>([^<]+)<\/figcaption>/g)].map(m=>m[1].replace(" &middot; "," · "));};
-    assert.deepEqual(panels("feet"),["Sole","Sole · deep","Front"]);
-    assert.deepEqual(panels("rotatorcuff"),["Back","Back · deep","Front · deep"]);
-    assert.deepEqual(panels("quads"),["Front","Front · deep"]);
-    assert.deepEqual(panels("hamstrings"),["Back"]);
-    store.state.bmSel="p:fdb";assert.match(bodyMapCard(),/sole of the foot/);
-    store.state.bmSel="p:supraspinatus";assert.match(bodyMapCard(),/deep, under the upper trapezius/);
+  test("a deep layer is its own tab; the foot has its sole; one view needs no tabs",()=>{
+    assert.deepEqual(tabs("feet"),["Sole","Sole deep","Top"]);
+    assert.deepEqual(tabs("rotatorcuff"),["Back","Back deep","Front deep"]);
+    assert.deepEqual(tabs("quads"),["Front","Front deep"]);
+    assert.deepEqual(tabs("hamstrings"),[]);
+    assert.match(pop("p:supraspinatus"),/class='on' data-bmpanel='1'/,"a deep muscle opens on its own layer");
+    assert.match(pop("p:supraspinatus"),/under the upper trapezius/);
+    assert.match(pop("p:edb"),/class='on' data-bmpanel='2'/,"the top of the foot");
+    store.state.view="home";assert.equal(pop("g:feet"),"","only over Progress");store.state.view="progress";
+    for(const bad of ["","g:nope","p:nope","chest"])assert.equal(pop(bad),"",bad);
+  });
+  test("Train it offers exercises for it; one already in today's workout says so",()=>{
+    const h=pop("p:pecupper");
+    assert.match(h,/<b>Train<\/b> Incline presses/);assert.match(h,/data-bmadd='Cable Fly Upper'/);
+    const today=store.state.sessions.find(s=>s.created.slice(0,10)===new Date().toISOString().slice(0,10))||store.state.sessions[0];
+    today.created=new Date().toISOString();today.ex.push({id:"x1",name:"Cable Fly Upper",sets:[]});
+    assert.match(pop("p:pecupper"),/data-bmgo='Cable Fly Upper'/);
+    // No archery for the rotator cuff unless it's already being done.
+    assert.doesNotMatch(pop("g:rotatorcuff"),/Archery/);
+    // Picked exercises only, where two or more are picked: no pushdown for the long head.
+    const t=pop("p:tricepslong");assert.match(t,/data-bmadd='Overhead tricep extension'/);assert.doesNotMatch(t,/pushdown'/i);
+    assert.match(t,/<b>Does<\/b> Straightens the elbow/);assert.match(t,/<b>Train<\/b> Overhead extensions/);
+    assert.match(pop("g:calves"),/<b>Train<\/b> Calf raises with the knee straight/);
   });
 });

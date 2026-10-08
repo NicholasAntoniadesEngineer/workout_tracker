@@ -604,4 +604,36 @@ describe("flows through the app",{skip:!has&&"Chrome not found"},()=>{
     const f=await page.eval("const f=window.__files[window.__files.length-1];return f?{type:f.type,size:f.size,name:f.fname}:null;");
     assert.ok(f&&f.type==="image/png"&&f.size>5000,"a picture to share: "+JSON.stringify(f));
   }));
+
+  test("a muscle tapped on the figure opens a close-up of its area, which the cross or Escape closes",()=>flow("musclemap",async()=>{
+    await openApp(page,srv,seedDoc({settings:{checkin:false}}),PHONE);
+    await tap(page,"[data-nav='progress']");
+    // The thigh on the front figure: the pop-up opens on the quads, the muscle chosen.
+    await tap(page,".bmfig [data-muscle='p:vastuslat']");
+    assert.equal(await S("state.bmSel"),"p:vastuslat");
+    assert.ok(await page.eval("return !!document.querySelector('#bmback .bmsheet');"),"the pop-up is open");
+    assert.match(await page.eval("return document.querySelector('.bmpoph').innerText;"),/Quads[\s\S]*Vastus lateralis/);
+    // The deep layer, and a muscle in it from its number on the drawing.
+    await tap(page,"[data-bmpanel='1']");
+    assert.equal(await S("state.bmSel"),"g:quads");
+    await tap(page,".bmxsvg .bmtag[data-muscle='p:vastusint']");
+    assert.equal(await S("state.bmSel"),"p:vastusint");
+    assert.match(await page.eval("return document.querySelector('.bmpoph').innerText;"),/Vastus intermedius[\s\S]*under the rectus femoris/);
+    await tap(page,"#bmclose");
+    assert.equal(await S("state.bmSel"),"");
+    assert.ok(!(await page.eval("return !!document.querySelector('#bmback');")),"closed");
+    // From the list of groups, and closed with Escape.
+    await tap(page,".bmrow[data-muscle='g:feet']");
+    assert.ok(await page.eval("return !!document.querySelector('#bmback');"));
+    await key(page,"Escape");
+    assert.equal(await S("state.bmSel"),"");
+    // An exercise for the feet, put into today's workout, then opened on Train.
+    await tap(page,".bmrow[data-muscle='g:feet']");
+    await tap(page,"[data-bmadd='Short foot']");
+    const today=await page.eval("const {state}=await import('/js/store.js'),{dateKey,nowISO}=await import('/js/model.js');const s=state.sessions.find(x=>x.id===state.sessionId);return {today:dateKey(s.created)===dateKey(nowISO()),names:s.ex.map(e=>e.name)};");
+    assert.ok(today.today&&today.names.includes("Short foot"),JSON.stringify(today));
+    await tap(page,"[data-bmgo='Short foot']");
+    assert.equal(await S("state.view"),"log");
+    assert.equal(await page.eval("const {state,activeEx}=await import('/js/store.js');return activeEx().name;"),"Short foot");
+  }));
 });

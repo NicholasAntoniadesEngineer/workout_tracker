@@ -635,6 +635,7 @@ window.addEventListener("keydown",ev=>{
   else if(state.exHist){state.exHist=false;render();}
   else if(state.sheet){dismissSheet();render();}
   else if(state.calDay){state.calDay=null;render();}
+  else if(state.bmSel&&state.view==="progress"){state.bmSel="";state.bmPanel=0;render();}
   else if(state.adding){state.adding=false;render();}
   else if(state.numEdit){state.numEdit=null;render();}
   else if(state.view==="learn"&&wide()&&!(ev.target&&/^(INPUT|TEXTAREA)$/.test(ev.target.tagName)))learnBack();

@@ -2374,22 +2374,46 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .bmm.under{stroke:var(--text);stroke-width:1.1;stroke-dasharray:1.6 1.1;}
 .bmm.m3.sel{stroke:var(--gold);}
 .bmlbl{font-size:8px;font-weight:800;letter-spacing:1px;fill:var(--muted);text-anchor:middle;}
-/* Every muscle in the chosen group, as taps; a deep one says so. */
-.bmparts{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
-.bmpart{display:inline-flex;align-items:baseline;gap:5px;min-height:30px;padding:4px 10px;border:1px solid var(--line);border-radius:15px;background:var(--panel);color:var(--text);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;text-align:left;}
-.bmpart em{font-style:normal;font-size:11px;color:var(--muted);font-weight:700;}
-.bmpart b{font-size:12px;}
-.bmpart.on{border-color:var(--text);box-shadow:inset 0 0 0 1px var(--text);}
 .bmnum{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 3px;border-radius:9px;background:var(--text);color:var(--panel);font-style:normal;font-size:10.5px;font-weight:800;align-self:center;}
-/* The close-up of the chosen group: one panel per view and layer, side by side when they fit. */
-.bmxs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,128px),1fr));gap:8px;margin:10px 0 2px;}
-.bmxp{margin:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;border-radius:10px;background:var(--panel);}
-.bmxp svg{width:100%;max-height:260px;height:auto;}
-.bmxp figcaption{font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+/* The close-up of the chosen area: a pop-up in the middle of the screen on any size, the
+   drawing as big as fits, the muscles in it listed underneath. */
+.overlay.bmpop{align-items:center;padding:12px;}
+.bmsheet{max-width:440px;border-radius:18px;border:1px solid var(--line);max-height:94dvh;padding-bottom:var(--sp);}
+.bmpoph{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.bmpoph b{font-size:calc(17px * var(--k));}
+.bmpoph span{font-size:12.5px;font-weight:700;color:var(--muted);line-height:1.35;}
+.bmclose{align-self:flex-start;font-size:22px;}
+.bmtabs{margin:0 0 8px;}
+.bmtabs button{flex:1 1 auto;}
+.bmxwrap{display:flex;justify-content:center;border-radius:12px;background:var(--panel);padding:6px;}
+.bmxsvg{width:100%;height:auto;max-height:34dvh;}
+.bmleg{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:2px 8px;margin-top:8px;}
+.bmlrow{line-height:1.2;display:flex;align-items:center;gap:7px;min-height:30px;padding:2px 6px;border:0;border-radius:8px;background:none;color:var(--text);font:inherit;font-size:13.5px;text-align:left;cursor:pointer;}
+.bmlrow span{flex:1;min-width:0;}
+.bmlrow b{font-size:12.5px;}
+.bmlrow.on{background:var(--panelHi);font-weight:700;}
+.bmfrom{margin-top:6px;font-size:12.5px;color:var(--muted);line-height:1.4;}
+/* Train it: the exercises for the chosen muscle, two to a row. */
+.bmtrain{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);}
+.bminfo{margin:0 0 4px;font-size:12.5px;line-height:1.4;color:var(--text);}
+.bminfo b{font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-right:4px;}
+.bmsug{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,118px),1fr));gap:6px;}
+.bmsug{margin-top:6px;}
+.bmsg{display:flex;align-items:center;gap:7px;min-height:38px;padding:4px 8px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font:inherit;font-size:13px;font-weight:650;text-align:left;cursor:pointer;}
+.bmsg i{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:10px;background:var(--accent);color:var(--onAccent);font-style:normal;font-weight:800;font-size:14px;line-height:1;}
+.bmsg span{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2;}
+.bmsg span b{font-weight:700;}
+.bmsg small{font-size:10.5px;font-weight:700;color:var(--muted);}
+.bmsg.in i{background:var(--text);color:var(--panel);font-size:11px;}
+/* A short screen: a shorter drawing, so the whole close-up still fits without scrolling. */
+@media (max-height:700px){.bmxsvg{max-height:24dvh;}.bmpop{padding:8px;}.bmlrow{min-height:26px;}.bmsg{min-height:34px;}}
+.bmtag.on circle{fill:var(--accent);}
+.bmtag.on text{fill:var(--onAccent);}
 .bmghost{fill:color-mix(in srgb,var(--muted) 14%,var(--panel));stroke:var(--panel);stroke-width:.4;}
 .bmlift{fill:none;stroke:color-mix(in srgb,var(--muted) 38%,transparent);stroke-width:.3;stroke-dasharray:1.2 .9;}
 .bmfar{opacity:.55;}
-.bmm.bmx{stroke-width:.5;filter:drop-shadow(0 .6px .8px rgba(0,0,0,.25));}
+.bmm.bmx{stroke:color-mix(in srgb,var(--text) 55%,transparent);stroke-width:.45;filter:drop-shadow(0 .6px .8px rgba(0,0,0,.25));}
+.bmm.bmx.sel{stroke:var(--text);stroke-width:1;}
 .bmtag{cursor:pointer;}
 .bmtag circle{fill:var(--text);stroke:var(--panel);stroke-width:.4;}
 .bmtag text{fill:var(--panel);font-weight:800;text-anchor:middle;font-family:inherit;}
@@ -2397,11 +2421,6 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .bmkey span{display:inline-flex;align-items:center;gap:5px;}
 .bmkey i{display:inline-block;width:12px;height:10px;border-radius:3px;}
 .bmkey .m0{background:var(--panelHi);}.bmkey .m1{background:color-mix(in srgb,var(--gold) 40%,var(--panelHi));}.bmkey .m2{background:var(--gold);}.bmkey .m3{background:var(--text);}
-.bmsel{border-radius:12px;background:var(--panelHi);padding:10px 12px;margin:0 0 10px;}
-.bmselh{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;}
-.bmselh b{font-size:15px;}
-.bmselh span{flex:1 1 150px;min-width:0;font-size:12.5px;font-weight:700;color:var(--muted);}
-.bmselx{margin-top:4px;font-size:12.5px;color:var(--text);line-height:1.4;}
 .bmlist{display:flex;flex-direction:column;gap:2px;}
 .bmgroup{min-height:30px!important;padding-top:6px!important;border:0!important;cursor:default!important;font-size:11px!important;letter-spacing:1.2px!important;text-transform:uppercase!important;color:var(--muted)!important;}
 .bmrow{display:grid;grid-template-columns:minmax(84px,104px) minmax(0,1fr) 30px 10px;align-items:center;gap:8px;width:100%;min-height:30px;padding:2px 0;border:0;border-radius:6px;background:none;color:var(--text);font:inherit;font-size:13.5px;text-align:left;cursor:pointer;}
@@ -2465,6 +2484,7 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
   :root[data-big="1"] .editrow{flex-wrap:wrap;}
   :root[data-big="1"] .editrow .btn{flex:1 1 40%;min-width:0;}
   :root[data-big="1"] .setopts.onerow{grid-template-columns:repeat(4,minmax(0,1fr));}
+  :root[data-big="1"] .revk b{font-size:calc(30px * min(var(--k),1.4));}
   /* A chart's first and last dates keep one line each; the middle total takes its own row. */
   :root[data-big="1"] .chartlbls{flex-wrap:wrap;}
   :root[data-big="1"] .chartlbls>span:first-child,:root[data-big="1"] .chartlbls>span:last-child{white-space:nowrap;}

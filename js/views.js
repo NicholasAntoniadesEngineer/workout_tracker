@@ -13,6 +13,7 @@ import {settingsView} from "./views/settings.js";
 import {cardioView} from "./views/cardio.js";
 import {programmeView} from "./views/programme.js";
 import {learnLib} from "./lazy.js";
+import {bodyMapPop} from "./views/bodymap.js";
 import {stackView} from "./views/stack.js";
 import {keysSheet,shell,tabBar,wide} from "./views/shell.js";
 import {importView} from "./views/importer.js";
@@ -193,5 +194,5 @@ export function paint(){
   if(welcomeNeeded()&&!state.importJob&&state.view!=="import"){document.getElementById("app").innerHTML=welcomeView()+dialogView();return;}
   const view=(VIEWS[state.view]||logView)();
   document.getElementById("app").innerHTML=
-    (wide()?shell(view):view+tabBar())+keysSheet()+paletteView()+checkinSheet()+planDaySheet()+plannedSheet()+scanSheet()+"<input type='file' id='sheetscan' accept='image/*' capture='environment' hidden>"+dialogView()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal();
+    (wide()?shell(view):view+tabBar())+keysSheet()+paletteView()+checkinSheet()+planDaySheet()+plannedSheet()+scanSheet()+"<input type='file' id='sheetscan' accept='image/*' capture='environment' hidden>"+dialogView()+undoToast()+storageToast()+updateToast()+bestToast()+shareMenu()+feedbackModal()+summaryModal()+bodyMapPop();
 }
