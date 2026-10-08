@@ -84,10 +84,11 @@ function shareMenu(){
   return h+"</div></div></div>";
 }
 
-// Local storage is full (photos are the usual cause): nothing new saves until room is made.
+// Storage is full (photos are the usual cause): nothing new saves until room is made, and the
+// app keeps trying, so the warning goes by itself once there's space.
 function storageToast(){
   if(!state.storageFull)return "";
-  return "<div class='toast'><span>Storage full — delete a supplement photo to keep saving</span></div>";
+  return "<div class='toast' role='alert'><span>Can't save: storage full. Free some space and it saves.</span></div>";
 }
 
 // A newer version has arrived while the app was open.

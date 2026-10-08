@@ -657,6 +657,16 @@ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catc
 
 // The saved data is read from the database before anything is drawn.
 await db.init();
+db.onWriteState(v=>{state.storageFull=v;render();});
+// Another window saved: take its data, keeping this window's place in it.
+db.onOutsideChange(()=>{
+  const keep={sessionId:state.sessionId,exId:state.exId,reps:state.reps,weight:state.weight};
+  load();
+  if(state.sessions.some(s=>s.id===keep.sessionId))state.sessionId=keep.sessionId;
+  const s=getSession();if(s&&s.ex.some(e=>e.id===keep.exId))state.exId=keep.exId;
+  state.reps=keep.reps;state.weight=keep.weight;
+  render();
+});
 load();
 state.sessions.forEach(autoEndIfStale);
 recallLast(activeEx());

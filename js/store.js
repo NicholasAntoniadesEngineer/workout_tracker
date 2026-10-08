@@ -178,7 +178,7 @@ export function save(){
         hiddenRoutines:state.hiddenRoutines,restTargets:state.restTargets,exNotes:state.exNotes,exProg:state.exProg,gyms:state.gyms,gymId:state.gymId,monthSeen:state.monthSeen,favs:state.favs,pickOpen:state.pickOpen,programme:state.programme,
         learnSaved:state.learnSaved,learnRecent:state.learnRecent,backupAt:state.backupAt,backupSnooze:state.backupSnooze,welcomed:state.welcomed,checkins:state.checkins,vitals:state.vitals,photos:state.photos,fuel:state.fuel,markers:state.markers,habits:state.habits,habitDone:state.habitDone,journal:state.journal,
         supplements:state.supplements,stacks:state.stacks}));
-    state.storageFull=false;
+    state.storageFull=!!db.writeFailed;
   }catch(e){
     // Out of room (photos are the likely cause): say so rather than silently not saving.
     state.storageFull=true;

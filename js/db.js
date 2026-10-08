@@ -11,6 +11,27 @@ const DB="kingskiln",STORE="kv",KEY="workout_days_v2";
 const cache=new Map();
 let db=null,timer=null,pending=new Map(),ready=false;
 export let backend="memory";
+// Whether writes are failing (the phone out of space, most often), and who to tell when that
+// changes: the app says so rather than quietly not saving, and the warning goes once a retry lands.
+export let writeFailed=false;
+const watchers=[];
+export function onWriteState(fn){watchers.push(fn);}
+function tell(v){if(v===writeFailed)return;writeFailed=v;watchers.forEach(f=>{try{f(v);}catch(e){}});}
+
+// Two windows of the app (a laptop's tabs, say): each says when it has saved, and one with no
+// edits of its own waiting reads the document again, so it can never later write older data
+// over what the other saved. One with edits waiting keeps them: its save is the newer.
+const chan=typeof BroadcastChannel!=="undefined"?new BroadcastChannel("kingskiln"):null;
+if(chan&&chan.unref)chan.unref();          // (in Node, where the tests run, don't keep it alive)
+const me=Math.random().toString(36).slice(2);
+const outside=[];
+export function onOutsideChange(fn){outside.push(fn);}
+function changed(v){if(typeof v!=="string"||v===cache.get(KEY))return;cache.set(KEY,v);outside.forEach(f=>{try{f();}catch(e){}});}
+if(chan)chan.onmessage=async ev=>{
+  const m=ev.data||{};if(m.type!=="saved"||m.from===me||backend!=="indexeddb"||pending.size)return;
+  try{changed(await tx("readonly",s=>s.get(KEY)));}catch(e){}
+};
+if(typeof window!=="undefined"&&window.addEventListener)window.addEventListener("storage",e=>{if(backend==="localstorage"&&e.key===KEY)changed(e.newValue);});
 
 const open=()=>new Promise((res,rej)=>{
   if(typeof indexedDB==="undefined"){rej(new Error("no indexedDB"));return;}
@@ -67,8 +88,8 @@ export async function flush(){
   timer=null;
   if(backend!=="indexeddb"||!pending.size)return;
   const batch=pending;pending=new Map();
-  try{await tx("readwrite",s=>{batch.forEach((v,k)=>{if(v==null)s.delete(k);else s.put(v,k);});});}
-  catch(e){batch.forEach((v,k)=>{if(!pending.has(k))pending.set(k,v);});if(!timer)timer=setTimeout(flush,2000);}
+  try{await tx("readwrite",s=>{batch.forEach((v,k)=>{if(v==null)s.delete(k);else s.put(v,k);});});tell(false);if(chan)chan.postMessage({type:"saved",from:me});}
+  catch(e){batch.forEach((v,k)=>{if(!pending.has(k))pending.set(k,v);});tell(true);if(!timer)timer=setTimeout(flush,2000);}
 }
 // Flush before the page goes away, so a quick close never loses the last set.
 if(typeof document!=="undefined"&&document.addEventListener)document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flush();});
