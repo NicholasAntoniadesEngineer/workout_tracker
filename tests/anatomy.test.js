@@ -4,7 +4,7 @@
 import {test,describe} from "node:test";
 import assert from "node:assert/strict";
 import {AIM,MUSCLES,MUSCLE_NAME,PARTS,PART_DEEP,PART_GROUP,PART_NAME,PART_UNDER,contributors,fatigueByMuscle,fatigueByPart,musclesOf,partsIn,partsOf,setsByMuscle,setsByPart} from "../js/muscles.js";
-import {BACK,FRONT,SKIN} from "../js/anatomy.js";
+import {BACK,BACK_DEEP,FRONT,FRONT_DEEP,SKIN,SOLE,SOLE_DEEP,SOLE_SKIN} from "../js/anatomy.js";
 import {EXERCISE_GROUPS} from "../js/model.js";
 
 const HOUR=3600000,DAY=24*HOUR,now=Date.UTC(2026,9,8,12);
@@ -20,7 +20,7 @@ describe("the anatomy",()=>{
     assert.ok(PARTS.length>=60,"the major skeletal muscles, not a handful: "+PARTS.length);
   });
   test("the groups a lifter looks for are all there",()=>{
-    for(const g of ["neck","traps","chest","serratus","frontdelt","sidedelt","reardelt","rotatorcuff","lats","upperback","biceps","triceps","forearms",
+    for(const g of ["neck","traps","chest","serratus","frontdelt","sidedelt","reardelt","rotatorcuff","lats","upperback","biceps","triceps","forearms","hands",
       "abs","obliques","lowerback","glutes","abductors","hipflexors","adductors","quads","hamstrings","calves","shins","feet"])assert.ok(MUSCLE_NAME[g],g);
     // Every head of the many-headed muscles.
     assert.deepEqual(partsIn("quads"),["rectusfem","vastuslat","vastusmed","vastusint"]);
@@ -28,21 +28,33 @@ describe("the anatomy",()=>{
     assert.deepEqual(partsIn("triceps"),["tricepslong","tricepslat","tricepsmed"]);
     assert.deepEqual(partsIn("rotatorcuff"),["supraspinatus","infraspinatus","teresminor","subscapularis"]);
     assert.deepEqual(partsIn("traps"),["uppertrap","midtrap","lowertrap"]);
+    // The foot's own muscles, top and all four layers of the sole, and the hand's.
+    assert.deepEqual(partsIn("feet"),["edb","ehb","abdhal","fdb","abddm","quadplantae","footlumb","fhb","addhal","fdmb","footinter"]);
+    assert.deepEqual(partsIn("hands"),["thenar","hypothenar","addpoll","handlumb","handinter"]);
   });
   test("every muscle on the surface is drawn, front or back, and no deep one is",()=>{
     const drawn=new Set(FRONT.concat(BACK).map(x=>x[0]));
     PARTS.forEach(([k])=>{if(PART_DEEP[k])assert.ok(!drawn.has(k),k+" is deep but drawn");else assert.ok(drawn.has(k),k+" isn't drawn");});
     drawn.forEach(k=>assert.ok(PART_NAME[k],"drawn but unknown: "+k));
   });
+  test("every deep muscle is drawn in the deep layer or on the sole, once it's chosen",()=>{
+    const deep=new Set(FRONT_DEEP.concat(BACK_DEEP,SOLE_DEEP,SOLE).map(x=>x[0]));
+    PARTS.forEach(([k])=>{if(PART_DEEP[k])assert.ok(deep.has(k),k+" has no shape");else assert.ok(!deep.has(k),k+" is on the surface");});
+    SOLE.concat(SOLE_DEEP).forEach(([k])=>assert.equal(PART_GROUP[k],"feet",k));
+  });
+  test("the sole's shapes are closed paths on their own board",()=>{
+    SOLE_SKIN.map(d=>["skin",d]).concat(SOLE,SOLE_DEEP).forEach(([k,d])=>{assert.match(d,/^M[\d. ]+([LQCZ][\d. ]*)+$/,k);
+      const n=d.match(/-?\d+(\.\d+)?/g).map(Number);for(let i=0;i<n.length;i+=2){assert.ok(n[i]>=0&&n[i]<=60,k+" x");assert.ok(n[i+1]>=0&&n[i+1]<=132,k+" y");}});
+  });
   test("every shape is a closed path of plain commands, on the left half of the board",()=>{
-    const all=SKIN.map(d=>["skin",d]).concat(FRONT,BACK);
+    const all=SKIN.map(d=>["skin",d]).concat(FRONT,BACK,FRONT_DEEP,BACK_DEEP);
     all.forEach(([k,d])=>{
       assert.match(d,/^M[\d. ]+([LQCZ][\d. ]*)+$/,k);assert.ok(d.endsWith("Z"),k);
       const n=d.match(/-?\d+(\.\d+)?/g).map(Number);
       for(let i=0;i<n.length;i+=2){assert.ok(n[i]>=28&&n[i]<=118,k+" x "+n[i]);assert.ok(n[i+1]>=4&&n[i+1]<=440,k+" y "+n[i+1]);}
     });
     // Muscles stay on their own half, so the mirrored half meets them at the midline.
-    FRONT.concat(BACK).forEach(([k,d])=>d.match(/-?\d+(\.\d+)?/g).map(Number).filter((v,i)=>i%2===0).forEach(x=>assert.ok(x<=100,k+" crosses the midline at "+x)));
+    FRONT.concat(BACK,FRONT_DEEP,BACK_DEEP).forEach(([k,d])=>d.match(/-?\d+(\.\d+)?/g).map(Number).filter((v,i)=>i%2===0).forEach(x=>assert.ok(x<=100,k+" crosses the midline at "+x)));
   });
 });
 
@@ -122,7 +134,36 @@ describe("sets and recovery, muscle by muscle",()=>{
 describe("deep muscles",()=>{
   test("each deep muscle under a drawn one names it, and that one is drawn",()=>{
     const drawn=new Set(FRONT.concat(BACK).map(x=>x[0]));
-    PARTS.forEach(([k,,,deep])=>{if(typeof deep==="string"){assert.ok(PART_DEEP[k]);assert.ok(drawn.has(deep),k+" under "+deep);}});
+    PARTS.forEach(([k,,,deep])=>{if(typeof deep==="string"&&deep!=="sole"){assert.ok(PART_DEEP[k]);assert.ok(drawn.has(deep),k+" under "+deep);}});
     assert.ok(PARTS.filter(p=>p[3]).length>=15,"the deep layer is there too");
+  });
+});
+
+describe("the close-up of a chosen group",async()=>{
+  // The view needs a store; an empty one is enough to draw every group's close-up.
+  const mem=new Map();
+  Object.defineProperty(globalThis,"localStorage",{configurable:true,writable:true,value:{getItem:k=>mem.has(k)?mem.get(k):null,setItem:(k,v)=>mem.set(k,String(v)),removeItem:k=>mem.delete(k)}});
+  Object.defineProperty(globalThis,"BroadcastChannel",{configurable:true,writable:true,value:undefined});
+  globalThis.document={documentElement:{dataset:{}},getElementById:()=>null};
+  const store=await import("../js/store.js");store.load();
+  const {bodyMapCard,closeUps}=await import("../js/views/bodymap.js");
+  test("every group shows every one of its muscles, numbered as in its list",()=>{
+    MUSCLES.forEach(([g])=>{
+      const shown=new Set();closeUps(g).forEach(x=>x.ids.forEach(k=>shown.add(k)));
+      assert.deepEqual([...shown].sort(),partsIn(g).slice().sort(),g);
+      store.state.bmSel="g:"+g;const h=bodyMapCard();
+      assert.doesNotMatch(h,/NaN|undefined/,g);
+      partsIn(g).forEach((p,i)=>{assert.ok(h.includes("<g class='bmtag' data-muscle='p:"+p+"'>"),g+": no number on "+p);
+        assert.ok(h.includes("data-muscle='p:"+p+"'><i class='bmnum'>"+(i+1)+"</i>"),g+": list number of "+p);});
+    });
+  });
+  test("a deep layer gets its own panel; the foot shows its sole; one view is enough where one holds it all",()=>{
+    const panels=g=>{store.state.bmSel="g:"+g;return [...bodyMapCard().matchAll(/<figcaption>([^<]+)<\/figcaption>/g)].map(m=>m[1].replace(" &middot; "," · "));};
+    assert.deepEqual(panels("feet"),["Sole","Sole · deep","Front"]);
+    assert.deepEqual(panels("rotatorcuff"),["Back","Back · deep","Front · deep"]);
+    assert.deepEqual(panels("quads"),["Front","Front · deep"]);
+    assert.deepEqual(panels("hamstrings"),["Back"]);
+    store.state.bmSel="p:fdb";assert.match(bodyMapCard(),/sole of the foot/);
+    store.state.bmSel="p:supraspinatus";assert.match(bodyMapCard(),/deep, under the upper trapezius/);
   });
 });

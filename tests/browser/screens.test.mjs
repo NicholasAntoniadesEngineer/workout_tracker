@@ -227,6 +227,7 @@ const SCREENS=[
   {name:"Progress",hash:"#/progress"},
   {name:"Progress · a muscle group chosen",hash:"#/progress",taps:["[data-muscle='g:quads']"]},
   {name:"Progress · a deep muscle chosen",hash:"#/progress",taps:["[data-muscle='g:rotatorcuff']","[data-muscle='p:supraspinatus']"]},
+  {name:"Progress · the feet close up",hash:"#/progress",taps:["[data-muscle='g:feet']","[data-muscle='p:fdb']"]},
   {name:"Progress · muscle recovery",hash:"#/progress",taps:["[data-bmmode='rec']","[data-muscle='p:glutemax']"]},
   {name:"Body",hash:"#/body"},
   {name:"Settings",hash:"#/settings"},

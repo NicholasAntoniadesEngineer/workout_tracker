@@ -1,6 +1,6 @@
 // Which muscles an exercise trains and which joints it loads, from its name. Two levels: the
-// muscles themselves (PARTS, 68 of them, deep ones included), and the groups they make up
-// (MUSCLES, the 25 a lifter counts sets for: chest, quads, rotator cuff…). Rules run in order,
+// muscles themselves (PARTS, 82 of them, deep ones included), and the groups they make up
+// (MUSCLES, the 26 a lifter counts sets for: chest, quads, rotator cuff…). Rules run in order,
 // most specific first; the first that matches decides. Primary muscles count a full set,
 // secondary ones half; a group takes the most any of its muscles took from that exercise.
 // Used for weekly sets by muscle, recovery by muscle and sore-joint warnings.
@@ -12,7 +12,7 @@ export const MUSCLES=[
   ["neck","Neck","upper",4,10,30],["traps","Traps","upper",10,20,36],["chest","Chest","upper",10,20,36],["serratus","Serratus","upper",4,10,30],
   ["frontdelt","Front delts","upper",10,20,30],["sidedelt","Side delts","upper",10,20,30],["reardelt","Rear delts","upper",10,20,30],
   ["rotatorcuff","Rotator cuff","upper",4,10,30],["lats","Lats","upper",10,20,36],["upperback","Upper back","upper",10,20,36],
-  ["biceps","Biceps","upper",10,20,30],["triceps","Triceps","upper",10,20,30],["forearms","Forearms","upper",10,20,30],
+  ["biceps","Biceps","upper",10,20,30],["triceps","Triceps","upper",10,20,30],["forearms","Forearms","upper",10,20,30],["hands","Hands","upper",4,10,30],
   ["abs","Abs","core",10,20,30],["obliques","Obliques","core",4,10,30],["lowerback","Lower back","core",10,20,48],
   ["glutes","Glutes","lower",10,20,42],["abductors","Hip abductors","lower",4,10,36],["hipflexors","Hip flexors","lower",4,10,36],
   ["adductors","Adductors","lower",10,20,36],["quads","Quads","lower",10,20,42],["hamstrings","Hamstrings","lower",10,20,42],
@@ -22,8 +22,8 @@ export const MUSCLE_NAME=Object.fromEntries(MUSCLES.map(m=>[m[0],m[1]]));
 export const AIM=Object.fromEntries(MUSCLES.map(m=>[m[0],[m[3],m[4]]]));
 const HALF=Object.fromEntries(MUSCLES.map(m=>[m[0],m[5]]));
 
-// [id, name, group, deep]. Deep muscles lie under others and aren't drawn: deep names the drawn
-// muscle on top of one (1 where none is, as in the hand and foot).
+// [id, name, group, deep]. Deep muscles lie under others and aren't on the figure: deep names the
+// drawn muscle on top of one, or is 1 where none is, or "sole" for the sole of the foot.
 export const PARTS=[
   ["scm","Sternocleidomastoid","neck"],["splenius","Splenius","neck"],["scalenes","Scalenes","neck","scm"],["levator","Levator scapulae","neck","uppertrap"],
   ["uppertrap","Upper trapezius","traps"],["midtrap","Middle trapezius","traps"],["lowertrap","Lower trapezius","traps"],
@@ -36,7 +36,9 @@ export const PARTS=[
   ["bicepsbr","Biceps brachii","biceps"],["brachialis","Brachialis","biceps"],["coraco","Coracobrachialis","biceps","bicepsbr"],
   ["tricepslong","Triceps, long head","triceps"],["tricepslat","Triceps, lateral head","triceps"],["tricepsmed","Triceps, medial head","triceps"],
   ["brachiorad","Brachioradialis","forearms"],["wristflex","Wrist and finger flexors","forearms"],["wristext","Wrist and finger extensors","forearms"],
-  ["pronsup","Pronators and supinator","forearms","wristflex"],["handm","Hand muscles","forearms",1],
+  ["pronsup","Pronators and supinator","forearms","wristflex"],
+  ["thenar","Thenar muscles (thumb)","hands"],["hypothenar","Hypothenar muscles (little finger)","hands"],["addpoll","Adductor pollicis","hands","thenar"],
+  ["handlumb","Lumbricals of the hand","hands",1],["handinter","Interossei of the hand","hands"],
   ["rectusabd","Rectus abdominis","abs"],["transverse","Transversus abdominis","abs","extoblique"],["diaphragm","Diaphragm","abs","rectusabd"],
   ["extoblique","External oblique","obliques"],["intoblique","Internal oblique","obliques","extoblique"],
   ["erectors","Erector spinae","lowerback"],["multifidus","Multifidus","lowerback","erectors"],["ql","Quadratus lumborum","lowerback","erectors"],
@@ -49,12 +51,16 @@ export const PARTS=[
   ["bicepsfem","Biceps femoris","hamstrings"],["semitend","Semitendinosus","hamstrings"],["semimem","Semimembranosus","hamstrings"],
   ["gastroc","Gastrocnemius","calves"],["soleus","Soleus","calves"],["popliteus","Popliteus","calves","gastroc"],["tibpost","Tibialis posterior","calves","soleus"],["toeflex","Long toe flexors","calves","soleus"],
   ["tibant","Tibialis anterior","shins"],["toeext","Long toe extensors","shins"],["fibularis","Fibularis (peroneals)","shins"],
-  ["footm","Foot muscles","feet",1],
+  ["edb","Extensor digitorum brevis","feet"],["ehb","Extensor hallucis brevis","feet"],
+  ["abdhal","Abductor hallucis","feet","sole"],["fdb","Flexor digitorum brevis","feet","sole"],["abddm","Abductor digiti minimi","feet","sole"],
+  ["quadplantae","Quadratus plantae","feet","sole"],["footlumb","Lumbricals of the foot","feet","sole"],["fhb","Flexor hallucis brevis","feet","sole"],
+  ["addhal","Adductor hallucis","feet","sole"],["fdmb","Flexor digiti minimi brevis","feet","sole"],["footinter","Interossei of the foot","feet","sole"],
 ];
 export const PART_NAME=Object.fromEntries(PARTS.map(p=>[p[0],p[1]]));
 export const PART_GROUP=Object.fromEntries(PARTS.map(p=>[p[0],p[2]]));
 export const PART_DEEP=Object.fromEntries(PARTS.map(p=>[p[0],!!p[3]]));
-export const PART_UNDER=Object.fromEntries(PARTS.filter(p=>typeof p[3]==="string").map(p=>[p[0],p[3]]));
+export const PART_UNDER=Object.fromEntries(PARTS.filter(p=>typeof p[3]==="string"&&p[3]!=="sole").map(p=>[p[0],p[3]]));
+export const PART_SOLE=Object.fromEntries(PARTS.filter(p=>p[3]==="sole").map(p=>[p[0],true]));
 export const partsIn=g=>PARTS.filter(p=>p[2]===g).map(p=>p[0]);
 
 export const JOINTS=[["shoulder","Shoulder"],["elbow","Elbow"],["wrist","Wrist"],["neck","Neck"],["lowerback","Lower back"],["hip","Hip"],["knee","Knee"],["ankle","Ankle"]];
@@ -74,7 +80,12 @@ const R=[
   [/vacuum/,["transverse"],["intoblique","diaphragm"],[]],
   // Lower leg
   [/tibialis/,["tibant"],["toeext"],["ankle"]],
-  [/fhl/,["gastroc","soleus","toeflex"],["tibpost","footm"],["ankle"]],
+  [/fhl/,["gastroc","soleus","toeflex"],["tibpost","fhb","abdhal"],["ankle"]],
+  // The foot's own muscles.
+  [/short foot|foot dom|arch lift|arch raise/,["abdhal","fdb","quadplantae"],["fhb","footinter","tibpost"],["ankle"]],
+  [/toe curl|towel curl|towel scrunch|toe grip/,["fdb","quadplantae","footlumb","fhb"],["toeflex","abdhal"],["ankle"]],
+  [/toe spread|toe splay|toe abduct/,["abdhal","abddm","footinter"],[],["ankle"]],
+  [/toe yoga|toe lift|toe extension/,["edb","ehb","toeext"],["fhb","fdb"],["ankle"]],
   [/seated calf|kot calf|soleus/,["soleus"],["gastroc","tibpost","toeflex"],["ankle"]],
   [/calf|straddle hop/,["gastroc","soleus"],["tibpost","fibularis","toeflex"],["ankle"]],
   [/reverse nordic|sissy squat|leg extension/,["quads"],[],["knee"]],
@@ -85,7 +96,7 @@ const R=[
   [/rack pull|deadlift from blocks|pull from blocks/,["uppertrap","midtrap","glutemax"],["hams","wristflex","erectors","rhomboids","lats"],["lowerback","hip"]],
   [/snatch pull|clean pull|high pull/,["uppertrap","midtrap","glutemax"],["hams","quads","sidedelt","erectors","gastroc"],["lowerback","hip","shoulder"]],
   [/sumo deadlift/,["glutemax","hams","erectors","multifidus","addmag","addlong","addbrev"],["vasti","uppertrap","midtrap","lats","wristflex"],["lowerback","hip"]],
-  [/leverage lift/,["wristflex","wristext","brachiorad"],["handm","pronsup"],["wrist"]],
+  [/leverage lift/,["wristflex","wristext","brachiorad"],["hands","pronsup"],["wrist"]],
   [/deadlift|jefferson lift|hand-and-thigh|stone lift|barrel lift|keg/,["glutemax","hams","erectors","multifidus"],["vasti","addmag","uppertrap","midtrap","lats","rhomboids","wristflex"],["lowerback","hip"]],
   [/swing|pull-through|pull through/,["glutemax","hams"],["erectors","wristflex","rectusabd"],["hip","lowerback"]],
   [/wrestler's bridge/,["splenius","uppertrap","erectors"],["glutemax","hams","scm"],["neck"]],
@@ -102,8 +113,8 @@ const R=[
   [/put$|toss|throw|weight for distance|weight over bar/,["glutemax","frontdelt"],["quads","rectusabd","extoblique","triceps","serratus"],["shoulder","hip"]],
   [/pit digging|sledgehammer/,["lats","extoblique","intoblique","rectusabd"],["wristflex","glutemax","teresmajor","triceps"],["lowerback","shoulder"]],
   [/turkish get-up|windmill/,["frontdelt","extoblique","intoblique","rectusabd"],["infraspinatus","supraspinatus","glutemax","glutemed","sidedelt","triceps","serratus"],["shoulder","hip"]],
-  [/suitcase/,["wristflex","handm","extoblique","intoblique","ql"],["uppertrap","glutemed","erectors"],["wrist","lowerback"]],
-  [/farmer|yoke|stone carry|carry|loaded march|front rack hold/,["wristflex","handm","uppertrap"],["rectusabd","transverse","extoblique","glutemed","glutemax","erectors","midtrap"],["wrist","lowerback"]],
+  [/suitcase/,["wristflex","extoblique","intoblique","ql"],["hands","uppertrap","glutemed","erectors"],["wrist","lowerback"]],
+  [/farmer|yoke|stone carry|carry|loaded march|front rack hold/,["wristflex","uppertrap"],["hands","rectusabd","transverse","extoblique","glutemed","glutemax","erectors","midtrap"],["wrist","lowerback"]],
   [/sled|backward walk|elephant walk|scrum/,["vasti","glutemax"],["gastroc","soleus","hams","rectusfem"],["knee","ankle"]],
   [/mountain climber/,["iliopsoas","rectusabd"],["frontdelt","quads","triceps","serratus","transverse"],["wrist","shoulder"]],
   [/jumping jack/,["gastroc","soleus","glutemed"],["sidedelt","addlong","tfl"],["knee","ankle"]],
@@ -141,7 +152,9 @@ const R=[
   [/neck/,["scm","splenius","scalenes"],["levator","uppertrap"],["neck"]],
   [/reverse wrist curl/,["wristext"],["brachiorad"],["wrist"]],
   [/wrist curl/,["wristflex"],[],["wrist"]],
-  [/grip|pinch|finger|gripper|nigiri|chi-ishi|ishi-sashi/,["wristflex","handm"],["wristext"],["wrist"]],
+  [/finger extension|band finger|finger spread/,["handinter","wristext"],["handlumb"],["wrist"]],
+  [/pinch/,["thenar","addpoll","wristflex"],["handinter","hypothenar"],["wrist"]],
+  [/grip|finger|gripper|nigiri|chi-ishi|ishi-sashi/,["wristflex"],["hands","wristext"],["wrist"]],
   [/wrist|roller/,["wristflex","wristext"],["brachiorad","pronsup"],["wrist"]],
   [/hammer curl|reverse curl|zottman/,["brachialis","bicepsbr","brachiorad"],["wristext"],["elbow","wrist"]],
   [/curl/,["bicepsbr","brachialis"],["brachiorad","wristflex"],["elbow"]],
@@ -151,7 +164,7 @@ const R=[
   [/leg raise|knee raise|l-sit|garhammer|powell/,["rectusabd","iliopsoas"],["extoblique","intoblique","rectusfem","wristflex"],["lowerback"]],
   [/sit-up|sit up/,["rectusabd"],["iliopsoas","extoblique","intoblique"],["lowerback"]],
   [/plank|dead bug|hollow|ab wheel|crunch/,["rectusabd","transverse"],["extoblique","intoblique"],["lowerback"]],
-  [/hang/,["wristflex","handm"],["lats","teresmajor","lowertrap"],["shoulder","wrist"]],
+  [/hang/,["wristflex"],["hands","lats","teresmajor","lowertrap"],["shoulder","wrist"]],
   [/handstand|frog stand|headstand|forearm stand|hand balancing/,["frontdelt","triceps"],["rectusabd","serratus","uppertrap","wristflex"],["shoulder","wrist","neck"]],
   [/archery|full-draw/,["midtrap","rhomboids","reardelt","infraspinatus"],["lats","wristflex","lowertrap"],["shoulder"]],
 ].map(([re,p,s,j])=>{const P=expand(p);return [re,P,expand(s).filter(x=>P.indexOf(x)<0),j];});
