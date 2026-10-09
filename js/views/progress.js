@@ -88,6 +88,21 @@ function thisWeekCard(thisWeek,useTon,unit){
 }
 const segc=(items,attr,cur)=>"<div class='segc'>"+items.map(([k,l])=>"<button class='"+(String(cur)===String(k)?"on":"")+"' "+attr+"=\""+esc(k)+"\">"+l+"</button>").join("")+"</div>";
 
+// The year so far, one tap away beside the title, whatever is scrolled to.
+function yearButton(){
+  const yr=new Date().getFullYear();
+  return state.sessions.some(s=>s.ex.some(e=>e.sets.length))?"<button class='btn ghost tiny revbtn' data-review='year:"+yr+"'>"+yr+" in review &rsaquo;</button>":"";
+}
+// Progress on a phone: one title and one row of tabs over Charts, History, Calendar, Body and
+// the health pages, the chosen one's content below. A tab's own actions (+ New, Plan weeks) sit
+// beside the title, where Charts has its year in review: no row of their own.
+export const asProgressTab=()=>!wide()&&state.backTo==="progress";
+export function progressTop(active,actions){
+  const tab=(k,attr,l)=>"<button class='"+(active===k?"on":"")+"' "+attr+">"+l+"</button>",st=state.settings;
+  return "<div class='hhead pghead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'>"+(actions||(active==="charts"?yearButton():""))+"</div></div>"+
+    "<div class='segc pgtabs'>"+tab("charts","id='pgcharts'","Charts")+tab("history","id='homedays'","History")+tab("calendar","id='homecal'","Calendar")+tab("body","id='homebody'","Body")+
+    (st.modFuel?tab("fuel","data-openhealth='fuel'","Fuel"):"")+(st.modMarkers?tab("markers","data-openhealth='markers'","Markers"):"")+(st.modMind?tab("mind","data-openhealth='mind'","Mind"):"")+"</div>";
+}
 export function progressView(){
   const span=state.progressSpan||"8w";
   const weeks=weeklyVolume(state.sessions,span);
@@ -164,12 +179,7 @@ export function progressView(){
   }
   const SHORT={"8w":"8 wk","3m":"3 mo","6m":"6 mo","1y":"1 yr",all:"All"};
   const spanRow=segc(SPANS.map(([k,l])=>[k,SHORT[k]||l]),"data-span",span);
-  const tabs=big?"":"<div class='segc pgtabs'><button class='on'>Charts</button><button id='homedays'>History</button><button id='homecal'>Calendar</button><button id='homebody'>Body</button>"+
-    (state.settings.modFuel?"<button data-openhealth='fuel'>Fuel</button>":"")+(state.settings.modMarkers?"<button data-openhealth='markers'>Markers</button>":"")+(state.settings.modMind?"<button data-openhealth='mind'>Mind</button>":"")+"</div>";
-  // The year so far, one tap away beside the title, whatever is scrolled to.
-  const yr=new Date().getFullYear(),yearBtn=workouts?"<button class='btn ghost tiny revbtn' data-review='year:"+yr+"'>"+yr+" in review &rsaquo;</button>":"";
-  let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress",yearBtn+spanRow):
-    "<div class='hhead pghead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'>"+yearBtn+"</div></div>"+tabs+spanRow);
+  let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress",yearButton()+spanRow):progressTop("charts")+spanRow);
   // A big screen arranges the same cards as a dashboard; the phone reads them in a column.
   // A big screen: the charts down the left, the week, muscles and recovery down the right; each
   // column stacks on its own, so a tall card never leaves a gap beside a short one.

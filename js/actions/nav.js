@@ -59,9 +59,10 @@ export function handle(t,ctx){
 
   // Home tiles hold an icon span, so a tap can land inside the button — match by ancestor.
   // Opened from Progress (or from a page Progress opened), Back returns to Progress.
-  if(t.closest&&t.closest("#homedays")){markBack();state.view="history";ctx.render();return true;}
+  if(t.closest&&t.closest("#homedays")){markBack();state.view="history";state.scrollTo=0;ctx.render();return true;}
   if(t.closest&&t.closest("#homeprog")){state.view="progress";ctx.render();return true;}
-  if(t.closest&&t.closest("#homebody")){markBack();state.view="body";ctx.render();return true;}
+  if(t.closest&&t.closest("#pgcharts")){state.view="progress";state.backTo="";state.scrollTo=0;ctx.render();return true;}
+  if(t.closest&&t.closest("#homebody")){markBack();state.view="body";state.scrollTo=0;ctx.render();return true;}
   if(t.closest&&t.closest("#homelearn")){state.view="learn";state.learnOpen=null;state.learnCat=null;state.learnIndex=null;state.learnQuery="";state.learnSearching=false;state.scrollTo=0;ctx.render();return true;}
   // From an exercise's sheet straight to the Learn topic behind it, opened.
   const jump=t.closest&&t.closest("[data-learnjump]");

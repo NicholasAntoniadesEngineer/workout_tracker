@@ -5,6 +5,7 @@
 // secondary ones half; a group takes the most any of its muscles took from that exercise.
 // Used for weekly sets by muscle, recovery by muscle and sore-joint warnings.
 import {exerciseGroup} from "./model.js";
+import {EXACT_MUSCLES} from "./exercisemuscles.js";
 
 // [id, name, region, aim low, aim high, recovery half-life in hours]. The big movers aim at
 // 10–20 hard sets a week; the small and stabilising ones at 4–10.
@@ -243,6 +244,10 @@ export function partsOf(name){
   if(!out){const f=GROUP_FALLBACK[exerciseGroup(name)];
     if(f){const P=expand(f[0]);out={primary:P,secondary:expand(f[1]).filter(x=>P.indexOf(x)<0),stretch:[],joints:f[2],sets:true};}
     else out={primary:[],secondary:[],stretch:[],joints:[],sets:true};}
+  // A catalogue exercise checked one by one: its own muscles; the rule still gives its joints.
+  const x=EXACT_MUSCLES[k];
+  if(x){const P=expand(x.p||[]);out=Object.assign({},out,{primary:P,secondary:expand(x.s||[]).filter(y=>P.indexOf(y)<0),stretch:expand(x.st||[])});
+    if(x.sets===false)out.sets=false;}
   // Conditioning and fighting drills train muscles but aren't hard sets.
   if(SKILL_GROUPS.indexOf(exerciseGroup(name))>=0)out=Object.assign({},out,{sets:false});
   return pcache[k]=out;

@@ -605,21 +605,22 @@ describe("flows through the app",{skip:!has&&"Chrome not found"},()=>{
     assert.ok(f&&f.type==="image/png"&&f.size>5000,"a picture to share: "+JSON.stringify(f));
   }));
 
-  test("History, Calendar, Body and Fuel opened from Progress go Back to Progress; from Today, Back to Today",()=>flow("progressback",async()=>{
-    await openApp(page,srv,seedDoc({settings:{checkin:false,modFuel:true}}),PHONE);
-    for(const [tab,view] of [["#homedays","history"],["#homecal","calendar"],["#homebody","body"],["[data-openhealth='fuel']","health"]]){
-      await tap(page,"[data-nav='progress']");
+  test("Progress's tabs switch what's below under one header; History from Today keeps its Back",()=>flow("progresstabs",async()=>{
+    await openApp(page,srv,seedDoc({settings:{checkin:false,modFuel:true,modMarkers:true,modMind:true}}),PHONE);
+    await tap(page,"[data-nav='progress']");
+    for(const [tab,view,on] of [["#homedays","history","History"],["#homecal","calendar","Calendar"],["#homebody","body","Body"],["[data-openhealth='mind']","health","Mind"]]){
       await tap(page,".pgtabs "+tab);
       assert.equal(await S("state.view"),view,tab);
-      await tap(page,"#backbtn");
-      assert.equal(await S("state.view"),"progress","Back from "+view);
+      const top=await page.eval("return {title:(document.querySelector('.pghead .htitle')||{}).textContent,on:(document.querySelector('.pgtabs .on')||{}).textContent,back:!!document.getElementById('backbtn')};");
+      assert.deepEqual(top,{title:"Progress",on,back:false},view);
     }
-    // History, then its Calendar button, then Back: still Progress, where it began.
-    await tap(page,".pgtabs #homedays");await tap(page,"#calbtn");
-    assert.equal(await S("state.view"),"calendar");
-    await tap(page,"#backbtn");assert.equal(await S("state.view"),"progress");
-    // From Today's tile, Back is Today.
+    // The chosen tab is scrolled into sight on a narrow row.
+    assert.ok(await page.eval("const t=document.querySelector('.pgtabs .on'),r=t.parentElement.getBoundingClientRect(),b=t.getBoundingClientRect();return b.left>=r.left-1&&b.right<=r.right+1;"),"Mind is in view");
+    await tap(page,".pgtabs #pgcharts");
+    assert.equal(await S("state.view"),"progress");
+    // From Today's tile, History is its own page, and Back goes home.
     await tap(page,"[data-nav='home']");await tap(page,"#homedays");
+    assert.ok(await page.eval("return !!document.getElementById('backbtn');"));
     await tap(page,"#backbtn");assert.equal(await S("state.view"),"home");
   }));
 

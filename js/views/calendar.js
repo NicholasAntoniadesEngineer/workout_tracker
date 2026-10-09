@@ -5,6 +5,7 @@ import {dateKey,fmtClock,keyOf,monthLabel,setReps,shortDate,timeLabel,totals,
 import {state} from "../store.js";
 import {feastsForMonth} from "../feasts.js";
 import {esc,pageHead,wide} from "./common.js";
+import {asProgressTab,progressTop} from "./progress.js";
 import {dayDetailPane} from "./daydetail.js";
 
 // Sessions grouped by the local calendar day they were created on. A day can hold more
@@ -65,7 +66,8 @@ export function calendarView(){
   const colourOf=s=>KIND_COLOURS[Math.max(0,kinds.indexOf(kindKey(s)))%KIND_COLOURS.length];
 
   let h="<div class='wrap scroll'>"+
-    pageHead("Calendar","<button class='btn ghost tiny' data-nav='planner'>Plan weeks</button><button class='newday' id='newday'>+ New</button>")+
+    (asProgressTab()?progressTop("calendar","<button class='btn ghost tiny' data-nav='planner'>Plan weeks</button><button class='newday' id='newday'>+ New</button>"):
+      pageHead("Calendar","<button class='btn ghost tiny' data-nav='planner'>Plan weeks</button><button class='newday' id='newday'>+ New</button>"))+
     "<div class='calnav'>"+
       "<button class='calarrow' id='calprev'>&lsaquo;</button>"+
       "<div class='calmonth'>"+esc(monthLabel(y,m))+"</div>"+

@@ -7,6 +7,7 @@ import {STARTERS,fastingHours,frequent,proteinTarget,totalsOf} from "../fuel.js"
 import {MARKERS,flagOf,series} from "../markers.js";
 import {icon} from "../icons.js";
 import {esc,pageHead,wide} from "./common.js";
+import {asProgressTab,progressTop} from "./progress.js";
 
 const todayK=()=>dateKey(nowISO());
 const todays=()=>(state.fuel||[]).filter(e=>dateKey(e.at)===todayK());
@@ -108,8 +109,10 @@ export function healthView(){
   const part=state.healthPart||"fuel";
   const parts=[["fuel","Fuel",!!state.settings.modFuel],["markers","Markers",!!state.settings.modMarkers],["mind","Mind",!!state.settings.modMind]].filter(p=>p[2]);
   const cur=parts.some(p=>p[0]===part)?part:(parts[0]||["fuel"])[0];
-  let h="<div class='wrap scroll healthwrap'>"+pageHead({fuel:"Fuel",markers:"Markers",mind:"Mind"}[cur],"",wide()?"Progress":"");
-  if(parts.length>1)h+="<div class='cseg'>"+parts.map(([k,l])=>"<button class='"+(k===cur?"on":"")+"' data-health='"+k+"'>"+l+"</button>").join("")+"</div>";
+  const tabbed=asProgressTab();
+  let h="<div class='wrap scroll healthwrap'>"+(tabbed?progressTop(cur):pageHead({fuel:"Fuel",markers:"Markers",mind:"Mind"}[cur],"",wide()?"Progress":""));
+  // As a Progress tab, the tabs above already switch between Fuel, Markers and Mind.
+  if(parts.length>1&&!tabbed)h+="<div class='cseg'>"+parts.map(([k,l])=>"<button class='"+(k===cur?"on":"")+"' data-health='"+k+"'>"+l+"</button>").join("")+"</div>";
   if(!parts.length)return h+"<div class='empty-note'>Switch Fuel, Markers or Mind on in Settings to use them here.</div></div>";
   h+=cur==="fuel"?fuelSection():cur==="markers"?markersSection():mindSection();
   return h+"</div>";

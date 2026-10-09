@@ -129,6 +129,8 @@ function render(){
   paint();
   if(keepFocus){const el=document.getElementById(keepFocus);if(el){el.focus();try{el.select();}catch(e){}}}
   if(state.view==="settings"&&!state.storageInfo)measureStorage();
+  // The chosen Progress tab in view, when the row scrolls sideways.
+  const pt=document.querySelector(".pgtabs .on");if(pt&&pt.parentElement.scrollWidth>pt.parentElement.clientWidth){const r=pt.parentElement;r.scrollLeft=Math.max(0,pt.offsetLeft-r.clientWidth/2+pt.offsetWidth/2);}
   // On Learn before its library is in (or after a load that failed): ask for it again.
   if(state.view==="learn"&&!learnLib())loadLearn().then(()=>{if(state.view==="learn")render();},()=>{});
   // A dialog's field gets the caret the moment it opens, with its text selected.

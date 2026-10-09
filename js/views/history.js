@@ -5,6 +5,7 @@ import {fmtClock,shortDate,totals,workoutSeconds} from "../model.js";
 import {newestFirst,state} from "../store.js";
 import {icon} from "../icons.js";
 import {esc,pageHead,wide} from "./common.js";
+import {asProgressTab,progressTop} from "./progress.js";
 import {dayDetailPane} from "./daydetail.js";
 
 const MS_PER_DAY=86400000;
@@ -70,10 +71,10 @@ function historyWide(){
 
 export function historyView(){
   if(wide())return historyWide();
-  let h="<div class='wrap scroll'>"+
+  let h="<div class='wrap scroll'>"+(asProgressTab()?progressTop("history","<button class='newday' id='newday'>+ New</button>"):
     pageHead("History",
       "<button class='backbtn iconbtn' id='calbtn' title='Calendar'>"+icon("calendar")+"</button>"+
-      "<button class='newday' id='newday'>+ New</button>");
+      "<button class='newday' id='newday'>+ New</button>"));
   const list=newestFirst(state.sessions);
   if(!list.length)h+="<div class='empty-note'>No days yet.</div>";
   let week=null;

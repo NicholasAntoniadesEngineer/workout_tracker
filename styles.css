@@ -2330,6 +2330,9 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 .revwrap .card{margin-bottom:10px;}
 /* Year in review beside the Progress title: one quiet button. */
 .revbtn{font-weight:800;white-space:nowrap;}
+/* A Progress tab's own actions (+ New, Plan weeks) beside the title, as small as the year button. */
+.hhead.pghead .hact{display:flex;gap:6px;align-items:center;}
+.hhead.pghead .hact .newday,.hhead.pghead .hact .btn{min-height:30px;height:30px;padding:0 12px;font-size:12.5px;border-radius:9px;}
 .pghead .hact{justify-self:end;}
 /* The top of Progress on a phone, packed tight: title and year button on one short row, the
    section tabs and the period close under it, This week's numbers and strip in a compact card. */

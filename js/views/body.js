@@ -4,6 +4,7 @@ import {dateKey,nowISO,shortDate} from "../model.js";
 import {state} from "../store.js";
 import {lineChart,withAxis} from "../charts.js";
 import {esc,pageHead,wide} from "./common.js";
+import {asProgressTab,progressTop} from "./progress.js";
 import {icon} from "../icons.js";
 import {bodyFatRange,bpBand,navyBodyFat} from "../body.js";
 
@@ -33,7 +34,7 @@ export function bodyView(){
 
   // A big screen puts logging and the trend on the left and the entries beside them.
   const big=wide();
-  let h="<div class='wrap scroll"+(big?" bodywide":"")+"'>"+pageHead("Body")+(big?"<div class='bodygrid'><div class='bodyl'>":"");
+  let h="<div class='wrap scroll"+(big?" bodywide":"")+"'>"+(asProgressTab()?progressTop("body"):pageHead("Body"))+(big?"<div class='bodygrid'><div class='bodyl'>":"");
   // What you take sits with what you weigh: products, photos and your stacks.
   h+="<button class='card supslink' id='opensupps'><span class='sl-t'>Supplements &amp; stacks</span>"+
     "<span class='sl-s'>"+state.supplements.length+" products &middot; "+state.stacks.length+" stacks</span>"+
