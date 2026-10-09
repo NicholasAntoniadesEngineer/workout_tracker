@@ -7,7 +7,7 @@ import {activeEx,allRoutines,findRoutine,getSession,lastPerformance,newestFirst,
   state} from "../store.js";
 import {warmupRamp} from "../coach.js";
 import {barFor,exProg,perHand,rangeFor,stepFor,targetFor,unitFor} from "../progression.js";
-import {JOINT_NAME,musclesOf} from "../muscles.js";
+import {JOINT_NAME,MUSCLE_NAME,musclesOf} from "../muscles.js";
 import {recovering,soreToday} from "./checkin.js";
 import {cuesFor} from "../cues.js";
 import {exAka,exMatches,exWhat,learnTopicsFor} from "../exinfo.js";
@@ -485,6 +485,15 @@ function exerciseHistorySheet(name,fromPicker){
     "<div class='sheetbody'>";
   if(what)h+="<p class='exwhat'>"+esc(what)+"</p>";
   if(aka.length)h+="<div class='exaka'>Also called "+aka.map(esc).join(", ")+"</div>";
+  // What it works: the main movers, the helpers and what it stretches; a tap opens that
+  // muscle group's close-up on Progress.
+  const mu=musclesOf(name),chips=l=>l.map(g=>"<button class='exmchip' data-bmgoto='g:"+g+"'>"+esc(MUSCLE_NAME[g])+"</button>").join("");
+  if(mu.primary.length||mu.stretch.length){
+    const row=(l,g)=>"<div><span>"+l+"</span><span class='exmc'>"+chips(g)+"</span></div>";
+    h+="<div class='exmus'>"+(mu.primary.length?row("Works",mu.primary):"")+(mu.secondary.length?row("Helps",mu.secondary):"")+
+      (mu.stretch.length?row("Stretches",mu.stretch):"")+
+      (mu.primary.length&&!mu.sets?"<p>Counts toward recovery, not weekly hard sets.</p>":"")+"</div>";
+  }
   if(fromPicker)h+="<button class='btn primary exaddbtn' data-add=\""+esc(name)+"\">Add to today</button>";
   // A note that stays with the exercise: machine settings, grip, what to watch for.
   h+="<label class='picklbl' for='exnote'>Pinned note</label>"+

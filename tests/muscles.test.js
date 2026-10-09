@@ -12,11 +12,19 @@ describe("musclesOf",()=>{
     assert.deepEqual(musclesOf("Reverse Nordic").primary,["quads"]);
     assert.deepEqual(musclesOf("Lying leg curl").primary,["hamstrings"]);
   });
-  test("every strength exercise in the catalogue has at least one muscle or is a stretch",()=>{
-    const skip=/stretch|pose|breathing|vacuum|rolling|roller|pancake|toe touch|neck|tibialis/i;
-    const none=[];EXERCISE_GROUPS.forEach(g=>{if(["Conditioning","Combat & skill"].includes(g[0]))return;
-      g[1].forEach(n=>{if(!skip.test(n)&&!musclesOf(n).primary.length)none.push(n);});});
+  test("every exercise in the catalogue, conditioning and fighting drills included, trains or stretches a muscle",()=>{
+    const none=[];EXERCISE_GROUPS.forEach(g=>g[1].forEach(n=>{const m=musclesOf(n);if(!m.primary.length&&!m.stretch.length)none.push(n);}));
     assert.deepEqual(none,[]);
+  });
+  test("runs, rounds and breathing train muscles but aren't hard sets; lifting is",()=>{
+    for(const n of ["Running","Swimming","Wrestling practice","Heavy bag","Deep breathing","Jump rope","Rowing"])assert.equal(musclesOf(n).sets,false,n);
+    for(const n of ["Squats","Bench press","Farmer carry","Plank","Short foot"])assert.equal(musclesOf(n).sets,true,n);
+    const day={created:new Date().toISOString(),ex:[{name:"Running",sets:[{r:5000,at:new Date().toISOString()}]}]};
+    assert.equal(setsByMuscle([day],0,Date.now()+1).calves,0,"a run is no hard set");
+    assert.ok(fatigueByMuscle([day],Date.now()+1).calves>0,"but the legs feel it");
+  });
+  test("a stretch names what it lengthens and trains nothing",()=>{
+    const m=musclesOf("Couch stretch");assert.deepEqual(m.primary,[]);assert.deepEqual(m.stretch,["hipflexors","quads"]);
   });
 });
 describe("setsByMuscle and fatigue",()=>{

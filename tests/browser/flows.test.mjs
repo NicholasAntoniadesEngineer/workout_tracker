@@ -623,6 +623,15 @@ describe("flows through the app",{skip:!has&&"Chrome not found"},()=>{
     await tap(page,"#backbtn");assert.equal(await S("state.view"),"home");
   }));
 
+  test("an exercise's sheet names the muscles it works, and one opens that group's close-up",()=>flow("exmuscles",async()=>{
+    await openApp(page,srv,seedDoc({settings:{checkin:false}}),PHONE);
+    await page.eval("const S=await import('/js/store.js');const e=S.addExerciseToDay('Bench press');S.state.exId=e.id;S.state.view='log';S.state.exHist=true;(await import('/js/views.js')).paint();return 1;");
+    assert.match(await page.eval("return document.querySelector('.exmus').innerText;"),/Works[\s\S]*Chest[\s\S]*Triceps[\s\S]*Helps[\s\S]*Front delts/i);
+    await tap(page,".exmchip[data-bmgoto='g:chest']");
+    assert.equal(await S("state.view"),"progress");
+    assert.ok(await page.eval("return /Chest/.test(document.querySelector('#bmback .bmpoph').innerText);"));
+  }));
+
   test("a muscle tapped on the figure opens a close-up of its area, which the cross or Escape closes",()=>flow("musclemap",async()=>{
     await openApp(page,srv,seedDoc({settings:{checkin:false}}),PHONE);
     await tap(page,"[data-nav='progress']");

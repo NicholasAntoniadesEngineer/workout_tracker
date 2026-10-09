@@ -2439,6 +2439,13 @@ button.rcard{font:inherit;color:var(--text);cursor:pointer;}
 /* A short screen: a shorter drawing, so the whole close-up still fits without scrolling. */
 @media (max-height:700px){.bmxsvg{max-height:24dvh;}.bmpop{padding:8px;}.bmlrow{min-height:26px;}.bmsg{min-height:34px;}}
 .bmtag.on circle{fill:var(--accent);}
+/* An exercise's muscles in its sheet: a row each for what it works, helps and stretches. */
+.exmus{display:flex;flex-direction:column;gap:5px;margin:8px 0 4px;}
+.exmus>div{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:start;gap:6px;}
+.exmus>div>span:first-child{padding-top:7px;font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.exmc{display:flex;flex-wrap:wrap;gap:4px;}
+.exmus p{margin:0;font-size:12px;color:var(--muted);}
+.exmchip{min-height:28px;padding:0 10px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--text);font:inherit;font-size:12.5px;font-weight:650;cursor:pointer;}
 .bmtag.on text{fill:var(--onAccent);}
 .bmghost{fill:color-mix(in srgb,var(--muted) 14%,var(--panel));stroke:var(--panel);stroke-width:.4;}
 .bmlift{fill:transparent;stroke:color-mix(in srgb,var(--muted) 38%,transparent);stroke-width:.3;stroke-dasharray:1.2 .9;}

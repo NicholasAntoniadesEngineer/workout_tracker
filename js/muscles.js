@@ -67,6 +67,7 @@ export const JOINTS=[["shoulder","Shoulder"],["elbow","Elbow"],["wrist","Wrist"]
 export const JOINT_NAME=Object.fromEntries(JOINTS);
 
 // Shorthands in the rules: a group's name stands for all its muscles, plus a few working sets.
+const SKILL_GROUPS=["Conditioning","Combat & skill"];
 const SHORT={vasti:["vastuslat","vastusmed","vastusint"],hams:["bicepsfem","semitend","semimem"],pecs:["pecupper","peclower"],
   flexors:["bicepsbr","brachialis"]};
 // A name that is none of these is a slip in the table below, caught the moment it loads.
@@ -75,8 +76,17 @@ const expand=list=>{const out=[];list.forEach(t=>{const l=SHORT[t]||(PART_NAME[t
 
 // [pattern, primary, secondary, joints]
 const R=[
-  // Not lifting: no muscles counted.
-  [/stretch|pose|breathing|rolling$|hamstring roller|pancake|toe touch/,[],[],[]],
+  // Stretches: nothing trained or counted, but the muscles they lengthen are named.
+  [/couch stretch/,[],[],["hip","knee"],{stretch:["iliopsoas","rectusfem"]}],
+  [/piriformis stretch/,[],[],["hip"],{stretch:["hiprot","glutemax"]}],
+  [/pigeon pose/,[],[],["hip"],{stretch:["hiprot","glutemax","iliopsoas"]}],
+  [/hamstring roller/,[],[],["knee"],{stretch:["hams"]}],
+  [/pancake/,[],[],["hip"],{stretch:["addlong","addmag","gracilis","hams"]}],
+  [/toe touch|elephant walk/,[],[],["knee"],{stretch:["hams","gastroc","soleus"]}],
+  [/stretch|pose/,[],[],[]],
+  // Breathing trains the diaphragm, but it's practice, not a hard set.
+  [/breathing/,["diaphragm"],["scalenes","intoblique","transverse"],[],{sets:false}],
+  [/abdominal rolling|nauli/,["rectusabd","transverse"],["diaphragm","extoblique","intoblique"],["lowerback"]],
   [/vacuum/,["transverse"],["intoblique","diaphragm"],[]],
   // Lower leg
   [/tibialis/,["tibant"],["toeext"],["ankle"]],
@@ -98,6 +108,7 @@ const R=[
   [/sumo deadlift/,["glutemax","hams","erectors","multifidus","addmag","addlong","addbrev"],["vasti","uppertrap","midtrap","lats","wristflex"],["lowerback","hip"]],
   [/leverage lift/,["wristflex","wristext","brachiorad"],["hands","pronsup"],["wrist"]],
   [/deadlift|jefferson lift|hand-and-thigh|stone lift|barrel lift|keg/,["glutemax","hams","erectors","multifidus"],["vasti","addmag","uppertrap","midtrap","lats","rhomboids","wristflex"],["lowerback","hip"]],
+  [/mace/,["lats","wristflex","extoblique","frontdelt"],["reardelt","infraspinatus","teresminor","rectusabd","intoblique","tricepslong","brachiorad"],["shoulder","wrist"]],
   [/swing|pull-through|pull through/,["glutemax","hams"],["erectors","wristflex","rectusabd"],["hip","lowerback"]],
   [/wrestler's bridge/,["splenius","uppertrap","erectors"],["glutemax","hams","scm"],["neck"]],
   [/hip thrust|glute bridge|glute kickback|bridge$/,["glutemax"],["hams","glutemed","addmag"],["hip"]],
@@ -110,16 +121,23 @@ const R=[
   [/snatch/,["quads","glutemax","uppertrap","midtrap"],["sidedelt","hams","triceps","lowertrap","erectors","supraspinatus","infraspinatus"],["shoulder","wrist","knee","hip","lowerback"]],
   [/power clean|hang clean|one-hand barbell clean|clean$/,["glutemax","quads","uppertrap"],["hams","wristflex","erectors","midtrap","gastroc"],["wrist","knee","hip","lowerback"]],
   [/jerk|push press/,["frontdelt","triceps"],["quads","sidedelt","uppertrap","serratus","glutemax"],["shoulder","wrist","knee"]],
-  [/indian club|mace/,["sidedelt","wristflex","wristext","brachiorad"],["reardelt","infraspinatus","teresminor","subscapularis","lats","pronsup","rectusabd"],["shoulder","wrist"]],
+  [/indian club/,["sidedelt","wristflex","wristext","brachiorad"],["reardelt","infraspinatus","teresminor","subscapularis","lats","pronsup","rectusabd"],["shoulder","wrist"]],
   [/put$|toss|throw|weight for distance|weight over bar/,["glutemax","frontdelt"],["quads","rectusabd","extoblique","triceps","serratus"],["shoulder","hip"]],
   [/pit digging|sledgehammer/,["lats","extoblique","intoblique","rectusabd"],["wristflex","glutemax","teresmajor","triceps"],["lowerback","shoulder"]],
   [/turkish get-up|windmill/,["frontdelt","extoblique","intoblique","rectusabd"],["infraspinatus","supraspinatus","glutemax","glutemed","sidedelt","triceps","serratus"],["shoulder","hip"]],
   [/suitcase/,["wristflex","extoblique","intoblique","ql"],["hands","uppertrap","glutemed","erectors"],["wrist","lowerback"]],
-  [/farmer|yoke|stone carry|carry|loaded march|front rack hold/,["wristflex","uppertrap"],["hands","rectusabd","transverse","extoblique","glutemed","glutemax","erectors","midtrap"],["wrist","lowerback"]],
-  [/sled|backward walk|elephant walk|scrum/,["vasti","glutemax"],["gastroc","soleus","hams","rectusfem"],["knee","ankle"]],
+  [/yoke/,["uppertrap","erectors","vasti","glutemax"],["rectusabd","transverse","gastroc","soleus","midtrap","wristflex"],["lowerback","knee"]],
+  [/stone carry/,["bicepsbr","midtrap","rhomboids","erectors"],["brachialis","rectusabd","glutemax","vasti","peclower","wristflex"],["lowerback","elbow"]],
+  [/front rack hold/,["rectusabd","transverse","erectors","uppertrap"],["frontdelt","midtrap","vasti","wristflex"],["wrist","lowerback"]],
+  [/loaded march|ruck/,["vasti","glutemax","soleus"],["uppertrap","erectors","rectusabd","gastroc","hams"],["knee","lowerback"],{sets:false}],
+  [/farmer|carry/,["wristflex","uppertrap"],["hands","rectusabd","transverse","extoblique","glutemed","glutemax","erectors","midtrap"],["wrist","lowerback"]],
+  [/backward walk/,["vasti","glutemax"],["tibant","gastroc","soleus","hams","rectusfem"],["knee","ankle"]],
+  [/sled|scrum/,["vasti","glutemax"],["gastroc","soleus","hams","rectusfem"],["knee","ankle"]],
   [/mountain climber/,["iliopsoas","rectusabd"],["frontdelt","quads","triceps","serratus","transverse"],["wrist","shoulder"]],
   [/jumping jack/,["gastroc","soleus","glutemed"],["sidedelt","addlong","tfl"],["knee","ankle"]],
   [/burpee/,["quads","glutemax","pecs"],["triceps","frontdelt","rectusabd","gastroc"],["knee","wrist","shoulder"]],
+  [/jump rope|skipping|skip rope/,["gastroc","soleus"],["vasti","glutemax","fibularis","tibant","wristflex"],["ankle"],{sets:false}],
+  [/pole vault/,["glutemax","vasti","lats","rectusabd"],["hams","gastroc","iliopsoas","tricepslong","bicepsbr","wristflex"],["shoulder","knee","ankle"]],
   [/box jump|depth jump|long jump|high jump|jump|bound|\bhop(s|ping)?\b|hurdle|pole vault/,["quads","glutemax","gastroc","soleus"],["hams","iliopsoas","erectors"],["knee","ankle"]],
   // Squats and lunges
   [/cossack/,["vasti","glutemax","addlong","addmag","gracilis"],["rectusfem","hams","addbrev"],["knee","hip"]],
@@ -150,7 +168,12 @@ const R=[
   [/tricep|skull crusher|kickback|pushdown/,["triceps"],[],["elbow"]],
   // Pulls
   [/straight-arm pulldown/,["lats","teresmajor"],["tricepslong","peclower"],["shoulder"]],
-  [/pull[- ]?up|chin[- ]?up|pulldown|rope climb|lat spread/,["lats"],["flexors","brachiorad","teresmajor","lowertrap","rhomboids","reardelt","wristflex"],["shoulder","elbow"]],
+  [/chin[- ]?up/,["lats","bicepsbr"],["brachialis","brachiorad","teresmajor","lowertrap","rhomboids","reardelt","wristflex"],["shoulder","elbow"]],
+  [/rope climb/,["lats","bicepsbr","wristflex"],["brachialis","brachiorad","teresmajor","lowertrap","hands","rectusabd"],["shoulder","elbow","wrist"]],
+  [/pull[- ]?up|pulldown|lat spread/,["lats"],["flexors","brachiorad","teresmajor","lowertrap","rhomboids","reardelt","wristflex"],["shoulder","elbow"]],
+  [/^rowing$|rowing machine|ergometer|\berg\b/,["vasti","glutemax","lats"],["hams","erectors","midtrap","rhomboids","flexors","reardelt","rectusabd","gastroc"],["knee","lowerback"],{sets:false}],
+  [/inverted row/,["lats","midtrap","rhomboids","teresmajor"],["reardelt","flexors","brachiorad","rectusabd","glutemax","infraspinatus"],["elbow","shoulder"]],
+  [/chest-supported row|machine row|seal row/,["lats","midtrap","rhomboids","teresmajor"],["reardelt","flexors","brachiorad","lowertrap","infraspinatus"],["elbow","shoulder"]],
   [/row/,["lats","midtrap","rhomboids","teresmajor"],["reardelt","flexors","brachiorad","lowertrap","erectors","infraspinatus"],["lowerback","elbow"]],
   [/shrug/,["uppertrap"],["levator","wristflex","midtrap"],["neck"]],
   [/neck/,["scm","splenius","scalenes"],["levator","uppertrap"],["neck"]],
@@ -173,7 +196,37 @@ const R=[
   [/hang/,["wristflex"],["hands","lats","teresmajor","lowertrap"],["shoulder","wrist"]],
   [/handstand|frog stand|headstand|forearm stand|hand balancing/,["frontdelt","triceps"],["rectusabd","serratus","uppertrap","wristflex"],["shoulder","wrist","neck"]],
   [/archery|full-draw/,["midtrap","rhomboids","reardelt","infraspinatus"],["lats","wristflex","lowertrap"],["shoulder"]],
-].map(([re,p,s,j])=>{const P=expand(p);return [re,P,expand(s).filter(x=>P.indexOf(x)<0),j];});
+  // Conditioning: the muscles that carry it, for recovery and the muscle details; not hard sets.
+  [/high knees/,["iliopsoas","rectusfem","gastroc","soleus"],["rectusabd","glutemax","tibant"],["hip","ankle"],{sets:false}],
+  [/sprint|stride-out|hill repeat|track interval|hill spring/,["hams","glutemax","iliopsoas","gastroc","soleus"],["vasti","rectusfem","glutemed","rectusabd","fibularis"],["knee","ankle","hip"],{sets:false}],
+  [/\brun(s|ning)?\b|time trial|fartlek|tempo/,["soleus","gastroc","vasti","glutemax"],["hams","iliopsoas","glutemed","tibant","rectusfem","rectusabd"],["knee","ankle","hip"],{sets:false}],
+  [/walk/,["soleus","glutemax"],["gastroc","tibant","vasti","hams","glutemed","iliopsoas"],["ankle","hip"],{sets:false}],
+  [/swim/,["lats","teresmajor","tricepslong","peclower"],["frontdelt","sidedelt","subscapularis","rectusabd","glutemax","rectusfem"],["shoulder"],{sets:false}],
+  [/paddl/,["lats","teresmajor","extoblique","intoblique"],["reardelt","midtrap","rhomboids","bicepsbr","tricepslong","frontdelt","wristflex"],["shoulder","lowerback"],{sets:false}],
+  [/cycl|bike/,["vasti","rectusfem","glutemax"],["hams","gastroc","soleus","iliopsoas","tibant"],["knee"],{sets:false}],
+  [/horse riding/,["addlong","addmag","erectors"],["gracilis","rectusabd","transverse","glutemax","vasti"],["hip","lowerback"],{sets:false}],
+  [/ball game|small-ball/,["gastroc","soleus","vasti","glutemax"],["hams","glutemed","frontdelt","extoblique","wristflex"],["knee","ankle","shoulder"],{sets:false}],
+  // Combat and skill.
+  [/wrestl|randori|jiu-jitsu|grappl/,["wristflex","lats","uppertrap","glutemax"],["splenius","scm","erectors","rectusabd","extoblique","bicepsbr","vasti","addlong","hams","hands"],["neck","shoulder","lowerback","knee"],{sets:false}],
+  [/shrimp/,["extoblique","intoblique","glutemax"],["rectusabd","hams","lats","glutemed"],["hip"],{sets:false}],
+  [/stand-up|breakfall/,["vasti","glutemax","rectusabd"],["tricepslong","extoblique","hams","splenius","lats"],["knee","hip","neck","wrist"],{sets:false}],
+  [/speed bag/,["frontdelt","sidedelt","tricepslat"],["reardelt","uppertrap","wristext","serratus"],["shoulder","wrist"],{sets:false}],
+  [/box|heavy bag|mitt|sparring|makiwara|punch/,["frontdelt","tricepslat","serratus","extoblique"],["peclower","sidedelt","intoblique","gastroc","soleus","glutemax","wristflex"],["shoulder","wrist"],{sets:false}],
+  [/kick|meia lua|armada|martelo/,["iliopsoas","rectusfem","glutemed","glutemax"],["hams","addlong","tfl","extoblique","gastroc"],["hip","knee"],{sets:false}],
+  [/^aú$|^au$|cartwheel/,["frontdelt","serratus","tricepslong"],["sidedelt","extoblique","wristflex","glutemed"],["shoulder","wrist"],{sets:false}],
+  [/ginga|esquiva|negativa|capoeira/,["vasti","glutemax"],["addlong","hams","gastroc","extoblique","frontdelt","tricepslong"],["knee","hip","wrist"],{sets:false}],
+  [/suriashi/,["vasti","addlong","glutemax"],["addmag","gastroc","rectusabd"],["knee","hip"],{sets:false}],
+  [/footwork|pa zadan|palus/,["gastroc","soleus","vasti"],["glutemed","addlong","tibant","fibularis"],["ankle","knee"],{sets:false}],
+  [/charkh/,["gastroc","soleus"],["extoblique","glutemed","sidedelt","fibularis"],["ankle"],{sets:false}],
+  [/mallakhamb/,["wristflex","lats","addlong","rectusabd"],["bicepsbr","hands","iliopsoas","extoblique","glutemax","gracilis"],["wrist","shoulder"],{sets:false}],
+  [/stick fighting/,["wristflex","frontdelt","extoblique"],["tricepslat","pronsup","wristext","vasti","gastroc"],["wrist","shoulder"],{sets:false}],
+  [/teppo/,["peclower","tricepslat","frontdelt","serratus"],["vasti","glutemax","gastroc","rectusabd"],["shoulder","wrist"],{sets:false}],
+  [/butsukari/,["vasti","glutemax","peclower","tricepslat"],["gastroc","soleus","rectusabd","frontdelt","serratus"],["knee","shoulder"],{sets:false}],
+  [/uchikomi/,["vasti","glutemax","lats","wristflex"],["extoblique","hams","bicepsbr","uppertrap"],["knee","hip","lowerback"],{sets:false}],
+  [/kongoken/,["frontdelt","tricepslong","uppertrap"],["wristflex","rectusabd","vasti","glutemax"],["shoulder","lowerback"],{sets:false}],
+  [/eagle dance/,["sidedelt","frontdelt","glutemax"],["iliopsoas","gastroc","vasti","uppertrap"],["shoulder","hip"],{sets:false}],
+  [/forms|kata|pe[şs]rev/,["vasti","glutemax"],["frontdelt","extoblique","gastroc","hams","uppertrap"],["knee","hip"],{sets:false}],
+].map(([re,p,s,j,o])=>{const P=expand(p);o=o||{};return [re,P,expand(s).filter(x=>P.indexOf(x)<0),j,expand(o.stretch||[]),o.sets!==false];});
 
 // A custom name with no rule falls back to its movement group.
 const GROUP_FALLBACK={"Squat & lunge":[["vasti","glutemax"],["rectusfem","hams","addmag"],["knee","hip"]],"Hinge & glutes":[["glutemax","hams"],["erectors"],["lowerback","hip"]],
@@ -186,28 +239,35 @@ export function partsOf(name){
   const k=String(name||"").trim().toLowerCase();
   if(pcache[k])return pcache[k];
   let out=null;
-  for(const [re,p,s,j] of R)if(re.test(k)){out={primary:p,secondary:s,joints:j};break;}
+  for(const [re,p,s,j,st,sets] of R)if(re.test(k)){out={primary:p,secondary:s,stretch:st,joints:j,sets};break;}
   if(!out){const f=GROUP_FALLBACK[exerciseGroup(name)];
-    if(f){const P=expand(f[0]);out={primary:P,secondary:expand(f[1]).filter(x=>P.indexOf(x)<0),joints:f[2]};}
-    else out={primary:[],secondary:[],joints:[]};}
+    if(f){const P=expand(f[0]);out={primary:P,secondary:expand(f[1]).filter(x=>P.indexOf(x)<0),stretch:[],joints:f[2],sets:true};}
+    else out={primary:[],secondary:[],stretch:[],joints:[],sets:true};}
+  // Conditioning and fighting drills train muscles but aren't hard sets.
+  if(SKILL_GROUPS.indexOf(exerciseGroup(name))>=0)out=Object.assign({},out,{sets:false});
   return pcache[k]=out;
 }
-// The groups: a group is primary when any of its muscles is, else secondary when any is.
+// The groups: a group is primary when any of its muscles is, else secondary when any of its
+// surface muscles is — a deep steadier helping out (the coracobrachialis in a fly) doesn't make
+// it a set for its group.
 const cache={};
 export function musclesOf(name){
   const k=String(name||"").trim().toLowerCase();
   if(cache[k])return cache[k];
-  const p=partsOf(name),primary=[],secondary=[];
-  p.primary.forEach(x=>{const g=PART_GROUP[x];if(primary.indexOf(g)<0)primary.push(g);});
-  p.secondary.forEach(x=>{const g=PART_GROUP[x];if(primary.indexOf(g)<0&&secondary.indexOf(g)<0)secondary.push(g);});
-  return cache[k]={primary,secondary,joints:p.joints};
+  const p=partsOf(name),primary=[],secondary=[],stretch=[];
+  const add=(l,x)=>{const g=PART_GROUP[x];if(l.indexOf(g)<0)l.push(g);};
+  p.primary.forEach(x=>add(primary,x));
+  p.secondary.forEach(x=>{if(PART_DEEP[x]&&!PART_SOLE[x])return;const g=PART_GROUP[x];if(primary.indexOf(g)<0&&secondary.indexOf(g)<0)secondary.push(g);});
+  p.stretch.forEach(x=>add(stretch,x));
+  return cache[k]={primary,secondary,stretch,joints:p.joints,sets:p.sets};
 }
 
 const DAY=86400000;
-// Each exercise's hard sets in a window: fn(name, how many).
+// Each exercise's hard sets in a window: fn(name, how many). Runs, rounds and breathing practice
+// don't count as hard sets.
 function eachWork(sessions,from,to,fn){
   sessions.forEach(s=>{const t=Date.parse(s.created);if(isNaN(t)||t<from||t>to)return;
-    s.ex.forEach(e=>{const n=e.sets.filter(x=>!x.wu).length;if(n)fn(e.name,n);});});
+    s.ex.forEach(e=>{const n=e.sets.filter(x=>!x.wu).length;if(n&&partsOf(e.name).sets)fn(e.name,n);});});
 }
 const round=by=>{Object.keys(by).forEach(k=>{by[k]=Math.round(by[k]*2)/2;});return by;};
 // Hard sets per group in a window: primary 1 a set, secondary ½.

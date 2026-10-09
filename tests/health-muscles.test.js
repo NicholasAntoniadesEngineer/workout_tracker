@@ -21,7 +21,7 @@ describe("which muscles a name trains",()=>{
     names.forEach(n=>{const m=musclesOf(n);m.primary.concat(m.secondary).forEach(k=>assert.ok(MUSCLE_NAME[k],n+": "+k));m.joints.forEach(j=>assert.ok(JOINT_NAME[j],n+": "+j));});
   });
   test("an empty, missing or unknown name trains nothing and never throws",()=>{
-    for(const n of ["","   ",undefined,null,"Zzzz"])assert.deepEqual(musclesOf(n),{primary:[],secondary:[],joints:[]},String(n));
+    for(const n of ["","   ",undefined,null,"Zzzz"]){const m=musclesOf(n);assert.deepEqual([m.primary,m.secondary,m.stretch,m.joints],[[],[],[],[]],String(n));}
   });
   test("case and spacing don't matter",()=>{
     assert.deepEqual(musclesOf("  BACK SQUAT "),musclesOf("back squat"));

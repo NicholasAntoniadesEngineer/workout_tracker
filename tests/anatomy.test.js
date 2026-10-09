@@ -3,7 +3,7 @@
 // per-muscle numbers agree with the per-group ones.
 import {test,describe} from "node:test";
 import assert from "node:assert/strict";
-import {AIM,MUSCLES,MUSCLE_NAME,PARTS,PART_DEEP,PART_GROUP,PART_NAME,PART_UNDER,contributors,exercisesFor,fatigueByMuscle,fatigueByPart,musclesOf,partsIn,partsOf,setsByMuscle,setsByPart} from "../js/muscles.js";
+import {AIM,MUSCLES,MUSCLE_NAME,PARTS,PART_DEEP,PART_GROUP,PART_NAME,PART_SOLE,PART_UNDER,contributors,exercisesFor,fatigueByMuscle,fatigueByPart,musclesOf,partsIn,partsOf,setsByMuscle,setsByPart} from "../js/muscles.js";
 import {BACK,BACK_DEEP,FRONT,FRONT_DEEP,SKIN,SOLE,SOLE_DEEP,SOLE_SKIN} from "../js/anatomy.js";
 import {EXERCISE_GROUPS,SEED_EXERCISES} from "../js/model.js";
 
@@ -102,7 +102,9 @@ describe("which muscles an exercise works",()=>{
   test("a group is primary when any of its muscles is, secondary otherwise",()=>{
     EXERCISE_GROUPS.forEach(g=>g[1].forEach(n=>{const p=partsOf(n),m=musclesOf(n);
       assert.deepEqual(new Set(m.primary),new Set(p.primary.map(k=>PART_GROUP[k])),n);
-      m.secondary.forEach(k=>{assert.ok(!m.primary.includes(k),n);assert.ok(p.secondary.some(x=>PART_GROUP[x]===k),n);});}));
+      // Secondary only through a surface muscle: a deep steadier doesn't make it a set for its group.
+      m.secondary.forEach(k=>{assert.ok(!m.primary.includes(k),n);assert.ok(p.secondary.some(x=>PART_GROUP[x]===k&&(!PART_DEEP[x]||PART_SOLE[x])),n);});}));
+    assert.ok(!musclesOf("Dumbbell fly").secondary.includes("biceps"),"a fly is no biceps set");
   });
 });
 
