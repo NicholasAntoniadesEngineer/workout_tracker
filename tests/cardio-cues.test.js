@@ -19,6 +19,8 @@ const gps={watchers:new Map(),next:1,
   watchPosition(ok,err){const id=this.next++;this.watchers.set(id,{ok,err});return id;},
   clearWatch(id){this.watchers.delete(id);},
   fix(lat,lon,acc=5){for(const w of this.watchers.values())w.ok({timestamp:Date.now(),coords:{latitude:lat,longitude:lon,altitude:null,accuracy:acc}});}};
+// Node before 21 has no navigator; the browser always does.
+if(typeof navigator==="undefined")Object.defineProperty(globalThis,"navigator",{configurable:true,writable:true,value:{}});
 Object.defineProperty(navigator,"geolocation",{configurable:true,value:gps});
 
 const store=await import("../js/store.js");

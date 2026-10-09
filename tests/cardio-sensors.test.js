@@ -14,6 +14,8 @@ const M=1/111194.9;
 const sensors=await import("../js/sensors.js");
 const T0=Date.UTC(2026,2,1,6);
 
+// Node before 21 has no navigator; the browser always does.
+if(typeof navigator==="undefined")Object.defineProperty(globalThis,"navigator",{configurable:true,writable:true,value:{}});
 beforeEach(()=>{watches.clear();mock.timers.enable({apis:["Date"],now:T0});
   Object.defineProperty(navigator,"geolocation",{configurable:true,value:geo});});
 afterEach(()=>{sensors.stopGps();sensors.stopWarm();mock.timers.reset();delete navigator.geolocation;});
