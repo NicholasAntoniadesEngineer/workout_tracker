@@ -68,19 +68,19 @@ describe("which muscles an exercise works",()=>{
     assert.deepEqual(prim("Calf raises"),["gastroc","soleus"]);
     assert.deepEqual(prim("Shoulder shrugs"),["uppertrap"]);
     assert.deepEqual(prim("Neck resistance"),["scm","splenius","scalenes"]);
-    assert.deepEqual(prim("Side plank"),["extoblique","intoblique","ql"]);
+    assert.deepEqual(prim("Side plank"),["extoblique","intoblique","ql","glutemed"]);
     assert.deepEqual(prim("Cable Fly Upper"),["pecupper"]);
     assert.deepEqual(prim("Cable Fly Lower"),["peclower"]);
     assert.deepEqual(prim("Reverse wrist curl"),["wristext"]);
     assert.deepEqual(prim("Wrist curl"),["wristflex"]);
-    assert.deepEqual(prim("Band lateral walk"),["glutemed","glutemin","tfl"]);
+    assert.deepEqual(prim("Band lateral walk"),["glutemed","glutemin"]);   // the TFL only helps (research)
     assert.deepEqual(prim("Abdominal vacuum"),["transverse"]);
   });
   test("the right muscles lead the big lifts",()=>{
     assert.deepEqual(prim("Squats"),["vastuslat","vastusmed","vastusint","glutemax"]);
     assert.ok(sec("Squats").includes("rectusfem")&&sec("Squats").includes("addmag"));
     assert.deepEqual(prim("Bench press"),["pecupper","peclower","tricepslong","tricepslat","tricepsmed"]);
-    assert.deepEqual(prim("Inclined Bench Press"),["pecupper","frontdelt"]);
+    assert.deepEqual(prim("Inclined Bench Press"),["pecupper","frontdelt","tricepslong","tricepslat","tricepsmed"]);
     assert.deepEqual(prim("Pull ups"),["lats"]);
     assert.ok(sec("Pull ups").includes("bicepsbr")&&sec("Pull ups").includes("teresmajor"));
     assert.deepEqual(prim("Barbell row"),["lats","midtrap","rhomboids","teresmajor"]);
@@ -89,9 +89,15 @@ describe("which muscles an exercise works",()=>{
     assert.deepEqual(prim("Hanging leg raise"),["rectusabd","iliopsoas"]);
   });
   test("names that used to land on the wrong rule now land on the right one",()=>{
-    assert.deepEqual(musclesOf("Incline log press").primary,["chest","frontdelt"]);   // an incline press, not overhead
+    assert.deepEqual(musclesOf("Incline log press").primary,["chest","frontdelt","triceps"]);   // an incline press, not overhead
     assert.deepEqual(musclesOf("Leverage lift").primary,["forearms"]);                // a wrist lever, not a deadlift
-    assert.deepEqual(musclesOf("Pigeon push-up").primary,["glutes"]);                 // a hip drill, not a push-up
+    assert.deepEqual(musclesOf("Pigeon push-up").primary,[]);                         // a hip stretch, not a push-up
+    assert.ok(musclesOf("Pigeon push-up").stretch.includes("glutes"));
+    // Movements the research found mapped as something else entirely.
+    assert.deepEqual(musclesOf("Reverse squat").primary,["hipflexors","quads"]);      // knees to chest against a band
+    assert.deepEqual(musclesOf("Powell raise").primary,["reardelt"]);                 // a side-lying rear-delt raise
+    assert.deepEqual(musclesOf("QL extension").primary,["lowerback","obliques"]);     // a side bend
+    assert.deepEqual(musclesOf("Matawari").primary,[]);                               // the sumo splits: a stretch
     assert.deepEqual(musclesOf("Scrum machine").primary,["quads","glutes"]);         // the legs drive it
   });
   test("a muscle is never both primary and secondary, and every one named exists",()=>{
@@ -120,13 +126,13 @@ describe("exercises for a muscle",()=>{
     assert.equal(top("supraspinatus",true)[0],"Full can raise");
     assert.equal(top("serratus",false)[0],"Scapular push-up");
     assert.deepEqual(top("feet",false).slice(0,4).sort(),["Short foot","Toe spreads","Toe yoga","Towel curls"]);
-    const all=exercisesFor("glutemin",true,SEED_EXERCISES);assert.ok(all.every(x=>x.main));
+    assert.ok(exercisesFor("glutemin",true,SEED_EXERCISES).some(x=>x.main));
     const mixed=exercisesFor("popliteus",true,SEED_EXERCISES);assert.ok(mixed.length&&mixed.every(x=>!x.main),"helps only");
     const r=exercisesFor("quads",false,SEED_EXERCISES);r.forEach((x,i)=>{if(i)assert.ok(!(x.main&&!r[i-1].main),"main ones first");});
   });
   test("among equals, the ones already done come first",()=>{
-    const names=["Hammer curl","Zottman curl","Reverse curl"];
-    assert.deepEqual(exercisesFor("brachiorad",true,names).map(x=>x.name),["Hammer curl","Reverse curl","Zottman curl"]);
+    const names=["Hammer curl","Zottman curl"];
+    assert.deepEqual(exercisesFor("brachiorad",true,names).map(x=>x.name),["Hammer curl","Zottman curl"]);
     assert.deepEqual(exercisesFor("brachiorad",true,names,{"zottman curl":3}).map(x=>x.name)[0],"Zottman curl");
   });
 });

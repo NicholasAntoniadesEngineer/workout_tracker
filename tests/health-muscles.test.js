@@ -29,9 +29,10 @@ describe("which muscles a name trains",()=>{
   test("names that brush against another rule land on the right one",()=>{
     const p=n=>musclesOf(n).primary;
     assert.deepEqual(p("Narrow-grip bench press"),["chest","triceps"]);   // "row" inside "narrow"
-    assert.deepEqual(p("Shot put"),["glutes","frontdelt"]);              // "row" inside "throw" in the list below it
-    assert.deepEqual(p("Javelin throw"),["glutes","frontdelt"]);
-    assert.deepEqual(p("Upright row"),["sidedelt"]);
+    // Checked against the research: the put drives from the legs; the javelin is led by the lats.
+    assert.deepEqual(p("Shot put"),["glutes","quads","chest","frontdelt"]);
+    assert.deepEqual(p("Javelin throw"),["lats","frontdelt","chest","abs","obliques"]);
+    assert.deepEqual(p("Upright row"),["sidedelt","traps"]);
     assert.deepEqual(p("Leg press calf raise"),["calves"]);
     assert.deepEqual(p("Snatch-grip deadlift"),["glutes","hamstrings","lowerback"]);
     assert.deepEqual(p("Hammer curl"),["biceps","forearms"]);
@@ -44,15 +45,15 @@ describe("which muscles a name trains",()=>{
   // "bench" before "pullover". All but the custom names are in the app's own exercise list.
   test("rear-delt flies, hanging raises, woodchops, the wrestler's bridge, hurdles and pullovers credit the right muscles",()=>{
     const p=n=>musclesOf(n).primary;
-    assert.deepEqual(p("Rear delt fly"),["reardelt"]);
+    assert.deepEqual(p("Rear delt fly"),["reardelt","traps"]);   // the middle traps lead it too
     assert.deepEqual(p("Reverse fly"),["reardelt"]);
     // Raising the legs is the hip flexors' work as much as the abs'; a woodchop is the obliques'.
     assert.deepEqual(p("Hanging leg raise"),["abs","hipflexors"]);
-    assert.deepEqual(p("Hanging knee raises"),["abs","hipflexors"]);
+    assert.deepEqual(p("Hanging knee raises"),["abs","hipflexors","obliques"]);
     assert.deepEqual(p("Band woodchop"),["obliques"]);
     assert.deepEqual(p("Single Arm High to Low woodchop"),["obliques"]);
     assert.deepEqual(musclesOf("Wrestler's bridge").joints,["neck"]);
-    assert.deepEqual(p("Hurdles"),["quads","glutes","calves"]);
+    assert.deepEqual(p("Hurdles"),["hamstrings","glutes","hipflexors","calves"]);
     assert.deepEqual(p("Cross bench pullover"),["lats","chest"]);
   });
 });

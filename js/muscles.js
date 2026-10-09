@@ -240,13 +240,15 @@ export function partsOf(name){
   const k=String(name||"").trim().toLowerCase();
   if(pcache[k])return pcache[k];
   let out=null;
-  for(const [re,p,s,j,st,sets] of R)if(re.test(k)){out={primary:p,secondary:s,stretch:st,joints:j,sets};break;}
+  for(const [re,p,s,j,st,sets] of R)if(re.test(k)){out={primary:p,secondary:s,stretch:st,minor:[],joints:j,sets};break;}
   if(!out){const f=GROUP_FALLBACK[exerciseGroup(name)];
-    if(f){const P=expand(f[0]);out={primary:P,secondary:expand(f[1]).filter(x=>P.indexOf(x)<0),stretch:[],joints:f[2],sets:true};}
-    else out={primary:[],secondary:[],stretch:[],joints:[],sets:true};}
+    if(f){const P=expand(f[0]);out={primary:P,secondary:expand(f[1]).filter(x=>P.indexOf(x)<0),stretch:[],minor:[],joints:f[2],sets:true};}
+    else out={primary:[],secondary:[],stretch:[],minor:[],joints:[],sets:true};}
   // A catalogue exercise checked one by one: its own muscles; the rule still gives its joints.
   const x=EXACT_MUSCLES[k];
-  if(x){const P=expand(x.p||[]);out=Object.assign({},out,{primary:P,secondary:expand(x.s||[]).filter(y=>P.indexOf(y)<0),stretch:expand(x.st||[])});
+  // "Also active" (m): measurably working but bracing or steadying — shown, never counted.
+  if(x){const P=expand(x.p||[]),S=expand(x.s||[]).filter(y=>P.indexOf(y)<0);
+    out=Object.assign({},out,{primary:P,secondary:S,stretch:expand(x.st||[]),minor:expand(x.m||[]).filter(y=>P.indexOf(y)<0&&S.indexOf(y)<0)});
     if(x.sets===false)out.sets=false;}
   // Conditioning and fighting drills train muscles but aren't hard sets.
   if(SKILL_GROUPS.indexOf(exerciseGroup(name))>=0)out=Object.assign({},out,{sets:false});
@@ -259,12 +261,13 @@ const cache={};
 export function musclesOf(name){
   const k=String(name||"").trim().toLowerCase();
   if(cache[k])return cache[k];
-  const p=partsOf(name),primary=[],secondary=[],stretch=[];
+  const p=partsOf(name),primary=[],secondary=[],stretch=[],minor=[];
   const add=(l,x)=>{const g=PART_GROUP[x];if(l.indexOf(g)<0)l.push(g);};
   p.primary.forEach(x=>add(primary,x));
   p.secondary.forEach(x=>{if(PART_DEEP[x]&&!PART_SOLE[x])return;const g=PART_GROUP[x];if(primary.indexOf(g)<0&&secondary.indexOf(g)<0)secondary.push(g);});
   p.stretch.forEach(x=>add(stretch,x));
-  return cache[k]={primary,secondary,stretch,joints:p.joints,sets:p.sets};
+  p.minor.forEach(x=>{const g=PART_GROUP[x];if(primary.indexOf(g)<0&&secondary.indexOf(g)<0&&minor.indexOf(g)<0)minor.push(g);});
+  return cache[k]={primary,secondary,stretch,minor,joints:p.joints,sets:p.sets};
 }
 
 const DAY=86400000;

@@ -491,7 +491,7 @@ function exerciseHistorySheet(name,fromPicker){
   if(mu.primary.length||mu.stretch.length){
     const row=(l,g)=>"<div><span>"+l+"</span><span class='exmc'>"+chips(g)+"</span></div>";
     h+="<div class='exmus'>"+(mu.primary.length?row("Works",mu.primary):"")+(mu.secondary.length?row("Helps",mu.secondary):"")+
-      (mu.stretch.length?row("Stretches",mu.stretch):"")+
+      (mu.stretch.length?row("Stretches",mu.stretch):"")+(mu.minor&&mu.minor.length?row("Also active",mu.minor):"")+
       (mu.primary.length&&!mu.sets?"<p>Counts toward recovery, not weekly hard sets.</p>":"")+"</div>";
   }
   if(fromPicker)h+="<button class='btn primary exaddbtn' data-add=\""+esc(name)+"\">Add to today</button>";
