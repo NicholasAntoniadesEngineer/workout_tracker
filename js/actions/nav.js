@@ -2,6 +2,7 @@
 // Each handler returns true once it has dealt with the tap.
 import {activeEx,getSession,selectSession,state} from "../store.js";
 import {stepVerse} from "../views.js";
+import {wide} from "../views/common.js";
 import {checkGps,openCardio} from "./cardio.js";
 
 // The sidebar (and the number keys) go straight to a section, entering it the way its home
@@ -27,6 +28,12 @@ function goSection(k,ctx){
   state.view=k;
 }
 
+// Where Back goes from History, Calendar, Body and the health pages: Progress when they were
+// opened from it (or from one another after it), home otherwise.
+const FROM_PROGRESS=["history","calendar","body","health"];
+export function markBack(){
+  state.backTo=state.view==="progress"?"progress":FROM_PROGRESS.indexOf(state.view)>=0?(state.backTo||""):"";
+}
 export function handle(t,ctx){
   if(t.id==="updatebtn"){location.reload();return true;}
   // The welcome screens: Next, Skip, Start logging, or straight to Import.
@@ -51,9 +58,10 @@ export function handle(t,ctx){
   if(t.id==="vernext"){stepVerse(1);ctx.render();return true;}
 
   // Home tiles hold an icon span, so a tap can land inside the button — match by ancestor.
-  if(t.closest&&t.closest("#homedays")){state.view="history";ctx.render();return true;}
+  // Opened from Progress (or from a page Progress opened), Back returns to Progress.
+  if(t.closest&&t.closest("#homedays")){markBack();state.view="history";ctx.render();return true;}
   if(t.closest&&t.closest("#homeprog")){state.view="progress";ctx.render();return true;}
-  if(t.closest&&t.closest("#homebody")){state.view="body";ctx.render();return true;}
+  if(t.closest&&t.closest("#homebody")){markBack();state.view="body";ctx.render();return true;}
   if(t.closest&&t.closest("#homelearn")){state.view="learn";state.learnOpen=null;state.learnCat=null;state.learnIndex=null;state.learnQuery="";state.learnSearching=false;state.scrollTo=0;ctx.render();return true;}
   // From an exercise's sheet straight to the Learn topic behind it, opened.
   const jump=t.closest&&t.closest("[data-learnjump]");
@@ -65,7 +73,7 @@ export function handle(t,ctx){
 
   if(t.closest&&(t.closest("#homecal")||t.closest("#calbtn"))){
     // Always this month, whichever day was last open.
-    const d=new Date();
+    const d=new Date();markBack();
     state.calYear=d.getFullYear();state.calMonth=d.getMonth();state.calDay=null;
     state.view="calendar";ctx.render();return true;
   }
@@ -88,7 +96,8 @@ export function handle(t,ctx){
   const sp=t.closest&&t.closest("[data-setpart]");
   if(sp){state.settingsPart=sp.getAttribute("data-setpart");state.scrollTo=0;ctx.render();return true;}
   if(t.closest&&t.closest("#backbtn")){
-    state.view=state.view==="calendar"?"history":"home";
+    // On a laptop the health pages sit under Progress (their crumb says so).
+    state.view=state.backTo==="progress"||(state.view==="health"&&wide())?"progress":state.view==="calendar"?"history":"home";state.backTo="";
     state.sheet=false;state.adding=false;ctx.render();return true;
   }
 

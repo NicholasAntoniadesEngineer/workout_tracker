@@ -1,4 +1,5 @@
 // Fuel, Markers and Mind: adding and removing entries, the breath timer, habits and the journal.
+import {markBack} from "./nav.js";
 import {state} from "../store.js";
 import {dateKey,nowISO} from "../model.js";
 import {newId} from "../stack.js";
@@ -11,7 +12,7 @@ const num=id=>{const v=parseFloat(val(id).replace(",","."));return isNaN(v)||v<0
 export function handle(t,ctx){
   const hp=t.closest&&t.closest("[data-health]");
   if(hp){state.healthPart=hp.getAttribute("data-health");state.scrollTo=0;ctx.render();return true;}
-  if(t.closest&&t.closest("[data-openhealth]")){state.healthPart=t.closest("[data-openhealth]").getAttribute("data-openhealth");state.view="health";state.scrollTo=0;ctx.render();return true;}
+  if(t.closest&&t.closest("[data-openhealth]")){markBack();state.healthPart=t.closest("[data-openhealth]").getAttribute("data-openhealth");state.view="health";state.scrollTo=0;ctx.render();return true;}
   // ── Fuel
   const add=t.closest&&t.closest("[data-fueladd]");
   if(add){state.fuel=(state.fuel||[]).concat([{id:newId("f"),at:nowISO(),name:add.getAttribute("data-fueladd"),p:+add.getAttribute("data-p")||0,kcal:+add.getAttribute("data-kcal")||0,c:+add.getAttribute("data-c")||0,f:+add.getAttribute("data-f")||0}]);ctx.render();return true;}

@@ -53,10 +53,12 @@ export function bodyMapCard(){
     const list=MUSCLES.filter(m=>m[2]===r).map(m=>m[0]),n=list.length,isOpen=!!open[r];
     const on=list.filter(k=>sets[k]>=AIM[k][0]&&sets[k]<=AIM[k][1]).length,over=list.filter(k=>sets[k]>AIM[k][1]).length,rec=list.filter(k=>fat[k]>=0.6).length;
     const part=list.filter(k=>fat[k]>=0.3&&fat[k]<0.6).length;
-    const sum=mode==="rec"?([rec?rec+" recovering":"",part?part+" partly":""].filter(Boolean).join(" &middot; ")||"all "+n+" ready"):on+" of "+n+" on aim"+(over?" &middot; "+over+" over":"");
+    // Aims are per group, so the summary counts groups; the name says how many muscles are in them.
+    const sum=mode==="rec"?([rec?rec+" recovering":"",part?part+" partly":""].filter(Boolean).join(" &middot; ")||"all "+n+" groups ready"):on+" of "+n+" groups on aim"+(over?" &middot; "+over+" over":"");
+    const muscles=list.reduce((t,k)=>t+partsIn(k).length,0);
     // A dot a group, its colour its state, so the folded row still shows the picture.
     const dots=list.map(k=>"<i class='"+(mode==="rec"?recClass(fat[k]):setsClass(sets[k],AIM[k]))+"'></i>").join("");
-    return "<button class='bmregion"+(isOpen?" open":"")+"' data-bmregion='"+r+"' aria-expanded='"+isOpen+"'><span class='bmrname'>"+l+"</span>"+
+    return "<button class='bmregion"+(isOpen?" open":"")+"' data-bmregion='"+r+"' aria-expanded='"+isOpen+"'><span class='bmrname'>"+l+" <small>"+muscles+" muscles</small></span>"+
       "<span class='bmrdots' aria-hidden='true'>"+dots+"</span><span class='bmrsum'>"+sum+"</span><span class='bmrchev' aria-hidden='true'>&#8250;</span></button>"+
       (isOpen?"<div class='bmrrows'>"+list.map(row).join("")+"</div>":"");
   }).join("")+"</div>";

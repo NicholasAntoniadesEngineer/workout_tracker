@@ -605,6 +605,24 @@ describe("flows through the app",{skip:!has&&"Chrome not found"},()=>{
     assert.ok(f&&f.type==="image/png"&&f.size>5000,"a picture to share: "+JSON.stringify(f));
   }));
 
+  test("History, Calendar, Body and Fuel opened from Progress go Back to Progress; from Today, Back to Today",()=>flow("progressback",async()=>{
+    await openApp(page,srv,seedDoc({settings:{checkin:false,modFuel:true}}),PHONE);
+    for(const [tab,view] of [["#homedays","history"],["#homecal","calendar"],["#homebody","body"],["[data-openhealth='fuel']","health"]]){
+      await tap(page,"[data-nav='progress']");
+      await tap(page,".pgtabs "+tab);
+      assert.equal(await S("state.view"),view,tab);
+      await tap(page,"#backbtn");
+      assert.equal(await S("state.view"),"progress","Back from "+view);
+    }
+    // History, then its Calendar button, then Back: still Progress, where it began.
+    await tap(page,".pgtabs #homedays");await tap(page,"#calbtn");
+    assert.equal(await S("state.view"),"calendar");
+    await tap(page,"#backbtn");assert.equal(await S("state.view"),"progress");
+    // From Today's tile, Back is Today.
+    await tap(page,"[data-nav='home']");await tap(page,"#homedays");
+    await tap(page,"#backbtn");assert.equal(await S("state.view"),"home");
+  }));
+
   test("a muscle tapped on the figure opens a close-up of its area, which the cross or Escape closes",()=>flow("musclemap",async()=>{
     await openApp(page,srv,seedDoc({settings:{checkin:false}}),PHONE);
     await tap(page,"[data-nav='progress']");

@@ -80,7 +80,7 @@ function weekDots(){
 function thisWeekCard(thisWeek,useTon,unit){
   const groups=weeklySetsByGroup(state.sessions).filter(g=>g.target);
   const hard=groups.reduce((n,g)=>n+g.sets,0),inRange=groups.filter(g=>g.sets>=SET_TARGET.low&&g.sets<=SET_TARGET.high).length;
-  return "<div class='card hcard'><div class='hcardh'><span class='llabel'>This week</span><button class='hmore' id='homecal'>Calendar &rsaquo;</button></div>"+
+  return "<div class='card hcard pgweek'><div class='hcardh'><span class='llabel'>This week</span><button class='hmore' id='homecal'>Calendar &rsaquo;</button></div>"+
     "<div class='pgk3'><div><b class='mono'>"+thisWeek.trained+"<small>"+(thisWeek.trained===1?"day":"days")+"</small></b><span>trained</span></div>"+
     "<div><b class='mono'>"+hard+"<small>hard</small></b><span>sets &middot; "+inRange+"/"+groups.length+" on aim</span></div>"+
     "<div><b class='mono'>"+(useTon?fmtNum(thisWeek.ton)+"<small>"+unit+"</small>":thisWeek.reps+"<small>reps</small>")+"</b><span>"+(useTon?"lifted":"this week")+"</span></div></div>"+
