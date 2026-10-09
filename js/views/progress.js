@@ -97,20 +97,13 @@ export function progressView(){
   const unit=esc(state.settings.unit||"kg");
   const big=wide();
 
-  // Weekly volume: tonnage once any weight has been logged, plain reps until then.
+  // This week's load: tonnage once any weight has been logged, plain reps until then.
   const useTon=weeks.some(w=>w.ton);
-  const vals=weeks.map(w=>useTon?w.ton:w.reps);
-  const week=thisWeekCard(thisWeek,useTon,unit);
   // This week's hard sets per movement against the 10–20 that drives growth: a bar per group,
   // the target band shaded, so an under-trained pattern shows before the week is out.
   // Hard sets by muscle on a figure, with recovery: the four movement groups are on Today.
   const sets=bodyMapCard();
-  // Volume is weight × reps added up: the total load moved, in plain words.
-  const vol="<div class='card hcard'><div class='hcardh'><span class='llabel'>Weekly "+(useTon?"volume &middot; "+unit:"reps")+"</span></div>"+
-    withAxis(barChart(vals,big?{w:640,h:170,labels:weeks.map(w=>w.label+": "+fmtNum(useTon?w.ton:w.reps))}:undefined),fmtNum(Math.max(0,...vals)),0)+
-    "<div class='chartlbls'><span>"+esc(weeks[0].label)+"</span>"+
-    "<span><b>"+fmtNum(useTon?thisWeek.ton:thisWeek.reps)+" this week</b></span>"+
-    "<span>"+esc(thisWeek.label)+"</span></div></div>";
+  const week=thisWeekCard(thisWeek,useTon,unit);
 
   // One exercise's line: top-set weight per day, or top reps for unweighted movements.
   // A workout still running is left out — half a session would read as a drop.
@@ -176,13 +169,13 @@ export function progressView(){
   // The year so far, one tap away beside the title, whatever is scrolled to.
   const yr=new Date().getFullYear(),yearBtn=workouts?"<button class='btn ghost tiny revbtn' data-review='year:"+yr+"'>"+yr+" in review &rsaquo;</button>":"";
   let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress",yearBtn+spanRow):
-    "<div class='hhead pghead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'>"+yearBtn+"</div></div>"+spanRow+tabs);
+    "<div class='hhead pghead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'>"+yearBtn+"</div></div>"+tabs+spanRow);
   // A big screen arranges the same cards as a dashboard; the phone reads them in a column.
   // A big screen: the charts down the left, the week, muscles and recovery down the right; each
   // column stacks on its own, so a tall card never leaves a gap beside a short one.
-  if(big)h+="<div class='pggrid'><section class='pg8'>"+vol+trendH+recsH+"</section><section class='pg4'>"+week+sets+(mini||"")+"</section>"+
+  if(big)h+="<div class='pggrid'><section class='pg8'>"+week+trendH+recsH+"</section><section class='pg4'>"+sets+(mini||"")+"</section>"+
     (cardio?"<section class='pg12 pgcardio'>"+cardio+"</section>":"")+"</div>";
-  else h+="<div class='pgstack'>"+week+vol+sets+trendH+mini+cardio+recsH+"</div>";
+  else h+="<div class='pgstack'>"+week+sets+trendH+mini+cardio+recsH+"</div>";
   if(!workouts&&!state.sessions.some(s=>s.cardio))h+="<div class='empty-note'>Nothing logged yet — progress shows up here.</div>";
   return h+"</div>";
 }
