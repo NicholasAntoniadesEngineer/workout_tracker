@@ -210,6 +210,7 @@ const AUDIT=String(async function audit(W){
 // their month, which at the end of a month is the next one.
 const onDay=n=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);return d;};
 const monthOf=d=>"state.calYear="+d.getFullYear()+";state.calMonth="+d.getMonth()+";";
+const FOLDED="state.bmOpen={};state.bmSel=\"\";state.bmPanel=0;state.bmMode=\"sets\";";
 const PLAN_DAY=onDay(2),EMPTY_DAY=onDay(3);
 const SCREENS=[
   {name:"Today",hash:"#/"},
@@ -225,10 +226,11 @@ const SCREENS=[
   {name:"Calendar · planned day",hash:"#/calendar",prep:monthOf(PLAN_DAY),taps:["[data-calday='"+dayKey(PLAN_DAY.toISOString())+"']"]},
   {name:"Calendar · empty day",hash:"#/calendar",prep:monthOf(EMPTY_DAY),taps:["[data-newday='"+dayKey(EMPTY_DAY.toISOString())+"']"]},
   {name:"Progress",hash:"#/progress"},
-  {name:"Progress · a muscle group chosen",hash:"#/progress",taps:["[data-muscle='g:quads']"]},
-  {name:"Progress · a deep muscle chosen",hash:"#/progress",taps:["[data-muscle='g:rotatorcuff']","[data-bmpanel='1']","[data-muscle='p:supraspinatus']"]},
-  {name:"Progress · the feet close up",hash:"#/progress",taps:["[data-muscle='g:feet']","[data-muscle='p:fdb']"]},
-  {name:"Progress · muscle recovery",hash:"#/progress",taps:["[data-bmmode='rec']","[data-muscle='p:glutemax']"]},
+  {name:"Progress · a muscle group chosen",hash:"#/progress",prep:FOLDED,taps:["[data-bmregion='lower']","[data-muscle='g:quads']"]},
+  {name:"Progress · a deep muscle chosen",hash:"#/progress",prep:FOLDED,taps:["[data-bmregion='upper']","[data-muscle='g:rotatorcuff']","[data-bmpanel='1']","[data-muscle='p:supraspinatus']"]},
+  {name:"Progress · the feet close up",hash:"#/progress",prep:FOLDED,taps:["[data-bmregion='lower']","[data-muscle='g:feet']","[data-muscle='p:fdb']"]},
+  {name:"Progress · muscle list open",hash:"#/progress",prep:FOLDED,taps:["[data-bmregion='upper']","[data-bmregion='core']","[data-bmregion='lower']"]},
+  {name:"Progress · muscle recovery",hash:"#/progress",prep:FOLDED,taps:["[data-bmmode='rec']","[data-muscle='p:glutemax']"]},
   {name:"Body",hash:"#/body"},
   {name:"Settings",hash:"#/settings"},
   ...["display","logging","progression","workout","printing","recovery","modules","body","data","reminder","about"].map(k=>
@@ -338,7 +340,7 @@ describe("every screen at every size, text size and theme",{skip:!has&&"Chrome n
       "await (await import('/js/lazy.js')).loadLearn();return 1;");
     for(const s of SCREENS){
       if(s.phoneOnly&&c.w>=900)continue;
-      const r=await page.eval("return await ("+RUNNER+")("+JSON.stringify(s.hash)+","+JSON.stringify(s.taps||[])+","+!!s.keep+");");
+      const r=await page.eval("return await ("+RUNNER+")("+JSON.stringify(s.hash)+","+JSON.stringify(s.taps||[])+","+!!s.keep+","+JSON.stringify(s.prep||"")+");");
       if(r.missing){bad.push("["+s.name+" · "+label(c)+"] couldn't reach it: nothing visible to tap matches "+r.missing+"\n    screenshot: "+await saveShot(page,s.name+"_unreachable_"+c.w+"x"+c.h+"_text"+(c.scale||0)+"_"+c.theme));continue;}
       await auditHere(c,s.name,bad);
       if(s.after)await page.eval("return await ("+RUNNER+")('',"+JSON.stringify(s.after)+",true);");

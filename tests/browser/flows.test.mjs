@@ -619,10 +619,24 @@ describe("flows through the app",{skip:!has&&"Chrome not found"},()=>{
     await tap(page,".bmxsvg .bmtag[data-muscle='p:vastusint']");
     assert.equal(await S("state.bmSel"),"p:vastusint");
     assert.match(await page.eval("return document.querySelector('.bmpoph').innerText;"),/Vastus intermedius[\s\S]*under the rectus femoris/);
+    // Looking round: a drag moves the view and chooses nothing; a faded neighbour opens its group.
+    const vb0=await page.eval("return document.querySelector('.bmxsvg').getAttribute('viewBox');");
+    const at=await page.eval("const r=document.querySelector('.bmxsvg').getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};");
+    await page.send("Input.dispatchMouseEvent",{type:"mousePressed",x:at.x,y:at.y,button:"left",clickCount:1});
+    for(let i=1;i<=6;i++)await page.send("Input.dispatchMouseEvent",{type:"mouseMoved",x:at.x+i*8,y:at.y+i*6,button:"left",buttons:1});
+    await page.send("Input.dispatchMouseEvent",{type:"mouseReleased",x:at.x+48,y:at.y+36,button:"left",clickCount:1});
+    await sleep(200);
+    assert.notEqual(await page.eval("return document.querySelector('.bmxsvg').getAttribute('viewBox');"),vb0,"the view moved");
+    assert.equal(await S("state.bmSel"),"p:vastusint","a drag isn't a tap");
+    await tap(page,"[data-bmpanel='0']");
+    await tap(page,".bmxsvg .bmghost[data-muscle='p:addlong']");
+    assert.equal(await S("state.bmSel"),"p:addlong");
+    assert.match(await page.eval("return document.querySelector('.bmpoph').innerText;"),/Adductors[\s\S]*Adductor longus/);
     await tap(page,"#bmclose");
     assert.equal(await S("state.bmSel"),"");
     assert.ok(!(await page.eval("return !!document.querySelector('#bmback');")),"closed");
     // From the list of groups, and closed with Escape.
+    await tap(page,"[data-bmregion='lower']");
     await tap(page,".bmrow[data-muscle='g:feet']");
     assert.ok(await page.eval("return !!document.querySelector('#bmback');"));
     await key(page,"Escape");

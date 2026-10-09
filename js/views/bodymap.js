@@ -47,8 +47,19 @@ export function bodyMapCard(){
     return "<button class='sbrow bmrow"+(v>=a[0]?(v>a[1]?" over":" in"):" under")+(on?" sel":"")+"' data-muscle='g:"+k+"'><span class='sbname'>"+esc(MUSCLE_NAME[k])+"</span>"+
     "<span class='sbtrack'><span class='sbzone' style='left:"+(a[0]/25*100)+"%;width:"+((a[1]-a[0])/25*100)+"%'></span><span class='sbfill' style='width:"+Math.min(100,v/25*100)+"%'></span></span>"+
     "<span class='sbn mono'>"+v+"</span>"+(f>=0.6?"<span class='bmrec' title='Recovering'></span>":"<span class='bmrec none'></span>")+"</button>";};
-  const regions=[["Upper body","upper"],["Core","core"],["Lower body","lower"]];
-  h+="<div class='bmlist'>"+regions.map(([l,g])=>"<div class='recgroup bmgroup'>"+l+"</div>"+MUSCLES.filter(m=>m[2]===g).map(m=>row(m[0])).join("")).join("")+"</div>";
+  // Folded by region, each with a one-line summary, so the page stays short; a tap opens one.
+  const regions=[["Upper body","upper"],["Core","core"],["Lower body","lower"]],open=state.bmOpen||{};
+  h+="<div class='bmlist'>"+regions.map(([l,r])=>{
+    const list=MUSCLES.filter(m=>m[2]===r).map(m=>m[0]),n=list.length,isOpen=!!open[r];
+    const on=list.filter(k=>sets[k]>=AIM[k][0]&&sets[k]<=AIM[k][1]).length,over=list.filter(k=>sets[k]>AIM[k][1]).length,rec=list.filter(k=>fat[k]>=0.6).length;
+    const part=list.filter(k=>fat[k]>=0.3&&fat[k]<0.6).length;
+    const sum=mode==="rec"?([rec?rec+" recovering":"",part?part+" partly":""].filter(Boolean).join(" &middot; ")||"all "+n+" ready"):on+" of "+n+" on aim"+(over?" &middot; "+over+" over":"");
+    // A dot a group, its colour its state, so the folded row still shows the picture.
+    const dots=list.map(k=>"<i class='"+(mode==="rec"?recClass(fat[k]):setsClass(sets[k],AIM[k]))+"'></i>").join("");
+    return "<button class='bmregion"+(isOpen?" open":"")+"' data-bmregion='"+r+"' aria-expanded='"+isOpen+"'><span class='bmrname'>"+l+"</span>"+
+      "<span class='bmrdots' aria-hidden='true'>"+dots+"</span><span class='bmrsum'>"+sum+"</span><span class='bmrchev' aria-hidden='true'>&#8250;</span></button>"+
+      (isOpen?"<div class='bmrrows'>"+list.map(row).join("")+"</div>":"");
+  }).join("")+"</div>";
   return h+"</div>";
 }
 
@@ -113,8 +124,11 @@ function panelSVG(g,P,sel,cls){
   if(hh>w*1.8)w=hh/1.8;if(w>hh*1.4)hh=w/1.4;
   const vx=(x0+x1)/2-w/2,vy=(y0+y1)/2-hh/2,badge=Math.max(2.2,Math.min(w,hh)*0.055),font=badge*1.3;
   const skinH=skin.map(d=>"<path d='"+d+"' class='bmskin'/>").join("");
-  const ghost=P.layer==="deep"?surfAll.map(([,d])=>"<path d='"+d+"' class='bmlift'/>").join("")+deepAll.filter(([p])=>PART_GROUP[p]!==g).map(([,d])=>"<path d='"+d+"' class='bmghost'/>").join("")
-    :surfAll.filter(([p])=>PART_GROUP[p]!==g).map(([,d])=>"<path d='"+d+"' class='bmghost'/>").join("");
+  // The muscles around it, faded, are taps too: one opens its own group here, so a look round
+  // the body never needs the pop-up closed.
+  const near=(p,d,c)=>"<path d='"+d+"' class='"+c+"' data-muscle='p:"+p+"'><title>"+esc(PART_NAME[p])+"</title></path>";
+  const ghost=P.layer==="deep"?surfAll.map(([p,d])=>near(p,d,"bmlift")).join("")+deepAll.filter(([p])=>PART_GROUP[p]!==g).map(([p,d])=>near(p,d,"bmghost")).join("")
+    :surfAll.filter(([p])=>PART_GROUP[p]!==g).map(([p,d])=>near(p,d,"bmghost")).join("");
   const mid={};list.forEach(([p,,dx,dy,c])=>{const m=mid[p]||(mid[p]={x:0,y:0,n:0});m.x+=c[0]+dx;m.y+=c[1]+dy;m.n++;});
   let body="",tags="";const spots=[];
   list.forEach(([p,d,dx,dy])=>{body+="<path d='"+d+"' transform='translate("+dx+" "+dy+")' class='bmm bmx "+cls(p)+(sel.part===p?" sel":"")+"' data-muscle='p:"+p+"'><title>"+esc(PART_NAME[p])+"</title></path>";});
@@ -122,8 +136,9 @@ function panelSVG(g,P,sel,cls){
     for(let n=0;n<16&&spots.some(([x,y])=>Math.hypot(x-bx,y-by)<badge*2.1);n++){const a=n*2.4;bx+=Math.cos(a)*badge*1.3;by+=Math.sin(a)*badge*1.3;}
     spots.push([bx,by]);bx=r1(bx);by=r1(by);
     tags+="<g class='bmtag"+(sel.part===p?" on":"")+"' data-muscle='p:"+p+"'><circle cx='"+bx+"' cy='"+by+"' r='"+r1(badge)+"'/><text x='"+bx+"' y='"+r1(by+font*0.36)+"' font-size='"+r1(font)+"'>"+(order.indexOf(p)+1)+"</text></g>";});
-  const other=mirror?"<g transform='matrix(-1 0 0 1 200 0)' class='bmfar'>"+skinH+surfAll.map(([,d])=>"<path d='"+d+"' class='"+(P.layer==="deep"?"bmlift":"bmghost")+"'/>").join("")+"</g>":"";
-  return "<svg class='bmxsvg' viewBox='"+r1(vx)+" "+r1(vy)+" "+r1(w)+" "+r1(hh)+"' role='img' aria-label='"+esc(MUSCLE_NAME[g]+", "+P.label)+"'>"+other+"<g>"+skinH+ghost+body+tags+"</g></svg>";
+  const other=mirror?"<g transform='matrix(-1 0 0 1 200 0)' class='bmfar'>"+skinH+surfAll.map(([p,d])=>near(p,d,P.layer==="deep"?"bmlift":"bmghost")).join("")+"</g>":"";
+  // data-board: the whole board, so dragging the view stays on the body.
+  return "<svg class='bmxsvg' viewBox='"+r1(vx)+" "+r1(vy)+" "+r1(w)+" "+r1(hh)+"' data-board='"+(mirror?"0 0 200 440":"0 0 60 132")+"' role='img' aria-label='"+esc(MUSCLE_NAME[g]+", "+P.label)+"'>"+other+"<g>"+skinH+ghost+body+tags+"</g></svg>";
 }
 // The chosen area as a pop-up over the page: its views as tabs, one drawing at a time, the
 // muscles in that drawing numbered underneath, and what trained the chosen one this week.
@@ -148,7 +163,7 @@ export function bodyMapPop(){
     "<div class='sheethead'><div class='bmpoph'><b>"+esc(MUSCLE_NAME[g])+"</b><span>"+sub+"</span></div><button class='hmore bmclose' id='bmclose' aria-label='Close'>&times;</button></div>"+
     "<div class='sheetbody'>";
   if(panels.length>1)h+="<div class='segc bmtabs'>"+panels.map((Q,i)=>"<button class='"+(i===pi?"on":"")+"' data-bmpanel='"+i+"' data-bmgroup='"+g+"'>"+esc(Q.label)+"</button>").join("")+"</div>";
-  h+="<div class='bmxwrap'>"+panelSVG(g,P,sel,cls)+"</div>";
+  h+="<div class='bmxwrap'>"+panelSVG(g,P,sel,cls)+"<div class='bmhint'>Drag to look around &middot; tap any muscle</div></div>";
   h+="<div class='bmleg'>"+ids.map(p=>"<button class='bmlrow"+(sel.part===p?" on":"")+"' data-muscle='p:"+p+"'><i class='bmnum'>"+(order.indexOf(p)+1)+"</i><span>"+esc(PART_NAME[p])+"</span><b class='mono'>"+psets[p]+"</b></button>").join("")+"</div>";
   if(c.length)h+="<div class='bmfrom'>This week: "+c.slice(0,4).map(([n,x])=>esc(n)+" "+x).join(" &middot; ")+"</div>";
   // Exercises for it: tap to put one in today's workout; one already there opens it on Train.

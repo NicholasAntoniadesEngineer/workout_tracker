@@ -516,6 +516,27 @@ const ctx={render,snapshot,restoreUndo,recallLast,markRefit,dismissSheet,deleteD
   addExercise,showBest};
 const AREAS=[dialogs,checkin,sheets,planning,health,exporting,importer,cardio,programmes,stacking,nav,routines,days,sharing,data,logging];
 onShareNotice(render);
+// The muscle close-up drags to look around the body: the view moves with the finger, kept on
+// the body, and a drag never counts as a tap on the muscle it ends over.
+let bmDrag=null,bmSwallow=false;
+document.addEventListener("pointerdown",ev=>{
+  const svg=ev.target&&ev.target.closest&&ev.target.closest(".bmxsvg");if(!svg)return;
+  const vb=svg.viewBox.baseVal,r=svg.getBoundingClientRect(),b=(svg.getAttribute("data-board")||"0 0 200 440").split(" ").map(Number);
+  bmDrag={svg,x:ev.clientX,y:ev.clientY,vx:vb.x,vy:vb.y,k:vb.width/Math.max(1,r.width),b,moved:false};
+});
+document.addEventListener("pointermove",ev=>{
+  if(!bmDrag)return;
+  const dx=ev.clientX-bmDrag.x,dy=ev.clientY-bmDrag.y;
+  if(!bmDrag.moved&&Math.hypot(dx,dy)<6)return;
+  bmDrag.moved=true;
+  const vb=bmDrag.svg.viewBox.baseVal,[bx,by,bw,bh]=bmDrag.b,cl=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
+  vb.x=cl(bmDrag.vx-dx*bmDrag.k,bx-vb.width*0.3,bx+bw-vb.width*0.7);
+  vb.y=cl(bmDrag.vy-dy*bmDrag.k,by-vb.height*0.3,by+bh-vb.height*0.7);
+});
+const bmDragEnd=()=>{if(bmDrag&&bmDrag.moved)bmSwallow=true;bmDrag=null;};
+document.addEventListener("pointerup",bmDragEnd);
+document.addEventListener("pointercancel",()=>{bmDrag=null;});
+document.addEventListener("click",ev=>{if(bmSwallow){bmSwallow=false;ev.stopPropagation();ev.preventDefault();}},true);
 document.body.addEventListener("click",ev=>{
   if(swallowClick){swallowClick=false;return;}
   const t=ev.target;

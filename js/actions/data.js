@@ -125,6 +125,8 @@ export function handle(t,ctx){
   const bg=t.closest&&t.closest("[data-bmgo]");
   if(bg){const s=todayWork();if(s){selectSession(s.id);const n=bg.getAttribute("data-bmgo").trim().toLowerCase(),e=s.ex.find(x=>x.name.trim().toLowerCase()===n);if(e)state.exId=e.id;}
     state.bmSel="";state.bmPanel=0;state.sheet=false;state.view="log";state.scrollTo=0;ctx.markRefit();ctx.render();return true;}
+  const br=t.closest&&t.closest("[data-bmregion]");
+  if(br){const r=br.getAttribute("data-bmregion");state.bmOpen=Object.assign({},state.bmOpen,{[r]:!(state.bmOpen||{})[r]});ctx.render();return true;}
   const bp=t.closest&&t.closest("[data-bmpanel]");
   if(bp){state.bmPanel=+bp.getAttribute("data-bmpanel");state.bmSel="g:"+bp.getAttribute("data-bmgroup");ctx.render();return true;}
   const mu=t.closest&&t.closest("[data-muscle]");
