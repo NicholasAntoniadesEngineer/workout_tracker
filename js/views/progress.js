@@ -173,16 +173,16 @@ export function progressView(){
   const spanRow=segc(SPANS.map(([k,l])=>[k,SHORT[k]||l]),"data-span",span);
   const tabs=big?"":"<div class='segc pgtabs'><button class='on'>Charts</button><button id='homedays'>History</button><button id='homecal'>Calendar</button><button id='homebody'>Body</button>"+
     (state.settings.modFuel?"<button data-openhealth='fuel'>Fuel</button>":"")+(state.settings.modMarkers?"<button data-openhealth='markers'>Markers</button>":"")+(state.settings.modMind?"<button data-openhealth='mind'>Mind</button>":"")+"</div>";
-  let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress",spanRow):
-    "<div class='hhead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'></div></div>"+spanRow+tabs);
-  // The year so far, one tap away.
-  const yearLink=workouts?"<button class='card hcard revlink' data-review='year:"+new Date().getFullYear()+"'><span class='llabel'>Year in review</span><b>Your "+new Date().getFullYear()+" so far</b><span class='lchev'>&rsaquo;</span></button>":"";
+  // The year so far, one tap away beside the title, whatever is scrolled to.
+  const yr=new Date().getFullYear(),yearBtn=workouts?"<button class='btn ghost tiny revbtn' data-review='year:"+yr+"'>"+yr+" in review &rsaquo;</button>":"";
+  let h="<div class='wrap scroll"+(big?" pgwide":"")+"'>"+(big?pageHead("Progress",yearBtn+spanRow):
+    "<div class='hhead pghead'><div></div><div class='h1 plain htitle'>Progress</div><div class='hact'>"+yearBtn+"</div></div>"+spanRow+tabs);
   // A big screen arranges the same cards as a dashboard; the phone reads them in a column.
   // A big screen: the charts down the left, the week, muscles and recovery down the right; each
   // column stacks on its own, so a tall card never leaves a gap beside a short one.
-  if(big)h+="<div class='pggrid'><section class='pg8'>"+vol+trendH+recsH+"</section><section class='pg4'>"+week+sets+(mini||"")+yearLink+"</section>"+
+  if(big)h+="<div class='pggrid'><section class='pg8'>"+vol+trendH+recsH+"</section><section class='pg4'>"+week+sets+(mini||"")+"</section>"+
     (cardio?"<section class='pg12 pgcardio'>"+cardio+"</section>":"")+"</div>";
-  else h+="<div class='pgstack'>"+week+vol+sets+trendH+mini+cardio+recsH+yearLink+"</div>";
+  else h+="<div class='pgstack'>"+week+vol+sets+trendH+mini+cardio+recsH+"</div>";
   if(!workouts&&!state.sessions.some(s=>s.cardio))h+="<div class='empty-note'>Nothing logged yet — progress shows up here.</div>";
   return h+"</div>";
 }

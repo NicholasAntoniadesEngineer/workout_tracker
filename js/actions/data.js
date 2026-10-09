@@ -135,6 +135,8 @@ export function handle(t,ctx){
   if(rv){const p=rv.getAttribute("data-review").split(":");state.reviewPeriod=p[0]==="month"?{kind:"month",y:+p[1],m:+p[2]}:{kind:"year",y:+p[1]};state.view="review";state.scrollTo=0;ctx.render();return true;}
   const ms=t.closest&&t.closest("[data-monthseen]");
   if(ms){state.monthSeen=ms.getAttribute("data-monthseen");ctx.render();return true;}
+  const ys=t.closest&&t.closest("[data-yearseen]");
+  if(ys){state.yearSeen=ys.getAttribute("data-yearseen");ctx.render();return true;}
   if(t.closest&&t.closest("#reviewshare")){
     const p=reviewPeriod(),r=reviewOf(p),u=state.settings.unit||"kg";
     const c=buildReviewCanvas((p.kind==="year"?"Your ":"")+periodTitle(p),"Year in review · KingsKiln",

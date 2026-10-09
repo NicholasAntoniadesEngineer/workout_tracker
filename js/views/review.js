@@ -46,6 +46,20 @@ export function reviewView(){
   return h+"</div>";
 }
 
+// The year, as one card on Today from December to mid-January: the year so far in December, the
+// one just ended in early January. Dismissed once a year.
+export function yearCard(now){
+  const d=new Date(now||Date.now()),m=d.getMonth();
+  if(!(m===11||(m===0&&d.getDate()<=15)))return "";
+  const y=m===11?d.getFullYear():d.getFullYear()-1;
+  if(String(state.yearSeen)===String(y))return "";
+  const r=reviewOf({kind:"year",y});if(!r.days)return "";
+  return "<div class='card hcard revmonth revyear'><div class='hcardh'><span class='llabel'>Your "+y+"</span><button class='hmore' data-yearseen='"+y+"' aria-label='Hide'>&times;</button></div>"+
+    "<div class='revline'><b class='mono'>"+r.days+"</b> days &middot; <b class='mono'>"+r.workouts+"</b> workouts"+(r.records.length?" &middot; <b class='mono'>"+r.records.length+"</b> lifts stronger":"")+"</div>"+
+    "<button class='btn ghost tiny' data-review='year:"+y+"'>See your year &rsaquo;</button></div>";
+}
+// What Today shows of the review: the year's card in its season, else the month's.
+export const recapCard=()=>yearCard()||monthCard();
 // The month just ended, as one card on Today in the first week of a month. Dismissed once.
 export function monthCard(){
   const d=new Date();if(d.getDate()>7)return "";

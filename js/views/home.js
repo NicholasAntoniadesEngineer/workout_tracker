@@ -11,7 +11,7 @@ import {barChart,lineChart,weeklyVolume,withAxis} from "../charts.js";
 import {setClockSeconds,workoutLabel} from "./log.js";
 import {learnLib} from "../lazy.js";
 import {bodyLine,readinessCard,readinessNow} from "./checkin.js";
-import {monthCard} from "./review.js";
+import {recapCard} from "./review.js";
 import {BAND_LABEL,isRated,suggestion} from "../ready.js";
 import {proteinTarget,totalsOf} from "../fuel.js";
 
@@ -252,7 +252,7 @@ function homeWide(running,finished,emptyOpen,doneToday){
     "<div class='hwsub'>"+wk.trained+" trained this week</div></div>"+
     backupLine()+
     "<div class='hstack'>"+
-    heroWide(running,finished,emptyOpen,doneToday)+moduleChips()+monthCard()+
+    heroWide(running,finished,emptyOpen,doneToday)+moduleChips()+recapCard()+
     "<div class='card hcard'><div class='hcardh'><span class='llabel'>This week</span><button class='hmore' data-nav='calendar'>Calendar &rsaquo;</button></div>"+wk.html+"</div>"+
     nextCard()+
     "<div class='hg2'><div class='card hcard'><div class='hcardh'><span class='llabel'>Hard sets this week &middot; aim 10&ndash;20</span>"+
@@ -289,7 +289,7 @@ export function homeView(){
         "</svg><span>Kings<span class='bk'>Kiln</span><sup class='tm' aria-label='trademark'>&trade;</sup></span></div>"+
       "<div class='homehero'>"+
         "<div class='homeday'>"+esc(dateStr)+"</div>"+
-        readinessCard()+(bodyLine()?"<div class='hbody phone'>"+bodyLine()+"</div>":"")+moduleChips()+monthCard()+
+        readinessCard()+(bodyLine()?"<div class='hbody phone'>"+bodyLine()+"</div>":"")+moduleChips()+recapCard()+
         verseCard()+
         (running?"":nextCard())+
         homeCta(running,finished,emptyOpen,doneToday)+

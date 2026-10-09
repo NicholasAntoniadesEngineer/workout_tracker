@@ -233,3 +233,21 @@ describe("the close-up of a chosen group",async()=>{
     assert.match(pop("g:calves"),/<b>Train<\/b> Calf raises with the knee straight/);
   });
 });
+
+describe("the year in review on Today",async()=>{
+  const store=await import("../js/store.js");
+  const {yearCard}=await import("../js/views/review.js");
+  const at=(y,m,d)=>new Date(y,m,d,12).getTime();
+  test("shows from December to mid-January, for the year that's ending or just ended, until hidden",()=>{
+    const S=store.state,keep=S.sessions;
+    S.sessions=[{id:"a",created:new Date(2026,5,3,10).toISOString(),ex:[{name:"Squats",sets:[{r:5,w:100}]}]}];
+    S.yearSeen="";
+    assert.equal(yearCard(at(2026,9,9)),"","not in October");
+    assert.match(yearCard(at(2026,11,3)),/Your 2026/);
+    assert.match(yearCard(at(2027,0,10)),/Your 2026/,"early January looks back on the year just ended");
+    assert.equal(yearCard(at(2027,0,16)),"","gone after the 15th");
+    S.yearSeen="2026";assert.equal(yearCard(at(2026,11,3)),"","hidden once");
+    S.yearSeen="";S.sessions=[];assert.equal(yearCard(at(2026,11,3)),"","nothing trained, nothing to show");
+    S.sessions=keep;
+  });
+});
