@@ -624,6 +624,26 @@ describe("flows through the app",{skip:!has&&"Chrome not found"},()=>{
     await tap(page,"#backbtn");assert.equal(await S("state.view"),"home");
   }));
 
+  test("a sideways swipe moves between Progress's tabs, in the tab row's order",()=>flow("progressswipe",async()=>{
+    await openApp(page,srv,seedDoc({settings:{checkin:false}}),PHONE);
+    await page.send("Emulation.setTouchEmulationEnabled",{enabled:true,maxTouchPoints:5});
+    await tap(page,"[data-nav='progress']");
+    const swipe=async(from,to,y)=>{
+      await page.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:from,y}]});
+      for(let i=1;i<=5;i++)await page.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:from+(to-from)*i/5,y}]});
+      await page.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});await sleep(250);};
+    const y=await page.eval("const c=document.querySelector('.pgweek')||document.querySelector('.card');const r=c.getBoundingClientRect();return Math.round(r.top+r.height/2);");
+    await swipe(320,60,y);assert.equal(await S("state.view"),"history","left swipe: History");
+    // Every tab has the title row; a swipe there always counts (a form field doesn't).
+    const hy=await page.eval("const r=document.querySelector('.pghead').getBoundingClientRect();return Math.round(r.top+r.height/2);");
+    await swipe(320,60,hy);assert.equal(await S("state.view"),"calendar");
+    await swipe(320,60,hy);assert.equal(await S("state.view"),"body");
+    await swipe(60,320,hy);assert.equal(await S("state.view"),"calendar","right swipe: back a tab");
+    // A swipe along the tab row scrolls the row; it doesn't change the tab.
+    const ty=await page.eval("const r=document.querySelector('.pgtabs').getBoundingClientRect();return Math.round(r.top+r.height/2);");
+    await swipe(320,60,ty);assert.equal(await S("state.view"),"calendar");
+  }));
+
   test("an exercise's sheet names the muscles it works, and one opens that group's close-up",()=>flow("exmuscles",async()=>{
     await openApp(page,srv,seedDoc({settings:{checkin:false}}),PHONE);
     await page.eval("const S=await import('/js/store.js');const e=S.addExerciseToDay('Bench press');S.state.exId=e.id;S.state.view='log';S.state.exHist=true;(await import('/js/views.js')).paint();return 1;");

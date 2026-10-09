@@ -406,6 +406,28 @@ function watchLearnSwipe(){
   },{passive:true});
 }
 
+// On a phone, Progress's tabs — Charts, History, Calendar, Body and the health pages — follow
+// a sideways swipe, in the order of the tab row. Not over anything that scrolls sideways itself
+// (the tab row, a wide table, the muscle close-up), not with a pop-up open.
+function watchProgressSwipe(){
+  let sx=0,sy=0,on=false;
+  const inTabs=()=>!wide()&&(state.view==="progress"||(["history","calendar","body","health"].indexOf(state.view)>=0&&state.backTo==="progress"));
+  const scrollsSideways=el=>{for(let a=el;a&&a!==document.body;a=a.parentElement){const o=getComputedStyle(a).overflowX;if((o==="auto"||o==="scroll")&&a.scrollWidth>a.clientWidth+1)return true;}return false;};
+  document.body.addEventListener("touchstart",ev=>{
+    on=inTabs()&&ev.touches.length===1&&!document.querySelector(".overlay")&&
+      !(ev.target.closest&&ev.target.closest(".pgtabs,.segc,input,select,textarea,.bmxsvg"))&&!scrollsSideways(ev.target);
+    if(on){sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;}
+  },{passive:true});
+  document.body.addEventListener("touchend",ev=>{
+    if(!on)return;
+    on=false;
+    const t=ev.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(Math.abs(dx)<SWIPE_MIN||Math.abs(dx)<Math.abs(dy)*1.5)return;
+    const tabs=[...document.querySelectorAll(".pgtabs button")],i=tabs.findIndex(b=>b.classList.contains("on")),next=tabs[i+(dx<0?1:-1)];
+    if(i>=0&&next)next.click();
+  },{passive:true});
+}
+
 function deleteDay(id){
   state.sessions=state.sessions.filter(s=>s.id!==id);
   if(!state.sessions.length)state.sessions=[makeSession()];
@@ -592,7 +614,7 @@ function tick(){
 }
 
 watchDrag();
-watchLearnSwipe();
+watchLearnSwipe();watchProgressSwipe();
 cardio.resumeCardio(render);
 document.addEventListener("visibilitychange",()=>{if(state.cardio)import("./sensors.js").then(m=>m.rewake(true));});
 
