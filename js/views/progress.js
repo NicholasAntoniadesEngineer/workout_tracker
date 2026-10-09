@@ -173,9 +173,13 @@ export function progressView(){
   // A big screen arranges the same cards as a dashboard; the phone reads them in a column.
   // A big screen: the charts down the left, the week, muscles and recovery down the right; each
   // column stacks on its own, so a tall card never leaves a gap beside a short one.
-  if(big)h+="<div class='pggrid'><section class='pg8'>"+week+trendH+recsH+"</section><section class='pg4'>"+sets+(mini||"")+"</section>"+
-    (cardio?"<section class='pg12 pgcardio'>"+cardio+"</section>":"")+"</div>";
-  else h+="<div class='pgstack'>"+week+sets+trendH+mini+cardio+recsH+"</div>";
+  // In sections: the week (its numbers and its muscles), then strength, recovery and cardio,
+  // each under a small heading.
+  const sec=t=>"<h2 class='pgsec'>"+t+"</h2>";
+  const strength=trendH||recsH?sec("Strength")+trendH+recsH:"",recovery=mini?sec("Recovery")+mini:"",cardioH=cardio?sec("Cardio")+cardio:"";
+  if(big)h+="<div class='pggrid'><section class='pg8'>"+week+strength+"</section><section class='pg4'>"+sets+recovery+"</section>"+
+    (cardio?"<section class='pg12 pgcardio'>"+cardioH+"</section>":"")+"</div>";
+  else h+="<div class='pgstack'>"+week+sets+strength+recovery+cardioH+"</div>";
   if(!workouts&&!state.sessions.some(s=>s.cardio))h+="<div class='empty-note'>Nothing logged yet — progress shows up here.</div>";
   return h+"</div>";
 }

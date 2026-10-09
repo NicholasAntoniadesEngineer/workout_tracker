@@ -87,7 +87,9 @@ describe("in the browser",{skip:!has&&"Chrome not found"},()=>{
         S.state.scan={id:'today',page:0,pages:2,notes:'',sets:{'Back squat':[{r:5,w:100,on:true},{r:4,w:97.5,on:true,changed:true},{r:5,w:100,on:true,unsure:true}],
           'Single-arm half-kneeling landmine press with a pause at the bottom':[{r:10,w:25,on:false,note:true,maybe:true,pic:''}]}};
         const poke=async()=>{const el=document.createElement('div');el.setAttribute('data-scanset','none|0');document.body.appendChild(el);el.click();el.remove();await new Promise(r=>setTimeout(r,300));};
-        await poke();if(!document.querySelector('.scansheet'))await poke();
+        // On a busy machine the page can still be drawing: wait for it, then try a few times.
+        for(let i=0;i<60&&!document.getElementById('sheetscan');i++)await new Promise(r=>setTimeout(r,50));
+        for(let i=0;i<4&&!document.querySelector('.scansheet');i++)await poke();
         const sh=document.querySelector('.scansheet');if(!sh)return {missing:true,text:document.body.innerText.slice(0,120)};
         const over=[...sh.querySelectorAll('*')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&(r.right>innerWidth+1||r.left<-1||e.scrollWidth>e.clientWidth+2&&getComputedStyle(e).overflowX==='visible');}).map(e=>e.className||e.tagName).slice(0,5);
         return {over,inputs:sh.querySelectorAll('.scanr,.scanw').length};`);

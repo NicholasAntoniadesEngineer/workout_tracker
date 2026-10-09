@@ -58,8 +58,8 @@ export function bodyMapCard(){
     const muscles=list.reduce((t,k)=>t+partsIn(k).length,0);
     // A dot a group, its colour its state, so the folded row still shows the picture.
     const dots=list.map(k=>"<i class='"+(mode==="rec"?recClass(fat[k]):setsClass(sets[k],AIM[k]))+"'></i>").join("");
-    return "<button class='bmregion"+(isOpen?" open":"")+"' data-bmregion='"+r+"' aria-expanded='"+isOpen+"'><span class='bmrname'>"+l+" <small>"+muscles+" muscles</small></span>"+
-      "<span class='bmrdots' aria-hidden='true'>"+dots+"</span><span class='bmrsum'>"+sum+"</span><span class='bmrchev' aria-hidden='true'>&#8250;</span></button>"+
+    return "<button class='bmregion"+(isOpen?" open":"")+"' data-bmregion='"+r+"' aria-expanded='"+isOpen+"'><span class='bmrname'>"+l+"</span>"+
+      "<span class='bmrdots'><span aria-hidden='true'>"+dots+"</span><small>"+muscles+" muscles</small></span><span class='bmrsum'>"+sum+"</span><span class='bmrchev' aria-hidden='true'>&#8250;</span></button>"+
       (isOpen?"<div class='bmrrows'>"+list.map(row).join("")+"</div>":"");
   }).join("")+"</div>";
   return h+"</div>";

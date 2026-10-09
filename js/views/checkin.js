@@ -80,19 +80,19 @@ export function readinessStrip(){
       tip+=": "+(c.rundown?"run down":({rc:"recover",ez:"easy",rdy:"ready",ps:"push"})[cls])+(c.hours?", slept "+c.hours+" h":"")+(c.sore&&c.sore.length?", sore "+c.sore.join(", "):"");}
     h+="<i class='"+cls+"' title='"+esc(tip)+"'></i>";
   }
-  return "<div class='card hcard'><div class='hcardh'><span class='llabel'>Last 14 mornings</span><button class='hmore' id='checkinscsv'>CSV &rsaquo;</button></div>"+
-    "<div class='rstrip'>"+h+"</div><div class='rkey'><span><i class='ps'></i>push</span><span><i class='rdy'></i>ready</span><span><i class='ez'></i>easy</span><span><i class='rc'></i>recover</span><span><i class='rd'></i>run down</span></div></div>";
+  return "<div class='rstrip'>"+h+"</div><div class='rkey'><span><i class='ps'></i>push</span><span><i class='rdy'></i>ready</span><span><i class='ez'></i>easy</span><span><i class='rc'></i>recover</span><span><i class='rd'></i>run down</span></div>";
 }
-// Progress: load and sleep as two small cards side by side.
+// Progress: recovery as one card — training load and sleep side by side, then the last 14
+// mornings as a strip.
 export function recoverMini(){
   if(!state.settings.checkin||!state.checkins.length)return "";
   const r=readinessNow(),a=acwr(r.loads),s=r.sleep;
   const word=a.ratio>1.5?"Spike":a.ratio>1.3?"High":a.ratio<0.8&&a.chronic?"Light":"Steady";
-  const need=state.settings.sleepNeed||8;
-  return "<div class='pgmini'>"+
-    "<div class='card hcard'><div class='hcardh'><span class='llabel'>Load</span></div><b class='pgbig'>"+word+(a.ratio?"<small> &middot; "+a.ratio.toFixed(2)+"</small>":"")+"</b><span class='pgsub'>"+a.acute+" this week vs "+a.chronic+" lately</span></div>"+
-    "<div class='card hcard'><div class='hcardh'><span class='llabel'>Sleep</span></div>"+(s.nights?"<b class='pgbig'>"+s.avg+"<small> h</small></b><span class='pgsub'>"+s.nights+" nights &middot; "+(s.debt?s.debt+" h sleep debt":"no sleep debt")+"</span>":
-      "<b class='pgbig'>&mdash;</b><span class='pgsub'>No nights logged</span>")+"</div></div>"+readinessStrip();
+  return "<div class='card hcard pgrec'>"+
+    "<div class='pgrecg'><div><span class='pgrecl'>Load</span><b class='pgbig'>"+word+(a.ratio?"<small> &middot; "+a.ratio.toFixed(2)+"</small>":"")+"</b><span class='pgsub'>"+a.acute+" this week vs "+a.chronic+" lately</span></div>"+
+    "<div><span class='pgrecl'>Sleep</span>"+(s.nights?"<b class='pgbig'>"+s.avg+"<small> h</small></b><span class='pgsub'>"+s.nights+" nights &middot; "+(s.debt?s.debt+" h sleep debt":"no sleep debt")+"</span>":
+      "<b class='pgbig'>&mdash;</b><span class='pgsub'>No nights logged</span>")+"</div></div>"+
+    "<div class='pgrecs'><div class='pgrech'><span class='pgrecl'>Last 14 mornings</span><button class='hmore' id='checkinscsv'>CSV &rsaquo;</button></div>"+readinessStrip()+"</div></div>";
 }
 export function recoverSection(){
   if(!state.settings.checkin||!state.checkins.length)return "";
